@@ -1,29 +1,26 @@
-import { Outlet } from 'react-router-dom'
-import AdminSidebar from './AdminSidebar'
-import AdminHeader from './AdminHeader'
-import { useState } from 'react'
+  import { Outlet } from 'react-router-dom'
+  import AdminSidebar from './AdminSidebar'
+  import AdminHeader from './AdminHeader'
+  import { useState } from 'react'
 
-const AdminLayout = ({open,setOpen}) => {
+  const AdminLayout = ({ open, setOpen }) => {
+    const [openSidebar, setOpenSidebar] = useState(false);
 
-  const[openSidebar,setOpenSidebar] =useState(false)
+    return (
+      <div className="flex min-h-screen w-full">
+        {/* Sidebar */}
+        <AdminSidebar open={openSidebar} setOpen={setOpenSidebar} />
 
-  return ( 
+        {/* Main column */}
+        <div className="flex flex-1 flex-col min-h-screen">
+          <AdminHeader setOpen={setOpenSidebar} />
 
-       
-    <div className='flex min-h-screen w-full'>
-
-      {/* admin sidebar */}
-      <AdminSidebar open={openSidebar} setOpen={setOpenSidebar}/>
-      <div className='flex flex-1 flex-col '>
-        
-        <AdminHeader setOpen={setOpenSidebar}/>
-        {/* admin header */}
-        <main className='flex-1 flex bg-gray-300 p-4 md:6'>
-           <Outlet/>    
-        </main>      
+          <main className="flex-1 bg-gray-300 p-2 sm:p-4 overflow-auto">
+            <Outlet />
+          </main>
         </div>
-    </div>
-  )
-}
-
-export default AdminLayout
+      </div>
+    );
+  };
+  
+  export default AdminLayout

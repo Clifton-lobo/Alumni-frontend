@@ -1,6 +1,7 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
 import UserHeader from './UserHeader'
+import Footer from '../../pages/userView/Footer'
 
 
 const UserLayout = () => {
@@ -9,6 +10,9 @@ const UserLayout = () => {
      <UserHeader/>
      <main className='flex flex-col w-full'>
         <Outlet/>
+     </main>
+     <main>
+      <Footer/>
      </main>
 
     </div>

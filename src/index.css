@@ -8,6 +8,7 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -41,73 +42,102 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* 🌊 Dead Sea Theme - Light Mode */
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+
+  --background: #F5F4F0;              /* Salt White */
+  --foreground: #1A3240;              /* Desert Night */
+
+  --card: #F5F4F0;
+  --card-foreground: #1A3240;
+
+  --popover: #F5F4F0;
+  --popover-foreground: #1A3240;
+
+  --primary: #2B6F87;                 /* Oasis Deep Blue */
+  --primary-foreground: #F5F4F0;
+
+  --secondary: #78D5E3;               /* Dead Sea Turquoise */
+  --secondary-foreground: #1A3240;
+
+  --muted: #BFC4C8;                   /* Salt Grey */
+  --muted-foreground: #1A3240;
+
+  --accent: #5BAFCC;                  /* Mineral Blue */
+  --accent-foreground: #1A3240;
+
+  --destructive: #C88A5A;             /* Warm Clay */
+
+  --border: #D3B399;                  /* Desert Sand */
+  --input: #D3B399;
+  --ring: #2B6F87;
+
+  --chart-1: #78D5E3;
+  --chart-2: #5BAFCC;
+  --chart-3: #2B6F87;
+  --chart-4: #E8A54E;
+  --chart-5: #C88A5A;
+
+  --sidebar: #F5F4F0;
+  --sidebar-foreground: #1A3240;
+
+  --sidebar-primary: #2B6F87;
+  --sidebar-primary-foreground: #F5F4F0;
+
+  --sidebar-accent: #5BAFCC;
+  --sidebar-accent-foreground: #1A3240;
+
+  --sidebar-border: #D3B399;
+  --sidebar-ring: #2B6F87;
 }
 
+/* 🌙 Dead Sea Theme - Dark Mode */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #1A3240;              /* Desert Night */
+  --foreground: #F5F4F0;
+
+  --card: #2B6F87;
+  --card-foreground: #F5F4F0;
+
+  --popover: #2B6F87;
+  --popover-foreground: #F5F4F0;
+
+  --primary: #78D5E3;                 /* Turquoise pop */
+  --primary-foreground: #1A3240;
+
+  --secondary: #5BAFCC;
+  --secondary-foreground: #1A3240;
+
+  --muted: #3E5462;
+  --muted-foreground: #F5F4F0;
+
+  --accent: #78D5E3;
+  --accent-foreground: #1A3240;
+
+  --destructive: #C88A5A;
+
+  --border: #2B6F87;
+  --input: #2B6F87;
+  --ring: #78D5E3;
+
+  --chart-1: #78D5E3;
+  --chart-2: #5BAFCC;
+  --chart-3: #E8A54E;
+  --chart-4: #C88A5A;
+  --chart-5: #F5F4F0;
+
+  --sidebar: #1A3240;
+  --sidebar-foreground: #F5F4F0;
+
+  --sidebar-primary: #78D5E3;
+  --sidebar-primary-foreground: #1A3240;
+
+  --sidebar-accent: #5BAFCC;
+  --sidebar-accent-foreground: #1A3240;
+
+  --sidebar-border: #2B6F87;
+  --sidebar-ring: #78D5E3;
 }
 
 @layer base {
@@ -119,6 +149,7 @@
   }
 }
 
+/* Skeleton shimmer */
 @keyframes shimmer {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }

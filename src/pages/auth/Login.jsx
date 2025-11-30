@@ -9,7 +9,6 @@ import {toast} from "sonner"
 const Login = () => {
 
    const intialState ={
-
      email:'',
      password:'' 
     }
@@ -19,11 +18,15 @@ const Login = () => {
  
     const handleSubmit =(event)=>{
      event.preventDefault();
-  
-     dispatch(loginUser(loginData)).then((data)=>{
-      console.log(data);
-      toast.success(data.message || "Login successful!");
-     });
+     dispatch(loginUser(loginData))
+       .unwrap()
+       .then((data) => {
+         toast.success(data.message);
+       })
+       .catch((error) => {
+         toast.error(error);
+       });
+   
   
     }
 

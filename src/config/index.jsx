@@ -7,27 +7,27 @@ import {
 
 export const AdminSidebarMenuItems = [
   {
-    id: 'dashboard',
-    label: 'Dashboard',
-    path: '/admin/dashboard',
+    id: "dashboard",
+    label: "Dashboard",
+    path: "/admin/dashboard",
     icon: LayoutDashboard, // ✅ component reference
   },
   {
-    id: 'events',
-    label: 'Events',
-    path: '/admin/events',
+    id: "events",
+    label: "Events",
+    path: "/admin/events",
     icon: CalendarDays,
   },
   {
-    id: 'jobs',
-    label: 'Jobs/Internships',
-    path: '/admin/jobs',
+    id: "jobs",
+    label: "Jobs/Internships",
+    path: "/admin/jobs",
     icon: BriefcaseBusiness,
   },
   {
-    id: 'newsletter',
-    label: 'Newsletter',
-    path: '/admin/newsletter',
+    id: "news",
+    label: "News",
+    path: "/admin/news",
     icon: Newspaper,
   },
 ];
@@ -98,3 +98,43 @@ export const addEventFormElements = [
 },
 ];
 
+export const UserNavItems = [
+  {
+    id: "home",
+    label: "Home",
+    path: "/user/home",
+    type: "link",
+  },
+  {
+    id: "explore",
+    label: "Explore",
+    type: "dropdown",
+    items: [
+      { label: "Events", path: "/user/events" },
+      { label: "Gallery", path: "/user/gallery" },
+      { label: "News", path: "/user/news" },
+    ],
+  },
+  {
+    id: "community",
+    label: "Community",
+    path: "/user/community",
+    type: "link",
+  },
+  {
+    id: "giving",
+    label: "Giving Back",
+    path: "/user/donate",
+    type: "link",
+  },
+  {
+    id: "opportunities",
+    label: "Opportunities",
+    type: "dropdown",
+    items: [
+      { label: "Jobs / Internships", path: "/user/jobs" },
+      // { label: "Alumni Directory", path: "/user/alumni" },
+      { label: "Career Opportunities", path: "/user/careers" },
+    ],
+  },
+];
