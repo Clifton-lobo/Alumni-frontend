@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import axios from "axios";
-import { Label } from "../../../components/ui/Label";
+import { Label } from "../../../components/ui/label.jsx";
 import { UploadCloudIcon, XIcon } from "lucide-react";
 import { Skeleton } from "../../../components/ui/skeleton";
 
