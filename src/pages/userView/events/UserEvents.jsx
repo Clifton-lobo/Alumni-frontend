@@ -1,10 +1,40 @@
-import React from 'react'
 import eventPageAlumniEvent from "../../../assets/evenPageAlumniEvent2.png";
+import EventFilter from './EventFilter';
+
+import { useSelector, useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import { fetchFilteredEvents } from "../../../store/user-view/UserEventSlice";
+import EventList from "./EventList.jsx";
+import EventSearchBar from './EventSearchBar.jsx';
+import { Search } from "lucide-react";
 
 const UserEvents = () => {
+  const dispatch = useDispatch();
+  const { eventList, loading } = useSelector((state) => state.events);
+  const [searchText, setSearchText] = useState("");
+  const activeFilter = useSelector((state) => state.events.activeFilter);
+ 
+
+  useEffect(() => {
+    dispatch(fetchFilteredEvents({ filter: "all" }));
+  }, [dispatch]);
+  
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      dispatch(
+        fetchFilteredEvents({
+          filter: activeFilter,
+          search: searchText,
+        })
+      );
+    }, 300);
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchText, activeFilter, dispatch]);
+
   return (
-    <div>
-      <div className="relative w-full h-[280px] md:h-[380px] lg:h-[420px] overflow-hidden rounded-xl shadow-lg">
+    <div className="bg-white">
+      <div className="relative bg-white  w-full h-[280px] md:h-[380px] lg:h-[420px] overflow-hidden rounded-xl shadow-lg">
         {/* Background Image */}
         <img
           src={eventPageAlumniEvent}
@@ -32,121 +62,46 @@ const UserEvents = () => {
 
       {/* SEARCH SECTION */}
       <div className="max-w-6xl mx-auto px-6 mt-10 flex items-center gap-3">
-        <div className="w-full">
-          <label className="text-sm text-neutral-700">
-            Search by event title
-          </label>
-          <input
-            type="text"
-            placeholder="Search events…"
-            className="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:ring-2 focus:ring-red-600 outline-none shadow-sm"
-          />
-        </div>
+        <div className="w-full mx-auto px-6 mt-10 flex items-center gap-3">
+          <div className="w-full">
+            <input
+              type="text"
+              placeholder="Search by event title"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              className="
+          w-full px-4 py-3
+          border-b-2 border-neutral-300
+          focus:border-red-600
+          transition-all duration-300
+          outline-none
+        "
+            />
+          </div>
 
-        {/* Search Icon Button */}
-        <button className="bg-red-600 hover:bg-red-700 text-white p-4 rounded-full shadow-md transition">
-          🔍
-        </button>
+          <button className="bg-red-600 hover:bg-red-700 text-white p-4 rounded-full shadow-md transition flex items-center justify-center">
+            <Search size={22} />
+          </button>
+        </div>
       </div>
 
       {/* FILTER + EVENTS WRAPPER */}
       <div className="max-w-6xl mx-auto px-6 mt-10 grid grid-cols-1 md:grid-cols-[260px_1fr] gap-10">
-        {/* LEFT FILTER BAR */}
-        <div>
-          <h2 className="text-2xl font-semibold text-neutral-900">Filter by</h2>
+        <EventFilter />
 
-          <hr className="mt-4 mb-4 border-neutral-300" />
-
-          {/* DATE FILTER */}
-          <div>
-            <div className="flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-neutral-800">Date</h3>
-              <button className="text-sm text-red-600 hover:underline">
-                Reset filter
-              </button>
+        <div className="min-h-[200px]">
+          {loading ? (
+            <p className="text-neutral-500 fade-in">Loading events…</p>
+          ) : (
+            <div className="fade-in">
+              <EventList events={eventList} />
             </div>
-
-            <div className="mt-4 space-y-3">
-              {/* Radio List */}
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="radio"
-                  name="dateFilter"
-                  className="accent-red-600"
-                />
-                <span className="text-neutral-700">All</span>
-              </label>
-
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="radio"
-                  name="dateFilter"
-                  className="accent-red-600"
-                />
-                <span className="text-neutral-700">Next 7 Days</span>
-              </label>
-
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="radio"
-                  name="dateFilter"
-                  className="accent-red-600"
-                />
-                <span className="text-neutral-700">Next 30 Days</span>
-              </label>
-
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="radio"
-                  name="dateFilter"
-                  className="accent-red-600"
-                />
-                <span className="text-neutral-700">Next 60 Days</span>
-              </label>
-
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="radio"
-                  name="dateFilter"
-                  className="accent-red-600"
-                />
-                <span className="text-neutral-700">Custom</span>
-              </label>
-
-              {/* Custom Date Fields */}
-              <div className="mt-4 space-y-4 pl-6">
-                <div>
-                  <label className="block text-sm text-neutral-600 mb-1">
-                    Start
-                  </label>
-                  <input
-                    type="date"
-                    className="w-full px-3 py-2 rounded-lg border border-neutral-300 shadow-sm focus:ring-2 focus:ring-red-600 outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm text-neutral-600 mb-1">
-                    End
-                  </label>
-                  <input
-                    type="date"
-                    className="w-full px-3 py-2 rounded-lg border border-neutral-300 shadow-sm focus:ring-2 focus:ring-red-600 outline-none"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* RIGHT SIDE — Events List */}
-        <div>
-          {/* Map events here later */}
-          <p className="text-neutral-500">Events will appear here…</p>
+          )}
         </div>
       </div>
     </div>
   );
-}
+} 
+
 
 export default UserEvents

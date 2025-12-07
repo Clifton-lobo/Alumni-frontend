@@ -6,6 +6,16 @@ import interactionPlugin from "@fullcalendar/interaction";
 import { useSelector } from "react-redux";
 import { FaCalendarAlt, FaClock, FaFolder, FaTimes } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  
+} from "@/components/ui/dialog";
+
 
 const EventCalendarView = ({ onEventClick }) => {
   const { eventList } = useSelector((state) => state.adminEvent);
@@ -83,73 +93,69 @@ const EventCalendarView = ({ onEventClick }) => {
       />
 
       {/* Event Detail Modal */}
-      <AnimatePresence>
-        {selectedEvent && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 p-3"
-          >
-            <motion.div
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              className="bg-white w-full max-w-sm rounded-2xl shadow-lg overflow-hidden relative"
-            >
+      {/* Event Detail Modal using shadcn Dialog */}
+      <Dialog
+        open={!!selectedEvent}
+        onOpenChange={(open) => !open && setSelectedEvent(null)}
+      >
+        <DialogContent className="sm:max-w-md max-w-[90%] rounded-2xl p-0 overflow-hidden">
+          {selectedEvent?.image && (
+            <img
+              src={selectedEvent.image}
+              alt={selectedEvent.title}
+              className="w-full h-36 sm:h-48 object-cover"
+            />
+          )}
+
+          <div className="p-6 space-y-4">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold">
+                {selectedEvent?.title}
+              </DialogTitle>
+              <DialogDescription className="text-gray-600">
+                {selectedEvent?.description}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-3 text-gray-700 text-sm">
+              <p className="flex items-center gap-2">
+                <FaClock className="text-blue-500" />
+                {selectedEvent?.date} — {selectedEvent?.time}
+              </p>
+
+              <p className="flex items-center gap-2">
+                <FaFolder className="text-indigo-500" />
+                {selectedEvent?.category}
+              </p>
+
+              <span
+                className={`inline-block px-3 py-1 rounded-full text-xs font-medium
+            ${
+              selectedEvent?.status === "Upcoming"
+                ? "bg-green-100 text-green-700"
+                : selectedEvent?.status === "Completed"
+                ? "bg-gray-200 text-gray-700"
+                : selectedEvent?.status === "Cancelled"
+                ? "bg-red-100 text-red-700"
+                : "bg-yellow-100 text-yellow-700"
+            }
+          `}
+              >
+                {selectedEvent?.status}
+              </span>
+            </div>
+
+            <DialogFooter>
               <button
                 onClick={() => setSelectedEvent(null)}
-                className="absolute top-3 right-3 text-gray-600 hover:text-red-500"
+                className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition"
               >
-                <FaTimes />
+                Close
               </button>
-
-              <div className="p-4 sm:p-6 mt-4 space-y-3 sm:space-y-4">
-                {selectedEvent.image && (
-                  <img
-                    src={selectedEvent.image}
-                    alt={selectedEvent.title}
-                    className="rounded-lg w-full h-32 sm:h-40 object-cover"
-                  />
-                )}
-
-                <h2 className="text-lg sm:text-2xl font-bold text-gray-900">
-                  {selectedEvent.title}
-                </h2>
-                <p className="text-gray-600 text-sm sm:text-base">
-                  {selectedEvent.description}
-                </p>
-
-                <div className="flex flex-col gap-2 text-xs sm:text-sm text-gray-700 mt-3">
-                  <p className="flex items-center gap-2">
-                    <FaClock className="text-blue-500" />
-                    {selectedEvent.date} — {selectedEvent.time}
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <FaFolder className="text-indigo-500" />
-                    {selectedEvent.category}
-                  </p>
-                  <p>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        selectedEvent.status === "Upcoming"
-                          ? "bg-green-100 text-green-700"
-                          : selectedEvent.status === "Completed"
-                          ? "bg-gray-100 text-gray-700"
-                          : selectedEvent.status === "Cancelled"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
-                    >
-                      {selectedEvent.status}
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
