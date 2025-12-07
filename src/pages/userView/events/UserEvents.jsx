@@ -95,7 +95,7 @@ const UserEvents = () => {
           {loading ? (
             <p className="text-neutral-500">Loading events…</p>
           ) : (
-            <div key={eventList.length} className="fade-in">
+            <div key={eventList?.length || 0 } className="fade-in">
               <EventList events={eventList || []} />
             </div>
           )}
