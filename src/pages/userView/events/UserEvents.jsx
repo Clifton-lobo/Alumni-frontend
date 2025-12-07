@@ -13,24 +13,30 @@ const UserEvents = () => {
   const { eventList, loading } = useSelector((state) => state.events);
   const [searchText, setSearchText] = useState("");
   const activeFilter = useSelector((state) => state.events.activeFilter);
- 
+
+  // useEffect(() => {
+  //   dispatch(fetchFilteredEvents({ filter: "all" }));
+  // }, [dispatch]);
 
   useEffect(() => {
-    dispatch(fetchFilteredEvents({ filter: "all" }));
-  }, [dispatch]);
-  
-  useEffect(() => {
-    const delayDebounce = setTimeout(() => {
-      dispatch(
-        fetchFilteredEvents({
-          filter: activeFilter,
-          search: searchText,
-        })
-      );
-    }, 300);
+    dispatch(fetchFilteredEvents({ filter: activeFilter }));
+  }, [activeFilter, dispatch]);
 
-    return () => clearTimeout(delayDebounce);
-  }, [searchText, activeFilter, dispatch]);
+  const handleSearch = () => {
+    dispatch(
+      fetchFilteredEvents({
+        filter: activeFilter,
+        search: searchText.trim(),
+      })
+    );
+  };
+
+  // 🔹 Search when pressing Enter key
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
 
   return (
     <div className="bg-white">
@@ -62,38 +68,34 @@ const UserEvents = () => {
 
       {/* SEARCH SECTION */}
       <div className="max-w-6xl mx-auto px-6 mt-10 flex items-center gap-3">
-        <div className="w-full mx-auto px-6 mt-10 flex items-center gap-3">
-          <div className="w-full">
-            <input
-              type="text"
-              placeholder="Search by event title"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              className="
-          w-full px-4 py-3
-          border-b-2 border-neutral-300
-          focus:border-red-600
-          transition-all duration-300
-          outline-none
-        "
-            />
-          </div>
+        <input
+          type="text"
+          placeholder="Search by event title"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className="w-full px-4 py-3 border-b-2 border-neutral-300 focus:border-red-600 transition-all duration-300 outline-none"
+        />
 
-          <button className="bg-red-600 hover:bg-red-700 text-white p-4 rounded-full shadow-md transition flex items-center justify-center">
-            <Search size={22} />
-          </button>
-        </div>
+        <button
+          onClick={handleSearch}
+          className="bg-red-600 hover:bg-red-700 text-white p-4 rounded-full shadow-md transition flex items-center justify-center"
+        >
+          <Search size={22} />
+        </button>
       </div>
 
       {/* FILTER + EVENTS WRAPPER */}
       <div className="max-w-6xl mx-auto px-6 mt-10 grid grid-cols-1 md:grid-cols-[260px_1fr] gap-10">
-        <EventFilter />
+        <div className="md:sticky md:top-28 h-fit">
+          <EventFilter />
+        </div>
 
         <div className="min-h-[200px]">
           {loading ? (
-            <p className="text-neutral-500 fade-in">Loading events…</p>
+            <p className="text-neutral-500">Loading events…</p>
           ) : (
-            <div className="fade-in">
+            <div key={eventList.length} className="fade-in">
               <EventList events={eventList} />
             </div>
           )}
