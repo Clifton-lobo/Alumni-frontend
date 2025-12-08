@@ -1,18 +1,21 @@
 import eventPageAlumniEvent from "../../../assets/evenPageAlumniEvent2.png";
 import EventFilter from './EventFilter';
-
+import Pagination from "../../../components/common/Pagination.jsx";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import { fetchFilteredEvents } from "../../../store/user-view/UserEventSlice";
 import EventList from "./EventList.jsx";
 import EventSearchBar from './EventSearchBar.jsx';
 import { Search } from "lucide-react";
+import PaginationControls from "../../../components/common/Pagination.jsx";
 
 const UserEvents = () => {
   const dispatch = useDispatch();
   const { eventList, loading } = useSelector((state) => state.events);
   const [searchText, setSearchText] = useState("");
   const activeFilter = useSelector((state) => state.events.activeFilter);
+  const { currentPage, totalPages } = useSelector((state) => state.events);
+
 
   // useEffect(() => {
   //   dispatch(fetchFilteredEvents({ filter: "all" }));
@@ -30,6 +33,17 @@ const UserEvents = () => {
       })
     );
   };
+
+  const onPageChange = (newPage) => {
+    dispatch(
+      fetchFilteredEvents({
+        filter: activeFilter,
+        search: searchText,
+        page: newPage,
+      })
+    );
+  };
+  
 
   // 🔹 Search when pressing Enter key
   const handleKeyDown = (e) => {
@@ -95,11 +109,20 @@ const UserEvents = () => {
           {loading ? (
             <p className="text-neutral-500">Loading events…</p>
           ) : (
-            <div key={eventList?.length || 0 } className="fade-in">
+            <div key={eventList?.length || 0} className="fade-in">
               <EventList events={eventList || []} />
             </div>
           )}
         </div>
+      </div>
+
+      {/* Pagination */}
+      <div className="max-w-6xl mx-auto mb-10 mt-10 px-6 mt6">
+        <PaginationControls
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={onPageChange}
+        />
       </div>
     </div>
   );

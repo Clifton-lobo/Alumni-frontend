@@ -5,7 +5,10 @@ import axiosInstance from "../../api/axiosInstance";
 
 export const fetchFilteredEvents = createAsyncThunk(
   "events/fetchFiltered",
-  async ({ filter, startDate, endDate, search }, { rejectWithValue }) => {
+  async (
+    { filter, startDate, endDate, search, page = 1, limit = 5 },
+    { rejectWithValue }
+  ) => {
     try {
       const params = { filter };
 
@@ -19,7 +22,7 @@ export const fetchFilteredEvents = createAsyncThunk(
       const { data } = await axiosInstance.get("/api/user/events/filter", {
         params,
       });
-      return data.events;
+      return data;
     } catch (error) {
       return rejectWithValue(error.response?.data || "Something went wrong");
     }
@@ -49,6 +52,8 @@ const eventSlice = createSlice({
     loading: false,
     error: null,
     activeFilter: "all",
+    currentPage: 1,
+    totalPages: 1,
 
     // added fields to track a single event's details
     selectedEvent: null,
@@ -78,7 +83,9 @@ const eventSlice = createSlice({
 
       .addCase(fetchFilteredEvents.fulfilled, (state, action) => {
         state.loading = false;
-        state.eventList = action.payload;
+        state.eventList = action.payload.events;
+        state.currentPage = action.payload.currentPage;
+        state.totalPages = action.payload.totalPages;
       })
 
       .addCase(fetchFilteredEvents.rejected, (state, action) => {
