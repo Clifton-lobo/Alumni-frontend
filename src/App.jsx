@@ -23,6 +23,7 @@ import About from './pages/userView/About.jsx'
 import UserGallery from './pages/userView/userGallery.jsx'
 import UserDonate from './pages/userView/userDonate.jsx'
 import UserCommunity from './pages/userView/userCommunity.jsx'
+import ScrollToTop from './config/ScrollToTop.jsx'
 
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
   
   return (
     <>
+    <ScrollToTop />
       <Routes>
         <Route
           path="/"

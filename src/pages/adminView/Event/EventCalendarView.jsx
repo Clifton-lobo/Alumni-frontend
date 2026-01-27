@@ -4,8 +4,15 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { useSelector } from "react-redux";
-import { FaCalendarAlt, FaClock, FaFolder, FaTimes } from "react-icons/fa";
-import { motion, AnimatePresence } from "framer-motion";
+import {
+  FaClock,
+  FaCalendarAlt,
+  FaFolder,
+  FaGlobe,
+  FaMapMarkerAlt,
+  FaLocationArrow,
+  FaAlignLeft,
+} from "react-icons/fa";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +20,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  
+
 } from "@/components/ui/dialog";
 
 
@@ -33,6 +40,8 @@ const EventCalendarView = ({ onEventClick }) => {
           category: event.category,
           status: event.status,
           image: event.image?.secure_url || event.image,
+          address: event.address,
+          isVirtual: event.isVirtual,
         },
       })) || []
     );
@@ -84,78 +93,146 @@ const EventCalendarView = ({ onEventClick }) => {
             status === "Upcoming"
               ? "bg-green-100 border-green-300"
               : status === "Completed"
-              ? "bg-gray-100 border-gray-300"
-              : status === "Cancelled"
-              ? "bg-red-100 border-red-300"
-              : "bg-yellow-100 border-yellow-300",
+                ? "bg-gray-100 border-gray-300"
+                : status === "Cancelled"
+                  ? "bg-red-100 border-red-300"
+                  : "bg-yellow-100 border-yellow-300",
           ];
         }}
       />
 
       {/* Event Detail Modal */}
-      {/* Event Detail Modal using shadcn Dialog */}
       <Dialog
         open={!!selectedEvent}
         onOpenChange={(open) => !open && setSelectedEvent(null)}
       >
-        <DialogContent className="sm:max-w-md max-w-[90%] rounded-2xl p-0 overflow-hidden">
+  <DialogContent className="sm:max-w-lg h-[90vh] p-0 overflow-hidden rounded-2xl flex flex-col">
+        
+    <div className="flex-1 overflow-y-auto">
+          
+          {/* Image (fixed) */}
           {selectedEvent?.image && (
             <img
               src={selectedEvent.image}
               alt={selectedEvent.title}
-              className="w-full h-36 sm:h-48 object-cover"
+              className="w-full h-40 sm:h-52 object-cover shrink-0"
             />
           )}
 
-          <div className="p-6 space-y-4">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-bold">
-                {selectedEvent?.title}
-              </DialogTitle>
-              <DialogDescription className="text-gray-600">
+          {/* Header (fixed) */}
+          <DialogHeader className="p-6 pb-0 shrink-0">
+            <DialogTitle className="text-3xl font-bold">
+              {selectedEvent?.title}
+            </DialogTitle>
+
+            <span
+              className={`inline-block w-fit px-3 py-1 rounded-full text-xs font-semibold
+          ${selectedEvent?.status === "Upcoming"
+                  ? "bg-green-100 text-green-700"
+                  : selectedEvent?.status === "Completed"
+                    ? "bg-gray-200 text-gray-700"
+                    : selectedEvent?.status === "Cancelled"
+                      ? "bg-red-100 text-red-700"
+                      : "bg-yellow-100 text-yellow-700"
+                }
+        `}
+            >
+              {selectedEvent?.status}
+            </span>
+          </DialogHeader>
+
+          {/* 🔥 SCROLLABLE CONTENT */}
+      <div className="px-6 py-4 space-y-5 text-sm text-gray-700">
+
+            {/* Description */}
+            <div className="flex-1 overflow-y-auto space-y-5 mt-4 pr-2">
+              <div className="flex items-center gap-2 text-gray-800 font-semibold">
+                <FaAlignLeft />
+                <span>Description</span>
+              </div>
+              <p className="text-gray-700 text-sm leading-relaxed whitespace-pre-line">
                 {selectedEvent?.description}
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="space-y-3 text-gray-700 text-sm">
-              <p className="flex items-center gap-2">
-                <FaClock className="text-blue-500" />
-                {selectedEvent?.date} — {selectedEvent?.time}
               </p>
+            </div>
 
-              <p className="flex items-center gap-2">
-                <FaFolder className="text-indigo-500" />
-                {selectedEvent?.category}
-              </p>
+            {/* Date */}
+            <div className="flex items-center gap-3 text-sm text-gray-700">
+              <FaCalendarAlt className="text-blue-600" />
+              {new Date(selectedEvent?.date).toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+            </div>
 
+            {/* Time */}
+            <div className="flex items-center gap-3 text-sm text-gray-700">
+              <FaClock className="text-indigo-600" />
+              {new Date(`1970-01-01T${selectedEvent?.time}`).toLocaleTimeString(
+                "en-IN",
+                {
+                  hour: "numeric",
+                  minute: "2-digit",
+                  hour12: true,
+                }
+              )}
+            </div>
+
+            {/* Category */}
+            <div className="flex items-center gap-3 text-sm text-gray-700">
+              <FaFolder className="text-purple-600" />
+              {selectedEvent?.category}
+            </div>
+
+            {/* Mode */}
+            <div className="flex items-center gap-3">
+              <FaMapMarkerAlt
+                className={
+                  selectedEvent?.isVirtual
+                    ? "text-purple-600"
+                    : "text-indigo-600"
+                }
+              />
               <span
-                className={`inline-block px-3 py-1 rounded-full text-xs font-medium
-            ${
-              selectedEvent?.status === "Upcoming"
-                ? "bg-green-100 text-green-700"
-                : selectedEvent?.status === "Completed"
-                ? "bg-gray-200 text-gray-700"
-                : selectedEvent?.status === "Cancelled"
-                ? "bg-red-100 text-red-700"
-                : "bg-yellow-100 text-yellow-700"
-            }
-          `}
+                className={`text-sm font-semibold ${selectedEvent?.isVirtual
+                    ? "text-purple-700"
+                    : "text-indigo-700"
+                  }`}
               >
-                {selectedEvent?.status}
+                {selectedEvent?.isVirtual ? "Virtual Event" : "Physical Event"}
               </span>
             </div>
 
-            <DialogFooter>
-              <button
-                onClick={() => setSelectedEvent(null)}
-                className="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition"
-              >
-                Close
-              </button>
-            </DialogFooter>
+            {/* Address */}
+            {!selectedEvent?.isVirtual && selectedEvent?.address && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 font-semibold text-gray-800">
+                  <FaLocationArrow />
+                  <span>Event Address</span>
+                </div>
+                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line pl-6">
+                  {selectedEvent.address}
+                </p>
+              </div>
+            )}
           </div>
+        </div>
+
+          {/* Footer (fixed) */}
+    <DialogFooter className="p-6 border-t shrink-0">
+            <button
+              onClick={() => setSelectedEvent(null)}
+              className="w-full bg-gray-900 text-white py-2.5 rounded-xl hover:bg-gray-700 transition"
+            >
+              Close
+            </button>
+          </DialogFooter>
+
         </DialogContent>
       </Dialog>
+
+
+
     </div>
   );
 };

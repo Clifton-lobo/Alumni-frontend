@@ -1,5 +1,7 @@
 import React from "react";
-import { Calendar, MapPin } from "lucide-react";
+import { Calendar, MapPin, ArrowRight, MoveUpRight } from "lucide-react";
+import { useState } from "react";
+import UserEventDetails from "./UserEventDetails";
 
 const months = [
   "JAN",
@@ -21,6 +23,8 @@ const EventCard = ({ event }) => {
   const month = months[eventDate.getMonth()];
   const day = eventDate.getDate();
 
+  const [open, setOpen] = useState(false);
+
   return (
     <div className="flex gap-8 border-b pb-10">
       {/* LEFT DATE SECTION */}
@@ -34,9 +38,13 @@ const EventCard = ({ event }) => {
         {/* TEXT DETAILS */}
         <div className="flex flex-col">
           {/* TITLE */}
-          <h2 className="text-4xl font-bold hover:text-blue-700 hover:underline transition cursor-pointer">
-            {event.title}
+          <h2 onClick={() => setOpen(true)} className="text-4xl font-bold text-center">
+            <span className="group inline-flex items-center gap-1 cursor-pointer transition-colors duration-200 hover:text-blue-700 hover:underline">
+              {event.title}
+              <MoveUpRight className="h-5 w-7 mt-2 transition-transform duration-200 group-hover:-translate-y-1" />
+            </span>
           </h2>
+
 
           {/* DATE + TIME */}
           <div className="flex items-center font-semibold gap-2 mt-2">
@@ -71,6 +79,17 @@ const EventCard = ({ event }) => {
           />
         </div>
       </div>
+
+      {event && (
+        <UserEventDetails
+          event={event}
+          open={open}
+          onOpenChange={setOpen}
+        />
+      )}
+
+
+
     </div>
   );
 };

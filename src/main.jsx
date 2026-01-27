@@ -11,7 +11,7 @@ createRoot(document.getElementById('root')).render(
   <BrowserRouter >
     <Provider store={store}>
       <App />
-      <Toaster position="top-center" richColors/>
+      <Toaster richColors/>
     </Provider>
   </BrowserRouter>,
 )

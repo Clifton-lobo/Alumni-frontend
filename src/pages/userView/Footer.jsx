@@ -1,146 +1,111 @@
-import { Link } from "react-router-dom";
-import { GraduationCap, Mail, Phone, MapPin } from "lucide-react";
+import {
+  GraduationCap,
+  Facebook,
+  Twitter,
+  Linkedin,
+  Instagram,
+  Mail,
+} from "lucide-react";
+
+const footerLinks = {
+  platform: ["About Us", "Features", "Events", "News"],
+  community: ["Alumni Directory", "Job Board", "Mentorship", "Giving"],
+  support: ["Help Center", "Contact Us", "Privacy Policy", "Terms of Service"],
+};
+
+const socialIcons = [
+  { Icon: Facebook, label: "Facebook" },
+  { Icon: Twitter, label: "Twitter" },
+  { Icon: Linkedin, label: "LinkedIn" },
+  { Icon: Instagram, label: "Instagram" },
+];
 
 const Footer = () => {
   return (
-    <footer className="bg-gradient-to-b from-background to-muted/30  border-t border-border/50">
-      <div className="container px-4 md:px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-          <div className="space-y-4 md:col-span-1">
-            <Link to="/" className="flex items-center space-x-3 group">
-              <div className="p-2 bg-gradient-to-br from-primary to-primary/80 rounded-lg group-hover:shadow-lg transition-shadow duration-300">
-                <GraduationCap className="h-5 w-5 text-primary-foreground" />
+    <footer className="bg-[#142A5D] text-[#FFF8E6] w-full">
+      <div className="max-w-7xl mx-auto px-6 py-16">
+
+        {/* Top section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
+
+          {/* Brand */}
+          <div className="lg:col-span-2">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-lg bg-[#EBAB09] flex items-center justify-center">
+                <GraduationCap className="w-6 h-6 text-black" />
               </div>
-              <span className="font-bold text-lg text-foreground">
-                AlumniConnect
-              </span>
-            </Link>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Connecting alumni worldwide, fostering meaningful relationships,
-              and building a stronger community for generations to come.
+              <span className="text-xl font-bold">AlumniHub</span>
+            </div>
+
+            <p className="text-[#FFF8E6]/80 max-w-sm mb-6">
+              Connecting graduates worldwide. Build meaningful relationships,
+              advance your career, and give back to your alma mater.
             </p>
-          </div>
 
-          <div>
-            <h3 className="font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">
-              Quick Links
-            </h3>
-            <ul className="space-y-3">
-              <li>
-                <Link
-                  to="/"
-                  className="text-sm text-muted-foreground hover:text-secondary transition-colors inline-block hover:translate-x-1 duration-300"
-                >
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/directory"
-                  className="text-sm text-muted-foreground hover:text-secondary transition-colors inline-block hover:translate-x-1 duration-300"
-                >
-                  Alumni Directory
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/events"
-                  className="text-sm text-muted-foreground hover:text-secondary transition-colors inline-block hover:translate-x-1 duration-300"
-                >
-                  Events
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/news"
-                  className="text-sm text-muted-foreground hover:text-secondary transition-colors inline-block hover:translate-x-1 duration-300"
-                >
-                  News
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">
-              Resources
-            </h3>
-            <ul className="space-y-3">
-              <li>
-                <Link
-                  to="/about"
-                  className="text-sm text-muted-foreground hover:text-secondary transition-colors inline-block hover:translate-x-1 duration-300"
-                >
-                  About Us
-                </Link>
-              </li>
-              <li>
+            <div className="flex gap-4">
+              {socialIcons.map(({ Icon, label }) => (
                 <a
+                  key={label}
+                  aria-label={label}
                   href="#"
-                  className="text-sm text-muted-foreground hover:text-secondary transition-colors inline-block hover:translate-x-1 duration-300"
+                  className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#EBAB09] transition"
                 >
-                  Career Services
+                  <Icon className="w-5 h-5 text-[#EBAB09] hover:text-black" />
                 </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-sm text-muted-foreground hover:text-secondary transition-colors inline-block hover:translate-x-1 duration-300"
-                >
-                  Mentorship Program
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-sm text-muted-foreground hover:text-secondary transition-colors inline-block hover:translate-x-1 duration-300"
-                >
-                  Give Back
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">
-              Contact
-            </h3>
-            <ul className="space-y-3 text-sm text-muted-foreground">
-              <li className="flex items-center gap-2 group">
-                <Mail className="h-4 w-4 text-secondary group-hover:scale-110 transition-transform" />
-                <span>alumni@university.edu</span>
-              </li>
-              <li className="flex items-center gap-2 group">
-                <Phone className="h-4 w-4 text-secondary group-hover:scale-110 transition-transform" />
-                <span>+1 (555) 123-4567</span>
-              </li>
-              <li className="flex items-start gap-2 group">
-                <MapPin className="h-4 w-4 text-secondary mt-0.5 group-hover:scale-110 transition-transform" />
-                <span>
-                  123 University Ave
-                  <br />
-                  City, State 12345
-                </span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="pt-8 border-t border-border/50">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-muted-foreground">
-              &copy; {new Date().getFullYear()} AlumniConnect. All rights
-              reserved.
-            </p>
-            <div className="flex gap-6 text-sm text-muted-foreground">
-              <a href="#" className="hover:text-secondary transition-colors">
-                Privacy Policy
-              </a>
-              <a href="#" className="hover:text-secondary transition-colors">
-                Terms of Service
-              </a>
+              ))}
             </div>
           </div>
+
+          {/* Links */}
+          {Object.entries(footerLinks).map(([section, links]) => (
+            <div key={section}>
+              <h4 className="font-semibold mb-4 capitalize">{section}</h4>
+              <ul className="space-y-3">
+                {links.map((link) => (
+                  <li key={link}>
+                    <a
+                      href="#"
+                      className="text-[#FFF8E6]/70 hover:text-[#EBAB09] transition"
+                    >
+                      {link}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        {/* Newsletter */}
+        <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row gap-6 md:items-center md:justify-between">
+          <div>
+            <h4 className="font-semibold mb-1">Stay Updated</h4>
+            <p className="text-sm text-[#FFF8E6]/70">
+              Get the latest news and events delivered to your inbox.
+            </p>
+          </div>
+
+          <form className="flex gap-2 w-full md:w-auto max-w-md">
+            <div className="relative flex-1">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
+              <input
+                type="email"
+                placeholder="Enter your email"
+                className="w-full pl-10 pr-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#EBAB09]"
+              />
+            </div>
+            <button
+              type="submit"
+              className="px-6 py-3 rounded-lg bg-[#EBAB09] text-black font-semibold hover:opacity-90 transition"
+            >
+              Subscribe
+            </button>
+          </form>
+        </div>
+
+        {/* Copyright */}
+        <div className="mt-8 pt-8 border-t border-white/10 text-center text-sm text-white/60">
+          © 2024 AlumniHub. All rights reserved.
         </div>
       </div>
     </footer>

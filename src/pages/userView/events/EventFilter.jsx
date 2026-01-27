@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setActiveFilter, fetchFilteredEvents } from "../../../store/user-view/UserEventSlice.js";
+import { setActiveFilter } from "../../../store/user-view/UserEventSlice";
 
 const filters = [
   { key: "all", label: "All" },
@@ -16,20 +16,10 @@ const EventFilter = () => {
 
   const [dates, setDates] = useState({ start: "", end: "" });
 
-  const applyCustomFilter = () => {
-    dispatch(
-      fetchFilteredEvents({
-        filter: "custom",
-        startDate: dates.start,
-        endDate: dates.end,
-      })
-    );
-  };
-  
   return (
-    <div className="sticky">
-      <h1 className="font-bold text-2xl mb-3 ">Filter by</h1>
-      <h3 className="font-semibold text-xl mb-3 mt-5 ">Date</h3>
+    <div>
+      <h1 className="font-bold text-2xl mb-3">Filter by</h1>
+      <h3 className="font-semibold text-xl mb-3 mt-5">Date</h3>
 
       {filters.map((f) => (
         <div key={f.key} className="flex items-center text-lg font-medium mb-2">
@@ -38,16 +28,10 @@ const EventFilter = () => {
             id={f.key}
             name="date-filter"
             checked={active === f.key}
-            onChange={() => {
-              dispatch(setActiveFilter(f.key));
-
-              if (f.key !== "custom") {
-                dispatch(fetchFilteredEvents({ filter: f.key }));
-              }
-            }}
+            onChange={() => dispatch(setActiveFilter(f.key))}
             className="mr-3"
           />
-          <label htmlFor={f.key} className="text-gray-800 cursor-pointer">
+          <label htmlFor={f.key} className="cursor-pointer text-gray-800">
             {f.label}
           </label>
         </div>
@@ -59,18 +43,24 @@ const EventFilter = () => {
             type="date"
             className="border px-3 py-2 rounded w-full"
             value={dates.start}
-            onChange={(e) => setDates({ ...dates, start: e.target.value })}
+            onChange={(e) =>
+              setDates((prev) => ({ ...prev, start: e.target.value }))
+            }
           />
           <input
             type="date"
             className="border px-3 py-2 rounded w-full"
             value={dates.end}
-            onChange={(e) => setDates({ ...dates, end: e.target.value })}
+            onChange={(e) =>
+              setDates((prev) => ({ ...prev, end: e.target.value }))
+            }
           />
 
           <button
             className="px-4 py-2 bg-blue-700 text-white rounded w-full"
-            onClick={applyCustomFilter}
+            onClick={() =>
+              dispatch(setActiveFilter({ type: "custom", ...dates }))
+            }
           >
             Apply
           </button>
