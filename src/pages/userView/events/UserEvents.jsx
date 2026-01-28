@@ -28,9 +28,6 @@ const UserEvents = () => {
   const [searchText, setSearchText] = useState("");
   const isFirstRender = useRef(true);
 
-  /* ------------------------------
-     Fetch on filter change
-  ------------------------------ */
   useEffect(() => {
     dispatch(
       fetchFilteredEvents({
@@ -43,9 +40,6 @@ const UserEvents = () => {
     );
   }, [activeFilter, category, isVirtual, status, dispatch]);
 
-  /* ------------------------------
-     Debounced search
-  ------------------------------ */
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
@@ -53,7 +47,7 @@ const UserEvents = () => {
     }
 
     const trimmed = searchText.trim();
-    if (trimmed !== "" && trimmed.length < MIN_SEARCH_LENGTH) return;
+    if (trimmed && trimmed.length < MIN_SEARCH_LENGTH) return;
 
     const timer = setTimeout(() => {
       dispatch(
@@ -71,12 +65,8 @@ const UserEvents = () => {
     return () => clearTimeout(timer);
   }, [searchText, activeFilter, category, isVirtual, status, dispatch]);
 
-  /* ------------------------------
-     Pagination
-  ------------------------------ */
   const onPageChange = (page) => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-
     dispatch(
       fetchFilteredEvents({
         filter: activeFilter,
@@ -91,7 +81,6 @@ const UserEvents = () => {
 
   return (
     <div className="bg-white">
-      {/* HERO */}
       <div className="relative w-full h-[320px] overflow-hidden rounded-xl shadow-lg">
         <img
           src={eventPageAlumniEvent}
@@ -101,7 +90,6 @@ const UserEvents = () => {
         <div className="absolute inset-0 bg-black/40" />
       </div>
 
-      {/* SEARCH */}
       <div className="max-w-6xl mx-auto px-6 mt-10 flex gap-3">
         <input
           value={searchText}
@@ -114,7 +102,6 @@ const UserEvents = () => {
         </button>
       </div>
 
-      {/* FILTER + LIST */}
       <div className="max-w-6xl mx-auto px-6 mt-10 grid grid-cols-1 md:grid-cols-[260px_1fr] gap-10">
         <div className="md:sticky md:top-28 h-fit">
           <EventFilter />
@@ -126,7 +113,6 @@ const UserEvents = () => {
         </div>
       </div>
 
-      {/* PAGINATION */}
       <div className="max-w-6xl mx-auto my-10 px-6">
         <PaginationControls
           currentPage={currentPage}

@@ -38,7 +38,7 @@ const PaginationControls = ({
               className={
                 currentPage === 1
                   ? "pointer-events-none  opacity-50"
-                  : "cursor-pointer  hover:bg-blue-900"
+                  : "cursor-pointer  hover:bg-blue-400"
               }
               onClick={() => onPageChange(currentPage - 1)}
             />
@@ -101,8 +101,8 @@ const PaginationControls = ({
               className={
                 currentPage === totalPages
                   ? "pointer-events-none opacity-50"
-                  : "cursor-pointer"
-              }
+                  : "cursor-pointer hover:bg-blue-400"
+              } 
               onClick={() => onPageChange(currentPage + 1)}
             />
           </PaginationItem>

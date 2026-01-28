@@ -23,22 +23,31 @@ const categories = ["all", "Networking", "Reunion", "Career"];
 const statuses = ["all", "Upcoming", "Ongoing", "Completed", "Cancelled"];
 const modes = ["all", "virtual", "physical"];
 
-
+/* ------------------ SECTION ------------------ */
 
 const FilterSection = ({ title, isOpen, toggle, children }) => (
-  <div className="border-b">
+  <div className="border-b overflow-anchor-none">
     <button
+      type="button"
       onClick={toggle}
       className="w-full flex justify-between items-center py-4 text-left"
     >
       <h3 className="font-semibold text-lg">{title}</h3>
       <ChevronRight
-        className={`transition-transform duration-200 ${isOpen ? "rotate-90" : ""
-          }`}
+        className={`transition-transform duration-200 ${
+          isOpen ? "rotate-90" : ""
+        }`}
       />
     </button>
 
-    {isOpen && <div className="pb-4 space-y-2">{children}</div>}
+    {/* KEEP MOUNTED → NO SCROLL JUMP */}
+    <div
+      className={`overflow-hidden transition-all duration-300 ease-in-out ${
+        isOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
+      }`}
+    >
+      <div className="pb-4 space-y-2">{children}</div>
+    </div>
   </div>
 );
 
@@ -46,7 +55,6 @@ const FilterSection = ({ title, isOpen, toggle, children }) => (
 
 const EventFilter = () => {
   const dispatch = useDispatch();
-
   const { activeFilter, category, mode, status } = useSelector(
     (state) => state.events
   );
@@ -60,7 +68,6 @@ const EventFilter = () => {
 
   const [dates, setDates] = useState({ start: "", end: "" });
 
-  /* Fetch whenever filter changes */
   useEffect(() => {
     dispatch(
       fetchFilteredEvents({
@@ -73,23 +80,19 @@ const EventFilter = () => {
         page: 1,
       })
     );
-  }, [activeFilter, category, mode, status, dates.start, dates.end]);
+  }, [activeFilter, category, mode, status, dates.start, dates.end, dispatch]);
 
-/* ------------------ REUSABLE SECTION ------------------ */
-const handleResetFilters = () => {
-  dispatch(setActiveFilter("all"));
-  dispatch(setCategory("all"));
-  dispatch(setMode("all"));
-  dispatch(setStatus("all"));
-
-  setDates({ start: "", end: "" });
-};
-
+  const handleResetFilters = () => {
+    dispatch(setActiveFilter("all"));
+    dispatch(setCategory("all"));
+    dispatch(setMode("all"));
+    dispatch(setStatus("all"));
+    setDates({ start: "", end: "" });
+  };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 overflow-anchor-none">
       <div className="flex justify-between text-sm font-medium py-2">
-        {/* <span>Collapse all</span> */}
         <span
           onClick={handleResetFilters}
           className="font-bold text-lg cursor-pointer hover:underline"
@@ -98,7 +101,7 @@ const handleResetFilters = () => {
         </span>
       </div>
 
-      {/* -------- DATE -------- */}
+      {/* DATE */}
       <FilterSection
         title="Date"
         isOpen={open.date}
@@ -109,35 +112,15 @@ const handleResetFilters = () => {
             <input
               type="radio"
               checked={activeFilter === f.key}
+              onMouseDown={(e) => e.preventDefault()}
               onChange={() => dispatch(setActiveFilter(f.key))}
             />
             {f.label}
           </label>
         ))}
-
-        {activeFilter === "custom" && (
-          <div className="space-y-2 pt-2">
-            <input
-              type="date"
-              className="border px-2 py-1 rounded w-full"
-              value={dates.start}
-              onChange={(e) =>
-                setDates((p) => ({ ...p, start: e.target.value }))
-              }
-            />
-            <input
-              type="date"
-              className="border px-2 py-1 rounded w-full"
-              value={dates.end}
-              onChange={(e) =>
-                setDates((p) => ({ ...p, end: e.target.value }))
-              }
-            />
-          </div>
-        )}
       </FilterSection>
 
-      {/* -------- CATEGORY -------- */}
+      {/* CATEGORY */}
       <FilterSection
         title="Category"
         isOpen={open.category}
@@ -148,6 +131,7 @@ const handleResetFilters = () => {
             <input
               type="checkbox"
               checked={category === c}
+              onMouseDown={(e) => e.preventDefault()}
               onChange={() => dispatch(setCategory(c))}
             />
             {c}
@@ -155,7 +139,7 @@ const handleResetFilters = () => {
         ))}
       </FilterSection>
 
-      {/* -------- FORMAT -------- */}
+      {/* FORMAT */}
       <FilterSection
         title="Format"
         isOpen={open.mode}
@@ -166,6 +150,7 @@ const handleResetFilters = () => {
             <input
               type="checkbox"
               checked={mode === m}
+              onMouseDown={(e) => e.preventDefault()}
               onChange={() => dispatch(setMode(m))}
             />
             {m.charAt(0).toUpperCase() + m.slice(1)}
@@ -173,7 +158,7 @@ const handleResetFilters = () => {
         ))}
       </FilterSection>
 
-      {/* -------- STATUS -------- */}
+      {/* STATUS */}
       <FilterSection
         title="Status"
         isOpen={open.status}
@@ -184,6 +169,7 @@ const handleResetFilters = () => {
             <input
               type="checkbox"
               checked={status === s}
+              onMouseDown={(e) => e.preventDefault()}
               onChange={() => dispatch(setStatus(s))}
             />
             {s}
