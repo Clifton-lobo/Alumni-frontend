@@ -5,7 +5,7 @@ const initialState = {
   isLoading: false,
   eventList: [],
   registrations: [],
-  registrationCount: 0,
+  registrationsCount : 0,
 };
 
 
@@ -93,17 +93,17 @@ const adminEventSlice = createSlice({
     .addCase(fetchEventRegistrations.pending, (state) => {
       state.isLoading = true;
       state.registrations = [];
-      state.registrationCount = 0;
+      state.registrationsCount  = 0;
     })
     .addCase(fetchEventRegistrations.fulfilled, (state, action) => {
       state.isLoading = false;
       state.registrations = action.payload?.registrations || [];
-      state.registrationCount = action.payload?.count || 0;
+      state.registrationsCount  = action.payload?.count || 0;
     })
     .addCase(fetchEventRegistrations.rejected, (state) => {
       state.isLoading = false;
       state.registrations = [];
-      state.registrationCount = 0;
+      state.registrationsCount  = 0;
     });
   },
 });

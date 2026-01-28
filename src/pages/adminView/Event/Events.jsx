@@ -55,6 +55,9 @@ const Events = () => {
   const [statusFilter, setStatusFilter] = useState("All");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [isVirtual, setIsVirtual] = useState(false);
+  const [isLimited, setIsLimited] = useState(false);
+  const [capacity, setCapacity] = useState("");
+
 
 
   // 📄 Pagination
@@ -81,9 +84,14 @@ const Events = () => {
     setEditMode(true);
     setSelectedEvent(event);
     setUploadedImageUrl(event.image?.secure_url || event.image);
-    + setIsVirtual(event.isVirtual ?? false); // 🆕 ADD
+
+    setIsVirtual(event.isVirtual ?? false);
+    setIsLimited(event.isLimited ?? false);
+    setCapacity(event.capacity ?? "");
+
     setOpen(true);
   };
+
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -140,6 +148,8 @@ const Events = () => {
       description: e.target.description.value.trim(),
       isVirtual,
       address: isVirtual ? undefined : e.target.address?.value.trim(),
+      isLimited,
+      capacity: isLimited ? Number(capacity) : undefined,
     };
 
 
@@ -165,7 +175,7 @@ const Events = () => {
 
   return (
     <div>
-      {/* Header */}
+      {/* Sheet */}
       <div className="flex bg-white px-3 sm:px-6 py-4 sm:py-6 rounded-lg shadow-sm justify-between items-center flex-wrap gap-3 sm:gap-4">
         <div className="min-w ">
           <h1 className="font-bold text-lg sm:text-2xl md:text-3xl text-gray-900 truncate">
@@ -312,6 +322,54 @@ const Events = () => {
                   />
                 </div>
               )}
+              {/* 🆕 Registration Limit */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Registration Limit
+                </label>
+
+                <div className="flex items-center gap-6">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      checked={isLimited === false}
+                      onChange={() => {
+                        setIsLimited(false);
+                        setCapacity("");
+                      }}
+                    />
+                    Unlimited
+                  </label>
+
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      checked={isLimited === true}
+                      onChange={() => setIsLimited(true)}
+                    />
+                    Limited
+                  </label>
+                </div>
+              </div>
+
+              {/* 🆕 Capacity (only if limited) */}
+              {isLimited && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Maximum Registrations
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={capacity}
+                    onChange={(e) => setCapacity(e.target.value)}
+                    placeholder="e.g. 100"
+                    required
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 bg-white"
+                  />
+                </div>
+              )}
+
               {/* Category */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -526,15 +584,17 @@ const Events = () => {
 
                       {/* Registrations */}
                       <td className="p-3 text-center">
-                        <span
-                          className={`inline-flex items-center justify-center min-w-[60px] px-3 py-1 rounded-full text-sm font-semibold ${(event.registrationCount ?? 0) > 0
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-gray-100 text-gray-500"
-                            }`}
-                        >
-                          {event.registrationsCount ?? 0}
-                        </span>
+                        {event.isLimited ? (
+                          <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-semibold">
+                            {event.registrationsCount ?? 0} / {event.capacity}
+                          </span>
+                        ) : (
+                          <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-sm font-semibold">
+                            {event.registrationsCount ?? 0}
+                          </span>
+                        )}
                       </td>
+
 
                       {/* Mode */}
                       <td className="p-3 text-center">

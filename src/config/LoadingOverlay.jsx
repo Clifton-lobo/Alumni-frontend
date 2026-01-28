@@ -3,7 +3,6 @@ const LoadingOverlay = ({ loading }) => {
     <div
       className={`
         absolute inset-0 z-10
-        bg-white/60 backdrop-blur-sm
         flex items-center justify-center
         transition-all duration-300 ease-out
         ${

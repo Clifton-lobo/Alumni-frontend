@@ -38,12 +38,17 @@ const EventCard = ({ event }) => {
         {/* TEXT DETAILS */}
         <div className="flex flex-col">
           {/* TITLE */}
-          <h2 onClick={() => setOpen(true)} className="text-4xl font-bold text-center">
-            <span className="group inline-flex items-center gap-1 cursor-pointer transition-colors duration-200 hover:text-blue-700 hover:underline">
-              {event.title}
-              <MoveUpRight className="h-5 w-7 mt-2 transition-transform duration-200 group-hover:-translate-y-1" />
-            </span>
+          <h2
+            onClick={() => setOpen(true)}
+            className="group cursor-pointer text-4xl font-bold leading-tight hover:text-blue-950 hover:underline"
+          >
+            {event.title}
+            <MoveUpRight
+              className="inline-block ml-1 h-6 w-4 align-baseline transition-transform duration-200 group-hover:-translate-y-1"
+            />
           </h2>
+
+
 
 
           {/* DATE + TIME */}

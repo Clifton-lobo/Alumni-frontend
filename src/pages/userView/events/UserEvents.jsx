@@ -13,18 +13,35 @@ const MIN_SEARCH_LENGTH = 2;
 
 const UserEvents = () => {
   const dispatch = useDispatch();
-  const { eventList, loading, activeFilter, currentPage, totalPages } =
-    useSelector((state) => state.events);
+
+  const {
+    eventList,
+    loading,
+    activeFilter,
+    category,
+    isVirtual,
+    status,
+    currentPage,
+    totalPages,
+  } = useSelector((state) => state.events);
 
   const [searchText, setSearchText] = useState("");
   const isFirstRender = useRef(true);
 
   /* ------------------------------
-     Fetch when filter changes
+     Fetch on filter change
   ------------------------------ */
   useEffect(() => {
-    dispatch(fetchFilteredEvents({ filter: activeFilter, page: 1 }));
-  }, [activeFilter, dispatch]);
+    dispatch(
+      fetchFilteredEvents({
+        filter: activeFilter,
+        category,
+        isVirtual,
+        status,
+        page: 1,
+      })
+    );
+  }, [activeFilter, category, isVirtual, status, dispatch]);
 
   /* ------------------------------
      Debounced search
@@ -35,35 +52,39 @@ const UserEvents = () => {
       return;
     }
 
-    if (searchText.trim() === "") {
-      dispatch(fetchFilteredEvents({ filter: activeFilter, page: 1 }));
-      return;
-    }
-
-    if (searchText.trim().length < MIN_SEARCH_LENGTH) return;
+    const trimmed = searchText.trim();
+    if (trimmed !== "" && trimmed.length < MIN_SEARCH_LENGTH) return;
 
     const timer = setTimeout(() => {
       dispatch(
         fetchFilteredEvents({
           filter: activeFilter,
-          search: searchText.trim(),
+          category,
+          isVirtual,
+          status,
+          search: trimmed || undefined,
           page: 1,
         })
       );
     }, DEBOUNCE_DELAY);
 
     return () => clearTimeout(timer);
-  }, [searchText, activeFilter, dispatch]);
+  }, [searchText, activeFilter, category, isVirtual, status, dispatch]);
 
   /* ------------------------------
      Pagination
   ------------------------------ */
-  const onPageChange = (newPage) => {
+  const onPageChange = (page) => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
     dispatch(
       fetchFilteredEvents({
         filter: activeFilter,
+        category,
+        isVirtual,
+        status,
         search: searchText.trim() || undefined,
-        page: newPage,
+        page,
       })
     );
   };
@@ -103,7 +124,6 @@ const UserEvents = () => {
           <EventList events={eventList || []} />
           <LoadingOverlay loading={loading} />
         </div>
-
       </div>
 
       {/* PAGINATION */}

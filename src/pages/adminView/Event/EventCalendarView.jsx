@@ -141,8 +141,8 @@ const EventCalendarView = ({ onEventClick }) => {
             </span>
           </DialogHeader>
 
-          {/* 🔥 SCROLLABLE CONTENT */}
-      <div className="px-6 py-4 space-y-5 text-sm text-gray-700">
+           {/* 🔥 SCROLLABLE CONTENT */}
+           <div className="px-6 py-4 space-y-5 text-sm text-gray-700">
 
             {/* Description */}
             <div className="flex-1 overflow-y-auto space-y-5 mt-4 pr-2">

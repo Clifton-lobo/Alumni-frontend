@@ -6,28 +6,52 @@ import axiosInstance from "../../api/axiosInstance";
 export const fetchFilteredEvents = createAsyncThunk(
   "events/fetchFiltered",
   async (
-    { filter, startDate, endDate, search, page = 1, limit = 5 },
+    {
+      filter,
+      startDate,
+      endDate,
+      search,
+      category,
+      isVirtual,
+      status,
+      page = 1,
+      limit = 10,
+    },
     { rejectWithValue }
   ) => {
     try {
-      const params = { filter };
+      const params = {
+        filter,
+        page,
+        limit,
+      };
 
       if (filter === "custom") {
         params.startDate = startDate;
         params.endDate = endDate;
       }
-      if (search) {
-        params.search = search;
-      }
-      const { data } = await axiosInstance.get("/api/user/events/filter", {
-        params,
-      });
+
+      if (search) params.search = search;
+      if (category && category !== "all") params.category = category;
+if (isVirtual === "virtual") params.isVirtual = "true";
+if (isVirtual === "physical") params.isVirtual = "false";
+      if (status && status !== "all") params.status = status;
+
+      const { data } = await axiosInstance.get(
+        "/api/user/events/filter",
+        { params }
+      );
+
       return data;
     } catch (error) {
-      return rejectWithValue(error.response?.data || "Something went wrong");
+      return rejectWithValue(
+        error.response?.data || "Something went wrong"
+      );
     }
   }
 );
+
+
 
 // Fixed variable name and return the actual data for event details
 export const fetchEventDetails = createAsyncThunk(
@@ -51,7 +75,12 @@ const eventSlice = createSlice({
     eventList: [],
     loading: false,
     error: null,
+
     activeFilter: "all",
+    category: "all",
+    mode: "all",
+    status: "all",
+
     currentPage: 1,
     totalPages: 1,
 
@@ -64,6 +93,8 @@ const eventSlice = createSlice({
   reducers: {
     setActiveFilter: (state, action) => {
       state.activeFilter = action.payload;
+      state.currentPage = 1;
+
     },
     // optional: clear selected event
     clearSelectedEvent: (state) => {
@@ -71,6 +102,22 @@ const eventSlice = createSlice({
       state.detailsLoading = false;
       state.detailsError = null;
     },
+
+    setCategory: (state, action) => {
+      state.category = action.payload;
+      state.currentPage = 1;
+    },
+
+    setMode: (state, action) => {
+      state.mode = action.payload;
+      state.currentPage = 1;
+    },
+
+    setStatus: (state, action) => {
+      state.status = action.payload;
+      state.currentPage = 1;
+    },
+
   },
 
   extraReducers: (builder) => {
@@ -112,5 +159,5 @@ const eventSlice = createSlice({
   },
 });
 
-export const { setActiveFilter, clearSelectedEvent } = eventSlice.actions;
+export const { setActiveFilter, clearSelectedEvent,setCategory ,setMode,setStatus} = eventSlice.actions;
 export default eventSlice.reducer;
