@@ -128,13 +128,9 @@ export const UserNavItems = [
     type: "link",
   },
   {
-    id: "opportunities",
-    label: "Opportunities",
-    type: "dropdown",
-    items: [
-      { label: "Jobs / Internships", path: "/user/jobs" },
-      // { label: "Alumni Directory", path: "/user/alumni" },
-      { label: "Career Opportunities", path: "/user/careers" },
-    ],
+    id: "jobs",
+    label: "Jobs / Internships",
+    type: "link",
+    path: "/user/jobs"     
   },
 ];

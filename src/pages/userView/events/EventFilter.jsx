@@ -231,7 +231,7 @@ const EventFilter = () => {
             <button
               type="button"
               disabled={!dates.start || !dates.end}
-              className="w-full bg-black text-white py-2 rounded mt-2 disabled:opacity-50"
+              className="w-full bg-blue-950 cursor-pointer text-white py-2 rounded mt-2 disabled:opacity-50"
               onClick={() => {
                 setAppliedDates(dates);
                 dispatch(setActiveFilter("custom"));
