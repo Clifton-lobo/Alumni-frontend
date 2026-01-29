@@ -573,8 +573,8 @@ const Home = () => {
               <div
                 key={img.id}
                 className={`group relative overflow-hidden rounded-2xl shadow-lg transition-all duration-1000 ${galleryVisible
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-8"
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-8"
                   }`}
                 style={{ transitionDelay: `${150 + index * 100}ms` }}
               >
@@ -598,14 +598,14 @@ const Home = () => {
       </section>
 
       {/* MAP */}
-<section className="w-full mt10">
-  <img
-    src={exploreOnMap}
-    alt="Explore on Map"
-    loading="lazy"
-    className="w-full h-auto block"
-  />
-</section>
+      <section className="w-full mt10">
+        <img
+          src={exploreOnMap}
+          alt="Explore on Map"
+          loading="lazy"
+          className="w-full h-auto block"
+        />
+      </section>
 
     </div>
   );

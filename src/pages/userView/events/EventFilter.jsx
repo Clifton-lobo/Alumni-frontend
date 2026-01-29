@@ -71,7 +71,7 @@ const FilterSection = ({ title, isOpen, toggle, children }) => (
 
 const EventFilter = () => {
   const dispatch = useDispatch();
-  const { activeFilter, category, mode, status } = useSelector(
+  const { activeFilter, category, mode, status ,currentPage } = useSelector(
     (state) => state.events
   );
 
@@ -113,7 +113,7 @@ const EventFilter = () => {
         category,
         isVirtual: mode,
         status,
-        page: 1,
+    page: currentPage, // ✅ Redux source of truth
       })
     );
   }, [activeFilter, category, mode, status, appliedDates, dispatch]);

@@ -24,6 +24,8 @@ import UserGallery from './pages/userView/userGallery.jsx'
 import UserDonate from './pages/userView/userDonate.jsx'
 import UserCommunity from './pages/userView/userCommunity.jsx'
 import ScrollToTop from './config/ScrollToTop.jsx'
+import UserProfile from './pages/userView/UserProfile.jsx'
+
 
 
 function App() {
@@ -93,6 +95,7 @@ function App() {
           }
         >
           <Route path="events" element={<UserEvents />} />
+          <Route path="profile" element={<UserProfile />} />
           <Route path="jobs" element={<UserJobs />} />
           <Route path="home" element={<Home />} />
           <Route path="news" element={<News />} />

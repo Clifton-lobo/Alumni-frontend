@@ -123,13 +123,13 @@ export const UserNavItems = [
   },
   {
     id: "giving",
-    label: "Giving Back",
+    label: "Donate",
     path: "/user/donate",
     type: "link",
   },
   {
     id: "jobs",
-    label: "Jobs / Internships",
+    label: "Jobs ",
     type: "link",
     path: "/user/jobs"     
   },
