@@ -2,14 +2,12 @@ import eventPageAlumniEvent from "../../../assets/evenPageAlumniEvent2.png";
 import EventFilter from "./EventFilter";
 import PaginationControls from "../../../components/common/Pagination.jsx";
 import LoadingOverlay from "../../../config/LoadingOverlay.jsx";
+import Search from "../../../components/common/Search.jsx";
+
 import { useSelector, useDispatch } from "react-redux";
-import { useEffect, useState, useRef } from "react";
+import { useEffect } from "react";
 import { fetchFilteredEvents } from "../../../store/user-view/UserEventSlice";
 import EventList from "./EventList";
-import { Search } from "lucide-react";
-
-const DEBOUNCE_DELAY = 500;
-const MIN_SEARCH_LENGTH = 2;
 
 const UserEvents = () => {
   const dispatch = useDispatch();
@@ -24,9 +22,6 @@ const UserEvents = () => {
     currentPage,
     totalPages,
   } = useSelector((state) => state.events);
-
-  const [searchText, setSearchText] = useState("");
-  const isFirstRender = useRef(true);
 
   /* ------------------------------
      Fetch on filter change
@@ -44,32 +39,20 @@ const UserEvents = () => {
   }, [activeFilter, category, isVirtual, status, dispatch]);
 
   /* ------------------------------
-     Debounced search
+     Search callback (from common Search)
   ------------------------------ */
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-
-    const trimmed = searchText.trim();
-    if (trimmed !== "" && trimmed.length < MIN_SEARCH_LENGTH) return;
-
-    const timer = setTimeout(() => {
-      dispatch(
-        fetchFilteredEvents({
-          filter: activeFilter,
-          category,
-          isVirtual,
-          status,
-          search: trimmed || undefined,
-          page: 1,
-        })
-      );
-    }, DEBOUNCE_DELAY);
-
-    return () => clearTimeout(timer);
-  }, [searchText, activeFilter, category, isVirtual, status, dispatch]);
+  const handleSearch = (search) => {
+    dispatch(
+      fetchFilteredEvents({
+        filter: activeFilter,
+        category,
+        isVirtual,
+        status,
+        search,
+        page: 1,
+      })
+    );
+  };
 
   /* ------------------------------
      Pagination
@@ -83,7 +66,6 @@ const UserEvents = () => {
         category,
         isVirtual,
         status,
-        search: searchText.trim() || undefined,
         page,
       })
     );
@@ -101,21 +83,14 @@ const UserEvents = () => {
         <div className="absolute inset-0 bg-black/40" />
       </div>
 
-      {/* SEARCH */}
-      <div className="max-w-6xl mx-auto px-6 mt-10 flex gap-3">
-        <input
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          placeholder="Search by event title"
-          className="w-full px-4 py-3 border-b-2 border-neutral-300 outline-none"
-        />
-        <button className="bg-yellow-500 text-white p-4 rounded-full">
-          <Search size={22} />
-        </button>
-      </div>
+      {/* SEARCH (COMMON COMPONENT) */}
+      <Search
+        placeholder="Search by event title"
+        onSearch={handleSearch}
+      />
 
       {/* FILTER + LIST */}
-      <div className="max-w-6xl mx-auto px-6 mt-10 grid grid-cols-1 md:grid-cols-[260px_1fr] gap-10">
+      <div className="max-w-6xl mx-auto px-6 mt-24 grid grid-cols-1 md:grid-cols-[260px_1fr] gap-10">
         <div className="md:sticky md:top-28 h-fit">
           <EventFilter />
         </div>
