@@ -5,8 +5,8 @@ import {
   setCategory,
   setMode,
   setStatus,
+  fetchFilteredEvents,
 } from "../../../store/user-view/UserEventSlice";
-import { fetchFilteredEvents } from "../../../store/user-view/UserEventSlice";
 import { ChevronRight } from "lucide-react";
 import { Calendar } from "../../../components/ui/calendar";
 import {
@@ -33,10 +33,12 @@ const modes = ["all", "virtual", "physical"];
 
 /* ------------------ HELPERS ------------------ */
 
-// API-safe date
-const toISODate = (date) => (date ? format(date, "yyyy-MM-dd") : "");
+const toISOStart = (date) =>
+  date ? `${format(date, "yyyy-MM-dd")}T00:00:00` : "";
 
-// UI-only date
+const toISOEnd = (date) =>
+  date ? `${format(date, "yyyy-MM-dd")}T23:59:59` : "";
+
 const toDisplayDate = (iso) =>
   iso ? format(new Date(iso), "dd/MM/yyyy") : "";
 
@@ -71,7 +73,7 @@ const FilterSection = ({ title, isOpen, toggle, children }) => (
 
 const EventFilter = () => {
   const dispatch = useDispatch();
-  const { activeFilter, category, mode, status ,currentPage } = useSelector(
+  const { activeFilter, category, mode, status, currentPage } = useSelector(
     (state) => state.events
   );
 
@@ -82,19 +84,23 @@ const EventFilter = () => {
     status: false,
   });
 
-  // temp UI dates (ISO)
   const [dates, setDates] = useState({ start: "", end: "" });
-
-  // applied dates (used for API)
-  const [appliedDates, setAppliedDates] = useState({
-    start: "",
-    end: "",
-  });
+  const [appliedDates, setAppliedDates] = useState({ start: "", end: "" });
 
   const [startCalendar, setStartCalendar] = useState(null);
   const [endCalendar, setEndCalendar] = useState(null);
 
-  /* -------- FETCH (ONLY WHEN VALID) -------- */
+  /* -------- CLEAR CUSTOM DATES WHEN NOT CUSTOM -------- */
+  useEffect(() => {
+    if (activeFilter !== "custom") {
+      setDates({ start: "", end: "" });
+      setAppliedDates({ start: "", end: "" });
+      setStartCalendar(null);
+      setEndCalendar(null);
+    }
+  }, [activeFilter]);
+
+  /* -------- FETCH -------- */
   useEffect(() => {
     if (
       activeFilter === "custom" &&
@@ -110,13 +116,23 @@ const EventFilter = () => {
           activeFilter === "custom" ? appliedDates.start : undefined,
         endDate:
           activeFilter === "custom" ? appliedDates.end : undefined,
-        category,
-        isVirtual: mode,
-        status,
-    page: currentPage, // ✅ Redux source of truth
+        category: category === "all" ? undefined : category,
+        isVirtual:
+          mode === "all" ? undefined : mode === "virtual",
+        status: status === "all" ? undefined : status,
+        page: currentPage,
       })
     );
-  }, [activeFilter, category, mode, status, appliedDates, dispatch]);
+  }, [
+    activeFilter,
+    category,
+    mode,
+    status,
+    appliedDates.start,
+    appliedDates.end,
+    currentPage,
+    dispatch,
+  ]);
 
   /* -------- RESET -------- */
   const handleResetFilters = () => {
@@ -151,6 +167,7 @@ const EventFilter = () => {
           <label key={f.key} className="flex items-center gap-2">
             <input
               type="radio"
+              name="date-filter"
               checked={activeFilter === f.key}
               onChange={() => dispatch(setActiveFilter(f.key))}
             />
@@ -165,10 +182,7 @@ const EventFilter = () => {
               <span className="text-sm font-medium">Start date</span>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal"
-                  >
+                  <Button variant="outline" className="w-full justify-start">
                     {dates.start
                       ? toDisplayDate(dates.start)
                       : "Select start date"}
@@ -178,14 +192,11 @@ const EventFilter = () => {
                   <Calendar
                     mode="single"
                     selected={startCalendar}
-                    captionLayout="dropdown"
-                    fromYear={2000}
-                    toYear={2035}
                     onSelect={(date) => {
                       setStartCalendar(date);
                       setDates((p) => ({
                         ...p,
-                        start: toISODate(date),
+                        start: toISOStart(date),
                       }));
                     }}
                     initialFocus
@@ -199,10 +210,7 @@ const EventFilter = () => {
               <span className="text-sm font-medium">End date</span>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal"
-                  >
+                  <Button variant="outline" className="w-full justify-start">
                     {dates.end
                       ? toDisplayDate(dates.end)
                       : "Select end date"}
@@ -212,16 +220,16 @@ const EventFilter = () => {
                   <Calendar
                     mode="single"
                     selected={endCalendar}
-                    captionLayout="dropdown"
-                    fromYear={2000}
-                    toYear={2035}
                     onSelect={(date) => {
                       setEndCalendar(date);
                       setDates((p) => ({
                         ...p,
-                        end: toISODate(date),
+                        end: toISOEnd(date),
                       }));
                     }}
+                    disabled={(date) =>
+                      startCalendar && date < startCalendar
+                    }
                     initialFocus
                   />
                 </PopoverContent>
@@ -231,11 +239,8 @@ const EventFilter = () => {
             <button
               type="button"
               disabled={!dates.start || !dates.end}
-              className="w-full bg-blue-950 cursor-pointer text-white py-2 rounded mt-2 disabled:opacity-50"
-              onClick={() => {
-                setAppliedDates(dates);
-                dispatch(setActiveFilter("custom"));
-              }}
+              className="w-full bg-blue-950 text-white py-2 rounded disabled:opacity-50"
+              onClick={() => setAppliedDates(dates)}
             >
               Apply
             </button>
@@ -252,9 +257,9 @@ const EventFilter = () => {
         {categories.map((c) => (
           <label key={c} className="flex items-center gap-2">
             <input
-              type="checkbox"
+              type="radio"
+              name="category"
               checked={category === c}
-              onMouseDown={(e) => e.preventDefault()}
               onChange={() => dispatch(setCategory(c))}
             />
             {c}
@@ -271,9 +276,9 @@ const EventFilter = () => {
         {modes.map((m) => (
           <label key={m} className="flex items-center gap-2">
             <input
-              type="checkbox"
+              type="radio"
+              name="mode"
               checked={mode === m}
-              onMouseDown={(e) => e.preventDefault()}
               onChange={() => dispatch(setMode(m))}
             />
             {m.charAt(0).toUpperCase() + m.slice(1)}
@@ -290,9 +295,9 @@ const EventFilter = () => {
         {statuses.map((s) => (
           <label key={s} className="flex items-center gap-2">
             <input
-              type="checkbox"
+              type="radio"
+              name="status"
               checked={status === s}
-              onMouseDown={(e) => e.preventDefault()}
               onChange={() => dispatch(setStatus(s))}
             />
             {s}

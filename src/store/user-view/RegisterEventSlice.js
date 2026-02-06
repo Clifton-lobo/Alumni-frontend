@@ -66,6 +66,7 @@ const userEventRegistrationSlice = createSlice({
   },
 });
 
+
 export const { resetRegistrationState } =
   userEventRegistrationSlice.actions;
 
