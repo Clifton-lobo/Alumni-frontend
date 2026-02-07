@@ -13,7 +13,7 @@ export const store = configureStore({
     events: eventReducer,
     register : userEventRegistrationSlice,
     userJobsReducer :jobsReducer,
-    adminJob : adminJobsReducer
+    adminJobs : adminJobsReducer
   },
 });
 

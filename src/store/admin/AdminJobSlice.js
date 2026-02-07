@@ -1,15 +1,15 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import axiosInstance from "../../api/axiosInstance";
 
-/**
- * Fetch pending jobs for admin
- */
 export const fetchPendingJobs = createAsyncThunk(
   "adminJobs/fetchPendingJobs",
-  async (_, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      const res = await axios.get("/api/admin/jobs");
-      return res.data.data;
+      const res = await axiosInstance.get(
+        "/api/admin/jobs/pending-jobs",
+        { params }
+      );
+      return res.data;
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.message || "Failed to fetch pending jobs"
@@ -18,17 +18,15 @@ export const fetchPendingJobs = createAsyncThunk(
   }
 );
 
-/**
- * Approve or reject job
- */
 export const updateJobStatus = createAsyncThunk(
   "adminJobs/updateJobStatus",
   async ({ jobId, status }, { rejectWithValue }) => {
     try {
-      const res = await axios.patch(`/api/admin/jobs/${jobId}/status`, {
-        status,
-      });
-      return res.data.data;
+      const res = await axiosInstance.patch(
+        `/api/admin/jobs/${jobId}/status`,
+        { status }
+      );
+      return { jobId, job: res.data.data };
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.message || "Failed to update job status"
@@ -41,44 +39,49 @@ const adminJobsSlice = createSlice({
   name: "adminJobs",
   initialState: {
     pendingJobs: [],
-    loading: false,
+    pagination: { page: 1, pages: 1, total: 0 },
+    loading: { fetch: false },
+    actionLoading: {},
     error: null,
   },
-
-  reducers: {},
-
+  reducers: {
+    clearError: (s) => {
+      s.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
-      // fetch pending jobs
-      .addCase(fetchPendingJobs.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+      // FETCH
+      .addCase(fetchPendingJobs.pending, (s) => {
+        s.loading.fetch = true;
       })
-      .addCase(fetchPendingJobs.fulfilled, (state, action) => {
-        state.loading = false;
-        state.pendingJobs = action.payload;
+      .addCase(fetchPendingJobs.fulfilled, (s, a) => {
+        s.loading.fetch = false;
+        s.pendingJobs = a.payload.data;
+        s.pagination = a.payload.pagination;
+        s.actionLoading = {};
       })
-      .addCase(fetchPendingJobs.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
+      .addCase(fetchPendingJobs.rejected, (s, a) => {
+        s.loading.fetch = false;
+        s.error = a.payload;
       })
 
-      // approve / reject job
-      .addCase(updateJobStatus.pending, (state) => {
-        state.loading = true;
+      // UPDATE STATUS
+      .addCase(updateJobStatus.pending, (s, a) => {
+        s.actionLoading[a.meta.arg.jobId] = true;
       })
-      .addCase(updateJobStatus.fulfilled, (state, action) => {
-        state.loading = false;
-        // remove job from pending list after approval/rejection
-        state.pendingJobs = state.pendingJobs.filter(
-          (job) => job._id !== action.payload._id
+      .addCase(updateJobStatus.fulfilled, (s, a) => {
+        s.pendingJobs = s.pendingJobs.filter(
+          (j) => j._id !== a.payload.jobId
         );
+        delete s.actionLoading[a.payload.jobId];
       })
-      .addCase(updateJobStatus.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
+      .addCase(updateJobStatus.rejected, (s, a) => {
+        delete s.actionLoading[a.meta.arg.jobId];
+        s.error = a.payload;
       });
   },
 });
 
+export const { clearError } = adminJobsSlice.actions;
 export default adminJobsSlice.reducer;
