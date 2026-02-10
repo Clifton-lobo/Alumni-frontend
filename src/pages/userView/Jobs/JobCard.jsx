@@ -1,98 +1,172 @@
 import React from "react";
-import { Card } from "../../../components/ui/card";
-import { Badge } from "../../../components/ui/badge";
-import { Button } from "../../../components/ui/button";
 import {
   MapPin,
   Briefcase,
   Clock,
-  DollarSign,
+  IndianRupee,
   Building2,
   ArrowRight,
   Users,
 } from "lucide-react";
 
+const GOLD = "#EBAB09";
+
 const JobCard = ({ job }) => {
   return (
-    <Card className="bg-white hover:shadow-xl transition-all duration-300 border border-slate-200 hover:border-indigo-300 group">
-      <div className="p-6">
+    <div
+      className="
+        group relative rounded-2xl border border-gray-200 bg-white
+        transition-all duration-300
+        hover:shadow-xl"
+
+    >
+      {/* Top border (hover synced) */}
+      <div
+        className="
+          absolute top-0 left-0 right-0 h-[3px]
+          opacity-0 group-hover:opacity-100
+          transition-opacity duration-300
+        "
+        style={{ backgroundColor: GOLD }}
+      />
+
+      <div className="p-6 flex flex-col h-full">
         {/* Header */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
-            <h3 className="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors mb-2">
+        <div className="flex items-start gap-4 mb-4">
+          <div
+            className="
+              flex-shrink-0 p-3 rounded-xl border border-gray-200
+              transition-colors duration-300
+              group-hover:border-[#EBAB09]
+            "
+          >
+            <Briefcase
+              className="
+                h-6 w-6 text-gray-700
+                transition-colors duration-300
+                group-hover:text-[#EBAB09]
+              "
+            />
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <h3
+              className="
+                text-lg font-semibold text-gray-900
+                transition-colors duration-300
+                group-hover:text-[#EBAB09]
+              "
+            >
               {job.title}
             </h3>
-            <div className="flex items-center gap-2 text-slate-600 mb-3">
+
+            <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
               <Building2 className="h-4 w-4" />
-              <span className="font-medium">{job.companyName}</span>
+              <span className="truncate">{job.companyName}</span>
             </div>
-          </div>
-          <div className="bg-gradient-to-br from-indigo-100 to-blue-100 rounded-full p-3">
-            <Briefcase className="h-6 w-6 text-indigo-600" />
           </div>
         </div>
 
         {/* Tags */}
         <div className="flex flex-wrap gap-2 mb-4">
-          <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-blue-200">
-            {job.employmentType}
-          </Badge>
-          <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-green-200">
-            {job.workMode}
-          </Badge>
-          <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-100 border-purple-200">
-            {job.experienceLevel} exp
-          </Badge>
+          {job.employmentType && (
+            <span className="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700">
+              {job.employmentType.replace("-", " ")}
+            </span>
+          )}
+          {job.workMode && (
+            <span className="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700">
+              {job.workMode}
+            </span>
+          )}
+          {job.experienceLevel && (
+            <span className="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700">
+              {job.experienceLevel} exp
+            </span>
+          )}
           {job.openings > 1 && (
-            <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-amber-200">
-              <Users className="h-3 w-3 mr-1" />
-              {job.openings} openings
-            </Badge>
+            <span className="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-700 flex items-center gap-1">
+              <Users className="h-3 w-3" />
+              {job.openings}
+            </span>
           )}
         </div>
 
         {/* Details */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-          <div className="flex items-center gap-2 text-sm text-slate-600">
-            <MapPin className="h-4 w-4 text-slate-400" />
-            <span>
-              {job.location?.city}, {job.location?.state}
-            </span>
-          </div>
-
-          {job.salary?.disclosed && (
-            <div className="flex items-center gap-2 text-sm text-slate-600">
-              <DollarSign className="h-4 w-4 text-slate-400" />
+        <div className="space-y-3 text-sm text-gray-700 mb-6">
+          {(job.location?.city || job.location?.state) && (
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-gray-500" />
               <span>
-                ₹{job.salary.min?.toLocaleString()} - ₹
-                {job.salary.max?.toLocaleString()}
+                {job.location?.city}
+                {job.location?.state && `, ${job.location.state}`}
               </span>
             </div>
           )}
 
-          <div className="flex items-center gap-2 text-sm text-slate-600">
-            <Clock className="h-4 w-4 text-slate-400" />
-            <span>
-              Posted {new Date(job.createdAt).toLocaleDateString()}
-            </span>
+          <div className="flex items-center gap-2">
+            <IndianRupee className="h-4 w-4 text-gray-500" />
+            {job.salary?.disclosed ? (
+              <span>
+                ₹{job.salary.min?.toLocaleString()} – ₹
+                {job.salary.max?.toLocaleString()}
+              </span>
+            ) : (
+              <span className="italic text-gray-500">
+                Salary not disclosed
+              </span>
+            )}
           </div>
+
+          {job.createdAt && (
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-gray-500" />
+              <span>
+                Posted {new Date(job.createdAt).toLocaleDateString()}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-          <div className="text-sm text-slate-500">
-            Posted by <span className="font-medium text-slate-700">{job.postedBy?.name}</span>
-          </div>
-          <Button
-            size="sm"
-            className="bg-indigo-600 hover:bg-indigo-700 group-hover:shadow-lg group-hover:shadow-indigo-500/30 transition-all"
+        <div className="mt-auto pt-8 mb-5 border-t border-gray-200 flex items-center justify-between">
+          {job.postedBy?.username && (
+            <span className="text-sm text-gray-600">
+              Posted by{" "}
+              <span className="font-medium text-gray-900">
+                {job.postedBy.username}
+              </span>
+            </span>
+          )}
+
+          <button
+            className="
+      inline-flex items-center gap-2
+      px-4 py-2
+      text-sm font-medium
+      text-gray-800
+      rounded-lg
+      transition-all duration-200 ease-out
+      hover:text-[#EBAB09]
+      hover:bg-blue-950
+      focus:outline-none
+      cursor-pointer
+    "
           >
-            View Details
-            <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
-          </Button>
+            Apply
+            <ArrowRight className="h-4 w-4" />
+          </button>
         </div>
+
       </div>
-    </Card>
+
+      {/* Hover shadow (gold-tinted, subtle) */}
+      <style jsx>{`
+        .group:hover {
+        }
+      `}
+      </style>
+    </div>
   );
 };
 

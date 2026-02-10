@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setActiveFilter,
@@ -44,36 +44,61 @@ const toDisplayDate = (iso) =>
 
 /* ------------------ SECTION ------------------ */
 
-const FilterSection = ({ title, isOpen, toggle, children }) => (
-  <div className="border-b overflow-anchor-none">
-    <button
-      type="button"
-      onClick={toggle}
-      className="w-full flex justify-between items-center py-4 text-left"
-    >
-      <h3 className="font-semibold text-lg">{title}</h3>
-      <ChevronRight
-        className={`transition-transform duration-200 ${
-          isOpen ? "rotate-90" : ""
-        }`}
-      />
-    </button>
+const FilterSection = ({ title, isOpen, toggle, children }) => {
+  const [maxHeight, setMaxHeight] = useState("0px");
+  const contentRef = useRef(null);
 
-    <div
-      className={`overflow-hidden transition-all duration-300 ${
-        isOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
-      }`}
-    >
-      <div className="pb-4 space-y-2">{children}</div>
+  useEffect(() => {
+    if (isOpen) {
+      // Set max height to scrollHeight when opening
+      setMaxHeight(`${contentRef.current?.scrollHeight}px`);
+    } else {
+      setMaxHeight("0px");
+    }
+  }, [isOpen]);
+
+  // Update height when children change (like custom date UI)
+  useEffect(() => {
+    if (isOpen && contentRef.current) {
+      setMaxHeight(`${contentRef.current.scrollHeight}px`);
+    }
+  }, [isOpen, children]);
+
+  return (
+    <div className="border-b">
+      <button
+        type="button"
+        onClick={toggle}
+        className="w-full flex justify-between items-center py-4 text-left hover:bg-gray-50 transition-colors px-2 rounded"
+      >
+        <h3 className="font-semibold text-lg">{title}</h3>
+        <ChevronRight
+          className={`transition-transform duration-300 ease-in-out ${
+            isOpen ? "rotate-90" : ""
+          }`}
+        />
+      </button>
+
+      <div
+        style={{
+          maxHeight: maxHeight,
+          overflow: "hidden",
+          transition: "max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
+      >
+        <div ref={contentRef} className="pb-4 space-y-2 px-2">
+          {children}
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 /* ------------------ MAIN ------------------ */
 
-const EventFilter = () => {
+const EventFilter = ({ onFilterChange }) => {
   const dispatch = useDispatch();
-  const { activeFilter, category, mode, status, currentPage } = useSelector(
+  const { activeFilter, category, mode, status } = useSelector(
     (state) => state.events
   );
 
@@ -85,8 +110,6 @@ const EventFilter = () => {
   });
 
   const [dates, setDates] = useState({ start: "", end: "" });
-  const [appliedDates, setAppliedDates] = useState({ start: "", end: "" });
-
   const [startCalendar, setStartCalendar] = useState(null);
   const [endCalendar, setEndCalendar] = useState(null);
 
@@ -94,45 +117,10 @@ const EventFilter = () => {
   useEffect(() => {
     if (activeFilter !== "custom") {
       setDates({ start: "", end: "" });
-      setAppliedDates({ start: "", end: "" });
       setStartCalendar(null);
       setEndCalendar(null);
     }
   }, [activeFilter]);
-
-  /* -------- FETCH -------- */
-  useEffect(() => {
-    if (
-      activeFilter === "custom" &&
-      (!appliedDates.start || !appliedDates.end)
-    ) {
-      return;
-    }
-
-    dispatch(
-      fetchFilteredEvents({
-        filter: activeFilter,
-        startDate:
-          activeFilter === "custom" ? appliedDates.start : undefined,
-        endDate:
-          activeFilter === "custom" ? appliedDates.end : undefined,
-        category: category === "all" ? undefined : category,
-        isVirtual:
-          mode === "all" ? undefined : mode === "virtual",
-        status: status === "all" ? undefined : status,
-        page: currentPage,
-      })
-    );
-  }, [
-    activeFilter,
-    category,
-    mode,
-    status,
-    appliedDates.start,
-    appliedDates.end,
-    currentPage,
-    dispatch,
-  ]);
 
   /* -------- RESET -------- */
   const handleResetFilters = () => {
@@ -141,17 +129,62 @@ const EventFilter = () => {
     dispatch(setMode("all"));
     dispatch(setStatus("all"));
     setDates({ start: "", end: "" });
-    setAppliedDates({ start: "", end: "" });
     setStartCalendar(null);
     setEndCalendar(null);
+
+    // Close mobile drawer if callback provided
+    if (onFilterChange) {
+      onFilterChange();
+    }
+  };
+
+  const handleFilterClick = (action) => {
+    dispatch(action);
+    // Auto-close mobile drawer after selection
+    if (onFilterChange) {
+      setTimeout(() => onFilterChange(), 300);
+    }
+  };
+
+  /* -------- HANDLE CUSTOM DATE APPLY -------- */
+  const handleApplyCustomDate = () => {
+    if (!dates.start || !dates.end) return;
+
+    console.log("📅 Applying custom dates:", dates);
+
+    // Convert mode to isVirtual boolean
+    let isVirtualParam = undefined;
+    if (mode === "virtual") {
+      isVirtualParam = true;
+    } else if (mode === "physical") {
+      isVirtualParam = false;
+    }
+
+    // Dispatch the fetch with custom dates
+    dispatch(
+      fetchFilteredEvents({
+        filter: "custom",
+        startDate: dates.start,
+        endDate: dates.end,
+        category: category === "all" ? undefined : category,
+        isVirtual: isVirtualParam,
+        status: status === "all" ? undefined : status,
+        page: 1,
+      })
+    );
+
+    // Close mobile drawer if callback provided
+    if (onFilterChange) {
+      setTimeout(() => onFilterChange(), 300);
+    }
   };
 
   return (
-    <div className="space-y-2 overflow-anchor-none">
-      <div className="flex justify-between py-2">
+    <div className="space-y-2">
+      <div className="flex justify-between py-2 px-2">
         <span
           onClick={handleResetFilters}
-          className="font-bold text-lg cursor-pointer hover:underline"
+          className="font-bold text-lg cursor-pointer hover:underline text-blue-950 transition-all"
         >
           Reset filter
         </span>
@@ -164,25 +197,32 @@ const EventFilter = () => {
         toggle={() => setOpen((p) => ({ ...p, date: !p.date }))}
       >
         {dateFilters.map((f) => (
-          <label key={f.key} className="flex items-center gap-2">
+          <label
+            key={f.key}
+            className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p2 rounded transition-colors"
+          >
             <input
               type="radio"
               name="date-filter"
               checked={activeFilter === f.key}
-              onChange={() => dispatch(setActiveFilter(f.key))}
+              onChange={() => handleFilterClick(setActiveFilter(f.key))}
+              className="cursor-pointer w-4 h-4 accent-blue-950"
             />
-            {f.label}
+            <span className="text-sm md:text-base">{f.label}</span>
           </label>
         ))}
 
         {activeFilter === "custom" && (
-          <div className="space-y-3 pt-3">
+          <div className="space-y-3 pt-3 animate-fadeIn">
             {/* START DATE */}
             <div>
               <span className="text-sm font-medium">Start date</span>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start mt-1"
+                  >
                     {dates.start
                       ? toDisplayDate(dates.start)
                       : "Select start date"}
@@ -210,10 +250,11 @@ const EventFilter = () => {
               <span className="text-sm font-medium">End date</span>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start">
-                    {dates.end
-                      ? toDisplayDate(dates.end)
-                      : "Select end date"}
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start mt-1"
+                  >
+                    {dates.end ? toDisplayDate(dates.end) : "Select end date"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -227,9 +268,7 @@ const EventFilter = () => {
                         end: toISOEnd(date),
                       }));
                     }}
-                    disabled={(date) =>
-                      startCalendar && date < startCalendar
-                    }
+                    disabled={(date) => startCalendar && date < startCalendar}
                     initialFocus
                   />
                 </PopoverContent>
@@ -239,8 +278,8 @@ const EventFilter = () => {
             <button
               type="button"
               disabled={!dates.start || !dates.end}
-              className="w-full bg-blue-950 text-white py-2 rounded disabled:opacity-50"
-              onClick={() => setAppliedDates(dates)}
+              className="w-full bg-blue-950 text-white py-2 rounded disabled:opacity-50 hover:bg-blue-900 transition-colors"
+              onClick={handleApplyCustomDate}
             >
               Apply
             </button>
@@ -255,14 +294,18 @@ const EventFilter = () => {
         toggle={() => setOpen((p) => ({ ...p, category: !p.category }))}
       >
         {categories.map((c) => (
-          <label key={c} className="flex items-center gap-2">
+          <label
+            key={c}
+            className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 -2 rounded transition-colors"
+          >
             <input
               type="radio"
               name="category"
               checked={category === c}
-              onChange={() => dispatch(setCategory(c))}
+              onChange={() => handleFilterClick(setCategory(c))}
+              className="cursor-pointer w-4 h-4 accent-blue-950"
             />
-            {c}
+            <span className="text-sm md:text-base">{c}</span>
           </label>
         ))}
       </FilterSection>
@@ -274,14 +317,20 @@ const EventFilter = () => {
         toggle={() => setOpen((p) => ({ ...p, mode: !p.mode }))}
       >
         {modes.map((m) => (
-          <label key={m} className="flex items-center gap-2">
+          <label
+            key={m}
+            className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p2 rounded transition-colors"
+          >
             <input
               type="radio"
               name="mode"
               checked={mode === m}
-              onChange={() => dispatch(setMode(m))}
+              onChange={() => handleFilterClick(setMode(m))}
+              className="cursor-pointer w-4 h-4 accent-blue-950"
             />
-            {m.charAt(0).toUpperCase() + m.slice(1)}
+            <span className="text-sm md:text-base">
+              {m.charAt(0).toUpperCase() + m.slice(1)}
+            </span>
           </label>
         ))}
       </FilterSection>
@@ -293,14 +342,18 @@ const EventFilter = () => {
         toggle={() => setOpen((p) => ({ ...p, status: !p.status }))}
       >
         {statuses.map((s) => (
-          <label key={s} className="flex items-center gap-2">
+          <label
+            key={s}
+            className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p2 rounded transition-colors"
+          >
             <input
               type="radio"
               name="status"
               checked={status === s}
-              onChange={() => dispatch(setStatus(s))}
+              onChange={() => handleFilterClick(setStatus(s))}
+              className="cursor-pointer w-4 h-4 accent-blue-950"
             />
-            {s}
+            <span className="text-sm md:text-base">{s}</span>
           </label>
         ))}
       </FilterSection>

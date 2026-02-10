@@ -29,17 +29,27 @@ export const fetchFilteredEvents = createAsyncThunk(
 
       if (search) params.search = search;
       if (category && category !== "all") params.category = category;
-      if (isVirtual === "virtual") params.isVirtual = "true";
-      if (isVirtual === "physical") params.isVirtual = "false";
+      
+      // ✅ FIXED: Properly handle isVirtual parameter
+      if (isVirtual !== undefined && isVirtual !== null && isVirtual !== "all") {
+        // Convert to string "true" or "false" for API
+        params.isVirtual = isVirtual.toString();
+      }
+      
       if (status && status !== "all") params.status = status;
+
+      console.log("📤 API Request params:", params);
 
       const { data } = await axiosInstance.get(
         "/api/user/events/filter",
         { params }
       );
 
+      console.log("📥 API Response:", data);
+
       return data;
     } catch (error) {
+      console.error("❌ API Error:", error);
       return rejectWithValue(
         error.response?.data || "Something went wrong"
       );
@@ -87,18 +97,22 @@ const eventSlice = createSlice({
     /* filters — NO implicit page reset */
     setActiveFilter: (state, action) => {
       state.activeFilter = action.payload;
+      state.currentPage = 1; // Reset to page 1 when filter changes
     },
 
     setCategory: (state, action) => {
       state.category = action.payload;
+      state.currentPage = 1; // Reset to page 1 when filter changes
     },
 
     setMode: (state, action) => {
       state.mode = action.payload;
+      state.currentPage = 1; // Reset to page 1 when filter changes
     },
 
     setStatus: (state, action) => {
       state.status = action.payload;
+      state.currentPage = 1; // Reset to page 1 when filter changes
     },
 
     /* pagination — explicit control */

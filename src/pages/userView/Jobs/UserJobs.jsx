@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchPublicJobs } from "../../../store/user-view/UserJobSlice";
-import JobPostSheet from "./PostJobForm";
+
 import JobCard from "./JobCard";
 import JobFilters from "./JobFilter";
-import { Button } from "../../../components/ui/button";
-import { Briefcase } from "lucide-react";
+import PostJobForm from "./PostJobForm";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Briefcase,
+  Search,
+  Plus,
+} from "lucide-react";
 import {
   Pagination,
   PaginationContent,
@@ -13,7 +20,8 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "../../../components/ui/pagination";
+} from "@/components/ui/pagination";
+import { cn } from "@/lib/utils";
 
 const UserJobs = () => {
   const dispatch = useDispatch();
@@ -28,6 +36,22 @@ const UserJobs = () => {
   const isLoading = loading.fetch;
 
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [view, setView] = useState("list");
+  const [searchInput, setSearchInput] = useState("");
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setFilters((prev) => ({
+        ...prev,
+        search: searchInput,
+        page: 1,
+      }));
+    }, 400);
+
+    return () => clearTimeout(timeout);
+  }, [searchInput]);
+
+
   const [filters, setFilters] = useState({
     page: 1,
     limit: 10,
@@ -41,6 +65,8 @@ const UserJobs = () => {
   useEffect(() => {
     dispatch(fetchPublicJobs(filters));
   }, [dispatch, filters]);
+
+  /* ================= FILTER HANDLERS ================= */
 
   const handleFilterChange = (newFilters) => {
     setFilters((prev) => ({
@@ -59,10 +85,11 @@ const UserJobs = () => {
     dispatch(fetchPublicJobs(filters));
   };
 
-  return (
-    <div className="bg-white">
+  /* ================= UI ================= */
 
-       {/* HERO */}
+  return (
+    <div className="bg-white min-h-screen">
+      {/* ================= HERO (FROM CODE 1) ================= */}
       <section className="relative overflow-hidden bg-white">
         <div className="mx-auto max-w-7xl px-6 pt-10 pb-16">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -95,67 +122,99 @@ const UserJobs = () => {
         </div>
       </section>
 
-      {/* SEARCH */}
-      <div className="bg-slate-50 bordery py-8 px-12 flex gap-6">
-        <input
-          type="text"
-          placeholder="Search jobs, companies..."
-          value={filters.search}
-          onChange={(e) =>
-            handleFilterChange({ search: e.target.value })
-          }
-          className="flex-1 h-14 rounded-xl border bg-gray-200 px-6 text-lg"
-        />
+      {/* ================= SEARCH + CTA ================= */}
+      <section className=" ">
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search jobs, companies, keywords..."
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                className="pl-12 h-14 text-lg bg-gray-100 border-border rounded-xl"
+              />
 
-        <Button onClick={() => dispatch(fetchPublicJobs(filters))}>
-          Search
-        </Button>
-      </div>
+            </div>
 
-      {/* FILTERS */}
-      <div className="px-12 py-6 flex justify-between items-center">
-        <JobFilters
-          filters={filters}
-          onFilterChange={handleFilterChange}
-          loading={isLoading}
-        />
+            <Button
+              onClick={() => setIsSheetOpen(true)}
+              className="h-14 px-15  bg-[#EBAB09] hover:bg-yellow-500 text-black cursor-pointer rounded-xl"
+            >
+              <Plus className="h-5 w-5 mr-2" />
+              Post a Job
+            </Button>
+          </div>
+        </div>
+      </section>
 
-        <Button variant="outline" onClick={() => setIsSheetOpen(true)}>
-          Post a Job
-        </Button>
-      </div>
+      {/* ================= FILTERS + JOBS ================= */}
+      <section className="max-w-7xl mx-auto px-6 py-8">
+        <div className="mb-8">
+          <JobFilters
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            loading={isLoading}
+            view={view}
+            onViewChange={setView}
+          />
+        </div>
 
-      {/* JOB LIST */}
-      <div className="px-12 pb-24">
-        {isLoading && (
-          <div className="flex justify-center py-16">
-            <div className="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600" />
+        {/* RESULTS INFO */}
+        {!isLoading && !error && (
+          <div className="flex items-center justify-between mb-6">
+            <p className="text-muted-foreground">
+              Showing{" "}
+              <span className="font-semibold text-foreground">
+                {pagination.total}
+              </span>{" "}
+              job{pagination.total !== 1 && "s"}
+            </p>
           </div>
         )}
 
-        {error && (
-          <div className="bg-red-50 text-red-700 p-4 rounded-lg">
+        {/* LOADING */}
+        {isLoading && (
+          <div className="flex justify-center py-20">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-gold border-t-transparent" />
+          </div>
+        )}
+
+        {/* ERROR */}
+        {!isLoading && error && (
+          <div className="bg-destructive/10 text-destructive p-4 rounded-xl">
             {error}
           </div>
         )}
 
+        {/* EMPTY */}
         {!isLoading && !error && list.length === 0 && (
-          <div className="text-center py-20">
-            <Briefcase className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-4 text-sm font-semibold text-gray-900">
+          <div className="text-center py-20 bg-card rounded-2xl border border-border">
+            <Briefcase className="mx-auto h-16 w-16 text-muted-foreground/50" />
+            <h3 className="mt-6 text-xl font-semibold text-foreground">
               No jobs found
             </h3>
           </div>
         )}
 
+        {/* JOB LIST */}
         {!isLoading && !error && list.length > 0 && (
           <>
-            <div className="grid gap-6">
+            <div
+              className={cn(
+                "gap-6",
+                view === "tile"
+                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                  : "flex flex-col"
+              )}
+            >
               {list.map((job) => (
-                <JobCard key={job._id} job={job} />
+                <JobCard key={job._id} job={job} view={view} />
               ))}
             </div>
 
+            {/* PAGINATION */}
             {pagination.pages > 1 && (
               <div className="mt-12 flex justify-center">
                 <Pagination>
@@ -202,9 +261,10 @@ const UserJobs = () => {
             )}
           </>
         )}
-      </div>
+      </section>
 
-      <JobPostSheet
+      {/* ================= POST JOB SHEET ================= */}
+      <PostJobForm
         open={isSheetOpen}
         onOpenChange={setIsSheetOpen}
         onJobCreated={handleJobCreated}

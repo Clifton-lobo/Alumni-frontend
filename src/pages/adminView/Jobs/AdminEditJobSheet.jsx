@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
 import {
   Sheet,
   SheetContent,
@@ -18,44 +18,64 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
+import { updatePendingJob } from "../../../store/admin/AdminJobSlice";
 
-/* ================= ENUMS (MUST MATCH BACKEND) ================= */
-
+/* ================= ENUMS ================= */
 const EMPLOYMENT_TYPES = ["full-time", "part-time", "internship", "contract"];
 const WORK_MODES = ["onsite", "remote", "hybrid"];
 const EXPERIENCE_LEVELS = ["fresher", "0-1", "1-3", "3-5", "5+"];
 
-/* ================= INITIAL STATE ================= */
-
-const INITIAL_FORM = {
-  title: "",
-  companyName: "",
-  employmentType: "",
-  workMode: "",
-  experienceLevel: "",
-  openings: 1,
-  location: {
-    city: "",
-    state: "",
-    country: "India",
-  },
-  salary: {
-    disclosed: false,
-    min: "",
-    max: "",
-  },
-};
-
-const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
-  const [formData, setFormData] = useState(INITIAL_FORM);
+const AdminEditJobSheet = ({ open, onOpenChange, job }) => {
+  const dispatch = useDispatch();
+  const [formData, setFormData] = useState({
+    title: "",
+    companyName: "",
+    employmentType: "",
+    workMode: "",
+    experienceLevel: "",
+    openings: 1,
+    location: {
+      city: "",
+      state: "",
+      country: "India",
+    },
+    salary: {
+      disclosed: false,
+      min: "",
+      max: "",
+    },
+  });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  /* ================= HELPERS ================= */
+  /* ================= POPULATE FORM ================= */
+  useEffect(() => {
+    if (job) {
+      setFormData({
+        title: job.title || "",
+        companyName: job.companyName || "",
+        employmentType: job.employmentType || "",
+        workMode: job.workMode || "",
+        experienceLevel: job.experienceLevel || "",
+        openings: job.openings || 1,
+        location: {
+          city: job.location?.city || "",
+          state: job.location?.state || "",
+          country: job.location?.country || "India",
+        },
+        salary: {
+          disclosed: job.salary?.disclosed || false,
+          min: job.salary?.min || "",
+          max: job.salary?.max || "",
+        },
+      });
+    }
+  }, [job]);
 
+  /* ================= HELPERS ================= */
   const update = (field, value) => {
     setFormData((p) => ({ ...p, [field]: value }));
     if (errors[field]) setErrors((p) => ({ ...p, [field]: "" }));
@@ -68,13 +88,7 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
     }));
   };
 
-  const resetForm = () => {
-    setFormData(INITIAL_FORM);
-    setErrors({});
-  };
-
   /* ================= VALIDATION ================= */
-
   const validate = () => {
     const e = {};
 
@@ -94,7 +108,6 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
       e.experienceLevel = "Select experience level";
 
     if (!formData.location.city.trim()) e.city = "City is required";
-    if (!formData.location.country.trim()) e.country = "Country is required";
 
     if (Number(formData.openings) < 1)
       e.openings = "Openings must be at least 1";
@@ -111,7 +124,6 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
   };
 
   /* ================= SUBMIT ================= */
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -144,49 +156,36 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
         },
       };
 
-      const res = await axios.post(
-        "/api/user/jobs/alumni/jobs/create",
-        payload,
-        { withCredentials: true }
-      );
+      await dispatch(
+        updatePendingJob({ jobId: job._id, payload })
+      ).unwrap();
 
-      console.log("POSTED BY 👉", res.data.data.postedBy);
-      console.log("JOB PAYLOAD 👉", payload);
-      console.log("JOB CREATED ✅", res.data);
-
-      toast.success("Job submitted for admin approval");
-      resetForm();
-      onJobCreated?.();
+      toast.success("Job updated successfully");
       onOpenChange(false);
     } catch (err) {
-      toast.error(
-        err.response?.data?.message ||
-          err.response?.data?.errors?.[0] ||
-          "Failed to submit job"
-      );
+      toast.error(err || "Failed to update job");
     } finally {
       setLoading(false);
     }
   };
 
   /* ================= UI ================= */
-
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-[640px] px-10 py-6 bg-white overflow-y-auto">
         <SheetHeader className="space-y-3 pb-4 border-b border-gray-200">
           <SheetTitle className="text-2xl font-bold tracking-tight">
-            Post a Job
+            Edit Pending Job
           </SheetTitle>
           <SheetDescription className="text-sm text-gray-600">
-            All jobs are reviewed before going live.
+            Update job details before approval
           </SheetDescription>
         </SheetHeader>
 
-        <Alert className="mt-6 rounded-xl border border-blue-200 bg-blue-50">
-          <AlertCircle className="h-4 w-4 text-blue-600" />
-          <AlertDescription className="text-blue-800">
-            Only approved jobs are visible publicly.
+        <Alert className="mt-6 rounded-xl border border-yellow-200 bg-yellow-50">
+          <AlertCircle className="h-4 w-4 text-yellow-600" />
+          <AlertDescription className="text-yellow-800">
+            Only pending jobs can be edited
           </AlertDescription>
         </Alert>
 
@@ -220,7 +219,7 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
           {/* META */}
           <div className="grid grid-cols-2 gap-6 p-4 rounded-xl bg-gray-50 border border-gray-200">
             <div className="space-y-2">
-              <Label>Experience Type*</Label>
+              <Label>Employment Type *</Label>
               <Select
                 value={formData.employmentType}
                 onValueChange={(v) => update("employmentType", v)}
@@ -244,7 +243,7 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
             </div>
 
             <div className="space-y-2">
-              <Label>Work Mode*</Label>
+              <Label>Work Mode *</Label>
               <Select
                 value={formData.workMode}
                 onValueChange={(v) => update("workMode", v)}
@@ -266,7 +265,7 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
             </div>
 
             <div className="space-y-2">
-              <Label>Experience*</Label>
+              <Label>Experience Level *</Label>
               <Select
                 value={formData.experienceLevel}
                 onValueChange={(v) => update("experienceLevel", v)}
@@ -290,7 +289,7 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
             </div>
 
             <div className="space-y-2">
-              <Label>Number of openings*</Label>
+              <Label>Number of openings *</Label>
               <Input
                 type="number"
                 min={1}
@@ -358,24 +357,34 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
 
           {formData.salary.disclosed && (
             <div className="grid grid-cols-2 gap-4">
-              <Input
-                type="number"
-                placeholder="Min ₹"
-                value={formData.salary.min}
-                onChange={(e) =>
-                  updateNested("salary", "min", e.target.value)
-                }
-                className="h-11 rounded-lg bg-gray-50 border border-gray-300"
-              />
-              <Input
-                type="number"
-                placeholder="Max ₹"
-                value={formData.salary.max}
-                onChange={(e) =>
-                  updateNested("salary", "max", e.target.value)
-                }
-                className="h-11 rounded-lg bg-gray-50 border border-gray-300"
-              />
+              <div className="space-y-2">
+                <Input
+                  type="number"
+                  placeholder="Min ₹"
+                  value={formData.salary.min}
+                  onChange={(e) =>
+                    updateNested("salary", "min", e.target.value)
+                  }
+                  className="h-11 rounded-lg bg-gray-50 border border-gray-300"
+                />
+                {errors.salaryMin && (
+                  <p className="text-sm text-red-600">{errors.salaryMin}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Input
+                  type="number"
+                  placeholder="Max ₹"
+                  value={formData.salary.max}
+                  onChange={(e) =>
+                    updateNested("salary", "max", e.target.value)
+                  }
+                  className="h-11 rounded-lg bg-gray-50 border border-gray-300"
+                />
+                {errors.salaryMax && (
+                  <p className="text-sm text-red-600">{errors.salaryMax}</p>
+                )}
+              </div>
             </div>
           )}
 
@@ -392,15 +401,15 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
             <Button
               type="submit"
               disabled={loading}
-              className="flex-1 h-11 rounded-lg bg-[#EBAB09] hover:bg-yellow-500 text-black"
+              className="flex-1 h-11 rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
             >
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Submitting
+                  Saving
                 </>
               ) : (
-                "Submit for Approval"
+                "Save Changes"
               )}
             </Button>
           </div>
@@ -410,4 +419,4 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
   );
 };
 
-export default PostJobForm;
+export default AdminEditJobSheet;

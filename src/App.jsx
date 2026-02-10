@@ -4,7 +4,7 @@ import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
 import Dashboard from './pages/adminView/Dashboard'
 import Alumni from './pages/adminView/Alumni'
-import Jobs from './pages/adminView/Jobs'
+import Jobs from './pages/adminView/Jobs/Jobs.jsx'
 import Events from './pages/adminView/Event/Events'
 import AdminLayout from './components/adminView/AdminLayout.jsx'
 import UserLayout from './components/userView/UserLayout'
@@ -25,6 +25,7 @@ import UserDonate from './pages/userView/userDonate.jsx'
 import UserCommunity from './pages/userView/userCommunity.jsx'
 import ScrollToTop from './config/ScrollToTop.jsx'
 import UserProfile from './pages/userView/UserProfile.jsx'
+import Gallery from './pages/adminView/Gallery.jsx'
 
 
 
@@ -79,7 +80,8 @@ function App() {
           }
         >
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="alumni" element={<Alumni />} />
+          <Route path="alumni" element={<Alumni/>} />
+          <Route path="gallery" element={<Gallery/>} />
           <Route path="jobs" element={<Jobs />} />
           <Route path="events" element={<Events />} />
           <Route path="news" element={<NewsLetter />} />

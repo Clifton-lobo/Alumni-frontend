@@ -5,30 +5,31 @@ import { useDispatch } from 'react-redux';
 import { logoutUser } from '../../store/authSlice/authSlice';
 
 
-const AdminHeader = ({setOpen}) => {
-
+const AdminHeader = ({ setOpen }) => {
   const dispatch = useDispatch();
-  
-  function handleLogout() {
-    dispatch(logoutUser());
-  }
+
   return (
-    <header className="flex items-center justify-between px4 py-3 bg-background shadow-md  px-4 ">
-      <Button onClick={() => setOpen(true)} className="lg:hidden md:block">
+    <header className="sticky top-0 z-40 flex items-center justify-between px-4 h-16 bg-white border-b">
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setOpen(true)}
+        className="lg:hidden"
+      >
         <Menu />
-        <span className="sr-only">Toggle menu</span>
       </Button>
-      <div className="hidden  md:flex flex-1 justify-end">
+
+      <div className="ml-auto">
         <Button
-          onClick={handleLogout}
-          className="inline-flex gap-2  items-center cursor-pointer rounded-md px-4 py-2 text-sm font-medium shadow bg-blue-600 hover:bg-blue-700"
+          onClick={() => dispatch(logoutUser())}
+          className="flex  items-center gap-2 bg-blue-600 hover:bg-blue-700"
         >
-          <LogOut />
+          <LogOut size={16} />
           Logout
         </Button>
       </div>
     </header>
   );
-}
+};
 
 export default AdminHeader

@@ -1,175 +1,278 @@
-import React from 'react';
-import { Input } from '../../../components/ui/input';
-import { Button } from '../../../components/ui/button';
+import React, { useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../../../components/ui/select';
-import { Search, X } from 'lucide-react';
+} from "@/components/ui/select";
+import { Search, X, LayoutGrid, List } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const JobFilters = ({ filters, onFilterChange, loading }) => {
-  const handleSearchChange = (e) => {
-    onFilterChange({ search: e.target.value });
+const selectItemClass =
+  "cursor-pointer focus:bg-blue-950 focus:text-white data-[state=checked]:bg-blue-950 data-[state=checked]:text-white";
+
+const JobFilters = ({
+  filters,
+  onFilterChange,
+  loading = false,
+  view,
+  onViewChange,
+}) => {
+  // Local state ONLY for city input (controlled component)
+  const [localCity, setLocalCity] = useState("");
+
+  // Debounced effect for city search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onFilterChange({ city: localCity });
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [localCity]);
+
+  // Handle dropdown filter changes (instant, no debounce)
+  const handleDropdownChange = (field, value) => {
+    const filterValue = value === "all" ? "" : value;
+    onFilterChange({ [field]: filterValue });
   };
 
-  const handleFilterSelect = (field, value) => {
-    onFilterChange({ [field]: value === 'all' ? '' : value });
-  };
-
-  const handleClearFilters = () => {
+  // Clear ALL filters
+  const clearAllFilters = () => {
+    setLocalCity("");
     onFilterChange({
-      employmentType: '',
-      workMode: '',
-      experienceLevel: '',
-      city: '',
-      search: '',
+      employmentType: "",
+      workMode: "",
+      experienceLevel: "",
+      city: "",
     });
   };
 
+  // Clear individual filter (for pills)
+  const clearSingleFilter = (field) => {
+    if (field === "city") {
+      setLocalCity("");
+    }
+    onFilterChange({ [field]: "" });
+  };
+
+  // Check if any filters are active
   const hasActiveFilters =
     filters.employmentType ||
     filters.workMode ||
     filters.experienceLevel ||
-    filters.city ||
-    filters.search;
+    filters.city;
 
-  return (
-    <div className="bg-white rounded-lg  p6 spacey4">
-      {/* Search Bar */}
-      {/* <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+    return (
+  <div className="space-y-4">
+    <div className="flex flex-wrap items-center gap-4">
+      {/* Employment Type */}
+      <Select
+        value={filters.employmentType || "all"}
+        onValueChange={(val) =>
+          handleDropdownChange("employmentType", val)
+        }
+        disabled={loading}
+      >
+        <SelectTrigger className="w-[160px] bg-white rounded-sm border-border focus:ring-2 focus:ring-blue-950 data-[state=open]:border-blue-950">
+          <SelectValue placeholder="Employment Type" />
+        </SelectTrigger>
+        <SelectContent className="bg-white">
+          <SelectItem
+            value="all"
+            className="cursor-pointer focus:bg-muted focus:text-foreground"
+          >
+            All Types
+          </SelectItem>
+          <SelectItem value="full-time" className={selectItemClass}>
+            Full Time
+          </SelectItem>
+          <SelectItem value="part-time" className={selectItemClass}>
+            Part Time
+          </SelectItem>
+          <SelectItem value="internship" className={selectItemClass}>
+            Internship
+          </SelectItem>
+          <SelectItem value="contract" className={selectItemClass}>
+            Contract
+          </SelectItem>
+        </SelectContent>
+      </Select>
+
+      {/* Work Mode */}
+      <Select
+        value={filters.workMode || "all"}
+        onValueChange={(val) =>
+          handleDropdownChange("workMode", val)
+        }
+        disabled={loading}
+        className=""
+      >
+        <SelectTrigger className="w-[140px] bg-white rounded-sm focus:ring-2 focus:ring-blue-950 data-[state=open]:border-blue-950">
+          <SelectValue placeholder="Work Mode" />
+        </SelectTrigger>
+        <SelectContent className="bg-white">
+          <SelectItem
+            value="all"
+            className="cursor-pointer  focus:bg-muted focus:text-foreground"
+          >
+            All Modes
+          </SelectItem>
+          <SelectItem value="onsite" className={selectItemClass}>
+            Onsite
+          </SelectItem>
+          <SelectItem value="remote" className={selectItemClass}>
+            Remote
+          </SelectItem>
+          <SelectItem value="hybrid" className={selectItemClass}>
+            Hybrid
+          </SelectItem>
+        </SelectContent>
+      </Select>
+
+      {/* Experience Level */}
+      <Select
+        value={filters.experienceLevel || "all"}
+        onValueChange={(val) =>
+          handleDropdownChange("experienceLevel", val)
+        }
+        disabled={loading}
+      >
+        <SelectTrigger className="w-[140px] bg-white rounded-sm border-border focus:ring-2 focus:ring-blue-950 data-[state=open]:border-blue-950">
+          <SelectValue placeholder="Experience" />
+        </SelectTrigger>
+        <SelectContent className="bg-white">
+          <SelectItem
+            value="all"
+            className="cursor-pointer focus:bg-muted focus:text-foreground"
+          >
+            All Levels
+          </SelectItem>
+          <SelectItem value="fresher" className={selectItemClass}>
+            Fresher
+          </SelectItem>
+          <SelectItem value="0-1" className={selectItemClass}>
+            0–1 years
+          </SelectItem>
+          <SelectItem value="1-3" className={selectItemClass}>
+            1–3 years
+          </SelectItem>
+          <SelectItem value="3-5" className={selectItemClass}>
+            3–5 years
+          </SelectItem>
+          <SelectItem value="5+" className={selectItemClass}>
+            5+ years
+          </SelectItem>
+        </SelectContent>
+      </Select>
+
+      {/* City */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           type="text"
-          placeholder="Search by job title or company..."
-          value={filters.search}
-          onChange={handleSearchChange}
-          className="pl-10"
-          disabled={loading}
+          placeholder="City (e.g., Mumbai)"
+          value={localCity}
+          onChange={(e) => setLocalCity(e.target.value)}
+          className="pl-10  w-[180px] bg-white outline-none  border-border focus:ring-2 focus:ring-blue-950"
         />
-      </div> */}
-
-      {/* Filter Dropdowns */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap4">
-        {/* Employment Type */}
-        <Select
-          value={filters.employmentType || 'all'}
-          onValueChange={(value) => handleFilterSelect('employmentType', value)}
-          disabled={loading}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Employment Type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            <SelectItem value="full-time">Full Time</SelectItem>
-            <SelectItem value="part-time">Part Time</SelectItem>
-            <SelectItem value="internship">Internship</SelectItem>
-            <SelectItem value="contract">Contract</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Work Mode */}
-        <Select
-          value={filters.workMode || 'all'}
-          onValueChange={(value) => handleFilterSelect('workMode', value)}
-          disabled={loading}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Work Mode" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Modes</SelectItem>
-            <SelectItem value="onsite">Onsite</SelectItem>
-            <SelectItem value="remote">Remote</SelectItem>
-            <SelectItem value="hybrid">Hybrid</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Experience Level */}
-        <Select
-          value={filters.experienceLevel || 'all'}
-          onValueChange={(value) => handleFilterSelect('experienceLevel', value)}
-          disabled={loading}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Experience" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Levels</SelectItem>
-            <SelectItem value="fresher">Fresher</SelectItem>
-            <SelectItem value="0-1">0-1 years</SelectItem>
-            <SelectItem value="1-3">1-3 years</SelectItem>
-            <SelectItem value="3-5">3-5 years</SelectItem>
-            <SelectItem value="5+">5+ years</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* City */}
-        <div className="relative">
-          <Input
-            type="text"
-            placeholder="City (e.g., Mumbai)"
-            value={filters.city}
-            onChange={(e) => onFilterChange({ city: e.target.value })}
-            disabled={loading}
-          />
-        </div>
       </div>
 
-      {/* Clear Filters Button */}
+      {/* Clear */}
       {hasActiveFilters && (
-        <div className="flex justify-end">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleClearFilters}
-            disabled={loading}
-            className="gap-2"
-          >
-            <X className="h-4 w-4" />
-            Clear Filters
-          </Button>
-        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={clearAllFilters}
+          disabled={loading}
+          className="text-muted-foreground hover:bg-blue-950 hover:text-white transition-colors"
+        >
+          <X className="h-4 w-4 mr-1" />
+          Clear
+        </Button>
       )}
 
-      {/* Active Filters Display */}
-      {hasActiveFilters && (
-        <div className="flex flex-wrap gap-2 pt-2 border-t">
-          <span className="text-sm text-gray-500">Active filters:</span>
-          {filters.search && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded">
-              Search: {filters.search}
-            </span>
+      <div className="flex-1" />
+
+      {/* View Toggle */}
+      <div className="flex items-center cursor-pointer gap-1 bg-gray-200 rounded-lg p-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onViewChange("list")}
+          className={cn(
+            "px-3 h-8 rounded-md transition-all",
+            view === "list"
+              ? "bg-white shadow-sm  cursor-pointer hover:text-white hover:bg-blue-950"
+              : "hover:bg-blue-950  cursor-pointer hover:text-white"
           )}
-          {filters.employmentType && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded">
-              {filters.employmentType.replace('-', ' ')}
-            </span>
+        >
+          <List className="h-4 w-4 mr-2" />
+          List
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onViewChange("tile")}
+          className={cn(
+            "px-3 h-8 rounded-md transition-all",
+            view === "tile"
+              ? "bg-white shadow-sm hover:text-white  cursor-pointer hover:bg-blue-950"
+              : "hover:bg-blue-950  cursor-pointer hover:text-white"
           )}
-          {filters.workMode && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded">
-              {filters.workMode}
-            </span>
-          )}
-          {filters.experienceLevel && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded">
-              {filters.experienceLevel === 'fresher'
-                ? 'Fresher'
-                : `${filters.experienceLevel} years`}
-            </span>
-          )}
-          {filters.city && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded">
-              {filters.city}
-            </span>
-          )}
-        </div>
-      )}
+        >
+          <LayoutGrid className="h-4 w-4 mr-2" />
+          Grid
+        </Button>
+      </div>
     </div>
-  );
+
+    {/* Pills */}
+    {/* {hasActiveFilters && (
+      <div className="flex flex-wrap gap-2">
+        {filters.employmentType && (
+          <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full">
+            {filters.employmentType.replace("-", " ")}
+            <button onClick={() => clearSingleFilter("employmentType")}>
+              <X className="h-3 w-3" />
+            </button>
+          </span>
+        )}
+
+        {filters.workMode && (
+          <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 text-sm rounded-full">
+            {filters.workMode}
+            <button onClick={() => clearSingleFilter("workMode")}>
+              <X className="h-3 w-3" />
+            </button>
+          </span>
+        )}
+
+        {filters.experienceLevel && (
+          <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 text-sm rounded-full">
+            {filters.experienceLevel}
+            <button onClick={() => clearSingleFilter("experienceLevel")}>
+              <X className="h-3 w-3" />
+            </button>
+          </span>
+        )}
+
+        {filters.city && (
+          <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-700 text-sm rounded-full">
+            {filters.city}
+            <button onClick={() => clearSingleFilter("city")}>
+              <X className="h-3 w-3" />
+            </button>
+          </span>
+        )}
+      </div>
+    )} */}
+  </div>
+);
+
 };
 
 export default JobFilters;

@@ -12,7 +12,6 @@ import {
   MapPin,
   Users,
   Video,
-  Building2,
   Tag,
   CircleCheckBig,
   AlertCircle,
@@ -54,51 +53,49 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
-
-        {/* ERROR */}
-        {error && (
-          <div className="flex items-center gap-2 bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg mb-3">
-            <AlertCircle size={18} />
-            <span className="text-sm">{error}</span>
-          </div>
-        )}
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0">
 
         {/* SCROLLABLE AREA */}
-        <div className="flex-1 overflow-y-auto pr-2">
+        <div className="flex-1 overflow-y-auto px-4 md:px-6 pt-6">
 
           <DialogHeader>
-            <DialogTitle className="text-3xl font-bold">
+            <DialogTitle className="text-2xl md:text-3xl font-bold pr-8">
               {event.title}
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-6 mt-4">
+          {/* ERROR */}
+          {error && (
+            <div className="flex items-center gap-2 bg-red-50 border border-red-300 text-red-700 px-3 md:px-4 py-2 md:py-3 rounded-lg mt-4">
+              <AlertCircle size={18} className="shrink-0" />
+              <span className="text-xs md:text-sm">{error}</span>
+            </div>
+          )}
+
+          <div className="space-y-4 md:space-y-6 mt-4">
 
             {/* IMAGE */}
             <img
               src={event.image?.secure_url || event.image}
               alt={event.title}
-              className="w-full h-64 object-cover rounded-xl"
+              className="w-full h-48 md:h-64 object-cover rounded-xl"
             />
 
             {/* MODE BADGE */}
-            <div className="flex gap-2">
-              <span
-                className={`inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-full
-                  ${
-                    event.isVirtual
-                      ? "bg-purple-100 text-purple-700"
-                      :null
-                  }`}
-              >
-                {event.isVirtual ? (
+            <div className="flex gap-2 flex-wrap">
+              {event.isVirtual && (
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-full bg-purple-100 text-purple-700">
                   <Video size={14} />
-                ) : (
-                  null
-                )}
-                {event.isVirtual ? "Virtual Event" : null}
-              </span>
+                  Virtual Event
+                </span>
+              )}
+
+              {!event.isVirtual && (
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-700">
+                  <MapPin size={14} />
+                  In-Person Event
+                </span>
+              )}
 
               {isFull && (
                 <span className="bg-red-100 text-red-700 px-3 py-1.5 rounded-full text-xs font-semibold">
@@ -109,7 +106,7 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
 
             {/* DATE & TIME */}
             <div className="flex items-start gap-3">
-              <Calendar className="text-blue-600 mt-1" size={20} />
+              <Calendar className="text-blue-600 mt-1 shrink-0" size={20} />
               <div>
                 <p className="font-semibold text-gray-900">Date & Time</p>
                 <p className="text-sm text-gray-700">
@@ -134,7 +131,7 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
 
             {/* CATEGORY */}
             <div className="flex items-center gap-3">
-              <Tag size={18} className="text-purple-600" />
+              <Tag size={18} className="text-purple-600 shrink-0" />
               <span className="px-3 py-1 rounded-md bg-purple-50 text-purple-700 text-sm font-medium">
                 {event.category || "General"}
               </span>
@@ -143,7 +140,7 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
             {/* LOCATION */}
             {!event.isVirtual && event.address && (
               <div className="flex items-start gap-3">
-                <MapPin size={22} className="text-indigo-600 mt-1" />
+                <MapPin size={22} className="text-indigo-600 mt-1 shrink-0" />
                 <div>
                   <p className="font-semibold text-gray-900">Event Location</p>
                   <p className="text-sm text-gray-700 leading-relaxed">
@@ -155,7 +152,7 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
 
             {/* REGISTRATIONS */}
             <div className="flex items-center gap-3">
-              <Users size={20} className="text-emerald-600" />
+              <Users size={20} className="text-emerald-600 shrink-0" />
               <p className="text-sm text-gray-800">
                 {event.isLimited ? (
                   <>
@@ -185,9 +182,9 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
 
             {/* REGISTERED STATE */}
             {isRegistered && (
-              <div className="flex items-center gap-3 bg-green-50 border border-green-300 text-green-800 px-5 py-4 rounded-lg">
-                <CircleCheckBig size={20} />
-                <span className="font-medium">
+              <div className="flex items-center gap-3 bg-green-50 border border-green-300 text-green-800 px-4 md:px-5 py-3 md:py-4 rounded-lg">
+                <CircleCheckBig size={20} className="shrink-0" />
+                <span className="font-medium text-sm md:text-base">
                   You have registered for this event.
                 </span>
               </div>
@@ -196,17 +193,20 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
         </div>
 
         {/* FOOTER */}
-        <DialogFooter className="border-t pt-4 flex justify-between">
+        <DialogFooter className="border-t pt-4 pb-4 px-4 md:px-6 flex flex-row justify-between gap-3">
           <DialogClose asChild> 
-            <Button variant="ghost" className="cursor-pointer hover:bg-transparent hover:border hover:border-current" > 
-            Close
+            <Button 
+              variant="ghost" 
+              className="cursor-pointer hover:bg-gray-100 flex-1 md:flex-initial"
+            > 
+              Close
             </Button>
-           </DialogClose>
+          </DialogClose>
 
           <Button
             onClick={handleRegister}
             disabled={registering || isRegistered || isFull}
-            className={`${
+            className={`flex-1 md:flex-initial ${
               isFull
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-blue-950 hover:bg-blue-900"

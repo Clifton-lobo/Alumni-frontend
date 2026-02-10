@@ -2,7 +2,9 @@ import {
   LayoutDashboard, 
   CalendarDays, 
   BriefcaseBusiness, 
-  Newspaper 
+  Newspaper, 
+  ImageIcon,
+  UserSquare
 } from 'lucide-react';
 
 export const AdminSidebarMenuItems = [
@@ -30,6 +32,18 @@ export const AdminSidebarMenuItems = [
     path: "/admin/news",
     icon: Newspaper,
   },
+  {
+    id: "gallery",
+    label: "Gallery",
+    path: "/admin/gallery",
+    icon: ImageIcon,
+  },
+  {
+    id: "alumni",
+    label: "Alumi directory",
+    path: "/admin/directory",
+    icon: UserSquare,
+  }
 ];
 
 export const addEventFormElements = [
