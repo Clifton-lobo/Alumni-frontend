@@ -88,7 +88,7 @@ const AdminJobFilters = ({
         onChange={(e) => setSearchInput(e.target.value)}
         placeholder="Search title / company / user"
         className="w-[240px]"
-        disabled={loading}
+        // disabled={loading}
       />
 
       {/* EMPLOYMENT TYPE */}
@@ -181,7 +181,7 @@ const AdminJobFilters = ({
         onChange={(e) => setCityInput(e.target.value)}
         placeholder="City"
         className="w-[160px]"
-        disabled={loading}
+        // disabled={loading}
       />
 
       {hasActive && (

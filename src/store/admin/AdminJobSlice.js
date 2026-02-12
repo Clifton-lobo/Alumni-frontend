@@ -44,7 +44,7 @@ export const updatePendingJob = createAsyncThunk(
   async ({ jobId, payload }, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.patch(
-        `/api/admin/jobs/${jobId}`,
+        `/api/admin/jobs/${jobId}/edit`,
         payload
       );
       return res.data.data;

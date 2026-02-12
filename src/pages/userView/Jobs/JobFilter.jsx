@@ -197,7 +197,7 @@ const JobFilters = ({
       <div className="flex-1" />
 
       {/* View Toggle */}
-      <div className="flex items-center cursor-pointer gap-1 bg-gray-200 rounded-lg p-1">
+      <div className="hidden md:flex items-center cursor-pointer gap-1 bg-gray-200 rounded-lg p-1">
         <Button
           variant="ghost"
           size="sm"

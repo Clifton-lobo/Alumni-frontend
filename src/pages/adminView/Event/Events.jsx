@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef, useLayoutEffect } from "react";
 import { Button } from "../../../components/ui/button";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -15,8 +15,6 @@ import {
   FaEye,
   FaPen,
   FaTrash,
-  FaChevronLeft,
-  FaChevronRight,
   FaFilter,
   FaAlignLeft,
 } from "react-icons/fa";
@@ -33,11 +31,13 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogFooter,
-
 } from "@/components/ui/dialog";
+import PaginationControls from "../../../components/common/Pagination.jsx";
+import LoadingOverlay from "../../../config/LoadingOverlay.jsx";
 
+const DEBOUNCE_DELAY = 400;
+const EVENTS_PER_PAGE = 10;
 
 const Events = () => {
   const [open, setOpen] = useState(false);
@@ -58,11 +58,13 @@ const Events = () => {
   const [isLimited, setIsLimited] = useState(false);
   const [capacity, setCapacity] = useState("");
 
-
-
   // 📄 Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const eventsPerPage = 10;
+
+  // Refs for scroll management
+  const isFirstRender = useRef(true);
+  const tableContainerRef = useRef(null);
+  const scrollPositionRef = useRef(0);
 
   const dispatch = useDispatch();
   const { eventList, isLoading } = useSelector((state) => state.adminEvent);
@@ -70,6 +72,15 @@ const Events = () => {
   useEffect(() => {
     dispatch(fetchAllEvents());
   }, [dispatch]);
+
+  /* ------------------------------
+     Restore scroll position after loading
+  ------------------------------ */
+  useLayoutEffect(() => {
+    if (!isLoading) {
+      window.scrollTo({ top: scrollPositionRef.current, behavior: "auto" });
+    }
+  }, [isLoading]);
 
   const handleEventDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this event?")) {
@@ -92,13 +103,17 @@ const Events = () => {
     setOpen(true);
   };
 
-
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
     const handler = setTimeout(() => {
       setdebounceSearch(searchTerm);
-    }, 400);
+    }, DEBOUNCE_DELAY);
 
-    return () => clearTimeout(handler);
+    // return () => clearHandler(handler);
   }, [searchTerm]);
 
   // ✅ Filter + Search logic (Memoized)
@@ -107,7 +122,7 @@ const Events = () => {
 
     if (debounceSearch.trim() !== "") {
       filtered = filtered.filter((e) =>
-        e.title.toLowerCase().includes(searchTerm.toLowerCase())
+        e.title.toLowerCase().includes(debounceSearch.toLowerCase())
       );
     }
 
@@ -123,16 +138,30 @@ const Events = () => {
   }, [eventList, debounceSearch, statusFilter, categoryFilter]);
 
   // ✅ Pagination logic
-  const totalPages = Math.ceil(filteredEvents.length / eventsPerPage);
+  const totalPages = Math.ceil(filteredEvents.length / EVENTS_PER_PAGE);
   const paginatedEvents = filteredEvents.slice(
-    (currentPage - 1) * eventsPerPage,
-    currentPage * eventsPerPage
+    (currentPage - 1) * EVENTS_PER_PAGE,
+    currentPage * EVENTS_PER_PAGE
   );
 
   // 🔁 Reset pagination when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, statusFilter, categoryFilter]);
+  }, [debounceSearch, statusFilter, categoryFilter]);
+
+  // 📄 Pagination handler with scroll
+  const onPageChange = (page) => {
+    // Smooth scroll to table container
+    if (tableContainerRef.current) {
+      const yOffset = -100; // Offset from top
+      const element = tableContainerRef.current;
+      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }
+
+    setCurrentPage(page);
+  };
 
   // 🧾 Form submission
   const onSubmit = async (e) => {
@@ -151,7 +180,6 @@ const Events = () => {
       isLimited,
       capacity: isLimited ? Number(capacity) : undefined,
     };
-
 
     try {
       if (editMode) {
@@ -388,8 +416,6 @@ const Events = () => {
                 </select>
               </div>
 
-
-
               {/* Status */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -443,19 +469,21 @@ const Events = () => {
       <div className="flex  gap-3 mt-6 mb-6">
         <button
           onClick={() => setViewMode("list")}
-          className={`px-4 py-2 cursor-pointer rounded-lg shadow-sm ${viewMode === "list"
-            ? "bg-blue-600 text-white"
-            : "bg-gray-100 text-gray-800"
-            }`}
+          className={`px-4 py-2 cursor-pointer rounded-lg shadow-sm ${
+            viewMode === "list"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-100 text-gray-800"
+          }`}
         >
           List View
         </button>
         <button
           onClick={() => setViewMode("calendar")}
-          className={`px-4 py-2 cursor-pointer rounded-lg shadow-sm flex items-center gap-2 ${viewMode === "calendar"
-            ? "bg-blue-600 text-white"
-            : "bg-gray-100 text-gray-800"
-            }`}
+          className={`px-4 py-2 cursor-pointer rounded-lg shadow-sm flex items-center gap-2 ${
+            viewMode === "calendar"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-100 text-gray-800"
+          }`}
         >
           <FaCalendarAlt /> Calendar View
         </button>
@@ -503,185 +531,180 @@ const Events = () => {
             </div>
           </div>
 
-          {/* Table */}
-          <div className="bg-white rounded-xl shadow-sm p-5 overflow-x-auto">
-            <table className="w-full text-left min-w-[900px] border-collapse">
-              <thead>
-                <tr className="text-gray-600 border-b bg-gray-50">
-                  <th className="p-3 text-center w-16">#</th>
-                  <th className="p-3">Event</th>
-                  <th className="p-3">Date & Time</th>
-                  <th className="p-3 text-center">Category</th>
-                  <th className="p-3 text-center">Registrations</th>
-                  <th className="p-3 text-center">Mode</th>
-                  <th className="p-3 text-center">Status</th>
-                  <th className="p-3 text-center w-28">Actions</th>
-                </tr>
-              </thead>
+          {/* Table Container with Loading Overlay */}
+          <div ref={tableContainerRef} className="relative min-h-[400px]">
+            {/* Loading Overlay - Absolute positioned to prevent layout shift */}
+            {isLoading && (
+              <div className="absolute inset-0 bg-white/70 z-10 flex items-start justify-center pt-20">
+                <LoadingOverlay loading={isLoading} />
+              </div>
+            )}
 
-              <tbody>
-                {isLoading ? (
-                  <tr>
-                    <td colSpan="8" className="text-center p-5 text-gray-500">
-                      Loading events...
-                    </td>
+            {/* Table - stays in place during loading */}
+            <div
+              className={`bg-white rounded-xl shadow-sm p-5 overflow-x-auto transition-opacity duration-200 ${
+                isLoading ? "opacity-30" : "opacity-100"
+              }`}
+            >
+              <table className="w-full text-left min-w-[900px] border-collapse">
+                <thead>
+                  <tr className="text-gray-600 border-b bg-gray-50">
+                    <th className="p-3 text-center w-16">#</th>
+                    <th className="p-3">Event</th>
+                    <th className="p-3">Date & Time</th>
+                    <th className="p-3 text-center">Category</th>
+                    <th className="p-3 text-center">Registrations</th>
+                    <th className="p-3 text-center">Mode</th>
+                    <th className="p-3 text-center">Status</th>
+                    <th className="p-3 text-center w-28">Actions</th>
                   </tr>
-                ) : paginatedEvents.length > 0 ? (
-                  paginatedEvents.map((event, index) => (
-                    <tr
-                      key={event._id}
-                      className="border-b hover:bg-gray-50 transition-all text-sm align-middle"
-                    >
-                      {/* Index */}
-                      <td className="p-3 text-center font-medium text-gray-700">
-                        {(currentPage - 1) * eventsPerPage + (index + 1)}
-                      </td>
+                </thead>
 
-                      {/* Event */}
-                      <td onClick={() => setViewEvent(event)}
-                        className="p-3 flex items-center gap-3 min-w-[180px]">
-                        <img
-                          src={event.image?.secure_url || event.image || "/placeholder.png"}
-                          alt={event.title}
-                          className="rounded-md w-12 h-12 object-cover border"
-                        />
-                        <div className="truncate">
-                          <p
-                            className="font-semibold text-gray-800 cursor-pointer hover:underline"
+                <tbody>
+                  {paginatedEvents.length > 0 ? (
+                    paginatedEvents.map((event, index) => (
+                      <tr
+                        key={event._id}
+                        className="border-b hover:bg-gray-50 transition-all text-sm align-middle"
+                      >
+                        {/* Index */}
+                        <td className="p-3 text-center font-medium text-gray-700">
+                          {(currentPage - 1) * EVENTS_PER_PAGE + (index + 1)}
+                        </td>
+
+                        {/* Event */}
+                        <td
+                          onClick={() => setViewEvent(event)}
+                          className="p-3 flex items-center gap-3 min-w-[180px]"
+                        >
+                          <img
+                            src={
+                              event.image?.secure_url ||
+                              event.image ||
+                              "/placeholder.png"
+                            }
+                            alt={event.title}
+                            className="rounded-md w-12 h-12 object-cover border"
+                          />
+                          <div className="truncate">
+                            <p className="font-semibold text-gray-800 cursor-pointer hover:underline">
+                              {event.title}
+                            </p>
+                            <p className="text-xs text-gray-500 truncate max-w-[160px]">
+                              {event.description.slice(0, 40)}...
+                            </p>
+                          </div>
+                        </td>
+
+                        {/* Date & Time */}
+                        <td className="p-3">
+                          <p className="font-medium">
+                            {new Date(event.date).toLocaleDateString("en-IN", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {new Date(
+                              `1970-01-01T${event.time}`
+                            ).toLocaleTimeString("en-IN", {
+                              hour: "numeric",
+                              minute: "2-digit",
+                              hour12: true,
+                            })}
+                          </p>
+                        </td>
+
+                        {/* Category */}
+                        <td className="p-3 text-center">
+                          <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-lg text-sm">
+                            {event.category}
+                          </span>
+                        </td>
+
+                        {/* Registrations */}
+                        <td className="p-3 text-center">
+                          {event.isLimited ? (
+                            <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-semibold">
+                              {event.registrationsCount ?? 0} / {event.capacity}
+                            </span>
+                          ) : (
+                            <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-sm font-semibold">
+                              {event.registrationsCount ?? 0}
+                            </span>
+                          )}
+                        </td>
+
+                        {/* Mode */}
+                        <td className="p-3 text-center">
+                          <span
+                            className={`px-3 py-1 rounded-lg text-xs font-medium ${
+                              event.isVirtual
+                                ? "bg-purple-100 text-purple-700"
+                                : "bg-indigo-100 text-indigo-700"
+                            }`}
                           >
-                            {event.title}
-                          </p>
-                          <p className="text-xs text-gray-500 truncate max-w-[160px]">
-                            {event.description.slice(0, 40)}...
-                          </p>
-                        </div>
-                      </td>
-
-                      {/* Date & Time */}
-                      <td className="p-3">
-                        <p className="font-medium">
-                          {new Date(event.date).toLocaleDateString("en-IN", {
-                            day: "numeric",
-                            month: "short",
-                            year: "numeric",
-                          })}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {new Date(`1970-01-01T${event.time}`).toLocaleTimeString("en-IN", {
-                            hour: "numeric",
-                            minute: "2-digit",
-                            hour12: true,
-                          })}
-                        </p>
-                      </td>
-
-                      {/* Category */}
-                      <td className="p-3 text-center">
-                        <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-lg text-sm">
-                          {event.category}
-                        </span>
-                      </td>
-
-                      {/* Registrations */}
-                      <td className="p-3 text-center">
-                        {event.isLimited ? (
-                          <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-semibold">
-                            {event.registrationsCount ?? 0} / {event.capacity}
+                            {event.isVirtual ? "Virtual" : "Physical"}
                           </span>
-                        ) : (
-                          <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-sm font-semibold">
-                            {event.registrationsCount ?? 0}
+                        </td>
+
+                        {/* Status */}
+                        <td className="p-3 text-center">
+                          <span
+                            className={`px-3 py-1 rounded-lg text-sm ${
+                              event.status === "Upcoming"
+                                ? "bg-green-100 text-green-700"
+                                : event.status === "Completed"
+                                  ? "bg-gray-200 text-gray-600"
+                                  : event.status === "Cancelled"
+                                    ? "bg-red-100 text-red-700"
+                                    : "bg-yellow-100 text-yellow-700"
+                            }`}
+                          >
+                            {event.status}
                           </span>
-                        )}
-                      </td>
+                        </td>
 
-
-                      {/* Mode */}
-                      <td className="p-3 text-center">
-                        <span
-                          className={`px-3 py-1 rounded-lg text-xs font-medium ${event.isVirtual
-                            ? "bg-purple-100 text-purple-700"
-                            : "bg-indigo-100 text-indigo-700"
-                            }`}
-                        >
-                          {event.isVirtual ? "Virtual" : "Physical"}
-                        </span>
-                      </td>
-
-                      {/* Status */}
-                      <td className="p-3 text-center">
-                        <span
-                          className={`px-3 py-1 rounded-lg text-sm ${event.status === "Upcoming"
-                            ? "bg-green-100 text-green-700"
-                            : event.status === "Completed"
-                              ? "bg-gray-200 text-gray-600"
-                              : event.status === "Cancelled"
-                                ? "bg-red-100 text-red-700"
-                                : "bg-yellow-100 text-yellow-700"
-                            }`}
-                        >
-                          {event.status}
-                        </span>
-                      </td>
-
-                      {/* Actions */}
-                      <td className="p-3 text-center">
-                        <div className="flex justify-center items-center gap-3">
-                          <FaEye onClick={() => setViewEvent(event)}
-                            className="text-gray-600 cursor-pointer hover:text-blue-600" />
-                          <FaPen
-                            onClick={() => handleFunctionEdit(event)}
-                            className="text-gray-600 cursor-pointer hover:text-blue-600"
-                          />
-                          <FaTrash
-                            onClick={() => handleEventDelete(event._id)}
-                            className="text-red-500 cursor-pointer hover:text-red-700"
-                          />
-                        </div>
+                        {/* Actions */}
+                        <td className="p-3 text-center">
+                          <div className="flex justify-center items-center gap-3">
+                            <FaEye
+                              onClick={() => setViewEvent(event)}
+                              className="text-gray-600 cursor-pointer hover:text-blue-600"
+                            />
+                            <FaPen
+                              onClick={() => handleFunctionEdit(event)}
+                              className="text-gray-600 cursor-pointer hover:text-blue-600"
+                            />
+                            <FaTrash
+                              onClick={() => handleEventDelete(event._id)}
+                              className="text-red-500 cursor-pointer hover:text-red-700"
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="8" className="text-center p-5 text-gray-500">
+                        No events found.
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="8" className="text-center p-5 text-gray-500">
-                      No events found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-4 mt-6 flex-wrap">
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((p) => p - 1)}
-                className={`flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium ${currentPage === 1
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
-                  }`}
-              >
-                <FaChevronLeft /> Prev
-              </button>
-
-              <span className="text-gray-600 font-medium text-sm sm:text-base">
-                Page {currentPage} of {totalPages}
-              </span>
-
-              <button
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((p) => p + 1)}
-                className={`flex items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium ${currentPage === totalPages
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
-                  }`}
-              >
-                Next <FaChevronRight />
-              </button>
+            <div className="mt-6">
+              <PaginationControls
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={onPageChange}
+              />
             </div>
           )}
         </div>
@@ -695,10 +718,8 @@ const Events = () => {
         onOpenChange={(open) => !open && setViewEvent(null)}
       >
         <DialogContent className="sm:max-w-lg h-[90vh] p-0 overflow-hidden rounded-2xl flex flex-col">
-
           {/* 🔽 SCROLLABLE AREA (everything except footer) */}
           <div className="flex-1 overflow-y-auto">
-
             {viewEvent?.image && (
               <img
                 src={viewEvent.image?.secure_url || viewEvent.image}
@@ -714,14 +735,15 @@ const Events = () => {
 
               <span
                 className={`inline-block w-fit px-3 py-1 rounded-full text-xs font-semibold
-            ${viewEvent?.status === "Upcoming"
-                    ? "bg-green-100 text-green-700"
-                    : viewEvent?.status === "Completed"
-                      ? "bg-gray-200 text-gray-700"
-                      : viewEvent?.status === "Cancelled"
-                        ? "bg-red-100 text-red-700"
-                        : "bg-yellow-100 text-yellow-700"
-                  }
+            ${
+              viewEvent?.status === "Upcoming"
+                ? "bg-green-100 text-green-700"
+                : viewEvent?.status === "Completed"
+                  ? "bg-gray-200 text-gray-700"
+                  : viewEvent?.status === "Cancelled"
+                    ? "bg-red-100 text-red-700"
+                    : "bg-yellow-100 text-yellow-700"
+            }
           `}
               >
                 {viewEvent?.status}
@@ -765,10 +787,8 @@ const Events = () => {
               Close
             </Button>
           </DialogFooter>
-
         </DialogContent>
       </Dialog>
-
     </div>
   );
 };

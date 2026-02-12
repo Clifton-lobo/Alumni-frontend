@@ -22,10 +22,11 @@ import News from './pages/userView/News.jsx'
 import About from './pages/userView/About.jsx'
 import UserGallery from './pages/userView/userGallery.jsx'
 import UserDonate from './pages/userView/userDonate.jsx'
-import UserCommunity from './pages/userView/userCommunity.jsx'
 import ScrollToTop from './config/ScrollToTop.jsx'
 import UserProfile from './pages/userView/UserProfile.jsx'
 import Gallery from './pages/adminView/Gallery.jsx'
+import AdminProfile from './pages/adminView/AdminProfile.jsx'
+import AlumniDirectory from './pages/userView/AlumniDirectory.jsx'
 
 
 
@@ -80,6 +81,7 @@ function App() {
           }
         >
           <Route path="dashboard" element={<Dashboard />} />
+          <Route path="profile" element={<AdminProfile />} />
           <Route path="alumni" element={<Alumni/>} />
           <Route path="gallery" element={<Gallery/>} />
           <Route path="jobs" element={<Jobs />} />
@@ -101,7 +103,7 @@ function App() {
           <Route path="jobs" element={<UserJobs />} />
           <Route path="home" element={<Home />} />
           <Route path="news" element={<News />} />
-          <Route path="community" element={<UserCommunity />} />
+          <Route path="community" element={<AlumniDirectory />} />
           <Route path="about" element={<About />} />
           <Route path="donate" element={<UserDonate />} />
           <Route path="gallery" element={<UserGallery />} />

@@ -50,14 +50,12 @@ const FilterSection = ({ title, isOpen, toggle, children }) => {
 
   useEffect(() => {
     if (isOpen) {
-      // Set max height to scrollHeight when opening
       setMaxHeight(`${contentRef.current?.scrollHeight}px`);
     } else {
       setMaxHeight("0px");
     }
   }, [isOpen]);
 
-  // Update height when children change (like custom date UI)
   useEffect(() => {
     if (isOpen && contentRef.current) {
       setMaxHeight(`${contentRef.current.scrollHeight}px`);
@@ -81,7 +79,7 @@ const FilterSection = ({ title, isOpen, toggle, children }) => {
 
       <div
         style={{
-          maxHeight: maxHeight,
+          maxHeight: isOpen ? maxHeight : "0px",
           overflow: "hidden",
           transition: "max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         }}
@@ -132,7 +130,6 @@ const EventFilter = ({ onFilterChange }) => {
     setStartCalendar(null);
     setEndCalendar(null);
 
-    // Close mobile drawer if callback provided
     if (onFilterChange) {
       onFilterChange();
     }
@@ -140,7 +137,6 @@ const EventFilter = ({ onFilterChange }) => {
 
   const handleFilterClick = (action) => {
     dispatch(action);
-    // Auto-close mobile drawer after selection
     if (onFilterChange) {
       setTimeout(() => onFilterChange(), 300);
     }
@@ -150,17 +146,10 @@ const EventFilter = ({ onFilterChange }) => {
   const handleApplyCustomDate = () => {
     if (!dates.start || !dates.end) return;
 
-    console.log("📅 Applying custom dates:", dates);
-
-    // Convert mode to isVirtual boolean
     let isVirtualParam = undefined;
-    if (mode === "virtual") {
-      isVirtualParam = true;
-    } else if (mode === "physical") {
-      isVirtualParam = false;
-    }
+    if (mode === "virtual") isVirtualParam = true;
+    else if (mode === "physical") isVirtualParam = false;
 
-    // Dispatch the fetch with custom dates
     dispatch(
       fetchFilteredEvents({
         filter: "custom",
@@ -173,10 +162,19 @@ const EventFilter = ({ onFilterChange }) => {
       })
     );
 
-    // Close mobile drawer if callback provided
     if (onFilterChange) {
       setTimeout(() => onFilterChange(), 300);
     }
+  };
+
+  /* -------- NEW TOGGLE LOGIC (ONLY ADDITION) -------- */
+  const toggleSection = (section) => {
+    setOpen((prev) => ({
+      date: section === "date" ? !prev.date : false,
+      category: section === "category" ? !prev.category : false,
+      mode: section === "mode" ? !prev.mode : false,
+      status: section === "status" ? !prev.status : false,
+    }));
   };
 
   return (
@@ -190,11 +188,11 @@ const EventFilter = ({ onFilterChange }) => {
         </span>
       </div>
 
-      {/* -------- DATE -------- */}
+      {/* DATE */}
       <FilterSection
         title="Date"
         isOpen={open.date}
-        toggle={() => setOpen((p) => ({ ...p, date: !p.date }))}
+        toggle={() => toggleSection("date")}
       >
         {dateFilters.map((f) => (
           <label
@@ -214,15 +212,11 @@ const EventFilter = ({ onFilterChange }) => {
 
         {activeFilter === "custom" && (
           <div className="space-y-3 pt-3 animate-fadeIn">
-            {/* START DATE */}
             <div>
               <span className="text-sm font-medium">Start date</span>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start mt-1"
-                  >
+                  <Button variant="outline" className="w-full justify-start mt-1">
                     {dates.start
                       ? toDisplayDate(dates.start)
                       : "Select start date"}
@@ -245,16 +239,14 @@ const EventFilter = ({ onFilterChange }) => {
               </Popover>
             </div>
 
-            {/* END DATE */}
             <div>
               <span className="text-sm font-medium">End date</span>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start mt-1"
-                  >
-                    {dates.end ? toDisplayDate(dates.end) : "Select end date"}
+                  <Button variant="outline" className="w-full justify-start mt-1">
+                    {dates.end
+                      ? toDisplayDate(dates.end)
+                      : "Select end date"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -268,7 +260,9 @@ const EventFilter = ({ onFilterChange }) => {
                         end: toISOEnd(date),
                       }));
                     }}
-                    disabled={(date) => startCalendar && date < startCalendar}
+                    disabled={(date) =>
+                      startCalendar && date < startCalendar
+                    }
                     initialFocus
                   />
                 </PopoverContent>
@@ -291,7 +285,7 @@ const EventFilter = ({ onFilterChange }) => {
       <FilterSection
         title="Category"
         isOpen={open.category}
-        toggle={() => setOpen((p) => ({ ...p, category: !p.category }))}
+        toggle={() => toggleSection("category")}
       >
         {categories.map((c) => (
           <label
@@ -314,7 +308,7 @@ const EventFilter = ({ onFilterChange }) => {
       <FilterSection
         title="Format"
         isOpen={open.mode}
-        toggle={() => setOpen((p) => ({ ...p, mode: !p.mode }))}
+        toggle={() => toggleSection("mode")}
       >
         {modes.map((m) => (
           <label
@@ -339,7 +333,7 @@ const EventFilter = ({ onFilterChange }) => {
       <FilterSection
         title="Status"
         isOpen={open.status}
-        toggle={() => setOpen((p) => ({ ...p, status: !p.status }))}
+        toggle={() => toggleSection("status")}
       >
         {statuses.map((s) => (
           <label

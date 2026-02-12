@@ -197,7 +197,7 @@ const UserEvents = () => {
         className="max-w-6xl mx-auto px-4 md:px-6 mt-8 md:mt-32 grid grid-cols-1 md:grid-cols-[260px_1fr] gap-6 md:gap-10"
       >
         {/* Desktop Filter - Sticky */}
-        <div className="hidden md:block md:sticky md:top-28 h-fit">
+        <div className="hidden md:block md:fixed md:top-28 h-fit">
           <EventFilter />
         </div>
 
@@ -231,11 +231,11 @@ const UserEvents = () => {
         {/* Event List */}
         <div className="relative min-h-[400px]">
           {/* Loading Overlay - Absolute positioned to prevent layout shift */}
-          {loading && (
+          {/* {loading && (
             <div className="absolute inset-0 bg-white/70 z-10 flex items-start justify-center pt-20">
               <LoadingOverlay loading={loading} />
             </div>
-          )}
+          )} */}
 
           {/* Event List - stays in place during loading */}
           <div
