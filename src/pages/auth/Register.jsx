@@ -81,7 +81,7 @@ const handleSubmit = (event) => {
 
         <div>
           <label className="block text-sm font-medium text-gray-600">
-            Gtaduation year
+            Graduation year
           </label>
           <input
             type="text"

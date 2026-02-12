@@ -34,12 +34,12 @@ const UserEvents = () => {
   /* ------------------------------
      Restore scroll position after loading
   ------------------------------ */
-  useLayoutEffect(() => {
-    if (!loading) {
-      // Restore scroll position after loading completes
-      window.scrollTo({ top: scrollPositionRef.current, behavior: "auto" });
-    }
-  }, [loading]);
+  // useLayoutEffect(() => {
+  //   if (!loading) {
+  //     // Restore scroll position after loading completes
+  //     window.scrollTo({ top: scrollPositionRef.current, behavior: "auto" });
+  //   }
+  // }, [loading]);
 
   /* ------------------------------
      Fetch on filter change (EXCEPT custom date without dates)
@@ -53,7 +53,7 @@ const UserEvents = () => {
     }
 
     // Save current scroll position before fetch
-    scrollPositionRef.current = window.scrollY;
+    // scrollPositionRef.current = window.scrollY;
 
     // Convert mode to isVirtual boolean
     let isVirtualParam = undefined;
@@ -96,7 +96,7 @@ const UserEvents = () => {
 
     const timer = setTimeout(() => {
       // Save current scroll position before fetch
-      scrollPositionRef.current = window.scrollY;
+      // scrollPositionRef.current = window.scrollY;
 
       // Convert mode to isVirtual boolean
       let isVirtualParam = undefined;
@@ -191,27 +191,47 @@ const UserEvents = () => {
         </div>
       </div>
 
-      {/* FILTER + LIST */}
       <div
         ref={listContainerRef}
-        className="max-w-6xl mx-auto px-4 md:px-6 mt-8 md:mt-32 grid grid-cols-1 md:grid-cols-[260px_1fr] gap-6 md:gap-10"
+        className="max-w-6xl mx-auto px-4 md:px-6 py-8"
       >
-        {/* Desktop Filter - Sticky */}
-        <div className="hidden md:block md:fixed md:top-28 h-fit">
-          <EventFilter />
+        <div className="grid grid-cols-[0px_1fr] md:grid-cols-[minmax(280px,320px)_1fr] gap-6 md:gap-10">
+
+          {/* Desktop Filter */}
+          <div>
+            <div className="sticky top-8 hidden md:block">
+              <EventFilter />
+            </div>
+          </div>
+
+          {/* Event List */}
+          <div className="relative min-h-[600px]">
+            <div
+              className={`transition-opacity duration-200 ${loading ? "opacity-30" : "opacity-100"
+                }`}
+            >
+              {activeFilter === "custom" && eventList.length === 0 && !loading ? (
+                <div className="text-center py-20">
+                  <p className="text-gray-500 text-lg">
+                    Please select start and end dates, then click "Apply" to see events.
+                  </p>
+                </div>
+              ) : (
+                <EventList events={eventList || []} />
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Mobile Filter Drawer */}
         {showMobileFilters && (
           <>
-            {/* Backdrop */}
             <div
-              className="md:hidden fixed inset-0 bg-black/50 z-40 animate-fadeIn"
+              className="md:hidden fixed inset-0 bg-black/50 z-40"
               onClick={() => setShowMobileFilters(false)}
             />
 
-            {/* Drawer */}
-            <div className="md:hidden fixed inset-y-0 right-0 w-[85%] max-w-sm bg-white z-50 shadow-2xl overflow-y-auto animate-slideInRight">
+            <div className="md:hidden fixed inset-y-0 right-0 w-[85%] max-w-sm bg-white z-50 shadow-2xl overflow-y-auto">
               <div className="sticky top-0 bg-white border-b px-4 py-4 flex justify-between items-center z-10">
                 <h2 className="text-xl font-bold">Filters</h2>
                 <button
@@ -227,34 +247,9 @@ const UserEvents = () => {
             </div>
           </>
         )}
-
-        {/* Event List */}
-        <div className="relative min-h-[400px]">
-          {/* Loading Overlay - Absolute positioned to prevent layout shift */}
-          {/* {loading && (
-            <div className="absolute inset-0 bg-white/70 z-10 flex items-start justify-center pt-20">
-              <LoadingOverlay loading={loading} />
-            </div>
-          )} */}
-
-          {/* Event List - stays in place during loading */}
-          <div
-            className={`transition-opacity duration-200 ${
-              loading ? "opacity-30" : "opacity-100"
-            }`}
-          >
-            {activeFilter === "custom" && eventList.length === 0 && !loading ? (
-              <div className="text-center py-20">
-                <p className="text-gray-500 text-lg">
-                  Please select start and end dates, then click "Apply" to see events.
-                </p>
-              </div>
-            ) : (
-              <EventList events={eventList || []} />
-            )}
-          </div>
-        </div>
       </div>
+
+
 
       {/* PAGINATION */}
       <div className="max-w-6xl mx-auto my-10 px-4 md:px-6">

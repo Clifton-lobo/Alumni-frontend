@@ -5,7 +5,7 @@ import eventReducer from "./user-view/UserEventSlice.js";
 import userEventRegistrationSlice from './user-view/RegisterEventSlice.js'
 import jobsReducer from "./user-view/UserJobSlice.js"
 import adminJobsReducer from "./admin/AdminJobSlice.js"
-import alumniReducer from "./user-view/AlumniDirSlice.js"
+import alumniReducer from "./user-view/AlumniDirectorySlice.js"
 
 export const store = configureStore({
   reducer: {
@@ -15,8 +15,7 @@ export const store = configureStore({
     register : userEventRegistrationSlice,
     userJobsReducer :jobsReducer,
     adminJobs : adminJobsReducer,
-    alumni: alumniReducer,
-
+    alumni: alumniReducer
   },
 });
 
