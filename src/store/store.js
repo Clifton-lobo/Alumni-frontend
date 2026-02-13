@@ -6,16 +6,18 @@ import userEventRegistrationSlice from './user-view/RegisterEventSlice.js'
 import jobsReducer from "./user-view/UserJobSlice.js"
 import adminJobsReducer from "./admin/AdminJobSlice.js"
 import alumniReducer from "./user-view/AlumniDirectorySlice.js"
+import userInfoReducer from "./user-view/UserInfoSlice.js"
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     adminEvent: adminEventSlice,
     events: eventReducer,
-    register : userEventRegistrationSlice,
-    userJobsReducer :jobsReducer,
-    adminJobs : adminJobsReducer,
-    alumni: alumniReducer
+    register: userEventRegistrationSlice,
+    userJobsReducer: jobsReducer,
+    adminJobs: adminJobsReducer,
+    alumni: alumniReducer,
+    userProfile: userInfoReducer
   },
 });
 

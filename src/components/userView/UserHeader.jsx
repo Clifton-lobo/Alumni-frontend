@@ -28,11 +28,10 @@ const UserAvatar = ({ user, isScrolled }) => {
     >
       {/* Avatar Button */}
       <button
-        className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
-          isScrolled
+        className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${isScrolled
             ? "bg-[#142A5D] text-white"
             : "bg-white/20 text-white hover:bg-white/30"
-        }`}
+          }`}
       >
         {user?.username?.[0]?.toUpperCase() || "U"}
       </button>
@@ -86,7 +85,7 @@ const Navbar = () => {
 
   const location = useLocation();
   const navigate = useNavigate();
-  
+
   // Get authentication state from Redux
   const { isAuthenticated, user } = useSelector((state) => state.auth);
 
@@ -108,107 +107,103 @@ const Navbar = () => {
     >
       {/* BACKGROUND */}
       <div
-        className={`transition-all duration-300 ${
-          isScrolled
+        className={`transition-all duration-300 ${isScrolled
             ? "bg-slate-200/80 backdrop-blur-xl shadow-md"
             : "bg-[#142A5D]/70 backdrop-blur-xl"
-        }`}
+          }`}
       >
-<div className="max-w-7xl mx-auto h-[72px] px-4 flex items-center">
+        <div className="max-w-7xl mx-auto h-[72px] px-4 flex items-center">
           {/* LEFT: LOGO */}
-         <div className="flex flex-1 items-center justify-start">
-  <Link to="/user/home" className="flex items-center gap-3">
-    <div
-      className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-        isScrolled ? "bg-[#142A5D]" : "bg-white/10"
-      }`}
-    >
-      <span className="text-white font-bold text-lg">🎓</span>
-    </div>
+          <div className="flex flex-1 items-center justify-start">
+            <Link to="/user/home" className="flex items-center gap-3">
+              <div
+                className={`w-10 h-10 rounded-xl flex items-center justify-center ${isScrolled ? "bg-[#142A5D]" : "bg-white/10"
+                  }`}
+              >
+                <span className="text-white font-bold text-lg">🎓</span>
+              </div>
 
-    <span
-      className={`text-xl font-bold transition-colors ${
-        isScrolled ? "text-[#142A5D]" : "text-white"
-      }`}
-    >
-      Vpm R.Z. shah college
-    </span>
-  </Link>
-</div>
+              <span
+                className={`text-xl font-bold transition-colors ${isScrolled ? "text-[#142A5D]" : "text-white"
+                  }`}
+              >
+                Vpm R.Z. shah college
+              </span>
+            </Link>
+          </div>
 
-<nav className="hidden md:flex flex-1 items-center justify-center gap-8">
-  {UserNavItems.map((item) =>
-    item.type === "link" ? (
-      <Link
-        key={item.id}
-        to={item.path}
-        className={`relative font-medium transition-colors ${baseText} ${hoverText}`}
-      >
-        {item.label}
-        {location.pathname === item.path && (
-          <span className="absolute -bottom-2 left-0 w-full h-[2px] bg-[#EBAB09]" />
-        )}
-      </Link>
-    ) : (
-      <div
-        key={item.id}
-        className="relative"
-        onMouseEnter={() => setOpenDropdown(item.id)}
-        onMouseLeave={() => setOpenDropdown(null)}
-      >
-        <button
-          className={`flex items-center gap-1 font-medium transition-colors ${baseText} ${hoverText}`}
-        >
-          {item.label}
-          <ChevronDown className="h-4 w-4" />
-        </button>
-
-        <div className="absolute top-full left-0 h-4 w-full" />
-
-        <AnimatePresence>
-          {openDropdown === item.id && (
-            <motion.div
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 6 }}
-              transition={{ duration: 0.15 }}
-              className="absolute top-full left-0 mt-3 bg-white rounded-md shadow-xl min-w-[190px] overflow-hidden"
-            >
-              {item.items.map((child, idx) => (
+          <nav className="hidden md:flex flex-1 items-center justify-center gap-8">
+            {UserNavItems.map((item) =>
+              item.type === "link" ? (
                 <Link
-                  key={idx}
-                  to={child.path}
-                  className="block px-4 py-3 text-sm hover:bg-[#F2A20A] hover:text-white transition"
+                  key={item.id}
+                  to={item.path}
+                  className={`relative font-medium transition-colors ${baseText} ${hoverText}`}
                 >
-                  {child.label}
+                  {item.label}
+                  {location.pathname === item.path && (
+                    <span className="absolute -bottom-2 left-0 w-full h-[2px] bg-[#EBAB09]" />
+                  )}
                 </Link>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    )
-  )}
-</nav>
+              ) : (
+                <div
+                  key={item.id}
+                  className="relative"
+                  onMouseEnter={() => setOpenDropdown(item.id)}
+                  onMouseLeave={() => setOpenDropdown(null)}
+                >
+                  <button
+                    className={`flex items-center gap-1 font-medium transition-colors ${baseText} ${hoverText}`}
+                  >
+                    {item.label}
+                    <ChevronDown className="h-4 w-4" />
+                  </button>
+
+                  <div className="absolute top-full left-0 h-4 w-full" />
+
+                  <AnimatePresence>
+                    {openDropdown === item.id && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 6 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute top-full left-0 mt-3 bg-white rounded-md shadow-xl min-w-[190px] overflow-hidden"
+                      >
+                        {item.items.map((child, idx) => (
+                          <Link
+                            key={idx}
+                            to={child.path}
+                            className="block px-4 py-3 text-sm hover:bg-[#F2A20A] hover:text-white transition"
+                          >
+                            {child.label}
+                          </Link>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )
+            )}
+          </nav>
 
 
           {/* RIGHT: AUTH BUTTONS OR AVATAR */}
-        <div className="hidden md:flex flex-1 items-center justify-end gap-4 pr-2">
-  {isAuthenticated ? (
-    <UserAvatar user={user} isScrolled={isScrolled} />
-  ) : (
-    <>
-      {/* buttons unchanged */}
-    </>
-  )}
-</div>
+          <div className="hidden md:flex flex-1 items-center justify-end gap-4 pr-2">
+            {isAuthenticated ? (
+              <UserAvatar user={user} isScrolled={isScrolled} />
+            ) : (
+              <>
+                {/* buttons unchanged */}
+              </>
+            )}
+          </div>
 
           {/* MOBILE TOGGLE */}
           <button
             onClick={() => setMobileOpen((v) => !v)}
-            className={`md:hidden transition ${
-              isScrolled ? "text-slate-900" : "text-white"
-            }`}
+            className={`md:hidden transition ${isScrolled ? "text-slate-900" : "text-white"
+              }`}
           >
             {mobileOpen ? <X size={26} /> : <Menu size={26} />}
           </button>
