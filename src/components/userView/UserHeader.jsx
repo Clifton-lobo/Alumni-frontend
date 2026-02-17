@@ -4,18 +4,22 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, ChevronDown, LogOut, UserRound } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { UserNavItems } from "../../config";
-import { logoutUser } from '../../store/authSlice/authSlice';
+import { logoutUser } from "../../store/authSlice/authSlice";
+import { clearUserProfile } from "../../store/user-view/UserInfoSlice";
 
 const BRAND_BLUE = "#142A5D";
 const BRAND_GOLD = "#F2A20A";
 
-// Avatar Dropdown Component
+/* =========================
+   USER AVATAR DROPDOWN
+========================= */
 const UserAvatar = ({ user, isScrolled }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleLogout = () => {
+    dispatch(clearUserProfile());
     dispatch(logoutUser());
     setDropdownOpen(false);
   };
@@ -26,17 +30,14 @@ const UserAvatar = ({ user, isScrolled }) => {
       onMouseEnter={() => setDropdownOpen(true)}
       onMouseLeave={() => setDropdownOpen(false)}
     >
-      {/* Avatar Button */}
       <button
-        className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${isScrolled
-            ? "bg-[#142A5D] text-white"
-            : "bg-white/20 text-white hover:bg-white/30"
-          }`}
+        className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
+          isScrolled ? "bg-[#142A5D] text-white" : "bg-white/20 text-white"
+        }`}
       >
         {user?.username?.[0]?.toUpperCase() || "U"}
       </button>
 
-      {/* Dropdown Menu */}
       <AnimatePresence>
         {dropdownOpen && (
           <motion.div
@@ -48,9 +49,9 @@ const UserAvatar = ({ user, isScrolled }) => {
           >
             <div className="px-4 py-3 border-b">
               <p className="text-sm font-medium text-gray-900">
-                {user?.username || "User"}
+                {user?.username}
               </p>
-              <p className="text-xs text-gray-500">{user?.email || ""}</p>
+              <p className="text-xs text-gray-500">{user?.email}</p>
             </div>
 
             <button
@@ -78,6 +79,9 @@ const UserAvatar = ({ user, isScrolled }) => {
   );
 };
 
+/* =========================
+   MAIN NAVBAR
+========================= */
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -85,9 +89,11 @@ const Navbar = () => {
 
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  // Get authentication state from Redux
   const { isAuthenticated, user } = useSelector((state) => state.auth);
+
+  const isHomePage = location.pathname === "/user/home";
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 40);
@@ -95,50 +101,57 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const baseText = isScrolled ? "text-slate-700" : "text-white/90";
-  const hoverText = "hover:text-[#EBAB09]";
+  /* ✅ CLEAN BACKGROUND RULE */
+  const isBlue = !isScrolled;
+
+const headerBg = isBlue
+  ? "bg-[#142A5D]"
+  : "bg-white shadow-md";
+
+const baseText = isBlue
+  ? "text-white/90"
+  : "text-slate-800";
+
 
   return (
     <motion.header
       initial={{ y: -80 }}
       animate={{ y: 0 }}
-      transition={{ duration: 0.35, ease: "easeOut" }}
+      transition={{ duration: 0.35 }}
       className="fixed top-0 left-0 right-0 z-50"
     >
-      {/* BACKGROUND */}
-      <div
-        className={`transition-all duration-300 ${isScrolled
-            ? "bg-slate-200/80 backdrop-blur-xl shadow-md"
-            : "bg-[#142A5D]/70 backdrop-blur-xl"
-          }`}
-      >
+      <div className={`transition-all duration-300 ${headerBg}`}>
         <div className="max-w-7xl mx-auto h-[72px] px-4 flex items-center">
-          {/* LEFT: LOGO */}
-          <div className="flex flex-1 items-center justify-start">
+
+          {/* LOGO */}
+          <div className="flex flex-1 items-center">
             <Link to="/user/home" className="flex items-center gap-3">
               <div
-                className={`w-10 h-10 rounded-xl flex items-center justify-center ${isScrolled ? "bg-[#142A5D]" : "bg-white/10"
-                  }`}
+                className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                  isBlue ? "bg-white/10" : "bg-[#142A5D]"
+                }`}
               >
                 <span className="text-white font-bold text-lg">🎓</span>
               </div>
 
               <span
-                className={`text-xl font-bold transition-colors ${isScrolled ? "text-[#142A5D]" : "text-white"
-                  }`}
+                className={`text-xl font-bold ${
+                  isBlue ? "text-white" : "text-[#142A5D]"
+                }`}
               >
                 Vpm R.Z. shah college
               </span>
             </Link>
           </div>
 
+          {/* DESKTOP NAV */}
           <nav className="hidden md:flex flex-1 items-center justify-center gap-8">
             {UserNavItems.map((item) =>
               item.type === "link" ? (
                 <Link
                   key={item.id}
                   to={item.path}
-                  className={`relative font-medium transition-colors ${baseText} ${hoverText}`}
+                  className={`relative font-medium transition-colors ${baseText} hover:text-[#EBAB09]`}
                 >
                   {item.label}
                   {location.pathname === item.path && (
@@ -153,13 +166,11 @@ const Navbar = () => {
                   onMouseLeave={() => setOpenDropdown(null)}
                 >
                   <button
-                    className={`flex items-center gap-1 font-medium transition-colors ${baseText} ${hoverText}`}
+                    className={`flex items-center gap-1 font-medium ${baseText} hover:text-[#EBAB09]`}
                   >
                     {item.label}
                     <ChevronDown className="h-4 w-4" />
                   </button>
-
-                  <div className="absolute top-full left-0 h-4 w-full" />
 
                   <AnimatePresence>
                     {openDropdown === item.id && (
@@ -187,32 +198,24 @@ const Navbar = () => {
             )}
           </nav>
 
-
-          {/* RIGHT: AUTH BUTTONS OR AVATAR */}
-          <div className="hidden md:flex flex-1 items-center justify-end gap-4 pr-2">
-            {isAuthenticated ? (
-              <UserAvatar user={user} isScrolled={isScrolled} />
-            ) : (
-              <>
-                {/* buttons unchanged */}
-              </>
+          {/* RIGHT SIDE */}
+          <div className="hidden md:flex flex-1 items-center justify-end gap-4">
+            {isAuthenticated && (
+              <UserAvatar user={user} isScrolled={!isBlue} />
             )}
           </div>
 
           {/* MOBILE TOGGLE */}
           <button
             onClick={() => setMobileOpen((v) => !v)}
-            className={`md:hidden transition ${isScrolled ? "text-slate-900" : "text-white"
-              }`}
+            className={`md:hidden ${isBlue ? "text-white" : "text-slate-900"}`}
           >
             {mobileOpen ? <X size={26} /> : <Menu size={26} />}
           </button>
         </div>
-
-        <div className="h-px bg-black/5" />
       </div>
 
-      {/* MOBILE MENU */}
+      {/* ================= MOBILE MENU (RESTORED) ================= */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
@@ -220,10 +223,10 @@ const Navbar = () => {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="md:hidden bg-[#142A5D]/95 backdrop-blur-xl"
+            className="md:hidden bg-[#142A5D]"
           >
             <div className="px-6 py-6 space-y-4">
-              {/* User Info (Mobile) */}
+
               {isAuthenticated && (
                 <div className="pb-4 border-b border-white/20">
                   <div className="flex items-center gap-3">
@@ -232,15 +235,16 @@ const Navbar = () => {
                     </div>
                     <div>
                       <p className="text-white font-medium">
-                        {user?.username || "User"}
+                        {user?.username}
                       </p>
-                      <p className="text-white/60 text-sm">{user?.email}</p>
+                      <p className="text-white/60 text-sm">
+                        {user?.email}
+                      </p>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Nav Items */}
               {UserNavItems.map((item) =>
                 item.type === "link" ? (
                   <Link
@@ -270,8 +274,7 @@ const Navbar = () => {
                 )
               )}
 
-              {/* Mobile Auth Buttons */}
-              {isAuthenticated ? (
+              {isAuthenticated && (
                 <>
                   <button
                     onClick={() => {
@@ -282,10 +285,11 @@ const Navbar = () => {
                   >
                     Account
                   </button>
+
                   <button
                     onClick={() => {
                       setMobileOpen(false);
-                      const dispatch = useDispatch();
+                      dispatch(clearUserProfile());
                       dispatch(logoutUser());
                     }}
                     className="w-full px-6 py-3 rounded-xl font-semibold text-black"
@@ -294,17 +298,6 @@ const Navbar = () => {
                     Logout
                   </button>
                 </>
-              ) : (
-                <button
-                  onClick={() => {
-                    setMobileOpen(false);
-                    navigate("/auth/login");
-                  }}
-                  className="w-full mt-4 px-6 py-3 rounded-xl font-semibold text-black"
-                  style={{ backgroundColor: BRAND_GOLD }}
-                >
-                  Join Now
-                </button>
               )}
             </div>
           </motion.div>

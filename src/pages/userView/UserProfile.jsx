@@ -3,17 +3,16 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchUserProfile,
   createOrUpdateUserProfile,
+  clearUserProfile,
 } from "../../store/user-view/UserInfoSlice";
-
+import { toast } from "sonner";
 import ProfileImageUpload from "./ProfileImageUpload";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Mail,
-  Phone,
   Linkedin,
   Building2,
   Edit2,
@@ -35,12 +34,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const UserProfile = () => {
   const dispatch = useDispatch();
-  const { userProfile, isLoading } = useSelector((state) => state.userProfile);
+  const { userProfile, isLoading, error } = useSelector((state) => state.userProfile);
   const currentUser = useSelector((state) => state.auth?.user);
 
   const [open, setOpen] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
+  const [imageLoadingState, setImageLoadingState] = useState(false);
+
+  useEffect(() => {
+    if (error) {
+      toast.error("Failed to load profile", {
+        description: error,
+      });
+    }
+  }, [error]);
 
   const [formData, setFormData] = useState({
     jobTitle: "",
@@ -50,12 +58,18 @@ const UserProfile = () => {
     linkedin: "",
   });
 
-  /* ================= FETCH PROFILE ================= */
   useEffect(() => {
-    if (currentUser?._id) {
-      dispatch(fetchUserProfile(currentUser._id));
-    }
-  }, [dispatch, currentUser?._id]);
+    console.log("Redux userProfile:", userProfile);
+    console.log("Redux isLoading:", isLoading);
+  }, [userProfile, isLoading]);
+
+
+  /* ================= CLEAR & FETCH PROFILE ================= */
+  useEffect(() => {
+    dispatch(fetchUserProfile());
+  }, []);
+
+
 
   /* ================= SYNC FORM ================= */
   const syncFromProfile = useCallback(() => {
@@ -83,53 +97,103 @@ const UserProfile = () => {
   };
 
   const handleSave = async () => {
+    if (imageLoadingState) {
+      toast.error("Image upload still in progress", {
+        description: "Please wait until upload completes.",
+      });
+      return;
+    }
+
     try {
-      await dispatch(
-        createOrUpdateUserProfile({
-          userId: currentUser._id,
-          profileData: {
-            ...formData,
-            profilePicture: uploadedImageUrl,
-          },
-        })
-      ).unwrap();
+      const payload = {
+        ...formData,
+        profilePicture: uploadedImageUrl || "",
+      };
+
+      await dispatch(createOrUpdateUserProfile(payload)).unwrap();
+
+      toast.success("Profile updated successfully", {
+        description: "Your changes have been saved.",
+      });
 
       setOpen(false);
       setImageFile(null);
     } catch (err) {
-      alert(err?.message || "Failed to save profile");
+      const message =
+        err?.message ||
+        err?.response?.data?.message ||
+        "Failed to update profile";
+
+      toast.error("Update failed", {
+        description: message,
+      });
     }
   };
 
-  if (isLoading) {
+
+  useEffect(() => {
+    if (error) {
+      toast.error("Failed to load profile", {
+        description: error,
+      });
+    }
+  }, [error]);
+
+
+  // Wait for auth to exist first
+  if (!currentUser) {
+    return <div className="p-10 text-center">Loading...</div>;
+  }
+
+  // Then wait for profile fetch
+  if (isLoading || !userProfile) {
     return <div className="p-10 text-center">Loading profile...</div>;
   }
 
   const profile = userProfile || {};
+  const user = profile.user || {};
 
   return (
-    <div className="min-h-screen  bg-[#F5F6F8]">
+    <div className="min-h-screen bg-[#F5F6F8]">
       {/* ================= HERO ================= */}
-      <div className="relative p10 bg-[#0F2747] overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-1/2 left-1/2 w-[600px] h-[600px] -translate-x-1/2 -translate-y-1/2 border border-[#D4A437]/10 rounded-full" />
+      <div className="relative p-10 bg-[#152A5D] overflow-hidden">
+        {/* Decorative Circles */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 
+                    w-[600px] h-[600px] 
+                    -translate-x-1/2 -translate-y-1/2 
+                    rounded-full 
+                    border-[1px] border-white/5" />
+
+          <div className="absolute top-1/2 left-1/2 
+                    w-[900px] h-[900px] 
+                    -translate-x-1/2 -translate-y-1/2 
+                    rounded-full 
+                    border-[1px] border-white/10" />
+
+          <div className="absolute top-1/2 left-1/2 
+                    w-[1200px] h-[1200px] 
+                    -translate-x-1/2 -translate-y-1/2 
+                    rounded-full 
+                    border-[1px] border-white/10" />
         </div>
 
-        <div className="relative max-w-6xl mx-auto px-6 pt-12 pb-28">
+        <div className="relative max-w-6xl mx-auto px-6 pt-5 pb-20 z-10">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <div className="flex items-center  gap-6">
-              <Avatar className="w-35 h-35 rounded-full border-4 shadow-sm border[#0F2747] shadow-yellow-500">
-                <AvatarImage src={profile.profilePicture} />
-                <AvatarFallback className="bg-[#D4A437] text-[#0F2747] text-6xl font-bold">
-                  {currentUser?.fullname?.charAt(0) || "U"}
+              <Avatar className="w-35 h-35 rounded-full border-4 shadowsm shadowyellow500">
+                <AvatarImage src={profile.profilePicture || undefined} />
+                <AvatarFallback className="bg[#D4A437] text-[#0f2747] text-6xl font-bold">
+                  {user.fullname?.charAt(0) || "U"}
                 </AvatarFallback>
               </Avatar>
 
               <div>
                 <h1 className="text-3xl md:text-6xl font-bold text-white">
-                  {currentUser?.fullname || "User"}
+                  {user.fullname || "User"}
                 </h1>
-                <p className="text-white/70 font-normal text-lg mt-2">
+
+                <p className="text-white/70 text-lg mt-2">
                   {profile.jobTitle || "Add your job title"}
                   {profile.company && ` at ${profile.company}`}
                 </p>
@@ -147,6 +211,7 @@ const UserProfile = () => {
         </div>
       </div>
 
+
       {/* ================= MAIN ================= */}
       <div className="max-w-6xl mx-auto px-6 -mt-16 pb-16 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -159,7 +224,7 @@ const UserProfile = () => {
               <CardContent className="space-y-4 text-sm">
                 <div className="flex items-center gap-3">
                   <Mail className="h-4 w-4 text-[#D4A437]" />
-                  <span>{currentUser?.email}</span>
+                  <span>{user.email || "No email"}</span>
                 </div>
 
                 <div className="flex items-center gap-3">
@@ -181,14 +246,12 @@ const UserProfile = () => {
                     </span>
                   )}
                 </div>
-
               </CardContent>
             </Card>
 
             <Card className="rounded-2xl bg-white border shadow-sm">
               <CardContent className="p-6">
                 <div className="grid grid-cols-2 gap-6">
-
                   {/* Jobs Posted */}
                   <div className="bg-[#F3F4F6] rounded-2xl p-6 text-center">
                     <Briefcase className="h-6 w-6 text-[#D4A437] mx-auto mb-4" />
@@ -210,26 +273,24 @@ const UserProfile = () => {
                       Connections
                     </p>
                   </div>
-
                 </div>
               </CardContent>
             </Card>
-
           </div>
 
           {/* RIGHT CONTENT */}
           <div className="lg:col-span-2">
             <Tabs defaultValue="info">
-              <TabsList className="bg-white w-full  border rounded-md p-1 h-14">
+              <TabsList className="bg-white w-full border rounded-md p-1 h-14">
                 <TabsTrigger
                   value="info"
-                  className="rounded-md cursor-pointer pmdx-6 data-[state=active]:bg-[#0F2747] data-[state=active]:text-white"
+                  className="rounded-md cursor-pointer px-6 data-[state=active]:bg-[#152A5D] data-[state=active]:text-white"
                 >
                   Info
                 </TabsTrigger>
                 <TabsTrigger
                   value="events"
-                  className="rounded-md px-6 cursor-pointer  data-[state=active]:bg-[#0F2747] data-[state=active]:text-white"
+                  className="rounded-md px-6 cursor-pointer data-[state=active]:bg-[#152A5D] data-[state=active]:text-white"
                 >
                   Registered Events
                 </TabsTrigger>
@@ -252,51 +313,68 @@ const UserProfile = () => {
                 </Card>
 
                 {/* PROFESSIONAL SECTION */}
-                <Card className="rounded-2xl bg-white border shadow-sm">
-                  <CardHeader className="flex flex-row items-center gap-3 pb-2">
-                    <Building2 className="h-5 w-5 text-[#D4A437]" />
-                    <CardTitle className="text-lg font-semibold">
-                      Professional
+                <Card className="rounded-3xl bg-white border shadow-sm overflow-hidden">
+                  <CardHeader className="flex flex-row items-center gap-3 pb-4 border-b bg-gradient-to-r from-[#f8fafc] to-white">
+                    <div className="w-10 h-10 rounded-xl bg-[#0F2747]/10 flex items-center justify-center">
+                      <Building2 className="h-5 w-5 text-[#0F2747]" />
+                    </div>
+                    <CardTitle className="text-xl font-bold text-[#0F2747]">
+                      Professional Overview
                     </CardTitle>
                   </CardHeader>
 
-                  <CardContent className="space-y-6 pt-4">
+                  <CardContent className="space-y-8 pt-8">
 
-                    {/* Job Block */}
-                    <div className="flex items-center gap-5 bg-[#EEF0F3] p-6 rounded-2xl">
-                      <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-gray-300">
-                        <Briefcase className="h-6 w-6 text-[#0F2747]" />
-                      </div>
+                    {/* Current Role */}
+                    <div className="group relative rounded-2xl p-6 bg-gradient-to-br from-[#EEF2F7] to-[#F8FAFC] hover:shadow-lg transition-all duration-300">
+                      <div className="flex items-start gap-5">
+                        <div className="w-14 h-14 rounded-2xl bg-white shadow-md flex items-center justify-center">
+                          <Briefcase className="h-6 w-6 text-[#0F2747]" />
+                        </div>
 
-                      <div>
-                        <p className="text-lg font-semibold text-[#0F2747]">
-                          {profile.jobTitle?.trim() || "Not specified"}
-                        </p>
-                        <p className="text-gray-500">
-                          {profile.company?.trim() || "Not specified"}
-                        </p>
+                        <div className="flex-1">
+                          <p className="text-xs uppercase tracking-wider text-gray-500 font-medium">
+                            Current Position
+                          </p>
+
+                          <h3 className="text-xl font-semibold text-[#0F2747] mt-1">
+                            {profile.jobTitle?.trim() || "Not specified"}
+                          </h3>
+
+                          <p className="text-gray-600 mt-1">
+                            {profile.company?.trim() || "Company not specified"}
+                          </p>
+
+
+                        </div>
                       </div>
                     </div>
 
-                    {/* Academic Block */}
-                    <div className="flex items-center gap-5 bg-[#EEF0F3] p-6 rounded-2xl">
-                      <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-gray-300">
-                        <Building2 className="h-6 w-6 text-[#0F2747]" />
-                      </div>
+                    {/* Academic Info */}
+                    <div className="group relative rounded-2xl p-6 bg-gradient-to-br from-[#EEF2F7] to-[#F8FAFC] hover:shadow-lg transition-all duration-300">
+                      <div className="flex items-start gap-5">
+                        <div className="w-14 h-14 rounded-2xl bg-white shadow-md flex items-center justify-center">
+                          <BookOpen className="h-6 w-6 text-[#0F2747]" />
+                        </div>
 
-                      <div>
-                        <p className="text-lg font-semibold text-[#0F2747]">
-                          {profile.user?.stream || "Not specified"}
-                        </p>
-                        <p className="text-gray-500">
-                          Batch {profile.user?.batch || "Not specified"}
-                        </p>
+                        <div className="flex-1">
+                          <p className="text-xs uppercase tracking-wider text-gray-500 font-medium">
+                            Academic Background
+                          </p>
+
+                          <h3 className="text-xl font-semibold text-[#0F2747] mt-1">
+                            {user.stream || "Stream not specified"}
+                          </h3>
+
+                          <p className="text-gray-600 mt-1">
+                            Batch of {user.batch || "N/A"}
+                          </p>
+                        </div>
                       </div>
                     </div>
 
                   </CardContent>
                 </Card>
-
 
               </TabsContent>
 
@@ -317,80 +395,128 @@ const UserProfile = () => {
 
       {/* ================= EDIT DIALOG ================= */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Edit Profile</DialogTitle>
-          </DialogHeader>
+        <DialogContent className="sm:max-w-[750px] max-h-[90vh] overflow-y-auto p-0 rounded-2xl border-none shadow-2xl">
 
-          <div className="space-y-4 py-4">
-            <ProfileImageUpload
-              imageFile={imageFile}
-              setImageFile={setImageFile}
-              uploadedImageUrl={uploadedImageUrl}
-              setUploadedImageUrl={setUploadedImageUrl}
-            />
+          {/* Header */}
+          <div className="bg-gradient-to-r from-[#0F2747] to-[#1d3c7a] px-8 py-6 text-white rounded-t-2xl">
+            <DialogTitle className="text-2xl font-bold tracking-tight">
+              Edit Your Profile
+            </DialogTitle>
+            <p className="text-white/70 text-sm mt-1">
+              Keep your professional details up to date.
+            </p>
+          </div>
 
-            <div>
-              <Label>Job Title</Label>
-              <Input
-                name="jobTitle"
-                value={formData.jobTitle}
-                onChange={handleChange}
+          {/* Body */}
+          <div className="px-8 py-8 bg-white space-y-8">
+
+            {/* Profile Image Section */}
+            <div className="flex flex-col items-center space-y-4">
+              <ProfileImageUpload
+                imageFile={imageFile}
+                setImageFile={setImageFile}
+                uploadedImageUrl={uploadedImageUrl}
+                setUploadedImageUrl={setUploadedImageUrl}
+                imageLoadingState={imageLoadingState}
+                setImageLoadingState={setImageLoadingState}
+                userName={user.fullname}
               />
+              <p className="text-sm text-gray-500">
+                Upload a professional profile picture.
+              </p>
             </div>
 
-            <div>
-              <Label>Company</Label>
-              <Input
-                name="company"
-                value={formData.company}
-                onChange={handleChange}
-              />
+            {/* Divider */}
+            <div className="h-px bg-gray-200" />
+
+            {/* Professional Info Section */}
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-[#0F2747]">
+                Professional Information
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Job Title</Label>
+                  <Input
+                    name="jobTitle"
+                    value={formData.jobTitle}
+                    onChange={handleChange}
+                    className="h-11 rounded-xl border-gray-300 focus:ring-2 focus:ring-[#0F2747]"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Company</Label>
+                  <Input
+                    name="company"
+                    value={formData.company}
+                    onChange={handleChange}
+                    className="h-11 rounded-xl border-gray-300 focus:ring-2 focus:ring-[#0F2747]"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Industry</Label>
+                  <Input
+                    name="industry"
+                    value={formData.industry}
+                    onChange={handleChange}
+                    className="h-11 rounded-xl border-gray-300 focus:ring-2 focus:ring-[#0F2747]"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">LinkedIn Profile URL</Label>
+                  <Input
+                    name="linkedin"
+                    value={formData.linkedin}
+                    onChange={handleChange}
+                    className="h-11 rounded-xl border-gray-300 focus:ring-2 focus:ring-[#0F2747]"
+                  />
+                </div>
+              </div>
             </div>
 
-            <div>
-              <Label>Industry</Label>
-              <Input
-                name="industry"
-                value={formData.industry}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <Label>LinkedIn</Label>
-              <Input
-                name="linkedin"
-                value={formData.linkedin}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <Label>About</Label>
+            {/* About Section */}
+            <div className="space-y-3">
+              <h3 className="text-lg font-semibold text-[#0F2747]">
+                About You
+              </h3>
               <Textarea
                 name="about"
                 value={formData.about}
                 onChange={handleChange}
-                rows={4}
+                rows={5}
+                className="rounded-xl border-gray-300 focus:ring-2 focus:ring-[#0F2747]"
               />
             </div>
+
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>
+          {/* Footer */}
+          <DialogFooter className="px-8 py-6 bg-gray-50 rounded-b-2xl flex justify-between">
+            <Button
+              variant="outline"
+              onClick={() => setOpen(false)}
+              className="rounded-full px-6"
+            >
               Cancel
             </Button>
+
             <Button
               onClick={handleSave}
-              className="bg-[#D4A437] hover:bg-[#c4962f] text-[#0F2747]"
+              disabled={imageLoadingState}
+              className="bg-[#D4A437] hover:bg-[#c4962f] text-[#0F2747] font-semibold px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
             >
               <Save className="h-4 w-4 mr-2" />
-              Save
+              Save Changes
             </Button>
           </DialogFooter>
+
         </DialogContent>
       </Dialog>
+
     </div>
   );
 };

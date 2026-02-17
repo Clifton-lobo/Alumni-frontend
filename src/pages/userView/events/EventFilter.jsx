@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setActiveFilter,
@@ -17,9 +17,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 
-/* ------------------ DATA ------------------ */
+/* ---------------- CONSTANTS ---------------- */
 
-const dateFilters = [
+const DATE_FILTERS = [
   { key: "all", label: "All" },
   { key: "next7", label: "Next 7 Days" },
   { key: "next30", label: "Next 30 Days" },
@@ -27,11 +27,11 @@ const dateFilters = [
   { key: "custom", label: "Custom" },
 ];
 
-const categories = ["all", "Networking", "Reunion", "Career"];
-const statuses = ["all", "Upcoming", "Ongoing", "Completed", "Cancelled"];
-const modes = ["all", "virtual", "physical"];
+const CATEGORIES = ["all", "Networking", "Reunion", "Career"];
+const STATUSES = ["all", "Upcoming", "Ongoing", "Completed", "Cancelled"];
+const MODES = ["all", "virtual", "physical"];
 
-/* ------------------ HELPERS ------------------ */
+/* ---------------- HELPERS ---------------- */
 
 const toISOStart = (date) =>
   date ? `${format(date, "yyyy-MM-dd")}T00:00:00` : "";
@@ -42,194 +42,169 @@ const toISOEnd = (date) =>
 const toDisplayDate = (iso) =>
   iso ? format(new Date(iso), "dd/MM/yyyy") : "";
 
-/* ------------------ SECTION ------------------ */
+/* ---------------- COLLAPSIBLE SECTION ---------------- */
 
-const FilterSection = ({ title, isOpen, toggle, children }) => {
-  const [maxHeight, setMaxHeight] = useState("0px");
-  const contentRef = useRef(null);
+const FilterSection = ({ title, isOpen, onToggle, children }) => (
+  <div className="border-b border-gray-200">
+    <button
+      type="button"
+      onClick={onToggle}
+      className="w-full flex items-center justify-between py-4 px-2 text-left hover:bg-gray-50 rounded transition-colors"
+    >
+      <h3 className="font-semibold text-lg text-gray-900">{title}</h3>
 
-  useEffect(() => {
-    if (isOpen) {
-      setMaxHeight(`${contentRef.current?.scrollHeight}px`);
-    } else {
-      setMaxHeight("0px");
-    }
-  }, [isOpen]);
+      <ChevronRight
+        className={`w-5 h-5 text-gray-600 transition-transform duration-300 ${
+          isOpen ? "rotate-90" : ""
+        }`}
+      />
+    </button>
 
-  useEffect(() => {
-    if (isOpen && contentRef.current) {
-      setMaxHeight(`${contentRef.current.scrollHeight}px`);
-    }
-  }, [isOpen, children]);
-
-  return (
-    <div className="border-b">
-      <button
-        type="button"
-        onClick={toggle}
-        className="w-full flex justify-between items-center py-4 text-left hover:bg-gray-50 transition-colors px-2 rounded"
-      >
-        <h3 className="font-semibold text-lg">{title}</h3>
-        <ChevronRight
-          className={`transition-transform duration-300 ease-in-out ${
-            isOpen ? "rotate-90" : ""
-          }`}
-        />
-      </button>
-
-      <div
-        style={{
-          maxHeight: isOpen ? maxHeight : "0px",
-          overflow: "hidden",
-          transition: "max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-        }}
-      >
-        <div ref={contentRef} className="pb-4 space-y-2 px-2">
-          {children}
-        </div>
-      </div>
+    <div
+      className={`overflow-hidden transition-all duration-300 ease-in-out ${
+        isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
+      }`}
+    >
+      <div className="pb-4 px-2 space-y-2">{children}</div>
     </div>
-  );
-};
+  </div>
+);
 
-/* ------------------ MAIN ------------------ */
+/* ---------------- MAIN COMPONENT ---------------- */
 
-const EventFilter = ({ onFilterChange }) => {
+const EventFilter = () => {
   const dispatch = useDispatch();
+
   const { activeFilter, category, mode, status } = useSelector(
     (state) => state.events
   );
 
-  const [open, setOpen] = useState({
-    date: true,
-    category: false,
-    mode: false,
-    status: false,
+  const [openSection, setOpenSection] = useState("date");
+
+  const [customDates, setCustomDates] = useState({
+    start: "",
+    end: "",
   });
 
-  const [dates, setDates] = useState({ start: "", end: "" });
-  const [startCalendar, setStartCalendar] = useState(null);
-  const [endCalendar, setEndCalendar] = useState(null);
+  const [calendarDates, setCalendarDates] = useState({
+    start: null,
+    end: null,
+  });
 
-  /* -------- CLEAR CUSTOM DATES WHEN NOT CUSTOM -------- */
+  /* Reset custom dates if filter changes */
   useEffect(() => {
     if (activeFilter !== "custom") {
-      setDates({ start: "", end: "" });
-      setStartCalendar(null);
-      setEndCalendar(null);
+      setCustomDates({ start: "", end: "" });
+      setCalendarDates({ start: null, end: null });
     }
   }, [activeFilter]);
 
-  /* -------- RESET -------- */
-  const handleResetFilters = () => {
+  const toggleSection = (section) => {
+    setOpenSection((prev) => (prev === section ? null : section));
+  };
+
+  const handleReset = useCallback(() => {
     dispatch(setActiveFilter("all"));
     dispatch(setCategory("all"));
     dispatch(setMode("all"));
     dispatch(setStatus("all"));
-    setDates({ start: "", end: "" });
-    setStartCalendar(null);
-    setEndCalendar(null);
 
-    if (onFilterChange) {
-      onFilterChange();
-    }
-  };
+    setCustomDates({ start: "", end: "" });
+    setCalendarDates({ start: null, end: null });
+  }, [dispatch]);
 
-  const handleFilterClick = (action) => {
-    dispatch(action);
-    if (onFilterChange) {
-      setTimeout(() => onFilterChange(), 300);
-    }
-  };
-
-  /* -------- HANDLE CUSTOM DATE APPLY -------- */
   const handleApplyCustomDate = () => {
-    if (!dates.start || !dates.end) return;
+    if (!customDates.start || !customDates.end) return;
 
-    let isVirtualParam = undefined;
-    if (mode === "virtual") isVirtualParam = true;
-    else if (mode === "physical") isVirtualParam = false;
+    const isVirtual =
+      mode === "virtual"
+        ? true
+        : mode === "physical"
+        ? false
+        : undefined;
 
     dispatch(
       fetchFilteredEvents({
         filter: "custom",
-        startDate: dates.start,
-        endDate: dates.end,
+        startDate: customDates.start,
+        endDate: customDates.end,
         category: category === "all" ? undefined : category,
-        isVirtual: isVirtualParam,
+        isVirtual,
         status: status === "all" ? undefined : status,
         page: 1,
       })
     );
-
-    if (onFilterChange) {
-      setTimeout(() => onFilterChange(), 300);
-    }
-  };
-
-  /* -------- NEW TOGGLE LOGIC (ONLY ADDITION) -------- */
-  const toggleSection = (section) => {
-    setOpen((prev) => ({
-      date: section === "date" ? !prev.date : false,
-      category: section === "category" ? !prev.category : false,
-      mode: section === "mode" ? !prev.mode : false,
-      status: section === "status" ? !prev.status : false,
-    }));
   };
 
   return (
     <div className="space-y-2">
-      <div className="flex justify-between py-2 px-2">
-        <span
-          onClick={handleResetFilters}
-          className="font-bold text-lg cursor-pointer hover:underline text-blue-950 transition-all"
+
+      {/* Reset */}
+      <div className="flex justify-between items-center py-2 px-2">
+        <button
+          onClick={handleReset}
+          className="font-bold text-lg text-blue-950 hover:underline transition"
         >
-          Reset filter
-        </span>
+          Reset Filters
+        </button>
       </div>
 
-      {/* DATE */}
+      {/* Date */}
       <FilterSection
         title="Date"
-        isOpen={open.date}
-        toggle={() => toggleSection("date")}
+        isOpen={openSection === "date"}
+        onToggle={() => toggleSection("date")}
       >
-        {dateFilters.map((f) => (
+        {DATE_FILTERS.map((f) => (
           <label
             key={f.key}
-            className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p2 rounded transition-colors"
+            className="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-gray-50 transition"
           >
             <input
               type="radio"
               name="date-filter"
               checked={activeFilter === f.key}
-              onChange={() => handleFilterClick(setActiveFilter(f.key))}
-              className="cursor-pointer w-4 h-4 accent-blue-950"
+              onChange={() => dispatch(setActiveFilter(f.key))}
+              className="w-4 h-4 cursor-pointer accent-blue-950"
             />
-            <span className="text-sm md:text-base">{f.label}</span>
+            <span className="text-sm md:text-base text-gray-700">
+              {f.label}
+            </span>
           </label>
         ))}
 
         {activeFilter === "custom" && (
-          <div className="space-y-3 pt-3 animate-fadeIn">
+          <div className="space-y-3 pt-3">
+
+            {/* Start */}
             <div>
-              <span className="text-sm font-medium">Start date</span>
+              <label className="text-sm font-medium text-gray-700">
+                Start date
+              </label>
+
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start mt-1">
-                    {dates.start
-                      ? toDisplayDate(dates.start)
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start mt-1"
+                  >
+                    {customDates.start
+                      ? toDisplayDate(customDates.start)
                       : "Select start date"}
                   </Button>
                 </PopoverTrigger>
+
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={startCalendar}
+                    selected={calendarDates.start}
                     onSelect={(date) => {
-                      setStartCalendar(date);
-                      setDates((p) => ({
-                        ...p,
+                      setCalendarDates((prev) => ({
+                        ...prev,
+                        start: date,
+                      }));
+                      setCustomDates((prev) => ({
+                        ...prev,
                         start: toISOStart(date),
                       }));
                     }}
@@ -239,29 +214,41 @@ const EventFilter = ({ onFilterChange }) => {
               </Popover>
             </div>
 
+            {/* End */}
             <div>
-              <span className="text-sm font-medium">End date</span>
+              <label className="text-sm font-medium text-gray-700">
+                End date
+              </label>
+
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start mt-1">
-                    {dates.end
-                      ? toDisplayDate(dates.end)
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start mt-1"
+                  >
+                    {customDates.end
+                      ? toDisplayDate(customDates.end)
                       : "Select end date"}
                   </Button>
                 </PopoverTrigger>
+
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
-                    selected={endCalendar}
+                    selected={calendarDates.end}
                     onSelect={(date) => {
-                      setEndCalendar(date);
-                      setDates((p) => ({
-                        ...p,
+                      setCalendarDates((prev) => ({
+                        ...prev,
+                        end: date,
+                      }));
+                      setCustomDates((prev) => ({
+                        ...prev,
                         end: toISOEnd(date),
                       }));
                     }}
                     disabled={(date) =>
-                      startCalendar && date < startCalendar
+                      calendarDates.start &&
+                      date < calendarDates.start
                     }
                     initialFocus
                   />
@@ -271,9 +258,9 @@ const EventFilter = ({ onFilterChange }) => {
 
             <button
               type="button"
-              disabled={!dates.start || !dates.end}
-              className="w-full bg-blue-950 text-white py-2 rounded disabled:opacity-50 hover:bg-blue-900 transition-colors"
+              disabled={!customDates.start || !customDates.end}
               onClick={handleApplyCustomDate}
+              className="w-full bg-blue-950 text-white py-2 rounded hover:bg-blue-900 disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
               Apply
             </button>
@@ -281,76 +268,81 @@ const EventFilter = ({ onFilterChange }) => {
         )}
       </FilterSection>
 
-      {/* CATEGORY */}
+      {/* Category */}
       <FilterSection
         title="Category"
-        isOpen={open.category}
-        toggle={() => toggleSection("category")}
+        isOpen={openSection === "category"}
+        onToggle={() => toggleSection("category")}
       >
-        {categories.map((c) => (
+        {CATEGORIES.map((c) => (
           <label
             key={c}
-            className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 -2 rounded transition-colors"
+            className="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-gray-50 transition"
           >
             <input
               type="radio"
               name="category"
               checked={category === c}
-              onChange={() => handleFilterClick(setCategory(c))}
-              className="cursor-pointer w-4 h-4 accent-blue-950"
+              onChange={() => dispatch(setCategory(c))}
+              className="w-4 h-4 cursor-pointer accent-blue-950"
             />
-            <span className="text-sm md:text-base">{c}</span>
-          </label>
-        ))}
-      </FilterSection>
-
-      {/* FORMAT */}
-      <FilterSection
-        title="Format"
-        isOpen={open.mode}
-        toggle={() => toggleSection("mode")}
-      >
-        {modes.map((m) => (
-          <label
-            key={m}
-            className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p2 rounded transition-colors"
-          >
-            <input
-              type="radio"
-              name="mode"
-              checked={mode === m}
-              onChange={() => handleFilterClick(setMode(m))}
-              className="cursor-pointer w-4 h-4 accent-blue-950"
-            />
-            <span className="text-sm md:text-base">
-              {m.charAt(0).toUpperCase() + m.slice(1)}
+            <span className="text-sm md:text-base text-gray-700">
+              {c}
             </span>
           </label>
         ))}
       </FilterSection>
 
-      {/* STATUS */}
+      {/* Mode */}
+      <FilterSection
+        title="Format"
+        isOpen={openSection === "mode"}
+        onToggle={() => toggleSection("mode")}
+      >
+        {MODES.map((m) => (
+          <label
+            key={m}
+            className="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-gray-50 transition"
+          >
+            <input
+              type="radio"
+              name="mode"
+              checked={mode === m}
+              onChange={() => dispatch(setMode(m))}
+              className="w-4 h-4 cursor-pointer accent-blue-950"
+            />
+            <span className="text-sm md:text-base text-gray-700 capitalize">
+              {m}
+            </span>
+          </label>
+        ))}
+      </FilterSection>
+
+      {/* Status */}
       <FilterSection
         title="Status"
-        isOpen={open.status}
-        toggle={() => toggleSection("status")}
+        isOpen={openSection === "status"}
+        onToggle={() => toggleSection("status")}
       >
-        {statuses.map((s) => (
+        {STATUSES.map((s) => (
           <label
             key={s}
-            className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p2 rounded transition-colors"
+            className="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-gray-50 transition"
           >
             <input
               type="radio"
               name="status"
               checked={status === s}
-              onChange={() => handleFilterClick(setStatus(s))}
-              className="cursor-pointer w-4 h-4 accent-blue-950"
+              onChange={() => dispatch(setStatus(s))}
+              className="w-4 h-4 cursor-pointer accent-blue-950"
             />
-            <span className="text-sm md:text-base">{s}</span>
+            <span className="text-sm md:text-base text-gray-700">
+              {s}
+            </span>
           </label>
         ))}
       </FilterSection>
+
     </div>
   );
 };

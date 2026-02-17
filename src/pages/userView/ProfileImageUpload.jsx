@@ -32,33 +32,54 @@ const ProfileImageUpload = ({
     setUploadedImageUrl("");
   };
 
-  // Upload image to Cloudinary via backend
   async function uploadImageToCloudinary() {
-    try {
-      setImageLoadingState(true);
+  try {
+    setImageLoadingState(true);
 
-      const data = new FormData();
-      data.append("my_file", imageFile);
+    const data = new FormData();
+    data.append("my_file", imageFile);
 
-      const response = await axiosInstance.post(
-        "http://localhost:5000/api/user/info/upload-image",
-        data,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
+    const response = await axiosInstance.post(
+      "/api/user/info/upload-image",
+      data,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
 
-      if (response?.data?.success) {
-        setUploadedImageUrl(response.data.result.secure_url);
-      } else {
-        console.error("Upload failed:", response?.data?.message);
-      }
-    } catch (error) {
-      console.error("Error uploading image:", error);
-    } finally {
-      setImageLoadingState(false);
+    if (response?.data?.success) {
+      setUploadedImageUrl(response.data.result.secure_url);
+    } else {
+      console.error("Upload failed:", response?.data?.message);
     }
+  } catch (error) {
+    console.error("Error uploading image:", error);
+  } finally {
+    setImageLoadingState(false);
   }
+}
+async function uploadImageToCloudinary() {
+  try {
+    setImageLoadingState(true);
+
+    const data = new FormData();
+    data.append("my_file", imageFile);
+
+    const response = await axiosInstance.post(
+      "/api/user/info/upload-image",
+      data,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+
+    if (response?.data?.success) {
+      setUploadedImageUrl(response.data.result.secure_url);
+    } else {
+      console.error("Upload failed:", response?.data?.message);
+    }
+  } catch (error) {
+    console.error("Error uploading image:", error);
+  } finally {
+    setImageLoadingState(false);
+  }
+}
 
   // Trigger upload when file is selected
   useEffect(() => {

@@ -11,9 +11,9 @@
   // Get User Profile
   export const fetchUserProfile = createAsyncThunk(
     "userProfile/fetchUserProfile",
-    async (userId, { rejectWithValue }) => {
+    async (_, { rejectWithValue }) => {
       try {
-        const result = await axiosInstance.get(`/api/user/info/get/${userId}`);
+        const result = await axiosInstance.get(`/api/user/info/get`);
         return result.data;
       } catch (error) {
         return rejectWithValue(
@@ -24,25 +24,23 @@
   );
 
   // Create or Update User Profile
-  export const createOrUpdateUserProfile = createAsyncThunk(
-    "userProfile/createOrUpdateUserProfile",
-    async ({ userId, profileData }, { rejectWithValue }) => {
-      try {
-        const result = await axiosInstance.put(
-          `/api/user/info/update/${userId}`,
-          profileData,
-          {
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-        return result.data;
-      } catch (error) {
-        return rejectWithValue(
-          error.response?.data || { message: "Failed to update profile" }
-        );
-      }
+ export const createOrUpdateUserProfile = createAsyncThunk(
+  "userProfile/createOrUpdateUserProfile",
+  async (profileData, { rejectWithValue }) => {
+    try {
+      const result = await axiosInstance.put(
+        "/api/user/info/update",
+        profileData
+      );
+      return result.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || { message: "Failed to update profile" }
+      );
     }
-  );
+  }
+);
+
 
   // Delete User Profile
   export const deleteUserProfile = createAsyncThunk(
@@ -87,6 +85,7 @@
       clearUserProfile: (state) => {
         state.userProfile = null;
       },
+      
     },
     extraReducers: (builder) => {
       builder

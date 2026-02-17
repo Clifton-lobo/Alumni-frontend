@@ -17,7 +17,7 @@ const EventList = ({ events }) => {
   }
 
   return (
-    <div ref={parentRef} className="space-y-12">
+    <div  className="space-y-12">
       {events.map((event) => (
         <EventCard key={event._id} event={event} />
       ))}

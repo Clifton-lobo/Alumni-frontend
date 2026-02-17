@@ -36,7 +36,7 @@ const UserJobs = () => {
   const isLoading = loading.fetch;
 
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [view, setView] = useState("list");
+  const [view, setView] = useState("tile");
   const [searchInput, setSearchInput] = useState("");
 
   useEffect(() => {
@@ -54,7 +54,7 @@ const UserJobs = () => {
 
   const [filters, setFilters] = useState({
     page: 1,
-    limit: 10,
+    limit: 18,
     employmentType: "",
     workMode: "",
     experienceLevel: "",

@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState, useRef } from "react";
 import { fetchFilteredEvents } from "../../../store/user-view/UserEventSlice";
 import EventList from "./EventList";
+import { useSearchParams } from "react-router-dom";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 
 const DEBOUNCE_DELAY = 500;
@@ -13,6 +14,9 @@ const MIN_SEARCH_LENGTH = 2;
 
 const UserEvents = () => {
   const dispatch = useDispatch();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const pageFromUrl = parseInt(searchParams.get("page")) || 1;
 
   const {
     eventList,
@@ -21,56 +25,72 @@ const UserEvents = () => {
     category,
     mode,
     status,
-    currentPage,
     totalPages,
   } = useSelector((state) => state.events);
 
   const [searchText, setSearchText] = useState("");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+
   const isFirstRender = useRef(true);
+  const didMountRef = useRef(false);
+  const prevPageRef = useRef(pageFromUrl);
   const listContainerRef = useRef(null);
-  const shouldScrollToPaginationRef = useRef(false);
 
-  /* ------------------------------
-     Fetch on filter change (EXCEPT custom date without dates)
-  ------------------------------ */
+  /* -----------------------------------
+     Helper: build isVirtual param
+  ----------------------------------- */
+  const getIsVirtual = () => {
+    if (mode === "virtual") return true;
+    if (mode === "physical") return false;
+    return undefined;
+  };
+
+  /* -----------------------------------
+     MAIN FETCH — URL + searchText driven
+     Re-runs whenever page, filters, OR
+     search text changes.
+  ----------------------------------- */
   useEffect(() => {
-    // Skip fetch if custom filter is selected but dates aren't applied yet
-    if (activeFilter === "custom") {
-      console.log("⏸️ Custom filter selected, waiting for date selection...");
-      return;
-    }
-
-    // Convert mode to isVirtual boolean
-    let isVirtualParam = undefined;
-    if (mode === "virtual") {
-      isVirtualParam = true;
-    } else if (mode === "physical") {
-      isVirtualParam = false;
-    }
-
-    console.log("🔄 Filter changed, fetching with:", {
-      activeFilter,
-      category,
-      mode,
-      isVirtualParam,
-      status,
-    });
+    if (activeFilter === "custom") return;
 
     dispatch(
       fetchFilteredEvents({
         filter: activeFilter,
         category: category === "all" ? undefined : category,
-        isVirtual: isVirtualParam,
+        isVirtual: getIsVirtual(),
         status: status === "all" ? undefined : status,
-        page: 1,
+        search: searchText.trim() || undefined,
+        page: pageFromUrl,
       })
     );
-  }, [activeFilter, category, mode, status, dispatch]);
+  }, [activeFilter, category, mode, status, pageFromUrl, searchText, dispatch]);
 
-  /* ------------------------------
-     Debounced search
-  ------------------------------ */
+  /* -----------------------------------
+     RESET PAGE WHEN FILTERS CHANGE
+     (skip on first mount so the URL
+      page param is respected on load)
+  ----------------------------------- */
+  useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      params.set("page", "1");
+      return params;
+    });
+  }, [activeFilter, category, mode, status]);
+
+  /* -----------------------------------
+     DEBOUNCED SEARCH
+     — resets page to 1 via URL
+     — also dispatches directly so that
+       if the user is already on page 1
+       (URL doesn't change) the fetch
+       still fires.
+  ----------------------------------- */
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
@@ -81,18 +101,20 @@ const UserEvents = () => {
     if (trimmed !== "" && trimmed.length < MIN_SEARCH_LENGTH) return;
 
     const timer = setTimeout(() => {
-      let isVirtualParam = undefined;
-      if (mode === "virtual") {
-        isVirtualParam = true;
-      } else if (mode === "physical") {
-        isVirtualParam = false;
-      }
+      // Reset to page 1 in the URL
+      setSearchParams((prev) => {
+        const params = new URLSearchParams(prev);
+        params.set("page", "1");
+        return params;
+      });
 
+      // Dispatch directly in case the user is already on page 1
+      // (URL change wouldn't trigger the main useEffect above)
       dispatch(
         fetchFilteredEvents({
           filter: activeFilter === "custom" ? "all" : activeFilter,
           category: category === "all" ? undefined : category,
-          isVirtual: isVirtualParam,
+          isVirtual: getIsVirtual(),
           status: status === "all" ? undefined : status,
           search: trimmed || undefined,
           page: 1,
@@ -103,70 +125,37 @@ const UserEvents = () => {
     return () => clearTimeout(timer);
   }, [searchText, activeFilter, category, mode, status, dispatch]);
 
-  /* ------------------------------
-     Smooth scroll to events after pagination
-  ------------------------------ */
+  /* -----------------------------------
+     SCROLL TO LIST AFTER PAGE CHANGE
+  ----------------------------------- */
   useEffect(() => {
-    console.log("📍 Scroll useEffect triggered:", { 
-      loading, 
-      shouldScroll: shouldScrollToPaginationRef.current,
-      hasRef: !!listContainerRef.current,
-      currentPage 
-    });
+    if (loading) return;
 
-    if (!loading && shouldScrollToPaginationRef.current && listContainerRef.current) {
-      // Longer delay ensures DOM has fully rendered with new content
-      const timeoutId = setTimeout(() => {
+    if (prevPageRef.current !== pageFromUrl) {
+      prevPageRef.current = pageFromUrl;
+
+      setTimeout(() => {
         const element = listContainerRef.current;
-        const headerOffset = 120; // Adjust based on your fixed header height
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.scrollY - headerOffset;
+        if (!element) return;
 
-        console.log("🎯 Scrolling to position:", {
-          elementPosition,
-          currentScroll: window.scrollY,
-          offsetPosition,
-          headerOffset
-        });
+        const headerOffset = 120;
+        const offsetPosition =
+          element.getBoundingClientRect().top + window.scrollY - headerOffset;
 
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: "smooth",
-        });
-
-        shouldScrollToPaginationRef.current = false;
-      }, 300); // Increased delay for better reliability
-
-      return () => clearTimeout(timeoutId);
+        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+      }, 300);
     }
-  }, [loading, currentPage]); // Added currentPage as dependency
+  }, [loading, pageFromUrl]);
 
-  /* ------------------------------
-     Pagination handler
-  ------------------------------ */
+  /* -----------------------------------
+     PAGE CHANGE HANDLER
+  ----------------------------------- */
   const onPageChange = (page) => {
-    console.log("📄 Pagination clicked - Page:", page);
-    
-    // Mark that we should scroll after loading completes
-    shouldScrollToPaginationRef.current = true;
-
-    let isVirtualParam = undefined;
-    if (mode === "virtual") {
-      isVirtualParam = true;
-    } else if (mode === "physical") {
-      isVirtualParam = false;
-    }
-
-    dispatch(
-      fetchFilteredEvents({
-        filter: activeFilter,
-        category: category === "all" ? undefined : category,
-        isVirtual: isVirtualParam,
-        status: status === "all" ? undefined : status,
-        search: searchText.trim() || undefined,
-        page,
-      })
-    );
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      params.set("page", String(page));
+      return params;
+    });
   };
 
   return (
@@ -218,10 +207,10 @@ const UserEvents = () => {
         ref={listContainerRef}
         className="mx-auto max-w-6xl px-4 py-8 md:px-6"
       >
-        <div className="grid grid-cols-[0px_1fr] gap-6 md:grid-cols-[minmax(280px,320px)_1fr] md:gap-10">
+        <div className="grid grid-cols-[0px_1fr] gap-6 mt-10 md:grid-cols-[minmax(280px,320px)_1fr] md:gap-10">
           {/* DESKTOP FILTER SIDEBAR */}
           <div className="hidden md:block">
-            <div className=" top-8">
+            <div className="top-8">
               <EventFilter />
             </div>
           </div>
@@ -229,7 +218,6 @@ const UserEvents = () => {
           {/* EVENT LIST AREA */}
           <div className="relative min-h-[600px]">
             {/* Loading overlay */}
-            <LoadingOverlay loading={loading} />
 
             {/* Content with fade transition */}
             <div
@@ -288,7 +276,7 @@ const UserEvents = () => {
       {totalPages > 1 && (
         <div className="mx-auto my-10 max-w-6xl px-4 md:px-6">
           <PaginationControls
-            currentPage={currentPage}
+            currentPage={pageFromUrl}
             totalPages={totalPages}
             onPageChange={onPageChange}
           />

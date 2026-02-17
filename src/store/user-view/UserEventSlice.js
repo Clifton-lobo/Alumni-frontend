@@ -85,7 +85,6 @@ const eventSlice = createSlice({
     mode: "all",
     status: "all",
 
-    currentPage: 1,
     totalPages: 1,
 
     selectedEvent: null,
@@ -97,22 +96,22 @@ const eventSlice = createSlice({
     /* filters — NO implicit page reset */
     setActiveFilter: (state, action) => {
       state.activeFilter = action.payload;
-      state.currentPage = 1; // Reset to page 1 when filter changes
+      // state.currentPage = 1; // Reset to page 1 when filter changes
     },
 
     setCategory: (state, action) => {
       state.category = action.payload;
-      state.currentPage = 1; // Reset to page 1 when filter changes
+      // state.currentPage = 1; // Reset to page 1 when filter changes
     },
 
     setMode: (state, action) => {
       state.mode = action.payload;
-      state.currentPage = 1; // Reset to page 1 when filter changes
+      // state.currentPage = 1; // Reset to page 1 when filter changes
     },
 
     setStatus: (state, action) => {
       state.status = action.payload;
-      state.currentPage = 1; // Reset to page 1 when filter changes
+      // state.currentPage = 1; // Reset to page 1 when filter changes
     },
 
     /* pagination — explicit control */
@@ -137,7 +136,7 @@ const eventSlice = createSlice({
       .addCase(fetchFilteredEvents.fulfilled, (state, action) => {
         state.loading = false;
         state.eventList = action.payload.events;
-        state.currentPage = action.payload.currentPage;
+        // state.currentPage = action.payload.currentPage;
         state.totalPages = action.payload.totalPages;
       })
 
