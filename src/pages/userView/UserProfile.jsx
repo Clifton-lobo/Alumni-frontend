@@ -160,6 +160,12 @@ const UserProfile = () => {
         {/* Decorative Circles */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-1/2 left-1/2 
+                    w-[400px] h-[400px] 
+                    -translate-x-1/2 -translate-y-1/2 
+                    rounded-full 
+                    border-[1px] border-white/5" />
+
+          <div className="absolute top-1/2 left-1/2 
                     w-[600px] h-[600px] 
                     -translate-x-1/2 -translate-y-1/2 
                     rounded-full 
@@ -167,12 +173,6 @@ const UserProfile = () => {
 
           <div className="absolute top-1/2 left-1/2 
                     w-[900px] h-[900px] 
-                    -translate-x-1/2 -translate-y-1/2 
-                    rounded-full 
-                    border-[1px] border-white/10" />
-
-          <div className="absolute top-1/2 left-1/2 
-                    w-[1200px] h-[1200px] 
                     -translate-x-1/2 -translate-y-1/2 
                     rounded-full 
                     border-[1px] border-white/10" />
@@ -202,7 +202,7 @@ const UserProfile = () => {
 
             <Button
               onClick={() => setOpen(true)}
-              className="bg-[#D4A437] hover:bg-[#c4962f] text-[#0F2747] font-semibold px-6 rounded-xl"
+              className="bg-[#EBAB09] hover:bg-[#c4962f] text-[#0F2747] font-semibold px-6 rounded-xl"
             >
               <Edit2 className="h-4 w-4 mr-2" />
               Edit Profile
@@ -217,7 +217,7 @@ const UserProfile = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* LEFT SIDEBAR */}
           <div className="space-y-6">
-            <Card className="rounded-2xl bg-white border shadow-sm">
+            <Card className="rounded-xl border-none bg-white shadow-xl">
               <CardHeader>
                 <CardTitle>Contact Info</CardTitle>
               </CardHeader>
@@ -249,7 +249,7 @@ const UserProfile = () => {
               </CardContent>
             </Card>
 
-            <Card className="rounded-2xl bg-white border shadow-sm">
+            <Card className="rounded-2xl bg-white border-none  shadow-xl">
               <CardContent className="p-6">
                 <div className="grid grid-cols-2 gap-6">
                   {/* Jobs Posted */}
@@ -281,7 +281,7 @@ const UserProfile = () => {
           {/* RIGHT CONTENT */}
           <div className="lg:col-span-2">
             <Tabs defaultValue="info">
-              <TabsList className="bg-white w-full border rounded-md p-1 h-14">
+              <TabsList className="bg-white w-full  rounded-md p-1 h-14">
                 <TabsTrigger
                   value="info"
                   className="rounded-md cursor-pointer px-6 data-[state=active]:bg-[#152A5D] data-[state=active]:text-white"
@@ -297,7 +297,7 @@ const UserProfile = () => {
               </TabsList>
 
               <TabsContent value="info" className="mt-10 space-y-6">
-                <Card className="rounded-2xl bg-white border shadow-sm">
+                <Card className="rounded-2xl bg-white border-none  shadow-xl">
                   <CardHeader className="flex flex-row items-center gap-3">
                     <BookOpen className="h-5 w-5 text-[#D4A437]" />
                     <CardTitle className="text-lg font-semibold">
@@ -313,7 +313,7 @@ const UserProfile = () => {
                 </Card>
 
                 {/* PROFESSIONAL SECTION */}
-                <Card className="rounded-3xl bg-white border shadow-sm overflow-hidden">
+                <Card className="rounded-3xl bg-white border-none shadow-xl overflow-hidden">
                   <CardHeader className="flex flex-row items-center gap-3 pb-4 border-b bg-gradient-to-r from-[#f8fafc] to-white">
                     <div className="w-10 h-10 rounded-xl bg-[#0F2747]/10 flex items-center justify-center">
                       <Building2 className="h-5 w-5 text-[#0F2747]" />
@@ -333,7 +333,7 @@ const UserProfile = () => {
                         </div>
 
                         <div className="flex-1">
-                          <p className="text-xs uppercase tracking-wider text-gray-500 font-medium">
+                          <p className="text-xs uppercase tracking-wider  text-gray-500 font-medium">
                             Current Position
                           </p>
 
@@ -507,7 +507,7 @@ const UserProfile = () => {
             <Button
               onClick={handleSave}
               disabled={imageLoadingState}
-              className="bg-[#D4A437] hover:bg-[#c4962f] text-[#0F2747] font-semibold px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+              className="bg-yellow-400 hover:bg-[#c4962f] text-[#0F2747] font-semibold px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
             >
               <Save className="h-4 w-4 mr-2" />
               Save Changes
