@@ -161,14 +161,15 @@ const UserEvents = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* HERO SECTION - Hidden on mobile */}
-      <div className="relative hidden h-[450px] w-full overflow-hidden rounded-xl shadow-lg md:block">
+      <div className="relative hidden h-[450px] w-full overflow-hidden roundedxl shadow-lg md:block">
         <img
           src={eventPageAlumniEvent}
           alt="Events Banner"
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover object-top"
         />
         <div className="absolute inset-0 bg-black/40" />
       </div>
+
 
       {/* SEARCH BAR + MOBILE FILTER BUTTON */}
       <div className="mx-auto max-w-4xl px-4 mt-6 md:mt-15 md:px-6">
@@ -221,9 +222,8 @@ const UserEvents = () => {
 
             {/* Content with fade transition */}
             <div
-              className={`transition-opacity duration-300 ease-in-out ${
-                loading ? "opacity-40" : "opacity-100"
-              }`}
+              className={`transition-opacity duration-300 ease-in-out ${loading ? "opacity-40" : "opacity-100"
+                }`}
             >
               {activeFilter === "custom" && eventList.length === 0 && !loading ? (
                 <div className="py-20 text-center">

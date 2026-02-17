@@ -180,13 +180,19 @@ const UserProfile = () => {
 
         <div className="relative max-w-6xl mx-auto px-6 pt-5 pb-20 z-10">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-            <div className="flex items-center  gap-6">
-              <Avatar className="w-35 h-35 rounded-full border-4 shadowsm shadowyellow500">
-                <AvatarImage src={profile.profilePicture || undefined} />
-                <AvatarFallback className="bg[#D4A437] text-[#0f2747] text-6xl font-bold">
-                  {user.fullname?.charAt(0) || "U"}
+            <div className="flex items-  gap-6">
+              <Avatar className="w-36 h-36 rounded-full border-4 border-white shadow-xl">
+                <AvatarImage
+                  src={profile.profilePicture || undefined}
+                  className="object-cover"
+                />
+                <AvatarFallback className="bg-[#EBAB09] text-[#0F2747] text-5xl font-bold flex items-center justify-center">
+                  {user.fullname
+                    ? user.fullname.charAt(0).toUpperCase()
+                    : "U"}
                 </AvatarFallback>
               </Avatar>
+
 
               <div>
                 <h1 className="text-3xl md:text-6xl font-bold text-white">

@@ -37,6 +37,7 @@ const JobCard = ({ job }) => {
           absolute top-0 left-0 right-0 h-[3px]
           opacity-0 group-hover:opacity-100
           transition-opacity duration-300
+          roundedxl
         "
         style={{ backgroundColor: GOLD }}
       />

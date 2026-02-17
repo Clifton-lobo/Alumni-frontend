@@ -139,7 +139,7 @@ const baseText = isBlue
                   isBlue ? "text-white" : "text-[#142A5D]"
                 }`}
               >
-                Vpm R.Z. shah college
+                VPM's R.Z. Shah College
               </span>
             </Link>
           </div>

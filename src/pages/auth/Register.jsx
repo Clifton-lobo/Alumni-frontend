@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { registerUser } from "../../store/authSlice/authSlice.js";
-import {toast} from "sonner"
+import { toast } from "sonner"
 
 const Register = () => {
   const initialState = {
@@ -27,22 +27,22 @@ const Register = () => {
     });
   };
 
-const handleSubmit = (event) => {
-  event.preventDefault();
-  console.log("handleSubmit called with:", registerData);
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    console.log("handleSubmit called with:", registerData);
 
-  dispatch(registerUser(registerData))
-    .unwrap()
-    .then((data) => {
-      toast.success(data.message || "Registration successful!");
-      navigate("/auth/login");
-    })
-    .catch((err) => {
-      const backendMessage =
-        err?.response?.data?.message || "Registration failed. Please try again.";
-      toast.error(backendMessage);
-    });
-};
+    dispatch(registerUser(registerData))
+      .unwrap()
+      .then((data) => {
+        toast.success(data.message || "Registration successful!");
+        navigate("/auth/login");
+      })
+      .catch((err) => {
+        const backendMessage =
+          err?.response?.data?.message || "Registration failed. Please try again.";
+        toast.error(backendMessage);
+      });
+  };
 
 
   return (
@@ -84,10 +84,13 @@ const handleSubmit = (event) => {
             Graduation year
           </label>
           <input
-            type="text"
+            type="number"
             name="batch"
             value={registerData.batch}
             onChange={handleChange}
+            min="1900"
+            max="2100"
+            step="1"
             placeholder="Enter your Batch (passout year)"
             className="w-full mt-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
@@ -97,15 +100,47 @@ const handleSubmit = (event) => {
           <label className="block text-sm font-medium text-gray-600">
             Stream
           </label>
-          <input
-            type="text"
-            name="stream"
-            value={registerData.stream}
-            onChange={handleChange}
-            placeholder="Enter your stream"
-            className="w-full mt-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+
+          <div className="relative">
+            <select
+              name="stream"
+              value={registerData.stream}
+              onChange={handleChange}
+              required
+              className="
+        w-full mt-1 p-3 rounded-lg
+        bg-transparent
+        border border-gray-600
+        text-gray-200
+        appearance-none
+        focus:outline-none
+        focus:ring-2 focus:ring-indigo-500
+        focus:border-indigo-500
+      "
+            >
+              <option value="" disabled className="text-gray-400 bg-gray-900">
+                Select your stream
+              </option>
+
+              <option value="CSE" className="bg-gray-900">CSE</option>
+              <option value="MECH" className="bg-gray-900">MECH</option>
+              <option value="EEE" className="bg-gray-900">EEE</option>
+              <option value="ECE" className="bg-gray-900">ECE</option>
+              <option value="CIVIL" className="bg-gray-900">CIVIL</option>
+              <option value="IT" className="bg-gray-900">IT</option>
+              <option value="CHEM" className="bg-gray-900">CHEM</option>
+              <option value="AERO" className="bg-gray-900">AERO</option>
+              <option value="BIOTECH" className="bg-gray-900">BIOTECH</option>
+              <option value="MBA" className="bg-gray-900">MBA</option>
+            </select>
+
+            {/* Custom arrow */}
+            <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
+              ▼
+            </div>
+          </div>
         </div>
+
 
         <div>
           <label className="block text-sm font-medium text-gray-600">

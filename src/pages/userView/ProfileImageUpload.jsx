@@ -33,53 +33,53 @@ const ProfileImageUpload = ({
   };
 
   async function uploadImageToCloudinary() {
-  try {
-    setImageLoadingState(true);
+    try {
+      setImageLoadingState(true);
 
-    const data = new FormData();
-    data.append("my_file", imageFile);
+      const data = new FormData();
+      data.append("my_file", imageFile);
 
-    const response = await axiosInstance.post(
-      "/api/user/info/upload-image",
-      data,
-      { headers: { "Content-Type": "multipart/form-data" } }
-    );
+      const response = await axiosInstance.post(
+        "/api/user/info/upload-image",
+        data,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
 
-    if (response?.data?.success) {
-      setUploadedImageUrl(response.data.result.secure_url);
-    } else {
-      console.error("Upload failed:", response?.data?.message);
+      if (response?.data?.success) {
+        setUploadedImageUrl(response.data.result.secure_url);
+      } else {
+        console.error("Upload failed:", response?.data?.message);
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    } finally {
+      setImageLoadingState(false);
     }
-  } catch (error) {
-    console.error("Error uploading image:", error);
-  } finally {
-    setImageLoadingState(false);
   }
-}
-async function uploadImageToCloudinary() {
-  try {
-    setImageLoadingState(true);
+  async function uploadImageToCloudinary() {
+    try {
+      setImageLoadingState(true);
 
-    const data = new FormData();
-    data.append("my_file", imageFile);
+      const data = new FormData();
+      data.append("my_file", imageFile);
 
-    const response = await axiosInstance.post(
-      "/api/user/info/upload-image",
-      data,
-      { headers: { "Content-Type": "multipart/form-data" } }
-    );
+      const response = await axiosInstance.post(
+        "/api/user/info/upload-image",
+        data,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
 
-    if (response?.data?.success) {
-      setUploadedImageUrl(response.data.result.secure_url);
-    } else {
-      console.error("Upload failed:", response?.data?.message);
+      if (response?.data?.success) {
+        setUploadedImageUrl(response.data.result.secure_url);
+      } else {
+        console.error("Upload failed:", response?.data?.message);
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    } finally {
+      setImageLoadingState(false);
     }
-  } catch (error) {
-    console.error("Error uploading image:", error);
-  } finally {
-    setImageLoadingState(false);
   }
-}
 
   // Trigger upload when file is selected
   useEffect(() => {
@@ -123,9 +123,10 @@ async function uploadImageToCloudinary() {
               alt={userName}
               className="object-cover"
             />
-            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-4xl font-semibold">
+            <AvatarFallback className="bg-[#EBAB09] text-[#0F2747] text-4xl font-bold flex items-center justify-center">
               {getInitials(userName)}
             </AvatarFallback>
+
           </Avatar>
         )}
 

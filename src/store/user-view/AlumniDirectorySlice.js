@@ -9,8 +9,15 @@ export const fetchAlumni = createAsyncThunk(
   "alumni/fetchAlumni",
   async (_, { getState, rejectWithValue }) => {
     try {
-      const { currentPage, search, loggedInOnly, limit } =
-        getState().alumni;
+      const {
+        currentPage,
+        search,
+        loggedInOnly,
+        limit,
+        batch,
+        stream,
+        
+      } = getState().alumni;
 
       const response = await axios.get("/api/auth/alumni", {
         params: {
@@ -18,6 +25,8 @@ export const fetchAlumni = createAsyncThunk(
           limit,
           search: search || undefined,
           loggedIn: loggedInOnly ? "true" : undefined,
+          batch: batch || undefined,     // ✅ added
+          stream: stream || undefined,   // ✅ added
         },
         withCredentials: true,
       });
@@ -31,6 +40,7 @@ export const fetchAlumni = createAsyncThunk(
   }
 );
 
+
 /* ============================
    SLICE
 ============================ */
@@ -41,14 +51,15 @@ const alumniSlice = createSlice({
     alumniList: [],
     loading: false,
     error: null,
-
     currentPage: 1,
     totalPages: 1,
     totalUsers: 0,
     limit: 20,
-
     search: "",
     loggedInOnly: false,
+    search: "",  
+    batch: "",    
+    stream: "",
   },
 
   reducers: {
@@ -75,6 +86,16 @@ const alumniSlice = createSlice({
       state.loggedInOnly = false;
       state.error = null;
     },
+    setBatch(state, action) {
+      state.batch = action.payload;
+      state.currentPage = 1;
+    },
+
+    setStream(state, action) {
+      state.stream = action.payload;
+      state.currentPage = 1;
+    },
+
   },
 
   extraReducers: (builder) => {
@@ -103,7 +124,11 @@ export const {
   setSearch,
   setLoggedInOnly,
   setPage,
+  setBatch,
+  setStream,
   resetAlumniState,
+
 } = alumniSlice.actions;
+
 
 export default alumniSlice.reducer;
