@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchAlumni,
@@ -19,6 +19,7 @@ const AlumniDirectory = () => {
     error,
     currentPage,
     totalPages,
+    totalUsers,
     batch,
     stream,
     search,
@@ -26,19 +27,41 @@ const AlumniDirectory = () => {
 
   const currentUser = useSelector((state) => state.auth.user);
 
+  /* =========================
+     FETCH DATA
+  ========================= */
+
   useEffect(() => {
     dispatch(fetchAlumni());
-  }, [dispatch, currentPage, batch, stream, search]);
+  }, [currentPage, batch, stream, search]); // dispatch not needed in deps
+
+  /* =========================
+     MEMOIZED VALUES
+  ========================= */
+
+  const currentUserId =
+    currentUser?.id?.toString() ||
+    currentUser?._id?.toString();
+
+  const years = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    return Array.from({ length: 50 }, (_, i) => currentYear - i);
+  }, []);
+
+  /* =========================
+     RENDER
+  ========================= */
 
   return (
     <div className="min-h-screen bg-[#F5F6F8]">
 
       {/* ================= HERO ================= */}
       <div className="bg-[#142A5D] text-white py-20 px-6">
-        <div className="max-w-7xl mxauto text-center">
+        <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold">
             Alumni Directory
           </h1>
+
           <p className="mt-4 text-white/80 text-lg">
             Connect with fellow alumni and grow your network.
           </p>
@@ -57,27 +80,27 @@ const AlumniDirectory = () => {
 
         {/* FILTERS */}
         <div className="bg-white rounded-md shadow-sm p-6 mb-10 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex gap-4">
+          <div className="flex gap-4 flex-wrap">
+
+            {/* Batch */}
             <select
               value={batch}
               onChange={(e) => dispatch(setBatch(e.target.value))}
-              className="border rounded-md px-4 py-2 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-200"
+              className="border rounded-md px-4 py-2 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#142A5D]/30"
             >
               <option value="">All Years</option>
-              {Array.from({ length: 50 }, (_, i) => {
-                const year = 2026 - i;
-                return (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                );
-              })}
+              {years.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
             </select>
 
+            {/* Stream */}
             <select
               value={stream}
               onChange={(e) => dispatch(setStream(e.target.value))}
-              className="border rounded-md px-4 py-2 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-200"
+              className="border rounded-md px-4 py-2 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#142A5D]/30"
             >
               <option value="">All Departments</option>
               <option value="CSE">CSE</option>
@@ -93,8 +116,9 @@ const AlumniDirectory = () => {
             </select>
           </div>
 
+          {/* Total Results */}
           <div className="text-slate-500 text-sm">
-            {alumniList.length} Results
+            {totalUsers} Results
           </div>
         </div>
 
@@ -112,32 +136,24 @@ const AlumniDirectory = () => {
           </div>
         )}
 
-        {/* GRID */}
-        {!loading && !error && (
-          <div className="grid md:grid-cols-2 shadow-2 lg:grid-cols-3 gap-8">
-            {alumniList.map((user) => {
-              const currentUserId =
-                currentUser?.id?.toString() ||
-                currentUser?._id?.toString();
+        {/* EMPTY STATE */}
+        {!loading && !error && alumniList.length === 0 && (
+          <div className="text-center py-20 text-slate-500">
+            No alumni found.
+          </div>
+        )}
 
+        {/* GRID */}
+        {!loading && !error && alumniList.length > 0 && (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {alumniList.map((user) => {
               const isCurrentUser =
                 currentUserId === user._id?.toString();
 
               return (
                 <div
                   key={user._id}
-                  className="
-                    bg-white
-                    rounded-3xl
-                    shadow-xl
-                    p-6
-                    flex flex-col
-                    items-center
-                    text-center
-                    transition-shadow
-                    hover:shadow-2xl
-                    
-                  "
+                  className="bg-white rounded-3xl shadow-lg p-6 flex flex-col items-center text-center transition hover:shadow-xl"
                 >
                   {/* Avatar */}
                   <div className="w-24 h-24 mb-5 rounded-full overflow-hidden bg-slate-200 flex items-center justify-center text-slate-500 text-2xl font-semibold">
@@ -156,7 +172,7 @@ const AlumniDirectory = () => {
                   <h2 className="text-lg font-semibold text-slate-900">
                     {user.fullname}
                     {isCurrentUser && (
-                      <span className="ml-2 text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-md">
+                      <span className="ml-2 text-xs bg-[#142A5D]/10 text-[#142A5D] px-2 py-1 rounded-md">
                         You
                       </span>
                     )}
@@ -165,8 +181,7 @@ const AlumniDirectory = () => {
                   {/* Job */}
                   <p className="text-slate-600 mt-2 text-sm leading-relaxed">
                     {user.jobTitle
-                      ? `${user.jobTitle}${user.company ? ` at ${user.company}` : ""
-                      }`
+                      ? `${user.jobTitle}${user.company ? ` at ${user.company}` : ""}`
                       : "Professional details not posted yet"}
                   </p>
 
@@ -181,7 +196,7 @@ const AlumniDirectory = () => {
                         }
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-indigo-600 hover:underline text-sm"
+                        className="text-[#142A5D] hover:underline text-sm"
                       >
                         View LinkedIn
                       </a>
@@ -208,21 +223,22 @@ const AlumniDirectory = () => {
                   {/* Buttons */}
                   <div className="mt-6 w-full flex gap-3">
                     {!isCurrentUser && (
-                      <button className="flex-1 px-4 py-2 rounded-md bg-green-100 text-green-700 text-sm font-medium hover:bg-green-200 transition">
+                      <button
+                        className="flex-1 px-4 py-2 rounded-md bg-green-100 text-green-700 text-sm font-medium hover:bg-green-200 transition"
+                      >
                         Connect
                       </button>
                     )}
 
                     <button
                       disabled={isCurrentUser}
-                      className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition ${isCurrentUser
-                        ? "bg-indigo-100 text-indigo-700 cursor-default"
-                        : "bg-[#142A5D] text-white hover:bg-[#0f2149]"
-                        }`}
+                      className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition ${
+                        isCurrentUser
+                          ? "bg-[#142A5D]/10 text-[#142A5D] cursor-default"
+                          : "bg-[#142A5D] text-white hover:bg-[#0f2149]"
+                      }`}
                     >
-                      {isCurrentUser
-                        ? "Your Profile"
-                        : "Message"}
+                      {isCurrentUser ? "Your Profile" : "Message"}
                     </button>
                   </div>
                 </div>
@@ -232,13 +248,15 @@ const AlumniDirectory = () => {
         )}
 
         {/* PAGINATION */}
-        <div className="mt-16">
-          <PaginationControls
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={(page) => dispatch(setPage(page))}
-          />
-        </div>
+        {totalPages > 1 && (
+          <div className="mt-16">
+            <PaginationControls
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => dispatch(setPage(page))}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

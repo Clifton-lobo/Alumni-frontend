@@ -82,7 +82,7 @@ function App() {
         >
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="profile" element={<AdminProfile />} />
-          <Route path="alumni" element={<Alumni/>} />
+          <Route path="directory" element={<Alumni/>} />
           <Route path="gallery" element={<Gallery/>} />
           <Route path="jobs" element={<Jobs />} />
           <Route path="events" element={<Events />} />
