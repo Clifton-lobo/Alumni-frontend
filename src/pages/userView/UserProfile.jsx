@@ -20,6 +20,7 @@ import {
   Briefcase,
   BookOpen,
   User,
+  SquareUser,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -208,7 +209,7 @@ const UserProfile = () => {
 
             <Button
               onClick={() => setOpen(true)}
-              className="bg-[#EBAB09] hover:bg-[#c4962f] text-[#0F2747] font-semibold px-6 rounded-xl"
+              className="bg-[#EBAB09] hover:bg-[#c4962f] cursor-pointer  text-[#0F2747] font-semibold px-6 rounded-xl"
             >
               <Edit2 className="h-4 w-4 mr-2" />
               Edit Profile
@@ -223,8 +224,8 @@ const UserProfile = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* LEFT SIDEBAR */}
           <div className="space-y-6">
-            <Card className="rounded-xl border-none bg-white shadow-xl">
-              <CardHeader>
+            <Card className="rounded-xl  border-none bg-white shadow-xl">
+              <CardHeader className="items-center">
                 <CardTitle>Contact Info</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 text-sm">
@@ -321,8 +322,8 @@ const UserProfile = () => {
                 {/* PROFESSIONAL SECTION */}
                 <Card className="rounded-3xl bg-white border-none shadow-xl overflow-hidden">
                   <CardHeader className="flex flex-row items-center gap-3 pb-4 border-b bg-gradient-to-r from-[#f8fafc] to-white">
-                    <div className="w-10 h-10 rounded-xl bg-[#0F2747]/10 flex items-center justify-center">
-                      <Building2 className="h-5 w-5 text-[#0F2747]" />
+                    <div className="w-10 h-10 rounded-xl text-[#D4A437] flex items-center justify-center">
+                      <Building2 className="h-5 w-5 text-[#D4A437]" />
                     </div>
                     <CardTitle className="text-xl font-bold text-[#0F2747]">
                       Professional Overview
@@ -385,7 +386,7 @@ const UserProfile = () => {
               </TabsContent>
 
               <TabsContent value="events" className="mt-10">
-                <Card className="rounded-2xl bg-white border shadow-sm">
+                <Card className="rounded-2xl bg-whites border-none shadow-xl">
                   <CardContent className="py-16 text-center">
                     <Briefcase className="h-10 w-10 text-gray-300 mx-auto mb-4" />
                     <p className="text-gray-500">
@@ -501,11 +502,11 @@ const UserProfile = () => {
           </div>
 
           {/* Footer */}
-          <DialogFooter className="px-8 py-6 bg-gray-50 rounded-b-2xl flex justify-between">
+          <DialogFooter className="px-8 py-6 bg-gray-50  rounded-b-2xl flex justify-between">
             <Button
-              variant="outline"
+              variant="ghost"
               onClick={() => setOpen(false)}
-              className="rounded-full px-6"
+              className="rounded-full hover:bg-transparent hover:outline-2 cursor-pointer hover:border px-6"
             >
               Cancel
             </Button>

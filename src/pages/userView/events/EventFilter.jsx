@@ -54,16 +54,14 @@ const FilterSection = ({ title, isOpen, onToggle, children }) => (
       <h3 className="font-semibold text-lg text-gray-900">{title}</h3>
 
       <ChevronRight
-        className={`w-5 h-5 text-gray-600 transition-transform duration-300 ${
-          isOpen ? "rotate-90" : ""
-        }`}
+        className={`w-5 h-5 text-gray-600 transition-transform duration-300 ${isOpen ? "rotate-90" : ""
+          }`}
       />
     </button>
 
     <div
-      className={`overflow-hidden transition-all duration-300 ease-in-out ${
-        isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
-      }`}
+      className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
+        }`}
     >
       <div className="pb-4 px-2 space-y-2">{children}</div>
     </div>
@@ -79,7 +77,19 @@ const EventFilter = () => {
     (state) => state.events
   );
 
-  const [openSection, setOpenSection] = useState("date");
+  const [openSections, setOpenSections] = useState({
+    date: true,
+    category: false,
+    mode: false,
+    status: false,
+  });
+
+  const toggleSection = (section) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
 
   const [customDates, setCustomDates] = useState({
     start: "",
@@ -99,10 +109,6 @@ const EventFilter = () => {
     }
   }, [activeFilter]);
 
-  const toggleSection = (section) => {
-    setOpenSection((prev) => (prev === section ? null : section));
-  };
-
   const handleReset = useCallback(() => {
     dispatch(setActiveFilter("all"));
     dispatch(setCategory("all"));
@@ -120,8 +126,8 @@ const EventFilter = () => {
       mode === "virtual"
         ? true
         : mode === "physical"
-        ? false
-        : undefined;
+          ? false
+          : undefined;
 
     dispatch(
       fetchFilteredEvents({
@@ -152,13 +158,13 @@ const EventFilter = () => {
       {/* Date */}
       <FilterSection
         title="Date"
-        isOpen={openSection === "date"}
+        isOpen={openSections.date}
         onToggle={() => toggleSection("date")}
       >
         {DATE_FILTERS.map((f) => (
           <label
             key={f.key}
-            className="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-gray-50 transition"
+            className="flex items-center gap-2  rounded cursor-pointer hover:bg-gray-50 transition"
           >
             <input
               type="radio"
@@ -271,13 +277,13 @@ const EventFilter = () => {
       {/* Category */}
       <FilterSection
         title="Category"
-        isOpen={openSection === "category"}
+        isOpen={openSections.category}
         onToggle={() => toggleSection("category")}
       >
         {CATEGORIES.map((c) => (
           <label
             key={c}
-            className="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-gray-50 transition"
+            className="flex items-center gap-2  rounded cursor-pointer hover:bg-gray-50 transition"
           >
             <input
               type="radio"
@@ -296,13 +302,13 @@ const EventFilter = () => {
       {/* Mode */}
       <FilterSection
         title="Format"
-        isOpen={openSection === "mode"}
+        isOpen={openSections.mode}
         onToggle={() => toggleSection("mode")}
       >
         {MODES.map((m) => (
           <label
             key={m}
-            className="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-gray-50 transition"
+            className="flex items-center gap-2  rounded cursor-pointer hover:bg-gray-50 transition"
           >
             <input
               type="radio"
@@ -321,13 +327,13 @@ const EventFilter = () => {
       {/* Status */}
       <FilterSection
         title="Status"
-        isOpen={openSection === "status"}
+        isOpen={openSections.status}
         onToggle={() => toggleSection("status")}
       >
         {STATUSES.map((s) => (
           <label
             key={s}
-            className="flex items-center gap-2 p-2 rounded cursor-pointer hover:bg-gray-50 transition"
+            className="flex items-center gap-2  rounded cursor-pointer hover:bg-gray-50 transition"
           >
             <input
               type="radio"
@@ -342,7 +348,7 @@ const EventFilter = () => {
           </label>
         ))}
       </FilterSection>
-
+      
     </div>
   );
 };
