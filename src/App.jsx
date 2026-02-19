@@ -26,18 +26,18 @@ import ScrollToTop from './config/ScrollToTop.jsx'
 import UserProfile from './pages/userView/UserProfile.jsx'
 import Gallery from './pages/adminView/Gallery.jsx'
 import AdminProfile from './pages/adminView/AdminProfile.jsx'
-import AlumniDirectory from './pages/userView/AlumniDirectory.jsx'
-
+import AlumniDirectory from './pages/userView/Directory/AlumniDirectory.jsx'
+import SocketInitializer from "../SocketInitializer.jsx";
 
 
 function App() {
 
-  const  {user,isAuthenticated,isLoading} = useSelector((state)=>state.auth);
+  const { user, isAuthenticated, isLoading } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
-  useEffect( ()=>{
+  useEffect(() => {
     dispatch(checkAuth());
-  },[dispatch])
+  }, [dispatch])
 
   if (isLoading)
     return (
@@ -45,10 +45,11 @@ function App() {
         <div className="w-16 h-16 border-4 border-indigo-300 border-t-indigo-600 rounded-full animate-spin"></div>
       </div>
     );
-  
+
   return (
     <>
-    <ScrollToTop />
+      <ScrollToTop />
+      <SocketInitializer />
       <Routes>
         <Route
           path="/"
@@ -82,8 +83,8 @@ function App() {
         >
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="profile" element={<AdminProfile />} />
-          <Route path="directory" element={<Alumni/>} />
-          <Route path="gallery" element={<Gallery/>} />
+          <Route path="directory" element={<Alumni />} />
+          <Route path="gallery" element={<Gallery />} />
           <Route path="jobs" element={<Jobs />} />
           <Route path="events" element={<Events />} />
           <Route path="news" element={<NewsLetter />} />

@@ -7,6 +7,7 @@ import jobsReducer from "./user-view/UserJobSlice.js"
 import adminJobsReducer from "./admin/AdminJobSlice.js"
 import alumniReducer from "./user-view/AlumniDirectorySlice.js"
 import userInfoReducer from "./user-view/UserInfoSlice.js"
+import ConnectionReducer from "./user-view/ConnectionSlice.js"
 
 export const store = configureStore({
   reducer: {
@@ -17,7 +18,8 @@ export const store = configureStore({
     userJobsReducer: jobsReducer,
     adminJobs: adminJobsReducer,
     alumni: alumniReducer,
-    userProfile: userInfoReducer
+    userProfile: userInfoReducer,
+    connections :ConnectionReducer
   },
 });
 

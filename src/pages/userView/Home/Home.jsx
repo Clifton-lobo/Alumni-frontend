@@ -193,7 +193,7 @@ const Home = () => {
               className={`flex flex-col sm:flex-row gap-4 justify-center mb-16 transition-all duration-700 delay-200 ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                 }`}
             >
-              <button className="px-8 py-4 rounded-xl bg-[#EBAB09] text-black font-semibold flex items-center gap-2 justify-center hover:opacity-90 transition">
+              <button className="px-8 py-4 rounded-xl bg-[#EBAB09] text-white font-semibold flex items-center gap-2 justify-center hover:opacity-90 transition">
                 Explore Alumni
                 <ArrowRight className="w-5 h-5" />
               </button>
@@ -280,7 +280,7 @@ const Home = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-[#142A5D]/95 via-[#142A5D]/70 to-transparent" />
 
               <div className="relative min-h-[520px] p-10 flex flex-col justify-end">
-                <span className="inline-block px-4 py-1 rounded-full bg-[#EBAB09] text-black text-sm font-semibold w-fit mb-4">
+                <span className="inline-block px-4 py-1 rounded-full bg-[#EBAB09] text-white text-sm font-semibold w-fit mb-4">
                   Featured Event
                 </span>
 
@@ -303,7 +303,7 @@ const Home = () => {
                   </span>
                 </div>
 
-                <button className="w-fit px-8 py-4 rounded-xl bg-[#EBAB09] text-black font-semibold hover:opacity-90 transition">
+                <button className="w-fit px-8 py-4 rounded-xl bg-[#EBAB09] text-white font-semibold hover:opacity-90 transition">
                   Register Now
                 </button>
               </div>
@@ -510,7 +510,7 @@ const Home = () => {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4">
-                <button className="px-8 py-4 rounded-xl bg-[#EBAB09] text-black font-semibold text-lg hover:opacity-90 transition">
+                <button className="px-8 py-4 rounded-xl bg-[#EBAB09] text-white font-semibold text-lg hover:opacity-90 transition">
                   Donate Now
                 </button>
 

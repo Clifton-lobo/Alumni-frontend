@@ -21,6 +21,7 @@ import {
   BookOpen,
   User,
   SquareUser,
+  Users,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -32,6 +33,10 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ConnectionsList from "./Connectionlist";
+import { fetchAcceptedConnections } from "../../store/user-view/ConnectionSlice";
+
+
 
 const UserProfile = () => {
   const dispatch = useDispatch();
@@ -42,6 +47,12 @@ const UserProfile = () => {
   const [imageFile, setImageFile] = useState(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState("");
   const [imageLoadingState, setImageLoadingState] = useState(false);
+  const [showConnections, setShowConnections] = useState(false);
+  const { acceptedConnections } = useSelector((state) => state.connections);
+
+  useEffect(() => {
+    dispatch(fetchAcceptedConnections());
+  }, []);
 
   useEffect(() => {
     if (error) {
@@ -151,6 +162,10 @@ const UserProfile = () => {
     return <div className="p-10 text-center">Loading profile...</div>;
   }
 
+  if (showConnections) {
+    return <ConnectionsList onClose={() => setShowConnections(false)} />;
+  }
+
   const profile = userProfile || {};
   const user = profile.user || {};
 
@@ -209,7 +224,7 @@ const UserProfile = () => {
 
             <Button
               onClick={() => setOpen(true)}
-              className="bg-[#EBAB09] hover:bg-[#c4962f] cursor-pointer  text-[#0F2747] font-semibold px-6 rounded-xl"
+              className="bg-[#EBAB09] hover:bg-[#c4962f] cursor-pointer  text-white font-semibold px-6 rounded-xl"
             >
               <Edit2 className="h-4 w-4 mr-2" />
               Edit Profile
@@ -256,33 +271,39 @@ const UserProfile = () => {
               </CardContent>
             </Card>
 
-            <Card className="rounded-2xl bg-white border-none  shadow-xl">
+            <Card className="rounded-2xl bg-white border-none shadow-xl">
               <CardContent className="p-6">
                 <div className="grid grid-cols-2 gap-6">
+
                   {/* Jobs Posted */}
-                  <div className="bg-[#F3F4F6] rounded-2xl p-6 text-center">
-                    <Briefcase className="h-6 w-6 text-[#D4A437] mx-auto mb-4" />
-                    <p className="text-3xl font-bold text-[#0F2747]">
-                      12
-                    </p>
-                    <p className="text-sm text-gray-500 mt-1">
-                      Jobs Posted
-                    </p>
+                  <div className="bg-[#F3F4F6] hover:bg-[#ECEEF2] transition-colors rounded-2xl p-6 text-center cursor-default">
+                    <div className="w-10 h-10 mx-auto mb-3 flex items-center justify-center rounded-xl bg-white shadow-sm">
+                      <Briefcase className="h-5 w-5 text-[#D4A437]" />
+                    </div>
+
+                    <p className="text-3xl font-bold text-[#0F2747]">12</p>
+                    <p className="text-sm text-gray-500 mt-1">Jobs Posted</p>
                   </div>
 
                   {/* Connections */}
-                  <div className="bg-[#F3F4F6] rounded-2xl p-6 text-center">
-                    <User className="h-6 w-6 text-[#D4A437] mx-auto mb-4" />
+                  <div
+                    onClick={() => setShowConnections(true)}
+                    className="bg-[#F3F4F6] hover:bg-amber-50 transition-all duration-200 rounded-2xl p-6 text-center cursor-pointer hover:shadow-md"
+                  >
+                    <div className="w-10 h-10 mx-auto mb-3 flex items-center justify-center rounded-xl bg-white shadow-sm">
+                      <Users className="h-5 w-5 text-[#D4A437]" />
+                    </div>
+
                     <p className="text-3xl font-bold text-[#0F2747]">
-                      340
+                      {acceptedConnections.length}
                     </p>
-                    <p className="text-sm text-gray-500 mt-1">
-                      Connections
-                    </p>
+                    <p className="text-sm text-gray-500 mt-1">Connections</p>
                   </div>
+
                 </div>
               </CardContent>
             </Card>
+
           </div>
 
           {/* RIGHT CONTENT */}
@@ -514,7 +535,7 @@ const UserProfile = () => {
             <Button
               onClick={handleSave}
               disabled={imageLoadingState}
-              className="bg-yellow-400 hover:bg-[#c4962f] text-[#0F2747] font-semibold px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+              className="bg-yellow-500 hover:bg-[#c4962f] text-white font-semibold px-8 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
             >
               <Save className="h-4 w-4 mr-2" />
               Save Changes

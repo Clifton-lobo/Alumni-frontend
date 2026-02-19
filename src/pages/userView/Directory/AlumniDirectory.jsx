@@ -6,13 +6,113 @@ import {
   setBatch,
   setStream,
   setSearch,
-} from "../../store/user-view/AlumniDirectorySlice";
-import PaginationControls from "../../components/common/Pagination";
-import SearchComponent from "../../components/common/Search";
+} from "../../../store/user-view/AlumniDirectorySlice";
+import {
+  fetchAcceptedConnections,
+  fetchIncomingRequests,
+  fetchOutgoingRequests,
+  sendConnectionRequest,
+} from "../../../store/user-view/ConnectionSlice"; // ← adjust path
+import PaginationControls from "../../../components/common/Pagination";
+import SearchComponent from "../../../components/common/Search";
+import { openRequestsDialog } from "../../../store/user-view/ConnectionSlice";
 
+
+/* ─────────────────────────────────────────────
+   Helper: derive connection status for a user
+   Returns: "SELF" | "ACCEPTED" | "PENDING_SENT"
+          | "PENDING_RECEIVED" | "NONE"
+───────────────────────────────────────────── */
+const getConnectionStatus = (
+  targetUserId,
+  currentUserId,
+  acceptedConnections,
+  outgoingRequests,
+  incomingRequests
+) => {
+  if (targetUserId === currentUserId) return "SELF";
+
+  if (acceptedConnections.some((c) => c.user?._id?.toString() === targetUserId))
+    return "ACCEPTED";
+
+  if (
+    outgoingRequests.some((r) => {
+      // populated (fetched from API): { recipient: { _id: "..." } }
+      // unpopulated (just sent):      { recipient: "..." }
+      const id = r.recipient?._id?.toString() ?? r.recipient?.toString();
+      return id === targetUserId;
+    })
+  )
+    return "PENDING_SENT";
+
+  if (
+    incomingRequests.some((r) => {
+      const id = r.requester?._id?.toString() ?? r.requester?.toString();
+      return id === targetUserId;
+    })
+  )
+    return "PENDING_RECEIVED";
+
+  return "NONE";
+};
+
+/* ─────────────────────────────────────────────
+   Connect Button — isolated so it reads cleanly
+───────────────────────────────────────────── */
+const ConnectButton = ({ status, onConnect, onRespond, loading }) => {
+  if (status === "ACCEPTED") {
+    return (
+      <button
+        disabled
+        className="flex-1 px-4 py-2 rounded-md bg-green-100 text-green-700 text-sm font-medium cursor-default"
+      >
+        ✓ Connected
+      </button>
+    );
+  }
+
+  if (status === "PENDING_SENT") {
+    return (
+      <button
+        disabled
+        className="flex-1 px-4 py-2 rounded-md bg-yellow-50 text-yellow-600 text-sm font-medium cursor-default border border-yellow-200"
+      >
+        Pending…
+      </button>
+    );
+  }
+
+  if (status === "PENDING_RECEIVED") {
+    return (
+      <button
+        onClick={onRespond}
+        className="flex-1 px-4 py-2 rounded-md bg-blue-50 text-blue-600 text-sm font-medium border border-blue-200 hover:bg-blue-100 transition"
+      >
+        Respond ↩
+      </button>
+    );
+  }
+
+
+  // NONE — show active Connect button
+  return (
+    <button
+      onClick={onConnect}
+      disabled={loading}
+      className="flex-1 px-4 py-2 rounded-md bg-green-100 text-green-700 text-sm font-medium hover:bg-green-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      {loading ? "Sending…" : "Connect"}
+    </button>
+  );
+};
+
+/* ─────────────────────────────────────────────
+   Main Page
+───────────────────────────────────────────── */
 const AlumniDirectory = () => {
   const dispatch = useDispatch();
 
+  // ── Alumni state ──────────────────────────
   const {
     alumniList,
     loading,
@@ -25,28 +125,52 @@ const AlumniDirectory = () => {
     search,
   } = useSelector((state) => state.alumni);
 
+  // ── Auth ──────────────────────────────────
   const currentUser = useSelector((state) => state.auth.user);
+
+  // ── Connection state ──────────────────────
+  const {
+    acceptedConnections,
+    incomingRequests,
+    outgoingRequests,
+    sendingRequest,
+  } = useSelector((state) => state.connections);
 
   /* =========================
      FETCH DATA
   ========================= */
 
+  // Fetch alumni whenever filters / page change
   useEffect(() => {
     dispatch(fetchAlumni());
-  }, [currentPage, batch, stream, search]); // dispatch not needed in deps
+  }, [currentPage, batch, stream, search]);
+
+  // Fetch connection data once on mount so status badges are accurate
+  useEffect(() => {
+    dispatch(fetchAcceptedConnections());
+    dispatch(fetchIncomingRequests());
+    dispatch(fetchOutgoingRequests());
+  }, []);
 
   /* =========================
      MEMOIZED VALUES
   ========================= */
 
   const currentUserId =
-    currentUser?.id?.toString() ||
-    currentUser?._id?.toString();
+    currentUser?.id?.toString() || currentUser?._id?.toString();
 
   const years = useMemo(() => {
     const currentYear = new Date().getFullYear();
     return Array.from({ length: 50 }, (_, i) => currentYear - i);
   }, []);
+
+  /* =========================
+     HANDLERS
+  ========================= */
+
+  const handleConnect = (recipientId) => {
+    dispatch(sendConnectionRequest(recipientId));
+  };
 
   /* =========================
      RENDER
@@ -147,8 +271,16 @@ const AlumniDirectory = () => {
         {!loading && !error && alumniList.length > 0 && (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {alumniList.map((user) => {
-              const isCurrentUser =
-                currentUserId === user._id?.toString();
+              const userId = user._id?.toString();
+              const isCurrentUser = currentUserId === userId;
+
+              const connectionStatus = getConnectionStatus(
+                userId,
+                currentUserId,
+                acceptedConnections,
+                outgoingRequests,
+                incomingRequests
+              );
 
               return (
                 <div
@@ -215,28 +347,26 @@ const AlumniDirectory = () => {
                   {/* Meta */}
                   <div className="text-slate-500 text-xs mt-2">
                     {user.stream || "Stream not posted"} •{" "}
-                    {user.batch
-                      ? `Class of ${user.batch}`
-                      : "Batch not posted"}
+                    {user.batch ? `Class of ${user.batch}` : "Batch not posted"}
                   </div>
 
                   {/* Buttons */}
                   <div className="mt-6 w-full flex gap-3">
                     {!isCurrentUser && (
-                      <button
-                        className="flex-1 px-4 py-2 rounded-md bg-green-100 text-green-700 text-sm font-medium hover:bg-green-200 transition"
-                      >
-                        Connect
-                      </button>
+                      <ConnectButton
+                        status={connectionStatus}
+                        onRespond={() => dispatch(openRequestsDialog())}
+                        onConnect={() => handleConnect(user._id)}
+                        loading={sendingRequest}
+                      />
                     )}
 
                     <button
                       disabled={isCurrentUser}
-                      className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition ${
-                        isCurrentUser
-                          ? "bg-[#142A5D]/10 text-[#142A5D] cursor-default"
-                          : "bg-[#142A5D] text-white hover:bg-[#0f2149]"
-                      }`}
+                      className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition ${isCurrentUser
+                        ? "bg-[#142A5D]/10 text-[#142A5D] cursor-default"
+                        : "bg-[#142A5D] text-white hover:bg-[#0f2149]"
+                        }`}
                     >
                       {isCurrentUser ? "Your Profile" : "Message"}
                     </button>

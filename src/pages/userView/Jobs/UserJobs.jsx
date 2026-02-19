@@ -140,7 +140,7 @@ const UserJobs = () => {
 
             <Button
               onClick={() => setIsSheetOpen(true)}
-              className="h-14 px-15  bg-[#EBAB09] hover:bg-yellow-500 text-black cursor-pointer rounded-xl"
+              className="h-14 px-15  bg-[#EBAB09] hover:bg-yellow-500 text-white cursor-pointer rounded-xl"
             >
               <Plus className="h-5 w-5 mr-2" />
               Post a Job
