@@ -28,6 +28,7 @@ import Gallery from './pages/adminView/Gallery.jsx'
 import AdminProfile from './pages/adminView/AdminProfile.jsx'
 import AlumniDirectory from './pages/userView/Directory/AlumniDirectory.jsx'
 import SocketInitializer from "../SocketInitializer.jsx";
+import MessagingPage from './pages/userView/Directory/MessagingPage.jsx'
 
 
 function App() {
@@ -108,6 +109,7 @@ function App() {
           <Route path="about" element={<About />} />
           <Route path="donate" element={<UserDonate />} />
           <Route path="gallery" element={<UserGallery />} />
+          <Route path="messages" element={<MessagingPage />} />
         </Route>
 
         {/* misc */}

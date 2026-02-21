@@ -196,7 +196,7 @@ const UserProfile = () => {
 
         <div className="relative max-w-6xl mx-auto px-6 pt-5 pb-20 z-10">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-            <div className="flex items-  gap-6">
+            <div className="flex items-center  gap-6">
               <Avatar className="w-36 h-36 rounded-full border-4 border-white shadow-xl">
                 <AvatarImage
                   src={profile.profilePicture || undefined}
@@ -211,7 +211,7 @@ const UserProfile = () => {
 
 
               <div>
-                <h1 className="text-3xl md:text-6xl font-bold text-white">
+                <h1 className="text-3xl md:text-5xl font-bold text-white/90">
                   {user.fullname || "User"}
                 </h1>
 

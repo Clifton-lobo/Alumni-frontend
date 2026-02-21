@@ -8,6 +8,7 @@ import adminJobsReducer from "./admin/AdminJobSlice.js"
 import alumniReducer from "./user-view/AlumniDirectorySlice.js"
 import userInfoReducer from "./user-view/UserInfoSlice.js"
 import ConnectionReducer from "./user-view/ConnectionSlice.js"
+import messageReducer from "./user-view/MessageSlice.js"
 
 export const store = configureStore({
   reducer: {
@@ -19,7 +20,8 @@ export const store = configureStore({
     adminJobs: adminJobsReducer,
     alumni: alumniReducer,
     userProfile: userInfoReducer,
-    connections :ConnectionReducer
+    connections :ConnectionReducer,
+    messages :  messageReducer
   },
 });
 

@@ -33,6 +33,13 @@ function SocketInitializer() {
       dispatch(removeAcceptedConnection(data.connectionId));
     });
 
+    // In your socket initialization file
+    socket.on("new_message", (data) => dispatch(receiveMessage(data)));
+    socket.on("message_edited", (data) => dispatch(receiveEditedMessage(data)));
+    socket.on("message_deleted", (data) => dispatch(receiveDeletedMessage(data)));
+    socket.on("messages_read", (data) => dispatch(receiveReadReceipt(data)));
+    socket.on("typing", (data) => dispatch(setTypingUser(data)));
+
     // return () => {
     //   socket?.disconnect();
     // };
