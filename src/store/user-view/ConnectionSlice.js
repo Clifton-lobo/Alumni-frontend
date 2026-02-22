@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../api/axiosInstance"; // adjust path
+import { logoutUser } from "../authSlice/authSlice";
+
 
 /* ============================
    ASYNC THUNKS
@@ -308,6 +310,12 @@ const connectionSlice = createSlice({
       .addCase(fetchOutgoingRequests.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.acceptedConnections = [];
+        state.incomingRequests = [];
+        state.outgoingRequests = [];
+        state.error = null;
       });
   },
 });

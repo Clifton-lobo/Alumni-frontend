@@ -51,8 +51,11 @@ const UserProfile = () => {
   const { acceptedConnections } = useSelector((state) => state.connections);
 
   useEffect(() => {
-    dispatch(fetchAcceptedConnections());
-  }, []);
+    Promise.all([
+      dispatch(fetchUserProfile()),
+      dispatch(fetchAcceptedConnections()),
+    ]);
+  }, [dispatch]);
 
   useEffect(() => {
     if (error) {
@@ -77,9 +80,9 @@ const UserProfile = () => {
 
 
   /* ================= CLEAR & FETCH PROFILE ================= */
-  useEffect(() => {
-    dispatch(fetchUserProfile());
-  }, []);
+  // useEffect(() => {
+  //   dispatch(fetchUserProfile());
+  // }, []);
 
 
 
@@ -158,10 +161,106 @@ const UserProfile = () => {
   }
 
   // Then wait for profile fetch
+  // skeleton
   if (isLoading || !userProfile) {
-    return <div className="p-10 text-center">Loading profile...</div>;
-  }
+    return (
+      <div className="min-h-screen bg-[#F5F6F8] animate-pulse">
 
+        {/* HERO */}
+        <div className="relative bg-[#152A5D] p-10 overflow-hidden">
+          <div className="max-w-6xl mx-auto px-6 pt-5 pb-20">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+
+              <div className="flex items-center gap-6">
+                <div className="w-36 h-36 rounded-full bg-white/20 border-4 border-white/30" />
+                <div className="space-y-4">
+                  <div className="h-10 w-72 bg-white/20 rounded-xl" />
+                  <div className="h-5 w-48 bg-white/15 rounded-lg" />
+                </div>
+              </div>
+
+              <div className="h-10 w-40 bg-[#EBAB09]/60 rounded-xl" />
+            </div>
+          </div>
+        </div>
+
+        {/* MAIN CONTENT */}
+        <div className="max-w-6xl mx-auto px-6 -mt-16 pb-16 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            {/* LEFT SIDEBAR */}
+            <div className="space-y-6">
+              <div className="bg-white rounded-xl shadow-xl p-6 space-y-4">
+                <div className="h-6 w-32 bg-gray-200 rounded-lg mx-auto" />
+                <div className="h-4 w-full bg-gray-200 rounded-md" />
+                <div className="h-4 w-4/5 bg-gray-200 rounded-md" />
+              </div>
+
+              <div className="bg-white rounded-2xl shadow-xl p-6">
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="bg-gray-100 rounded-2xl p-6 space-y-3">
+                    <div className="w-10 h-10 bg-white rounded-xl mx-auto" />
+                    <div className="h-6 w-12 bg-gray-300 rounded-md mx-auto" />
+                    <div className="h-4 w-20 bg-gray-200 rounded-md mx-auto" />
+                  </div>
+                  <div className="bg-gray-100 rounded-2xl p-6 space-y-3">
+                    <div className="w-10 h-10 bg-white rounded-xl mx-auto" />
+                    <div className="h-6 w-12 bg-gray-300 rounded-md mx-auto" />
+                    <div className="h-4 w-20 bg-gray-200 rounded-md mx-auto" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT CONTENT */}
+            <div className="lg:col-span-2 space-y-8">
+
+              {/* Tabs Skeleton */}
+              <div className="bg-white rounded-xl shadow-xl p-4">
+                <div className="flex gap-6">
+                  <div className="h-8 w-24 bg-gray-200 rounded-md" />
+                  <div className="h-8 w-40 bg-gray-200 rounded-md" />
+                </div>
+              </div>
+
+              {/* About Card */}
+              <div className="bg-white rounded-2xl shadow-xl p-6 space-y-4">
+                <div className="h-6 w-32 bg-gray-300 rounded-lg" />
+                <div className="h-4 w-full bg-gray-200 rounded-md" />
+                <div className="h-4 w-4/5 bg-gray-200 rounded-md" />
+              </div>
+
+              {/* Professional Card */}
+              <div className="bg-white rounded-3xl shadow-xl p-8 space-y-8">
+
+                {/* Current Position */}
+                <div className="bg-gray-100 rounded-2xl p-6 flex gap-5">
+                  <div className="w-14 h-14 bg-white rounded-2xl" />
+                  <div className="flex-1 space-y-3">
+                    <div className="h-4 w-32 bg-gray-300 rounded-md" />
+                    <div className="h-5 w-48 bg-gray-200 rounded-md" />
+                    <div className="h-4 w-40 bg-gray-200 rounded-md" />
+                  </div>
+                </div>
+
+                {/* Academic Info */}
+                <div className="bg-gray-100 rounded-2xl p-6 flex gap-5">
+                  <div className="w-14 h-14 bg-white rounded-2xl" />
+                  <div className="flex-1 space-y-3">
+                    <div className="h-4 w-32 bg-gray-300 rounded-md" />
+                    <div className="h-5 w-48 bg-gray-200 rounded-md" />
+                    <div className="h-4 w-40 bg-gray-200 rounded-md" />
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   if (showConnections) {
     return <ConnectionsList onClose={() => setShowConnections(false)} />;
   }
@@ -196,7 +295,10 @@ const UserProfile = () => {
 
         <div className="relative max-w-6xl mx-auto px-6 pt-5 pb-20 z-10">
           <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-            <div className="flex items-center  gap-6">
+            <div className="flex flex-col items-center text-center 
+                md:flex-row md:itemsend md:text-left 
+                gap-6">
+
               <Avatar className="w-36 h-36 rounded-full border-4 border-white shadow-xl">
                 <AvatarImage
                   src={profile.profilePicture || undefined}
@@ -209,7 +311,6 @@ const UserProfile = () => {
                 </AvatarFallback>
               </Avatar>
 
-
               <div>
                 <h1 className="text-3xl md:text-5xl font-bold text-white/90">
                   {user.fullname || "User"}
@@ -220,6 +321,7 @@ const UserProfile = () => {
                   {profile.company && ` at ${profile.company}`}
                 </p>
               </div>
+
             </div>
 
             <Button

@@ -389,7 +389,7 @@ const AlumniDirectory = () => {
                           : "bg-gray-100 text-gray-400 cursor-not-allowed"
                         }`}
                     >
-                      {isCurrentUser ? "Your Profile" : connectionStatus === "ACCEPTED" ? "Message" : "Connect First"}
+                      {isCurrentUser ? "Your Profile" : connectionStatus === "ACCEPTED" ? "Message" : "Message"}
                     </button>
                   </div>
                 </div>

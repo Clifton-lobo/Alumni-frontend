@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../api/axiosInstance";
+import { logoutUser } from "../authSlice/authSlice";
+
 
 /* ============================ THUNKS ============================ */
 
@@ -252,16 +254,8 @@ const messageSlice = createSlice({
             .addCase(fetchConversations.pending, (state) => { state.loading = true; })
             .addCase(fetchConversations.fulfilled, (state, action) => {
                 state.loading = false;
-                action.payload.forEach(serverConv => {
-                    const existing = state.conversations.find(c => c.id === serverConv.id);
-                    if (!existing) {
-                        state.conversations.push(serverConv);
-                    } else {
-                        existing.lastMessage = serverConv.lastMessage;
-                        existing.unreadCount = serverConv.unreadCount;
-                        existing.otherUser = serverConv.otherUser;
-                    }
-                });
+                // REPLACE entirely — don't merge with stale state
+                state.conversations = action.payload;
             })
             .addCase(fetchConversations.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
 
@@ -299,7 +293,16 @@ const messageSlice = createSlice({
                 state.messagesByConversation[conversationId] = { messages: [], hasMore: false, page: 1 };
                 const conv = state.conversations.find((c) => c.id === conversationId);
                 if (conv) { conv.lastMessage = null; conv.unreadCount = 0; }
-            });
+            })
+            .addCase(logoutUser.fulfilled, () => ({
+                messagesByConversation: {},
+                conversations: [],
+                activeConversationId: null,
+                typingUsers: {},
+                loading: false,
+                sending: false,
+                error: null,
+            }));
     },
 });
 
