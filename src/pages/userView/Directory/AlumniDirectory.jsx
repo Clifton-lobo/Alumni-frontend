@@ -16,6 +16,7 @@ import {
 import PaginationControls from "../../../components/common/Pagination";
 import SearchComponent from "../../../components/common/Search";
 import { openRequestsDialog } from "../../../store/user-view/ConnectionSlice";
+import { useNavigate } from "react-router-dom";
 
 
 /* ─────────────────────────────────────────────
@@ -128,6 +129,7 @@ const AlumniDirectory = () => {
   // ── Auth ──────────────────────────────────
   const currentUser = useSelector((state) => state.auth.user);
 
+
   // ── Connection state ──────────────────────
   const {
     acceptedConnections,
@@ -151,6 +153,22 @@ const AlumniDirectory = () => {
     dispatch(fetchIncomingRequests());
     dispatch(fetchOutgoingRequests());
   }, []);
+
+  const navigate = useNavigate();
+
+  const handleMessage = (user) => {
+    navigate("/user/messages", {
+      state: {
+        recipientId: user._id.toString(),
+        recipientUser: {
+          _id: user._id.toString(),
+          fullname: user.fullname,
+          username: user.username,
+          profileImage: user.profilePicture,
+        }
+      }
+    });
+  };
 
   /* =========================
      MEMOIZED VALUES
@@ -362,13 +380,16 @@ const AlumniDirectory = () => {
                     )}
 
                     <button
-                      disabled={isCurrentUser}
+                      onClick={() => !isCurrentUser && connectionStatus === "ACCEPTED" && handleMessage(user)}
+                      disabled={isCurrentUser || connectionStatus !== "ACCEPTED"}
                       className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition ${isCurrentUser
                         ? "bg-[#142A5D]/10 text-[#142A5D] cursor-default"
-                        : "bg-[#142A5D] text-white hover:bg-[#0f2149]"
+                        : connectionStatus === "ACCEPTED"
+                          ? "bg-[#142A5D] text-white hover:bg-[#0f2149] cursor-pointer"
+                          : "bg-gray-100 text-gray-400 cursor-not-allowed"
                         }`}
                     >
-                      {isCurrentUser ? "Your Profile" : "Message"}
+                      {isCurrentUser ? "Your Profile" : connectionStatus === "ACCEPTED" ? "Message" : "Connect First"}
                     </button>
                   </div>
                 </div>

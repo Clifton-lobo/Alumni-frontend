@@ -12,6 +12,7 @@ import {
   openRequestsDialog,
   closeRequestsDialog,
 } from "../../store/user-view/ConnectionSlice";
+import { disconnectSocket } from "../../../socket/socket"; // adjust path
 
 const BRAND_BLUE = "#142A5D";
 const BRAND_GOLD = "#F2A20A";
@@ -42,11 +43,12 @@ const UserAvatar = ({ user, isScrolled }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const handleLogout = () => {
-    dispatch(clearUserProfile());
-    dispatch(logoutUser());
-    setDropdownOpen(false);
-  };
+const handleLogout = () => {
+  disconnectSocket();   // ADD THIS
+  dispatch(clearUserProfile());
+  dispatch(logoutUser());
+  setDropdownOpen(false);
+};
 
   return (
     <div className="relative" onMouseEnter={() => setDropdownOpen(true)} onMouseLeave={() => setDropdownOpen(false)}>
@@ -319,7 +321,11 @@ const Navbar = () => {
                       className="w-full mt-4 px-6 py-3 rounded-xl font-semibold text-white border border-white/40 hover:bg-white/10">
                       Account
                     </button>
-                    <button onClick={() => { setMobileOpen(false); dispatch(clearUserProfile()); dispatch(logoutUser()); }}
+                    <button onClick={() => {
+                       setMobileOpen(false); 
+                       dispatch(clearUserProfile()); 
+                      disconnectSocket(); // ← add this
+                       dispatch(logoutUser()); }}
                       className="w-full px-6 py-3 rounded-xl font-semibold text-black"
                       style={{ backgroundColor: BRAND_GOLD }}>
                       Logout
