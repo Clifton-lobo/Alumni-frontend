@@ -9,6 +9,7 @@ import alumniReducer from "./user-view/AlumniDirectorySlice.js"
 import userInfoReducer from "./user-view/UserInfoSlice.js"
 import ConnectionReducer from "./user-view/ConnectionSlice.js"
 import messageReducer from "./user-view/MessageSlice.js"
+import ApplicationReducer from "./user-view/ApplicationSlice.js"
 
 export const store = configureStore({
   reducer: {
@@ -21,7 +22,8 @@ export const store = configureStore({
     alumni: alumniReducer,
     userProfile: userInfoReducer,
     connections :ConnectionReducer,
-    messages :  messageReducer
+    messages :  messageReducer,
+    applications: ApplicationReducer,
   },
 });
 

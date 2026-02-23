@@ -22,6 +22,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
+import ApplyJobDialog from "./ApplyJobDialog";
 
 const UserJobs = () => {
   const dispatch = useDispatch();
@@ -38,6 +39,8 @@ const UserJobs = () => {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [view, setView] = useState("tile");
   const [searchInput, setSearchInput] = useState("");
+  const [applyJob, setApplyJob] = useState(null);
+
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -210,7 +213,11 @@ const UserJobs = () => {
               )}
             >
               {list.map((job) => (
-                <JobCard key={job._id} job={job} view={view} />
+                <JobCard
+                  key={job._id}
+                  job={job}
+                  onApply={(job) => setApplyJob(job)}
+                  view={view} />
               ))}
             </div>
 
@@ -269,6 +276,12 @@ const UserJobs = () => {
         onOpenChange={setIsSheetOpen}
         onJobCreated={handleJobCreated}
       />
+      <ApplyJobDialog
+        open={!!applyJob}
+        onOpenChange={(open) => { if (!open) setApplyJob(null); }}
+        job={applyJob}
+      />
+
     </div>
   );
 };

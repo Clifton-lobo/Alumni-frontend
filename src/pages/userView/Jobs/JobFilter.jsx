@@ -205,8 +205,8 @@ const JobFilters = ({
           className={cn(
             "px-3 h-8 rounded-md transition-all",
             view === "list"
-              ? "bg-white shadow-sm  cursor-pointer hover:text-white hover:bg-blue-950"
-              : "hover:bg-blue-950  cursor-pointer hover:text-white"
+              ? "bg-white shadow-sm  cursor-pointer  hover:bg-white hover:text-black"
+              : "hover:bg-transparent cursor-pointer hover:text-black"
           )}
         >
           <List className="h-4 w-4 mr-2" />
@@ -220,8 +220,8 @@ const JobFilters = ({
           className={cn(
             "px-3 h-8 rounded-md transition-all",
             view === "tile"
-              ? "bg-white shadow-sm hover:text-white  cursor-pointer hover:bg-blue-950"
-              : "hover:bg-blue-950  cursor-pointer hover:text-white"
+              ? "bg-white shadow-sm  cursor-pointer  hover:bg-white hover:text-black"
+              : "hover:bg-transparent cursor-pointer hover:text-black"
           )}
         >
           <LayoutGrid className="h-4 w-4 mr-2" />

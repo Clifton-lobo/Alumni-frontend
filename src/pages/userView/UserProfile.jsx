@@ -35,6 +35,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ConnectionsList from "./Connectionlist";
 import { fetchAcceptedConnections } from "../../store/user-view/ConnectionSlice";
+import MyJobApplications from "./Jobs/MyJobApplications";
 
 
 
@@ -49,6 +50,11 @@ const UserProfile = () => {
   const [imageLoadingState, setImageLoadingState] = useState(false);
   const [showConnections, setShowConnections] = useState(false);
   const { acceptedConnections } = useSelector((state) => state.connections);
+  const [activeTab, setActiveTab] = useState("info");
+
+
+  const { pagination: appPagination } = useSelector((state) => state.applications);
+  const applicationsTotal = appPagination?.total || 0;
 
   useEffect(() => {
     Promise.all([
@@ -410,7 +416,7 @@ const UserProfile = () => {
 
           {/* RIGHT CONTENT */}
           <div className="lg:col-span-2">
-            <Tabs defaultValue="info">
+            <Tabs defaultValue="info" onValueChange={setActiveTab}>
               <TabsList className="bg-white w-full  rounded-md p-1 h-14">
                 <TabsTrigger
                   value="info"
@@ -423,6 +429,18 @@ const UserProfile = () => {
                   className="rounded-md px-6 cursor-pointer data-[state=active]:bg-[#152A5D] data-[state=active]:text-white"
                 >
                   Registered Events
+                </TabsTrigger>
+                <TabsTrigger
+                  value="applications"
+                  className="rounded-md px-6 cursor-pointer data-[state=active]:bg-[#152A5D] data-[state=active]:text-white relative"
+                >
+                  Applications
+                  {/* Badge — total applications count */}
+                  {applicationsTotal > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#EBAB09] text-black text-[10px] font-bold flex items-center justify-center">
+                      {applicationsTotal}
+                    </span>
+                  )}
                 </TabsTrigger>
               </TabsList>
 
@@ -517,6 +535,10 @@ const UserProfile = () => {
                     </p>
                   </CardContent>
                 </Card>
+              </TabsContent>
+
+              <TabsContent value="applications" className="mt-10">
+                <MyJobApplications isActive={activeTab === "applications"} />
               </TabsContent>
             </Tabs>
           </div>

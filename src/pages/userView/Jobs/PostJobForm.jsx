@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2, Link2, FileText } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 
@@ -47,6 +47,8 @@ const INITIAL_FORM = {
     min: "",
     max: "",
   },
+  applicationType: "form",
+  externalLink: "",
 };
 
 const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
@@ -106,6 +108,19 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
         e.salaryMax = "Max salary must be greater than min salary";
     }
 
+    // External link validation
+    if (formData.applicationType === "external") {
+      if (!formData.externalLink.trim()) {
+        e.externalLink = "External link is required";
+      } else {
+        try {
+          new URL(formData.externalLink.trim());
+        } catch {
+          e.externalLink = "Enter a valid URL (e.g. https://example.com/apply)";
+        }
+      }
+    }
+
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -142,6 +157,10 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
             max: Number(formData.salary.max),
           }),
         },
+        applicationType: formData.applicationType,
+        ...(formData.applicationType === "external" && {
+          externalLink: formData.externalLink.trim(),
+        }),
       };
 
       const res = await axios.post(
@@ -149,10 +168,6 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
         payload,
         { withCredentials: true }
       );
-
-      console.log("POSTED BY 👉", res.data.data.postedBy);
-      console.log("JOB PAYLOAD 👉", payload);
-      console.log("JOB CREATED ✅", res.data);
 
       toast.success("Job submitted for admin approval");
       resetForm();
@@ -220,7 +235,7 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
           {/* META */}
           <div className="grid grid-cols-2 gap-6 p-4 rounded-xl bg-gray-50 border border-gray-200">
             <div className="space-y-2">
-              <Label>Experience Type*</Label>
+              <Label>Employment Type *</Label>
               <Select
                 value={formData.employmentType}
                 onValueChange={(v) => update("employmentType", v)}
@@ -237,14 +252,12 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
                 </SelectContent>
               </Select>
               {errors.employmentType && (
-                <p className="text-sm text-red-600">
-                  {errors.employmentType}
-                </p>
+                <p className="text-sm text-red-600">{errors.employmentType}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label>Work Mode*</Label>
+              <Label>Work Mode *</Label>
               <Select
                 value={formData.workMode}
                 onValueChange={(v) => update("workMode", v)}
@@ -266,7 +279,7 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
             </div>
 
             <div className="space-y-2">
-              <Label>Experience*</Label>
+              <Label>Experience Level *</Label>
               <Select
                 value={formData.experienceLevel}
                 onValueChange={(v) => update("experienceLevel", v)}
@@ -283,14 +296,12 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
                 </SelectContent>
               </Select>
               {errors.experienceLevel && (
-                <p className="text-sm text-red-600">
-                  {errors.experienceLevel}
-                </p>
+                <p className="text-sm text-red-600">{errors.experienceLevel}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label>Number of openings*</Label>
+              <Label>Number of Openings *</Label>
               <Input
                 type="number"
                 min={1}
@@ -309,9 +320,7 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
             <Label>City *</Label>
             <Input
               value={formData.location.city}
-              onChange={(e) =>
-                updateNested("location", "city", e.target.value)
-              }
+              onChange={(e) => updateNested("location", "city", e.target.value)}
               className="h-11 rounded-lg bg-gray-50 border border-gray-300"
             />
             {errors.city && (
@@ -349,35 +358,141 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
             <Label>Disclose Salary</Label>
             <Switch
               checked={formData.salary.disclosed}
-              onCheckedChange={(v) =>
-                updateNested("salary", "disclosed", v)
-              }
+              onCheckedChange={(v) => updateNested("salary", "disclosed", v)}
               className="data-[state=checked]:bg-blue-600"
             />
           </div>
 
           {formData.salary.disclosed && (
             <div className="grid grid-cols-2 gap-4">
-              <Input
-                type="number"
-                placeholder="Min ₹"
-                value={formData.salary.min}
-                onChange={(e) =>
-                  updateNested("salary", "min", e.target.value)
-                }
-                className="h-11 rounded-lg bg-gray-50 border border-gray-300"
-              />
-              <Input
-                type="number"
-                placeholder="Max ₹"
-                value={formData.salary.max}
-                onChange={(e) =>
-                  updateNested("salary", "max", e.target.value)
-                }
-                className="h-11 rounded-lg bg-gray-50 border border-gray-300"
-              />
+              <div className="space-y-1">
+                <Input
+                  type="number"
+                  placeholder="Min ₹"
+                  value={formData.salary.min}
+                  onChange={(e) =>
+                    updateNested("salary", "min", e.target.value)
+                  }
+                  className="h-11 rounded-lg bg-gray-50 border border-gray-300"
+                />
+                {errors.salaryMin && (
+                  <p className="text-sm text-red-600">{errors.salaryMin}</p>
+                )}
+              </div>
+              <div className="space-y-1">
+                <Input
+                  type="number"
+                  placeholder="Max ₹"
+                  value={formData.salary.max}
+                  onChange={(e) =>
+                    updateNested("salary", "max", e.target.value)
+                  }
+                  className="h-11 rounded-lg bg-gray-50 border border-gray-300"
+                />
+                {errors.salaryMax && (
+                  <p className="text-sm text-red-600">{errors.salaryMax}</p>
+                )}
+              </div>
             </div>
           )}
+
+          {/* ===== APPLICATION TYPE ===== */}
+          <div className="space-y-3">
+            <Label>How should applicants apply? *</Label>
+
+            <div className="grid grid-cols-2 gap-3">
+              {/* Option: In-app form */}
+              <button
+                type="button"
+                onClick={() => {
+                  update("applicationType", "form");
+                  update("externalLink", "");
+                }}
+                className={`flex items-start gap-3 p-4 rounded-xl border-2 text-left transition-all duration-200 ${
+                  formData.applicationType === "form"
+                    ? "border-[#EBAB09] bg-amber-50"
+                    : "border-gray-200 bg-gray-50 hover:border-gray-300"
+                }`}
+              >
+                <div
+                  className={`mt-0.5 flex-shrink-0 h-4 w-4 rounded-full border-2 flex items-center justify-center ${
+                    formData.applicationType === "form"
+                      ? "border-[#EBAB09]"
+                      : "border-gray-400"
+                  }`}
+                >
+                  {formData.applicationType === "form" && (
+                    <div className="h-2 w-2 rounded-full bg-[#EBAB09]" />
+                  )}
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5 font-semibold text-sm text-gray-900">
+                    <FileText className="h-4 w-4 text-gray-600" />
+                    In-app Form
+                  </div>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Applicants submit via AlumniHub
+                  </p>
+                </div>
+              </button>
+
+              {/* Option: External link */}
+              <button
+                type="button"
+                onClick={() => update("applicationType", "external")}
+                className={`flex items-start gap-3 p-4 rounded-xl border-2 text-left transition-all duration-200 ${
+                  formData.applicationType === "external"
+                    ? "border-[#EBAB09] bg-amber-50"
+                    : "border-gray-200 bg-gray-50 hover:border-gray-300"
+                }`}
+              >
+                <div
+                  className={`mt-0.5 flex-shrink-0 h-4 w-4 rounded-full border-2 flex items-center justify-center ${
+                    formData.applicationType === "external"
+                      ? "border-[#EBAB09]"
+                      : "border-gray-400"
+                  }`}
+                >
+                  {formData.applicationType === "external" && (
+                    <div className="h-2 w-2 rounded-full bg-[#EBAB09]" />
+                  )}
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5 font-semibold text-sm text-gray-900">
+                    <Link2 className="h-4 w-4 text-gray-600" />
+                    External Link
+                  </div>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Redirect to company portal
+                  </p>
+                </div>
+              </button>
+            </div>
+
+            {/* External link input — only shown when "external" is selected */}
+            {formData.applicationType === "external" && (
+              <div className="space-y-1.5 mt-2">
+                <Label className="text-sm text-gray-700">Application URL *</Label>
+                <div className="relative">
+                  <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    type="url"
+                    placeholder="https://company.com/careers/apply"
+                    value={formData.externalLink}
+                    onChange={(e) => update("externalLink", e.target.value)}
+                    className={`h-11 pl-9 rounded-lg bg-gray-50 border focus:ring-2 focus:ring-[#EBAB09] ${
+                      errors.externalLink
+                        ? "border-red-400"
+                        : "border-gray-300"
+                    }`}
+                  />
+                </div>
+                {errors.externalLink && (
+                  <p className="text-sm text-red-600">{errors.externalLink}</p>
+                )}
+              </div>
+            )}
+          </div>
 
           {/* ACTIONS */}
           <div className="flex gap-4 pt-6 border-t border-gray-200">
@@ -392,12 +507,12 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
             <Button
               type="submit"
               disabled={loading}
-              className="flex-1 h-11 rounded-lg bg-[#EBAB09] hover:bg-yellow-500 text-black"
+              className="flex-1 h-11 rounded-lg bg-[#EBAB09] hover:bg-yellow-500 text-black font-semibold"
             >
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Submitting
+                  Submitting…
                 </>
               ) : (
                 "Submit for Approval"
