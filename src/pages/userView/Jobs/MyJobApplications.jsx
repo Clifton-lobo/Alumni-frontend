@@ -104,8 +104,8 @@ const ApplicationDetailDialog = ({ app, open, onClose }) => {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[480px] rounded-2xl p-0 gap-0 overflow-hidden bg-white">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
+      <DialogContent className="sm:max-w-[480px] rounded-2xl p-0 gap-0 overflow-hidden bg-white max-h-[90vh] flex flex-col">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100 flex-shrink-0">
           <DialogTitle className="text-lg font-bold text-gray-900">
             Application Details
           </DialogTitle>
@@ -114,7 +114,7 @@ const ApplicationDetailDialog = ({ app, open, onClose }) => {
           </p>
         </DialogHeader>
 
-        <div className="px-6 py-5 space-y-5">
+        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
           {/* Applicant info */}
           <div className="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3">
             <div className="w-10 h-10 rounded-full bg-[#EBAB09]/20 flex items-center justify-center flex-shrink-0">
@@ -151,20 +151,40 @@ const ApplicationDetailDialog = ({ app, open, onClose }) => {
               Resume
             </p>
             {resume.url ? (
-              <a
-                href={resume.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 hover:border-[#EBAB09] hover:bg-amber-50 transition-all group"
-              >
-                <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-[#EBAB09]" />
+              <div className="flex items-center gap-2">
+                {/* Filename pill */}
+                <div className="flex-1 flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 border border-gray-200">
+                  <FileText className="h-4 w-4 text-[#EBAB09] flex-shrink-0" />
                   <span className="text-sm font-medium text-gray-800 truncate">
                     {resume.originalName || "Resume.pdf"}
                   </span>
                 </div>
-                <Eye className="h-4 w-4 text-[#EBAB09] flex-shrink-0" />
-              </a>
+
+                {/* View — Google Docs viewer opens PDF in new tab, bypasses Cloudinary attachment header */}
+                <a
+                  href={`https://docs.google.com/viewer?url=${encodeURIComponent(resume.url)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-3 rounded-xl bg-gray-50 border border-gray-200 hover:border-[#EBAB09] hover:bg-amber-50 transition-all"
+                  title="View resume"
+                >
+                  <Eye className="h-4 w-4 text-[#EBAB09]" />
+                </a>
+
+                {/* Download — fl_attachment in URL forces browser download */}
+                <a
+                  href={resume.url.replace("/upload/", "/upload/fl_attachment/")}
+                  download={resume.originalName || "resume.pdf"}
+                  className="p-3 rounded-xl bg-gray-50 border border-gray-200 hover:border-[#EBAB09] hover:bg-amber-50 transition-all"
+                  title="Download resume"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#EBAB09]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                  </svg>
+                </a>
+              </div>
             ) : (
               <p className="text-sm italic text-gray-400">No resume uploaded</p>
             )}
@@ -183,7 +203,7 @@ const ApplicationDetailDialog = ({ app, open, onClose }) => {
           <p className="text-xs text-gray-400">Applied on {appliedDate}</p>
         </div>
 
-        <DialogFooter className="px-6 pb-5">
+        <DialogFooter className="px-6 py-4 border-t border-gray-100 flex-shrink-0">
           <Button
             onClick={onClose}
             variant="outline"
