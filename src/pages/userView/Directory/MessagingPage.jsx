@@ -268,7 +268,18 @@ const ReplyPreviewInBubble = ({ replyTo, isMine, onClick }) => {
     );
 };
 
-/* ══════════════════════════════════════════════════ MESSAGE BUBBLE */
+/* ══════════════════════════════════════════════════ MESSAGE BUBBLE
+   REPLACE the entire MessageBubble component in MessagingPage.jsx
+   with this fixed version.
+   
+   THE BUG: The menu button was inside `flex flex-col gap-1` which 
+   has no `position: relative`, so `absolute` positioned menu escaped 
+   and got clipped by the messages overflow-y-auto container.
+   
+   THE FIX: Wrap bubble + menu in a `relative` div so `absolute` 
+   children position correctly within each message row.
+══════════════════════════════════════════════════ */
+
 const MessageBubble = ({ msg, isMine, onReply, onEdit, onDeleteMe, onDeleteEveryone, scrollToMessage }) => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [swipeX, setSwipeX] = useState(0);
@@ -279,7 +290,9 @@ const MessageBubble = ({ msg, isMine, onReply, onEdit, onDeleteMe, onDeleteEvery
     const hasAttachments = msg.attachments?.length > 0;
 
     useEffect(() => {
-        const handler = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false); };
+        const handler = (e) => {
+            if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
+        };
         document.addEventListener("mousedown", handler);
         return () => document.removeEventListener("mousedown", handler);
     }, []);
@@ -298,31 +311,48 @@ const MessageBubble = ({ msg, isMine, onReply, onEdit, onDeleteMe, onDeleteEvery
     };
 
     return (
-        <div className={`flex ${isMine ? "justify-end" : "justify-start"} group mb-1 relative`}
-            onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
-
+        <div
+            className={`flex ${isMine ? "justify-end" : "justify-start"} group mb-1`}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+        >
             <AnimatePresence>
                 {Math.abs(swipeX) > 20 && (
-                    <motion.div initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.6 }}
-                        className={`absolute top-1/2 -translate-y-1/2 ${isMine ? "left-2" : "right-2"} w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center z-10`}>
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.6 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.6 }}
+                        className={`absolute top-1/2 -translate-y-1/2 ${isMine ? "left-2" : "right-2"} w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center z-10`}
+                    >
                         <Reply className="w-4 h-4 text-gray-600" />
                     </motion.div>
                 )}
             </AnimatePresence>
 
-
-            <motion.div animate={{ x: swipeX }} transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className={`flex items-end gap-1.5 max-w-[72%] min-w-0 ${isMine ? "flex-row-reverse" : "flex-row"}`}>
+            <motion.div
+                animate={{ x: swipeX }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                className={`flex items-end gap-1.5 max-w-[72%] min-w-0 ${isMine ? "flex-row-reverse" : "flex-row"}`}
+            >
                 {!isMine && <Avatar user={msg.sender} size="sm" />}
 
-                <div className="flex flex-col gap-1">
-                    <div className={`relative px-3 py-2 rounded-2xl text-sm shadow-sm
-                        ${isMine ? "text-white rounded-tr-sm" : "bg-white text-gray-800 rounded-tl-sm border border-gray-100"}
-                        ${isDeleted ? "italic opacity-60" : ""}`}
-                        style={isMine ? { background: `linear-gradient(135deg, ${BLUE}, #1e3d7a)` } : {}}>
+                {/* ── KEY FIX: relative wrapper so absolute menu positions correctly ── */}
+                <div className="relative flex flex-col gap-1">
 
+                    {/* Bubble */}
+                    <div
+                        className={`relative px-3 py-2 rounded-2xl text-sm shadow-sm
+                            ${isMine ? "text-white rounded-tr-sm" : "bg-white text-gray-800 rounded-tl-sm border border-gray-100"}
+                            ${isDeleted ? "italic opacity-60" : ""}`}
+                        style={isMine ? { background: `linear-gradient(135deg, ${BLUE}, #1e3d7a)` } : {}}
+                    >
                         {!isDeleted && msg.replyTo && (
-                            <ReplyPreviewInBubble replyTo={msg.replyTo} isMine={isMine} onClick={() => scrollToMessage?.(msg.replyTo._id)} />
+                            <ReplyPreviewInBubble
+                                replyTo={msg.replyTo}
+                                isMine={isMine}
+                                onClick={() => scrollToMessage?.(msg.replyTo._id)}
+                            />
                         )}
 
                         {isDeleted ? (
@@ -344,16 +374,22 @@ const MessageBubble = ({ msg, isMine, onReply, onEdit, onDeleteMe, onDeleteEvery
                                     </p>
                                 )}
                                 <div className={`flex items-center gap-1 mt-0.5 ${isMine ? "justify-end" : "justify-start"}`}>
-                                    {isEdited && <span className={`text-[10px] ${isMine ? "text-blue-200" : "text-gray-400"}`}>edited</span>}
-                                    <span className={`text-[10px] ${isMine ? "text-blue-200" : "text-gray-400"}`}>{formatTime(msg.createdAt)}</span>
-                                    {isMine && (msg.readBy?.length > 0
-                                        ? <CheckCheck className="w-3.5 h-3.5 text-blue-300" />
-                                        : <Check className="w-3.5 h-3.5 text-blue-200/70" />
+                                    {isEdited && (
+                                        <span className={`text-[10px] ${isMine ? "text-blue-200" : "text-gray-400"}`}>edited</span>
+                                    )}
+                                    <span className={`text-[10px] ${isMine ? "text-blue-200" : "text-gray-400"}`}>
+                                        {formatTime(msg.createdAt)}
+                                    </span>
+                                    {isMine && (
+                                        msg.readBy?.length > 0
+                                            ? <CheckCheck className="w-3.5 h-3.5 text-blue-300" />
+                                            : <Check className="w-3.5 h-3.5 text-blue-200/70" />
                                     )}
                                 </div>
                             </>
                         )}
 
+                        {/* Bubble tail */}
                         {isMine ? (
                             <div className="absolute -right-[5px] bottom-0 w-0 h-0"
                                 style={{ borderLeft: "6px solid #1e3d7a", borderBottom: "6px solid transparent" }} />
@@ -363,38 +399,63 @@ const MessageBubble = ({ msg, isMine, onReply, onEdit, onDeleteMe, onDeleteEvery
                         )}
                     </div>
 
+                    {/* ── Context menu button — shows on hover ── */}
                     {!isDeleted && (
-                        <div ref={menuRef} className={`absolute top-0 ${isMine ? "-left-9" : "-right-9"} opacity-0 group-hover:opacity-100 transition-opacity flex items-center`}>
-                            <button onClick={() => setMenuOpen(v => !v)}
-                                className="w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center text-gray-400 hover:text-gray-700 transition-all">
+                        <div
+                            ref={menuRef}
+                            className={`absolute top-1 ${isMine ? "-left-9" : "-right-9"} opacity-0 group-hover:opacity-100 transition-opacity z-20`}
+                        >
+                            <button
+                                onClick={() => setMenuOpen(v => !v)}
+                                className="w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center text-gray-400 hover:text-gray-700 transition-all"
+                            >
                                 <ChevronDown className="w-3.5 h-3.5" />
                             </button>
+
                             <AnimatePresence>
                                 {menuOpen && (
-                                    <motion.div initial={{ opacity: 0, scale: 0.85, y: -4 }} animate={{ opacity: 1, scale: 1, y: 0 }}
-                                        exit={{ opacity: 0, scale: 0.85, y: -4 }} transition={{ duration: 0.12 }}
-                                        className={`absolute top-8 ${isMine ? "right-0" : "left-0"} bg-white rounded-2xl shadow-2xl border border-gray-100 py-1.5 min-w-[160px] z-30`}>
-                                        <button onClick={() => { onReply(msg); setMenuOpen(false); }}
-                                            className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50 transition">
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.85, y: -4 }}
+                                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.85, y: -4 }}
+                                        transition={{ duration: 0.12 }}
+                                        className={`absolute top-8 ${isMine ? "right-0" : "left-0"} bg-white rounded-2xl shadow-2xl border border-gray-100 py-1.5 min-w-[165px] z-30`}
+                                    >
+                                        {/* Reply — always visible */}
+                                        <button
+                                            onClick={() => { onReply(msg); setMenuOpen(false); }}
+                                            className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50 transition"
+                                        >
                                             <Reply className="w-3.5 h-3.5 text-gray-400" /> Reply
                                         </button>
+
+                                        {/* Edit — only mine, only text messages */}
                                         {isMine && !hasAttachments && (
-                                            <button onClick={() => { onEdit(msg); setMenuOpen(false); }}
-                                                className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50 transition">
+                                            <button
+                                                onClick={() => { onEdit(msg); setMenuOpen(false); }}
+                                                className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50 transition"
+                                            >
                                                 <Pencil className="w-3.5 h-3.5 text-gray-400" /> Edit
                                             </button>
                                         )}
+
+                                        <div className="my-1 border-t border-gray-100" />
+
+                                        {/* Delete for everyone — only mine */}
                                         {isMine && (
-                                            <>
-                                                <div className="my-1 border-t border-gray-100" />
-                                                <button onClick={() => { onDeleteEveryone(msg._id); setMenuOpen(false); }}
-                                                    className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-red-500 hover:bg-red-50 transition">
-                                                    <Trash2 className="w-3.5 h-3.5" /> Delete for everyone
-                                                </button>
-                                            </>
+                                            <button
+                                                onClick={() => { onDeleteEveryone(msg._id); setMenuOpen(false); }}
+                                                className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-red-500 hover:bg-red-50 transition"
+                                            >
+                                                <Trash2 className="w-3.5 h-3.5" /> Delete for everyone
+                                            </button>
                                         )}
-                                        <button onClick={() => { onDeleteMe(msg._id); setMenuOpen(false); }}
-                                            className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-gray-500 hover:bg-gray-50 transition">
+
+                                        {/* Delete for me — always visible */}
+                                        <button
+                                            onClick={() => { onDeleteMe(msg._id); setMenuOpen(false); }}
+                                            className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-gray-500 hover:bg-gray-50 transition"
+                                        >
                                             <Trash2 className="w-3.5 h-3.5 text-gray-400" /> Delete for me
                                         </button>
                                     </motion.div>
