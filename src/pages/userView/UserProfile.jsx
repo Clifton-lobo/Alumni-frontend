@@ -33,7 +33,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ConnectionsList from "./Connectionlist";
+import ConnectionsList from "./ConnectionsList";
 import { fetchAcceptedConnections } from "../../store/user-view/ConnectionSlice";
 import MyJobApplications from "./Jobs/MyJobApplications";
 
