@@ -220,27 +220,7 @@ const AlumniDirectory = () => {
                       : "Batch not posted"}
                   </div>
 
-                  {/* Buttons */}
-                  <div className="mt-6 w-full flex gap-3">
-                    {!isCurrentUser && (
-                      <button
-                        className="flex-1 px-4 py-2 rounded-md bg-green-100 text-green-700 text-sm font-medium hover:bg-green-200 transition"
-                      >
-                        Connect
-                      </button>
-                    )}
-
-                    <button
-                      disabled={isCurrentUser}
-                      className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition ${
-                        isCurrentUser
-                          ? "bg-[#142A5D]/10 text-[#142A5D] cursor-default"
-                          : "bg-[#142A5D] text-white hover:bg-[#0f2149]"
-                      }`}
-                    >
-                      {isCurrentUser ? "Your Profile" : "Message"}
-                    </button>
-                  </div>
+                
                 </div>
               );
             })}

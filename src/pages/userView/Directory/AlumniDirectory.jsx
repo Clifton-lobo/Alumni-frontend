@@ -17,11 +17,21 @@ import PaginationControls from "../../../components/common/Pagination";
 import SearchComponent from "../../../components/common/Search";
 import { openRequestsDialog } from "../../../store/user-view/ConnectionSlice";
 import { useNavigate } from "react-router-dom";
-
+import {
+  Briefcase,
+  GraduationCap,
+  Calendar,
+  Linkedin,
+  MessageCircle,
+  UserPlus,
+  CheckCircle,
+  Clock,
+  UserCheck
+} from "lucide-react";
 
 /* ─────────────────────────────────────────────
-   Helper: derive connection status for a user
-   Returns: "SELF" | "ACCEPTED" | "PENDING_SENT"
+  Helper: derive connection status for a user
+  Returns: "SELF" | "ACCEPTED" | "PENDING_SENT"
           | "PENDING_RECEIVED" | "NONE"
 ───────────────────────────────────────────── */
 const getConnectionStatus = (
@@ -58,16 +68,18 @@ const getConnectionStatus = (
 };
 
 /* ─────────────────────────────────────────────
-   Connect Button — isolated so it reads cleanly
+  Connect Button — isolated so it reads cleanly
 ───────────────────────────────────────────── */
 const ConnectButton = ({ status, onConnect, onRespond, loading }) => {
+
   if (status === "ACCEPTED") {
     return (
       <button
         disabled
-        className="flex-1 px-4 py-2 rounded-md bg-green-100 text-green-700 text-sm font-medium cursor-default"
+        className="flex-1 px-4 py-2 rounded-lg bg-green-100 text-green-700 text-sm font-medium flex items-center justify-center gap-2"
       >
-        ✓ Connected
+        <CheckCircle className="w-4 h-4" />
+        Connected
       </button>
     );
   }
@@ -76,9 +88,10 @@ const ConnectButton = ({ status, onConnect, onRespond, loading }) => {
     return (
       <button
         disabled
-        className="flex-1 px-4 py-2 rounded-md bg-yellow-50 text-yellow-600 text-sm font-medium cursor-default border border-yellow-200"
+        className="flex-1 px-4 py-2 rounded-lg bg-slate-100 text-slate-600 text-sm font-medium flex items-center justify-center gap-2"
       >
-        Pending…
+        <Clock className="w-4 h-4" />
+        Pending
       </button>
     );
   }
@@ -87,28 +100,28 @@ const ConnectButton = ({ status, onConnect, onRespond, loading }) => {
     return (
       <button
         onClick={onRespond}
-        className="flex-1 px-4 py-2 rounded-md bg-blue-50 text-blue-600 text-sm font-medium border border-blue-200 hover:bg-blue-100 transition"
+        className="flex-1 px-4 py-2 rounded-lg bg-blue-100 text-blue-700 text-sm font-medium hover:bg-blue-200 flex items-center justify-center gap-2 transition"
       >
-        Respond ↩
+        <UserCheck className="w-4 h-4" />
+        Respond
       </button>
     );
   }
 
-
-  // NONE — show active Connect button
   return (
     <button
       onClick={onConnect}
       disabled={loading}
-      className="flex-1 px-4 py-2 rounded-md bg-green-100 text-green-700 text-sm font-medium hover:bg-green-200 transition disabled:opacity-50 disabled:cursor-not-allowed"
+      className="flex-1 px-4 py-2 rounded-lg bg-[#EBAB09] text-black text-sm font-semibold hover:bg-[#d49a00] flex items-center justify-center gap-2 transition disabled:opacity-50"
     >
-      {loading ? "Sending…" : "Connect"}
+      <UserPlus className="w-4 h-4" />
+      {loading ? "Sending..." : "Connect"}
     </button>
   );
 };
 
 /* ─────────────────────────────────────────────
-   Main Page
+  Main Page
 ───────────────────────────────────────────── */
 const AlumniDirectory = () => {
   const dispatch = useDispatch();
@@ -139,7 +152,7 @@ const AlumniDirectory = () => {
   } = useSelector((state) => state.connections);
 
   /* =========================
-     FETCH DATA
+    FETCH DATA
   ========================= */
 
   // Fetch alumni whenever filters / page change
@@ -171,7 +184,7 @@ const AlumniDirectory = () => {
   };
 
   /* =========================
-     MEMOIZED VALUES
+    MEMOIZED VALUES
   ========================= */
 
   const currentUserId =
@@ -183,7 +196,7 @@ const AlumniDirectory = () => {
   }, []);
 
   /* =========================
-     HANDLERS
+    HANDLERS
   ========================= */
 
   const handleConnect = (recipientId) => {
@@ -191,7 +204,7 @@ const AlumniDirectory = () => {
   };
 
   /* =========================
-     RENDER
+    RENDER
   ========================= */
 
   return (
@@ -303,73 +316,95 @@ const AlumniDirectory = () => {
               return (
                 <div
                   key={user._id}
-                  className="bg-white rounded-3xl shadow-lg p-6 flex flex-col items-center text-center transition hover:shadow-xl"
+                  className="group relative bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col"
                 >
-                  {/* Avatar */}
-                  <div className="w-24 h-24 mb-5 rounded-full overflow-hidden bg-slate-200 flex items-center justify-center text-slate-500 text-2xl font-semibold">
-                    {user.profilePicture ? (
-                      <img
-                        src={user.profilePicture}
-                        alt={user.fullname}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      user.fullname?.charAt(0)?.toUpperCase() || "U"
-                    )}
+
+                  {/* Hover Accent */}
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-[#142A5D] scale-x-0 group-hover:scale-x-100 origin-left transitiontransform duration300" />
+
+                  <div className="p-5 flex flex-col items-center text-center flex-1">
+
+                    {/* Avatar */}
+                    <div className="relative">
+                      <div className="w-20 h-20 rounded-full overflow-hidden bg-slate-200 flex items-center justify-center text-slate-600 text-xl font-semibold shadow">
+                        {user.profilePicture ? (
+                          <img
+                            src={user.profilePicture}
+                            alt={user.fullname}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          user.fullname?.charAt(0)?.toUpperCase() || "U"
+                        )}
+                      </div>
+
+                      {connectionStatus === "ACCEPTED" && (
+                        <UserCheck className="absolute -bottom-1 -right-1 w-5 h-5 text-green-600 bg-white rounded-full p-1 shadow" />
+                      )}
+                    </div>
+
+                    {/* Name */}
+                    <h2 className="mt-3 text-base font-semibold text-slate-900">
+                      {user.fullname}
+                      {isCurrentUser && (
+                        <span className="ml-2 text-[10px] bg-[#142A5D]/10 text-[#142A5D] px-2 py-0.5 rounded">
+                          You
+                        </span>
+                      )}
+                    </h2>
+
+                    {/* Job */}
+                    <div className="mt-1.5 flex items-center justify-center gap-1.5 text-sm text-slate-600">
+                      <Briefcase className="w-4 h-4 text-slate-400" />
+                      {user.jobTitle
+                        ? `${user.jobTitle}${user.company ? ` at ${user.company}` : ""}`
+                        : "Professional details not posted"}
+                    </div>
+
+                    {/* Meta */}
+                    <div className="mt-3 space-y-1 text-sm text-slate-600">
+
+                      <div className="flex items-center justify-center gap-1.5">
+                        <GraduationCap className="w-4 h-4 text-slate-400" />
+                        {user.stream || "Stream not provided"}
+                      </div>
+
+                      <div className="flex items-center justify-center gap-1.5">
+                        <Calendar className="w-4 h-4 text-slate-400" />
+                        {user.batch ? `Class of ${user.batch}` : "Batch not provided"}
+                      </div>
+                    </div>
+
+                    {/* LinkedIn */}
+                    <div className="mt-3">
+                      {user.linkedin ? (
+                        <a
+                          href={
+                            user.linkedin.startsWith("http")
+                              ? user.linkedin
+                              : `https://${user.linkedin}`
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-sm text-[#142A5D] hover:underline"
+                        >
+                          <Linkedin className="w-4 h-4" />
+                          LinkedIn
+                        </a>
+                      ) : (
+                        <span className="text-xs text-slate-400 italic">
+                          LinkedIn not posted
+                        </span>
+                      )}
+                    </div>
                   </div>
 
-                  {/* Name */}
-                  <h2 className="text-lg font-semibold text-slate-900">
-                    {user.fullname}
-                    {isCurrentUser && (
-                      <span className="ml-2 text-xs bg-[#142A5D]/10 text-[#142A5D] px-2 py-1 rounded-md">
-                        You
-                      </span>
-                    )}
-                  </h2>
+                  {/* Divider */}
+                  <div className="border-t border-gray-100" />
 
-                  {/* Job */}
-                  <p className="text-slate-600 mt-2 text-sm leading-relaxed">
-                    {user.jobTitle
-                      ? `${user.jobTitle}${user.company ? ` at ${user.company}` : ""}`
-                      : "Professional details not posted yet"}
-                  </p>
+                  {/* Actions */}
+                  <div className="p-4 bg-gray-50 flex gap-2.5">
 
-                  {/* LinkedIn */}
-                  <div className="mt-3">
-                    {user.linkedin ? (
-                      <a
-                        href={
-                          user.linkedin.startsWith("http")
-                            ? user.linkedin
-                            : `https://${user.linkedin}`
-                        }
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[#142A5D] hover:underline text-sm"
-                      >
-                        View LinkedIn
-                      </a>
-                    ) : (
-                      <p className="text-slate-400 text-sm italic">
-                        LinkedIn not posted yet
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Email */}
-                  <p className="text-slate-500 mt-3 text-xs tracking-wide">
-                    {user.email || "Email not posted"}
-                  </p>
-
-                  {/* Meta */}
-                  <div className="text-slate-500 text-xs mt-2">
-                    {user.stream || "Stream not posted"} •{" "}
-                    {user.batch ? `Class of ${user.batch}` : "Batch not posted"}
-                  </div>
-
-                  {/* Buttons */}
-                  <div className="mt-6 w-full flex gap-3">
                     {!isCurrentUser && (
                       <ConnectButton
                         status={connectionStatus}
@@ -380,16 +415,21 @@ const AlumniDirectory = () => {
                     )}
 
                     <button
-                      onClick={() => !isCurrentUser && connectionStatus === "ACCEPTED" && handleMessage(user)}
+                      onClick={() =>
+                        !isCurrentUser &&
+                        connectionStatus === "ACCEPTED" &&
+                        handleMessage(user)
+                      }
                       disabled={isCurrentUser || connectionStatus !== "ACCEPTED"}
-                      className={`flex-1 px-4 py-2 rounded-md text-sm font-medium transition ${isCurrentUser
-                        ? "bg-[#142A5D]/10 text-[#142A5D] cursor-default"
-                        : connectionStatus === "ACCEPTED"
-                          ? "bg-[#142A5D] text-white hover:bg-[#0f2149] cursor-pointer"
-                          : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition ${isCurrentUser
+                          ? "bg-[#142A5D]/10 text-[#142A5D]"
+                          : connectionStatus === "ACCEPTED"
+                            ? "bg-[#142A5D] text-white hover:bg-[#0f2149]"
+                            : "bg-gray-200 text-gray-400 cursor-not-allowed"
                         }`}
                     >
-                      {isCurrentUser ? "Your Profile" : connectionStatus === "ACCEPTED" ? "Message" : "Message"}
+                      <MessageCircle className="w-4 h-4" />
+                      {isCurrentUser ? "Profile" : "Message"}
                     </button>
                   </div>
                 </div>

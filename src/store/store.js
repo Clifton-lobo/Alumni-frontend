@@ -10,6 +10,7 @@ import userInfoReducer from "./user-view/UserInfoSlice.js"
 import ConnectionReducer from "./user-view/ConnectionSlice.js"
 import messageReducer from "./user-view/MessageSlice.js"
 import ApplicationReducer from "./user-view/ApplicationSlice.js"
+import NewsReducer from "./user-view/UserNewsSlice.js"
 
 export const store = configureStore({
   reducer: {
@@ -24,6 +25,7 @@ export const store = configureStore({
     connections :ConnectionReducer,
     messages :  messageReducer,
     applications: ApplicationReducer,
+    news : NewsReducer
   },
 });
 
