@@ -43,12 +43,12 @@ const UserAvatar = ({ user, isScrolled }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-const handleLogout = () => {
-  disconnectSocket();   // ADD THIS
-  dispatch(clearUserProfile());
-  dispatch(logoutUser());
-  setDropdownOpen(false);
-};
+  const handleLogout = () => {
+    disconnectSocket();   // ADD THIS
+    dispatch(clearUserProfile());
+    dispatch(logoutUser());
+    setDropdownOpen(false);
+  };
 
   return (
     <div className="relative" onMouseEnter={() => setDropdownOpen(true)} onMouseLeave={() => setDropdownOpen(false)}>
@@ -106,8 +106,11 @@ const Navbar = () => {
   const pendingCount = incomingRequests.length;
 
   // Total unread messages count from message slice
-  const conversations = useSelector((state) => state.messages?.conversations || []);
-  const unreadMessages = conversations.reduce((sum, c) => sum + (c.unreadCount || 0), 0);
+  const conversations = useSelector((state) =>
+    Array.isArray(state.messages?.conversations)
+      ? state.messages.conversations
+      : []
+  ); const unreadMessages = conversations.reduce((sum, c) => sum + (c.unreadCount || 0), 0);
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 40);
@@ -322,10 +325,11 @@ const Navbar = () => {
                       Account
                     </button>
                     <button onClick={() => {
-                       setMobileOpen(false); 
-                       dispatch(clearUserProfile()); 
+                      setMobileOpen(false);
+                      dispatch(clearUserProfile());
                       disconnectSocket(); // ← add this
-                       dispatch(logoutUser()); }}
+                      dispatch(logoutUser());
+                    }}
                       className="w-full px-6 py-3 rounded-xl font-semibold text-black"
                       style={{ backgroundColor: BRAND_GOLD }}>
                       Logout
