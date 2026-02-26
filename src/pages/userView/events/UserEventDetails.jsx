@@ -68,7 +68,11 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
           {error && (
             <div className="flex items-center gap-2 bg-red-50 border border-red-300 text-red-700 px-3 md:px-4 py-2 md:py-3 rounded-lg mt-4">
               <AlertCircle size={18} className="shrink-0" />
-              <span className="text-xs md:text-sm">{error}</span>
+              <span className="text-xs md:text-sm">
+                {typeof error === "string"
+                  ? error
+                  : error?.message || "Something went wrong"}
+              </span>
             </div>
           )}
 
@@ -194,11 +198,11 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
 
         {/* FOOTER */}
         <DialogFooter className="border-t pt-4 pb-4 px-4 md:px-6 flex flex-row justify-between gap-3">
-          <DialogClose asChild> 
-            <Button 
-              variant="ghost" 
+          <DialogClose asChild>
+            <Button
+              variant="ghost"
               className="cursor-pointer hover:bg-gray-100 flex-1 md:flex-initial"
-            > 
+            >
               Close
             </Button>
           </DialogClose>
@@ -206,19 +210,18 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
           <Button
             onClick={handleRegister}
             disabled={registering || isRegistered || isFull}
-            className={`flex-1 md:flex-initial ${
-              isFull
+            className={`flex-1 md:flex-initial ${isFull
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-blue-950 hover:bg-blue-900"
-            }`}
+              }`}
           >
             {registering
               ? "Registering..."
               : isRegistered
-              ? "Registered ✓"
-              : isFull
-              ? "Sold Out"
-              : "Register"}
+                ? "Registered ✓"
+                : isFull
+                  ? "Sold Out"
+                  : "Register"}
           </Button>
         </DialogFooter>
       </DialogContent>

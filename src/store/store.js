@@ -11,6 +11,7 @@ import ConnectionReducer from "./user-view/ConnectionSlice.js"
 import messageReducer from "./user-view/MessageSlice.js"
 import ApplicationReducer from "./user-view/ApplicationSlice.js"
 import NewsReducer from "./user-view/UserNewsSlice.js"
+import GalleryReducer from "./user-view/GallerySlice.js"
 
 export const store = configureStore({
   reducer: {
@@ -25,7 +26,8 @@ export const store = configureStore({
     connections :ConnectionReducer,
     messages :  messageReducer,
     applications: ApplicationReducer,
-    news : NewsReducer
+    news : NewsReducer,
+    gallery:GalleryReducer
   },
 });
 

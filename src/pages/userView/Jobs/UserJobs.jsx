@@ -187,10 +187,11 @@ const UserJobs = () => {
         {/* ERROR */}
         {!isLoading && error && (
           <div className="bg-destructive/10 text-destructive p-4 rounded-xl">
-            {error}
+            {typeof error === "string"
+              ? error
+              : error?.message || "Something went wrong"}
           </div>
         )}
-
         {/* EMPTY */}
         {!isLoading && !error && list.length === 0 && (
           <div className="text-center py-20 bg-card rounded-2xl border border-border">

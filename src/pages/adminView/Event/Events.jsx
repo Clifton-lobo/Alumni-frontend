@@ -58,6 +58,14 @@ const Events = () => {
   const [isLimited, setIsLimited] = useState(false);
   const [capacity, setCapacity] = useState("");
 
+  const [title, setTitle] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [category, setCategory] = useState("");
+  const [status, setStatus] = useState("");
+  const [description, setDescription] = useState("");
+  const [address, setAddress] = useState("");
+
   // 📄 Pagination
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -101,6 +109,14 @@ const Events = () => {
     setCapacity(event.capacity ?? "");
 
     setOpen(true);
+
+    setTitle(event.title || "");
+    setDate(event.date || "");
+    setTime(event.time || "");
+    setCategory(event.category || "");
+    setStatus(event.status || "");
+    setDescription(event.description || "");
+    setAddress(event.address || "");
   };
 
   useEffect(() => {
@@ -169,14 +185,14 @@ const Events = () => {
 
     const formData = {
       image: uploadedImageUrl,
-      title: e.target.title.value.trim(),
-      date: e.target.date.value,
-      time: e.target.time.value,
-      category: e.target.category.value,
-      status: e.target.status.value,
-      description: e.target.description.value.trim(),
+      title: title.trim(),
+      date,
+      time,
+      category,
+      status,
+      description: description.trim(),
       isVirtual,
-      address: isVirtual ? undefined : e.target.address?.value.trim(),
+      address: isVirtual ? undefined : address.trim(),
       isLimited,
       capacity: isLimited ? Number(capacity) : undefined,
     };
@@ -201,6 +217,35 @@ const Events = () => {
     }
   };
 
+  /* ── Shared input style object ── */
+  const inputStyle = {
+    width: "100%",
+    padding: "0.625rem 1rem",
+    borderRadius: "0.75rem",
+    border: "1.5px solid #e5e7eb",
+    fontSize: "0.875rem",
+    color: "#1f2937",
+    background: "#fff",
+    outline: "none",
+    fontFamily: "'Outfit', sans-serif",
+    transition: "border-color 0.15s",
+  };
+
+  /* ── Field wrapper ── */
+  const EvField = ({ label, required, children }) => (
+    <div>
+      <label style={{
+        display: "block", fontSize: "0.7rem", fontWeight: 600,
+        textTransform: "uppercase", letterSpacing: "0.08em",
+        color: "#6b7280", marginBottom: "0.375rem",
+        fontFamily: "'Outfit', sans-serif",
+      }}>
+        {label} {required && <span style={{ color: "#f87171" }}>*</span>}
+      </label>
+      {children}
+    </div>
+  );
+
   return (
     <div>
       {/* Sheet */}
@@ -213,6 +258,9 @@ const Events = () => {
             Create, manage, and track alumni events
           </p>
         </div>
+
+        {/* ── Fonts (add once at page level if not already present) ── */}
+        {/* <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" /> */}
 
         <Sheet
           open={open}
@@ -228,239 +276,215 @@ const Events = () => {
           }}
         >
           <SheetTrigger asChild>
-            <Button
+            <button
               onClick={() => setOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700 transition-all shadow-md rounded-lg text-sm sm:text-base px-3 sm:px-4 py-2"
+              className="flex items-center gap-2 text-white  px-5 py-2.5 rounded-xl text-sm font-semibold transition hover:opacity-90 shadow-md"
+              style={{ background: "#EBAB09", color: "#142A5D", fontFamily: "'Outfit', sans-serif" }}
             >
-              + Create Event
-            </Button>
+              <FaCalendarAlt className="h-4 w-4" />
+              Create Event
+            </button>
           </SheetTrigger>
 
-          {/* Add/Edit Form Drawer */}
           <SheetContent
             side="right"
-            className="overflow-auto px-6 py-8 bg-gray-50"
+            className="!w-[600px] !max-w-none overflow-auto p-0 border-l-0 bg-[#F8F7F4]"
           >
-            <SheetHeader className="mb-6 border-b pb-5">
-              <SheetTitle className="text-3xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-500 bg-clip-text text-transparent flex items-center gap-2">
-                <FaCalendarAlt className="text-blue-500" />
-                {editMode ? "Edit Event" : "Add New Event"}
-              </SheetTitle>
 
-              <SheetDescription className="text-gray-600 mt-2 text-base leading-relaxed">
-                Plan your next alumni gathering — add event details, date, and
-                category below.
-              </SheetDescription>
-            </SheetHeader>
-
-            <div className="mb-6">
-              <EventImageUpload
-                imageFile={imageFile}
-                setImageFile={setImageFile}
-                uploadedImageUrl={uploadedImageUrl}
-                setUploadedImageUrl={setUploadedImageUrl}
-                ImageLoadingState={ImageLoadingState}
-                setImageLoadingState={setImageLoadingState}
-              />
+            {/* ── Drawer Header ── */}
+            <div className="sticky top-0 z-10 px-7 py-6 border-b border-gray-200"
+              style={{ background: "#142A5D" }}>
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-1"
+                    style={{ color: "#EBAB09", fontFamily: "'Outfit', sans-serif" }}>
+                    Alumni Network
+                  </p>
+                  <h2 style={{
+                    fontFamily: "'Cormorant Garamond', Georgia, serif",
+                    fontSize: "1.75rem", fontWeight: 700, color: "#fff", lineHeight: 1.2
+                  }}>
+                    {editMode ? "Edit Event" : "New Event"}
+                  </h2>
+                  <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: "0.8rem", color: "rgba(255,255,255,0.45)", marginTop: "0.25rem" }}>
+                    {editMode ? "Update the event details below" : "Fill in the details to create a new event"}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <form onSubmit={onSubmit} className="space-y-5">
-              {/* Title */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Event Title
-                </label>
-                <input
-                  name="title"
-                  type="text"
-                  defaultValue={editMode ? selectedEvent?.title : ""}
-                  placeholder="Enter event title"
-                  required
-                  className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"
+            {/* ── Form Body ── */}
+            <div className="px-7 py-6">
+              {/* Image Upload */}
+              <div className="mb-6 rounded-2xl overflow-hidden border border-gray-200 bg-white"
+                style={{ boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+                <EventImageUpload
+                  imageFile={imageFile}
+                  setImageFile={setImageFile}
+                  uploadedImageUrl={uploadedImageUrl}
+                  setUploadedImageUrl={setUploadedImageUrl}
+                  ImageLoadingState={ImageLoadingState}
+                  setImageLoadingState={setImageLoadingState}
                 />
               </div>
 
-              {/* Date & Time */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Date
-                  </label>
+              <form onSubmit={onSubmit} className="space-y-5" style={{ fontFamily: "'Outfit', sans-serif" }}>
+
+                {/* ── Field helper styles (inline to avoid Tailwind conflicts) ── */}
+                {/* Title */}
+                <EvField label="Event Title" required>
                   <input
-                    name="date"
-                    type="date"
-                    defaultValue={editMode ? selectedEvent?.date : ""}
+                    name="title"
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="e.g. Annual Alumni Reunion 2025"
                     required
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 bg-white"
+                    style={inputStyle}
                   />
+                </EvField>
+
+                {/* Date & Time */}
+                <div className="grid grid-cols-2 gap-3">
+                  <EvField label="Date" required>
+                    <input name="date" type="date"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      required style={inputStyle} />
+                  </EvField>
+                  <EvField label="Time" required>
+                    <input name="time" type="time"
+                      value={time}
+                      onChange={(e) => setTime(e.target.value)}
+                      required style={inputStyle} />
+                  </EvField>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Time
-                  </label>
-                  <input
-                    name="time"
-                    type="time"
-                    defaultValue={editMode ? selectedEvent?.time : ""}
+
+                {/* Event Mode */}
+                <EvField label="Event Mode">
+                  <div className="grid grid-cols-2 gap-3 mt-1">
+                    {[{ val: true, label: "🌐 Virtual" }, { val: false, label: "📍 Physical" }].map(({ val, label }) => (
+                      <label key={String(val)}
+                        className="flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 cursor-pointer transition-all text-sm font-medium"
+                        style={{
+                          borderColor: isVirtual === val ? "#EBAB09" : "#e5e7eb",
+                          background: isVirtual === val ? "#EBAB0912" : "#fff",
+                          color: isVirtual === val ? "#142A5D" : "#6b7280",
+                        }}>
+                        <input type="radio" className="sr-only"
+                          checked={isVirtual === val}
+                          onChange={() => setIsVirtual(val)} />
+                        {label}
+                      </label>
+                    ))}
+                  </div>
+                </EvField>
+
+                {/* Address (physical only) */}
+                {!isVirtual && (
+                  <EvField label="Event Address" required>
+                    <textarea
+                      name="address"
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder="Enter venue address…"
+                      required
+                      rows={2}
+                      style={{ ...inputStyle, resize: "none" }}
+                    />
+                  </EvField>
+                )}
+
+                {/* Registration Limit */}
+                <EvField label="Registration Limit">
+                  <div className="grid grid-cols-2 gap-3 mt-1">
+                    {[{ val: false, label: "♾️ Unlimited" }, { val: true, label: "🔢 Limited" }].map(({ val, label }) => (
+                      <label key={String(val)}
+                        className="flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 cursor-pointer transition-all text-sm font-medium"
+                        style={{
+                          borderColor: isLimited === val ? "#EBAB09" : "#e5e7eb",
+                          background: isLimited === val ? "#EBAB0912" : "#fff",
+                          color: isLimited === val ? "#142A5D" : "#6b7280",
+                        }}>
+                        <input type="radio" className="sr-only"
+                          checked={isLimited === val}
+                          onChange={() => { setIsLimited(val); if (!val) setCapacity(""); }} />
+                        {label}
+                      </label>
+                    ))}
+                  </div>
+                </EvField>
+
+                {isLimited && (
+                  <EvField label="Maximum Registrations" required>
+                    <input type="number" min="1" value={capacity}
+                      onChange={(e) => setCapacity(e.target.value)}
+                      placeholder="e.g. 100" required style={inputStyle} />
+                  </EvField>
+                )}
+
+                {/* Category */}
+                <EvField label="Category" required>
+                  <select
+                    name="category"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
                     required
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 bg-white"
-                  />
-                </div>
-              </div>
+                    style={inputStyle}
+                  >
+                    <option value="">Select category…</option>
+                    <option value="Networking">Networking</option>
+                    <option value="Reunion">Reunion</option>
+                    <option value="Career">Career</option>
+                  </select>
+                </EvField>
 
-              {/* 🆕 Event Mode */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Event Mode
-                </label>
-                <div className="flex items-center gap-6">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      checked={isVirtual === true}
-                      onChange={() => setIsVirtual(true)}
-                    />
-                    Virtual
-                  </label>
+                {/* Status */}
+                <EvField label="Status" required>
+                  <select
+                    name="status"
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                    required
+                    style={inputStyle}
+                  >
+                    <option value="">Select status…</option>
+                    <option value="Upcoming">Upcoming</option>
+                    <option value="Ongoing">Ongoing</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                  </select>
+                </EvField>
 
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      checked={isVirtual === false}
-                      onChange={() => setIsVirtual(false)}
-                    />
-                    Physical
-                  </label>
-                </div>
-              </div>
-
-              {/* 🆕 Address (only for physical events) */}
-              {!isVirtual && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Event Address
-                  </label>
+                {/* Description */}
+                <EvField label="Description" required>
                   <textarea
-                    name="address"
-                    defaultValue={editMode ? selectedEvent?.address : ""}
-                    placeholder="Enter event location"
+                    name="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Describe your event…"
                     required
                     rows={3}
-                    className="w-full border border-gray-300 rounded-lg p-3 resize-none focus:ring-2 focus:ring-blue-500 bg-white"
+                    style={{ ...inputStyle, resize: "none" }}
                   />
-                </div>
-              )}
-              {/* 🆕 Registration Limit */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Registration Limit
-                </label>
+                </EvField>
+                {/* Submit */}
+                <button
+                  type="submit"
+                  disabled={ImageLoadingState}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all  disabled:opacity-50 mt-2"
+                  style={{ background: "#142A5D", color: "#fff" }}>
+                  {ImageLoadingState ? (
+                    <><span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Uploading Image…</>
+                  ) : editMode ? (
+                    <><FaCalendarAlt className="h-4 w-4" /> Update Event</>
+                  ) : (
+                    <><FaCalendarAlt className="h-4 w-4" /> Create Event</>
+                  )}
+                </button>
 
-                <div className="flex items-center gap-6">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      checked={isLimited === false}
-                      onChange={() => {
-                        setIsLimited(false);
-                        setCapacity("");
-                      }}
-                    />
-                    Unlimited
-                  </label>
-
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="radio"
-                      checked={isLimited === true}
-                      onChange={() => setIsLimited(true)}
-                    />
-                    Limited
-                  </label>
-                </div>
-              </div>
-
-              {/* 🆕 Capacity (only if limited) */}
-              {isLimited && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Maximum Registrations
-                  </label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={capacity}
-                    onChange={(e) => setCapacity(e.target.value)}
-                    placeholder="e.g. 100"
-                    required
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 bg-white"
-                  />
-                </div>
-              )}
-
-              {/* Category */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Category
-                </label>
-                <select
-                  name="category"
-                  defaultValue={editMode ? selectedEvent?.category : ""}
-                  required
-                  className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select Category</option>
-                  <option>Networking</option>
-                  <option>Reunion</option>
-                  <option>Career</option>
-                </select>
-              </div>
-
-              {/* Status */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Status
-                </label>
-                <select
-                  name="status"
-                  required
-                  defaultValue={editMode ? selectedEvent?.status : ""}
-                  className="w-full border border-gray-300 rounded-lg p-3 bg-white focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select Status</option>
-                  <option>Upcoming</option>
-                  <option>Ongoing</option>
-                  <option>Completed</option>
-                  <option>Cancelled</option>
-                </select>
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  defaultValue={editMode ? selectedEvent?.description : ""}
-                  placeholder="Describe your event..."
-                  required
-                  className="w-full border border-gray-300 rounded-lg p-3 h-28 resize-none focus:ring-2 focus:ring-blue-500 bg-white"
-                />
-              </div>
-
-              <Button
-                type="submit"
-                disabled={ImageLoadingState}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition-all shadow-md"
-              >
-                {ImageLoadingState
-                  ? "Uploading Image..."
-                  : editMode
-                    ? "Update Event"
-                    : "Add Event"}
-              </Button>
-            </form>
+              </form>
+            </div>
           </SheetContent>
         </Sheet>
       </div>
@@ -469,21 +493,19 @@ const Events = () => {
       <div className="flex  gap-3 mt-6 mb-6">
         <button
           onClick={() => setViewMode("list")}
-          className={`px-4 py-2 cursor-pointer rounded-lg shadow-sm ${
-            viewMode === "list"
-              ? "bg-blue-600 text-white"
-              : "bg-gray-100 text-gray-800"
-          }`}
+          className={`px-4 py-2 cursor-pointer rounded-lg shadow-sm ${viewMode === "list"
+            ? "bg-blue-600 text-white"
+            : "bg-gray-100 text-gray-800"
+            }`}
         >
           List View
         </button>
         <button
           onClick={() => setViewMode("calendar")}
-          className={`px-4 py-2 cursor-pointer rounded-lg shadow-sm flex items-center gap-2 ${
-            viewMode === "calendar"
-              ? "bg-blue-600 text-white"
-              : "bg-gray-100 text-gray-800"
-          }`}
+          className={`px-4 py-2 cursor-pointer rounded-lg shadow-sm flex items-center gap-2 ${viewMode === "calendar"
+            ? "bg-blue-600 text-white"
+            : "bg-gray-100 text-gray-800"
+            }`}
         >
           <FaCalendarAlt /> Calendar View
         </button>
@@ -542,9 +564,8 @@ const Events = () => {
 
             {/* Table - stays in place during loading */}
             <div
-              className={`bg-white rounded-xl shadow-sm p-5 overflow-x-auto transition-opacity duration-200 ${
-                isLoading ? "opacity-30" : "opacity-100"
-              }`}
+              className={`bg-white rounded-xl shadow-sm p-5 overflow-x-auto transition-opacity duration-200 ${isLoading ? "opacity-30" : "opacity-100"
+                }`}
             >
               <table className="w-full text-left min-w-[900px] border-collapse">
                 <thead>
@@ -639,11 +660,10 @@ const Events = () => {
                         {/* Mode */}
                         <td className="p-3 text-center">
                           <span
-                            className={`px-3 py-1 rounded-lg text-xs font-medium ${
-                              event.isVirtual
-                                ? "bg-purple-100 text-purple-700"
-                                : "bg-indigo-100 text-indigo-700"
-                            }`}
+                            className={`px-3 py-1 rounded-lg text-xs font-medium ${event.isVirtual
+                              ? "bg-purple-100 text-purple-700"
+                              : "bg-indigo-100 text-indigo-700"
+                              }`}
                           >
                             {event.isVirtual ? "Virtual" : "Physical"}
                           </span>
@@ -652,15 +672,14 @@ const Events = () => {
                         {/* Status */}
                         <td className="p-3 text-center">
                           <span
-                            className={`px-3 py-1 rounded-lg text-sm ${
-                              event.status === "Upcoming"
-                                ? "bg-green-100 text-green-700"
-                                : event.status === "Completed"
-                                  ? "bg-gray-200 text-gray-600"
-                                  : event.status === "Cancelled"
-                                    ? "bg-red-100 text-red-700"
-                                    : "bg-yellow-100 text-yellow-700"
-                            }`}
+                            className={`px-3 py-1 rounded-lg text-sm ${event.status === "Upcoming"
+                              ? "bg-green-100 text-green-700"
+                              : event.status === "Completed"
+                                ? "bg-gray-200 text-gray-600"
+                                : event.status === "Cancelled"
+                                  ? "bg-red-100 text-red-700"
+                                  : "bg-yellow-100 text-yellow-700"
+                              }`}
                           >
                             {event.status}
                           </span>
@@ -735,15 +754,14 @@ const Events = () => {
 
               <span
                 className={`inline-block w-fit px-3 py-1 rounded-full text-xs font-semibold
-            ${
-              viewEvent?.status === "Upcoming"
-                ? "bg-green-100 text-green-700"
-                : viewEvent?.status === "Completed"
-                  ? "bg-gray-200 text-gray-700"
-                  : viewEvent?.status === "Cancelled"
-                    ? "bg-red-100 text-red-700"
-                    : "bg-yellow-100 text-yellow-700"
-            }
+            ${viewEvent?.status === "Upcoming"
+                    ? "bg-green-100 text-green-700"
+                    : viewEvent?.status === "Completed"
+                      ? "bg-gray-200 text-gray-700"
+                      : viewEvent?.status === "Cancelled"
+                        ? "bg-red-100 text-red-700"
+                        : "bg-yellow-100 text-yellow-700"
+                  }
           `}
               >
                 {viewEvent?.status}

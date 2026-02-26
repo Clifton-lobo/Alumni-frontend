@@ -103,126 +103,103 @@ const Jobs = () => {
     setFilters((p) => ({ ...p, page }));
   };
 
-  return (
-    <div className="max-w-7xl mx-auto p-8 space-y-6">
-      {/* ================= HEADER ================= */}
-      <div className="flex flex-wrap gap-4 items-center justify-between">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight">
-            Pending Job Approvals
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Review, edit, and approve partner-submitted jobs
-          </p>
-        </div>
+ return (
+  <div style={{ minHeight: "100vh", background: "#F8F7F4", fontFamily: "'Outfit', sans-serif" }}>
+    <style>{`@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Outfit:wght@300;400;500;600&display=swap');`}</style>
 
-        <div className="flex items-center gap-3">
-          {/* View Toggle */}
-          <div className="flex rounded-xl border bg-background p-1">
-            <button
-              onClick={() => setViewMode("grid")}
-              className={cn(
-                "px-3 py-2 rounded-lg transition",
-                viewMode === "grid"
-                  ? "bg-primary text-primary-foreground shadow"
-                  : "text-muted-foreground hover:bg-muted"
-              )}
-            >
-              <LayoutGrid className="h-4 w-4" />
-            </button>
-
-            <button
-              onClick={() => setViewMode("list")}
-              className={cn(
-                "px-3 py-2 rounded-lg transition",
-                viewMode === "list"
-                  ? "bg-primary text-primary-foreground shadow"
-                  : "text-muted-foreground hover:bg-muted"
-              )}
-            >
-              <List className="h-4 w-4" />
-            </button>
+    {/* ── Page Header ── */}
+    <div style={{ background: "#142A5D" }}>
+      <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "2rem 2rem 1.75rem" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "flex-end", justifyContent: "space-between" }}>
+          <div>
+            <p style={{ fontSize: "11px", fontWeight: 600, letterSpacing: "0.18em", textTransform: "uppercase", color: "#EBAB09", marginBottom: "4px" }}>
+              Admin Panel
+            </p>
+            <h1 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "2rem", fontWeight: 700, color: "#fff", lineHeight: 1.15, margin: 0 }}>
+              Job Approvals
+            </h1>
+            <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", marginTop: "4px" }}>
+              Review, edit, and approve partner-submitted listings
+            </p>
           </div>
 
-          {/* Post Job */}
-          <Button
-            onClick={() => setIsPostSheetOpen(true)}
-            className="bg-green-600 hover:bg-green-700 text-white"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Post Job as Admin
-          </Button>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            {/* View Toggle */}
+            <div style={{ display: "flex", background: "rgba(255,255,255,0.1)", borderRadius: "12px", padding: "4px" }}>
+              {[{ mode: "grid", Icon: LayoutGrid }, { mode: "list", Icon: List }].map(({ mode, Icon }) => (
+                <button key={mode} onClick={() => setViewMode(mode)} style={{
+                  padding: "7px 10px", borderRadius: "9px", border: "none", cursor: "pointer",
+                  background: viewMode === mode ? "#fff" : "transparent",
+                  color: viewMode === mode ? "#142A5D" : "rgba(255,255,255,0.5)",
+                  transition: "all 0.2s",
+                }}>
+                  <Icon style={{ width: 15, height: 15 }} />
+                </button>
+              ))}
+            </div>
+
+            {/* Post Job Button */}
+            <button onClick={() => setIsPostSheetOpen(true)} style={{
+              display: "flex", alignItems: "center", gap: "6px",
+              padding: "9px 18px", borderRadius: "12px", border: "none",
+              background: "#EBAB09", color: "#142A5D",
+              fontSize: "13px", fontWeight: 600, cursor: "pointer",
+              fontFamily: "'Outfit', sans-serif",
+              transition: "opacity 0.2s",
+            }}>
+              <Plus style={{ width: 15, height: 15 }} />
+              Post Job
+            </button>
+          </div>
         </div>
       </div>
+    </div>
 
-      {/* ================= FILTERS ================= */}
-      <AdminJobFilters
-        filters={filters}
-        onFilterChange={handleFilterChange}
-        loading={loading.fetch}
-      />
-
-      {/* ================= STATES ================= */}
-      {!loading.fetch && pendingJobs.length === 0 && (
-        <div className="text-center py-24 rounded-xl border bg-muted/30">
-          <p className="text-muted-foreground">
-            No pending jobs match your filters
-          </p>
-        </div>
-      )}
+    {/* ── Content ── */}
+    <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "2rem" }}>
+      <AdminJobFilters filters={filters} onFilterChange={handleFilterChange} loading={loading.fetch} />
 
       {loading.fetch && (
-        <div className="flex justify-center py-24">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        <div style={{ display: "flex", justifyContent: "center", padding: "6rem 0" }}>
+          <div style={{ width: 40, height: 40, borderRadius: "50%", border: "3px solid #EBAB0930", borderTopColor: "#EBAB09", animation: "spin 0.8s linear infinite" }} />
         </div>
       )}
 
-      {/* ================= JOBS ================= */}
+      {!loading.fetch && pendingJobs.length === 0 && (
+        <div style={{ textAlign: "center", padding: "6rem 2rem", borderRadius: "20px", background: "#fff", border: "1px dashed #e5e7eb" }}>
+          <Briefcase style={{ width: 36, height: 36, color: "#d1d5db", margin: "0 auto 12px" }} />
+          <p style={{ color: "#9ca3af", fontSize: "14px" }}>No pending jobs match your filters</p>
+        </div>
+      )}
+
       {!loading.fetch && pendingJobs.length > 0 && (
-        <div
-          className={cn(
-            viewMode === "grid"
-              ? "grid grid-cols-1 md:grid-cols-2 gap-6"
-              : "space-y-4"
-          )}
-        >
+        <div style={viewMode === "grid"
+          ? { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(480px, 1fr))", gap: "20px" }
+          : { display: "flex", flexDirection: "column", gap: "14px" }
+        }>
           {pendingJobs.map((job) => (
-            <AdminJobCard
-              key={job._id}
-              job={job}
+            <AdminJobCard key={job._id} job={job}
               loading={actionLoading[job._id]}
               onApprove={() => handleAction(job._id, "approved")}
               onReject={() => handleAction(job._id, "rejected")}
               onEdit={handleEdit}
-              compact={viewMode === "list"} // optional, safe extension
+              compact={viewMode === "list"}
             />
           ))}
         </div>
       )}
 
-      {/* ================= PAGINATION ================= */}
       {pagination.pages > 1 && (
-        <PaginationControls
-          currentPage={pagination.page}
-          totalPages={pagination.pages}
-          onPageChange={onPageChange}
-        />
+        <div style={{ marginTop: "2rem" }}>
+          <PaginationControls currentPage={pagination.page} totalPages={pagination.pages} onPageChange={onPageChange} />
+        </div>
       )}
-
-      {/* ================= SHEETS ================= */}
-      <AdminEditJobSheet
-        open={isEditSheetOpen}
-        onOpenChange={setIsEditSheetOpen}
-        job={editingJob}
-      />
-
-      <AdminPostJobSheet
-        open={isPostSheetOpen}
-        onOpenChange={setIsPostSheetOpen}
-        onJobCreated={handleJobCreated}
-      />
     </div>
-  );
+
+    <AdminEditJobSheet open={isEditSheetOpen} onOpenChange={setIsEditSheetOpen} job={editingJob} />
+    <AdminPostJobSheet open={isPostSheetOpen} onOpenChange={setIsPostSheetOpen} onJobCreated={handleJobCreated} />
+  </div>
+);
 };
 
 export default Jobs;

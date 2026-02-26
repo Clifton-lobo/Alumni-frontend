@@ -287,7 +287,9 @@ const AlumniDirectory = () => {
         {/* ERROR */}
         {error && (
           <div className="text-center py-20 text-red-500 font-medium">
-            {error}
+            {typeof error === "string"
+              ? error
+              : error?.message || "Something went wrong"}
           </div>
         )}
 
@@ -422,10 +424,10 @@ const AlumniDirectory = () => {
                       }
                       disabled={isCurrentUser || connectionStatus !== "ACCEPTED"}
                       className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition ${isCurrentUser
-                          ? "bg-[#142A5D]/10 text-[#142A5D]"
-                          : connectionStatus === "ACCEPTED"
-                            ? "bg-[#142A5D] text-white hover:bg-[#0f2149]"
-                            : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                        ? "bg-[#142A5D]/10 text-[#142A5D]"
+                        : connectionStatus === "ACCEPTED"
+                          ? "bg-[#142A5D] text-white hover:bg-[#0f2149]"
+                          : "bg-gray-200 text-gray-400 cursor-not-allowed"
                         }`}
                     >
                       <MessageCircle className="w-4 h-4" />

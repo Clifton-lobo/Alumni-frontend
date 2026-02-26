@@ -132,7 +132,9 @@ const AlumniDirectory = () => {
         {/* ERROR */}
         {error && (
           <div className="text-center py-20 text-red-500 font-medium">
-            {error}
+            {typeof error === "string"
+              ? error
+              : error?.message || "Something went wrong"}
           </div>
         )}
 
@@ -220,7 +222,7 @@ const AlumniDirectory = () => {
                       : "Batch not posted"}
                   </div>
 
-                
+
                 </div>
               );
             })}
