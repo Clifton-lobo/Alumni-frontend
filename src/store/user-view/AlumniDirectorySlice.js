@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-
+import axiosInstance from "../../api/axiosInstance";
 /* ============================
    ASYNC THUNK
 ============================ */
@@ -19,7 +18,7 @@ export const fetchAlumni = createAsyncThunk(
         
       } = getState().alumni;
 
-      const response = await axios.get("/api/auth/alumni", {
+      const response = await axiosInstance.get("/api/auth/alumni", {
         params: {
           page: currentPage,
           limit,
