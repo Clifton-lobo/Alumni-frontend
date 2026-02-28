@@ -201,10 +201,7 @@ const AlumniDirectory = () => {
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Alumni");
 
-      XLSX.writeFile(
-        workbook,
-        `AlumniDirectory_${new Date().toISOString().slice(0, 10)}.xlsx`
-      );
+     XLSX.writeFile(workbook, "filename.xlsx");
 
     } catch (error) {
       console.error("Export error:", error);

@@ -156,8 +156,9 @@ const Events = () => {
     setOpen(true);
 
     setTitle(event.title || "");
-    setDate(event.date || "");
-    setTime(event.time || "");
+    setDate(
+      event.date ? new Date(event.date).toISOString().split("T")[0] : ""
+    ); setTime(event.time || "");
     setCategory(event.category || "");
     setStatus(event.status || "");
     setDescription(event.description || "");
@@ -570,19 +571,17 @@ const Events = () => {
       <div className="flex gap-3 mt-6 mb-6">
         <button
           onClick={() => setViewMode("list")}
-          className={`px-4 py-2 cursor-pointer rounded-lg shadow-sm ${
-            viewMode === "list" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-800"
-          }`}
+          className={`px-4 py-2 cursor-pointer rounded-lg shadow-sm ${viewMode === "list" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-800"
+            }`}
         >
           List View
         </button>
         <button
           onClick={() => setViewMode("calendar")}
-          className={`px-4 py-2 cursor-pointer rounded-lg shadow-sm flex items-center gap-2 ${
-            viewMode === "calendar"
+          className={`px-4 py-2 cursor-pointer rounded-lg shadow-sm flex items-center gap-2 ${viewMode === "calendar"
               ? "bg-blue-600 text-white"
               : "bg-gray-100 text-gray-800"
-          }`}
+            }`}
         >
           <FaCalendarAlt /> Calendar View
         </button>
@@ -639,9 +638,8 @@ const Events = () => {
             )}
 
             <div
-              className={`bg-white rounded-xl shadow-sm p-5 overflow-x-auto transition-opacity duration-200 ${
-                isLoading ? "opacity-30" : "opacity-100"
-              }`}
+              className={`bg-white rounded-xl shadow-sm p-5 overflow-x-auto transition-opacity duration-200 ${isLoading ? "opacity-30" : "opacity-100"
+                }`}
             >
               <table className="w-full text-left min-w-[900px] border-collapse">
                 <thead>
@@ -736,11 +734,10 @@ const Events = () => {
                         {/* Mode */}
                         <td className="p-3 text-center">
                           <span
-                            className={`px-3 py-1 rounded-lg text-xs font-medium ${
-                              event.isVirtual
+                            className={`px-3 py-1 rounded-lg text-xs font-medium ${event.isVirtual
                                 ? "bg-purple-100 text-purple-700"
                                 : "bg-indigo-100 text-indigo-700"
-                            }`}
+                              }`}
                           >
                             {event.isVirtual ? "Virtual" : "Physical"}
                           </span>
@@ -749,15 +746,14 @@ const Events = () => {
                         {/* Status */}
                         <td className="p-3 text-center">
                           <span
-                            className={`px-3 py-1 rounded-lg text-sm ${
-                              event.status === "Upcoming"
+                            className={`px-3 py-1 rounded-lg text-sm ${event.status === "Upcoming"
                                 ? "bg-green-100 text-green-700"
                                 : event.status === "Completed"
-                                ? "bg-gray-200 text-gray-600"
-                                : event.status === "Cancelled"
-                                ? "bg-red-100 text-red-700"
-                                : "bg-yellow-100 text-yellow-700"
-                            }`}
+                                  ? "bg-gray-200 text-gray-600"
+                                  : event.status === "Cancelled"
+                                    ? "bg-red-100 text-red-700"
+                                    : "bg-yellow-100 text-yellow-700"
+                              }`}
                           >
                             {event.status}
                           </span>
@@ -831,15 +827,14 @@ const Events = () => {
               </DialogTitle>
 
               <span
-                className={`inline-block w-fit px-3 py-1 rounded-full text-xs font-semibold ${
-                  viewEvent?.status === "Upcoming"
+                className={`inline-block w-fit px-3 py-1 rounded-full text-xs font-semibold ${viewEvent?.status === "Upcoming"
                     ? "bg-green-100 text-green-700"
                     : viewEvent?.status === "Completed"
-                    ? "bg-gray-200 text-gray-700"
-                    : viewEvent?.status === "Cancelled"
-                    ? "bg-red-100 text-red-700"
-                    : "bg-yellow-100 text-yellow-700"
-                }`}
+                      ? "bg-gray-200 text-gray-700"
+                      : viewEvent?.status === "Cancelled"
+                        ? "bg-red-100 text-red-700"
+                        : "bg-yellow-100 text-yellow-700"
+                  }`}
               >
                 {viewEvent?.status}
               </span>
