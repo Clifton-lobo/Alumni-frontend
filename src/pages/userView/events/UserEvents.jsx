@@ -161,7 +161,7 @@ const UserEvents = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* HERO SECTION - Hidden on mobile */}
-      <div className="relative hidden h-[450px] w-full overflow-hidden roundedxl shadow-lg md:block">
+      <div className="relative  md:h-[450px] w-full overflow-hidden roundedxl shadow-lg md:block">
         <img
           src={eventPageAlumniEvent}
           alt="Events Banner"
