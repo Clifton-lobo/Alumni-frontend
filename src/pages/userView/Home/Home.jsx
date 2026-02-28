@@ -185,7 +185,6 @@ const Home = () => {
                 }`}
             >
               Join our thriving community of graduates making an impact worldwide.
-              Network, share opportunities, and grow your career with fellow alumni.
             </p>
 
             {/* CTA Buttons */}

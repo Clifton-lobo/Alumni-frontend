@@ -660,7 +660,7 @@ const Events = () => {
                     paginatedEvents.map((event, index) => (
                       <tr
                         key={event._id}
-                        className="border-b hover:bg-gray-50 transition-all text-sm align-middle"
+                        className="border-b border-gray-200 hover:bg-gray-50 transition-all text-sm align-middle"
                       >
                         {/* Index */}
                         <td className="p-3 text-center font-medium text-gray-700">
