@@ -181,45 +181,34 @@ const AlumniDirectory = () => {
   const activeFilters = [batch, stream, search].filter(Boolean).length;
 
   const handleExportXLSX = () => {
-    if (!Array.isArray(alumniList) || alumniList.length === 0) {
-      console.warn("No alumni data available for export");
-      return;
+    try {
+      if (!Array.isArray(alumniList) || alumniList.length === 0) {
+        console.warn("No alumni data available for export");
+        return;
+      }
+
+      const formattedData = alumniList.map((user) => ({
+        "Full Name": user?.fullname || "N/A",
+        "Email": user?.email || "N/A",
+        "Department": user?.stream || "N/A",
+        "Batch": user?.batch || "N/A",
+        "Job Title": user?.jobTitle || "N/A",
+        "Company": user?.company || "N/A",
+        "LinkedIn": user?.linkedin || "N/A",
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(formattedData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Alumni");
+
+      XLSX.writeFile(
+        workbook,
+        `AlumniDirectory_${new Date().toISOString().slice(0, 10)}.xlsx`
+      );
+
+    } catch (error) {
+      console.error("Export error:", error);
     }
-
-    const rows = alumniList.map((user) => ({
-      "Full Name": user.fullname ?? "",
-      "Email": user.email ?? "",
-      "Department": user.stream ?? "",
-      "Batch": user.batch ?? "",
-      "Job Title": user.jobTitle ?? "",
-      "Company": user.company ?? "",
-      "LinkedIn": user.linkedin ?? "",
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(rows);
-    worksheet["!cols"] = [
-      { wch: 22 }, { wch: 28 }, { wch: 16 },
-      { wch: 10 }, { wch: 20 }, { wch: 20 }, { wch: 30 },
-    ];
-
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Alumni");
-
-    // ✅ Write as binary array, then create a proper Blob
-    const wbout = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-    const blob = new Blob([wbout], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    });
-
-    // ✅ Trigger download manually
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `alumni_export_${new Date().toISOString().slice(0, 10)}.xlsx`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
   };
 
   return (
@@ -236,11 +225,11 @@ const AlumniDirectory = () => {
             <p className="text-xs text-slate-400">Admin Panel</p>
           </div>
         </div>
-<div className="flex items-center gap-4">
+        <div className="flex items-center gap-4">
 
-  {/* PRIMARY — Invite */}
-  <button
-    className="
+          {/* PRIMARY — Invite */}
+          <button
+            className="
       relative inline-flex items-center gap-2
       px-5 py-2.5 text-sm font-semibold
       rounded-xl
@@ -252,15 +241,15 @@ const AlumniDirectory = () => {
       active:scale-[0.97]
       focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#142A5D]/40
     "
-  >
-    <span className="text-base leading-none">+</span>
-    Invite Alumni
-  </button>
+          >
+            <span className="text-base leading-none">+</span>
+            Invite Alumni
+          </button>
 
-  {/* SECONDARY — Export */}
-  <button
-    onClick={handleExportXLSX}
-    className="
+          {/* SECONDARY — Export */}
+          <button
+            onClick={handleExportXLSX}
+            className="
       relative inline-flex items-center gap-2
       px-5 py-2.5 text-sm font-semibold
       rounded-xl
@@ -276,21 +265,21 @@ const AlumniDirectory = () => {
       active:scale-[0.97]
       focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#142A5D]/20
     "
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="w-4 h-4 transition-transform duration-300 group-hover:translate-y-0.5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
-    </svg>
-    Export XLSX
-  </button>
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-4 h-4 transition-transform duration-300 group-hover:translate-y-0.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+            </svg>
+            Export XLSX
+          </button>
 
-</div>
+        </div>
       </div>
 
       {/* ════════════ HERO ════════════ */}

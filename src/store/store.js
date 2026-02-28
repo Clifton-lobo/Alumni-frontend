@@ -12,6 +12,8 @@ import messageReducer from "./user-view/MessageSlice.js"
 import ApplicationReducer from "./user-view/ApplicationSlice.js"
 import NewsReducer from "./user-view/UserNewsSlice.js"
 import GalleryReducer from "./user-view/GallerySlice.js"
+import AdminGalleryReducer from "./admin/AdminGallerySlice.js"
+
 
 export const store = configureStore({
   reducer: {
@@ -27,7 +29,9 @@ export const store = configureStore({
     messages :  messageReducer,
     applications: ApplicationReducer,
     news : NewsReducer,
-    gallery:GalleryReducer
+    gallery:GalleryReducer,
+    Admingallery: AdminGalleryReducer
+    
   },
 });
 
