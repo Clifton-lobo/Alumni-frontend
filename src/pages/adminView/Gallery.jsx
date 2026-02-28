@@ -658,7 +658,7 @@ const Gallery = () => {
       style={{ background: "#F7F6F3", fontFamily: "'Outfit', system-ui, sans-serif" }}
     >
       {/* ── Header ── */}
-      <div className="bg-white border-b border-gray-100 px-4 sm:px-6 py-5  top-0 z-10">
+      <div className="bg-white border-b shadow-lg rounded-lg border-gray-100 px-4 sm:px-6 py-5  top-0 z-10">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div>
             <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2.5">
@@ -701,7 +701,7 @@ const Gallery = () => {
         <div className="flex flex-col sm:flex-row gap-3">
 
           {/* Status tabs */}
-          <div className="flex items-center gap-1 bg-white rounded-xl border border-gray-100 p-1">
+          <div className="flex items-center gap-1 shadow-lg bg-white rounded-xl border border-gray-100 p-1">
             {Object.entries(STATUS).map(([key, val]) => (
               <button
                 key={key}
@@ -722,7 +722,7 @@ const Gallery = () => {
           </div>
 
           {/* Search */}
-          <div className="flex-1 flex items-center gap-2 bg-white border border-gray-100 rounded-xl px-4 py-2.5">
+          <div className="flex-1 flex items-center gap-2 bg-white border shadow-lg border-gray-100 rounded-xl px-4 py-2.5">
             <Search className="h-4 w-4 text-gray-400 flex-shrink-0" />
             <input
               value={searchInput}
