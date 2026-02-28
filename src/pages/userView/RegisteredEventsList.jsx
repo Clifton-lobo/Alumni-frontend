@@ -112,7 +112,7 @@ const RegisteredEventsList = ({ isActive }) => {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [total, setTotal] = useState(0);
-    const [contentKey, setContentKey] = useState(0); // forces re-mount to replay animations
+    const [contentKey, setContentKey] = useState(0);
 
     const listContainerRef = useRef(null);
     const prevPageRef = useRef(page);
@@ -130,7 +130,7 @@ const RegisteredEventsList = ({ isActive }) => {
                     setTotalPages(data.totalPages || 1);
                     setTotal(data.totalEvents || 0);
                     setHasFetched(true);
-                    setContentKey((k) => k + 1); // retrigger stagger on new page
+                    setContentKey((k) => k + 1);
                 });
             })
             .catch(() => {})
@@ -203,7 +203,7 @@ const RegisteredEventsList = ({ isActive }) => {
                     <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mb-4">
                         <CalendarX className="h-7 w-7 text-gray-300" />
                     </div>
-                    <p className="text-gray-500 font-medium">No registered events</p>
+                    <p className="text-gray-500 font-medium">No upcoming registered events</p>
                     <p className="text-gray-400 text-sm mt-1">
                         Events you register for will appear here.
                     </p>
@@ -222,12 +222,21 @@ const RegisteredEventsList = ({ isActive }) => {
                 }
             `}</style>
 
-            <div
-                key={contentKey}
-                className="space-y-4"
-            >
+            <div key={contentKey} className="space-y-4">
                 {events.map((event, index) => {
-                    const status = event?.status || "upcoming";
+                    // Since the backend now only returns upcoming events,
+                    // derive a more precise badge: "ongoing" if today is the event date, else "upcoming"
+                    const eventDate = new Date(event.date);
+                    const today     = new Date();
+                    const isToday   =
+                        eventDate.getFullYear() === today.getFullYear() &&
+                        eventDate.getMonth()    === today.getMonth()    &&
+                        eventDate.getDate()     === today.getDate();
+
+                    const statusLabel = isToday ? "Today" : "Upcoming";
+                    const statusStyle = isToday
+                        ? "bg-blue-50 text-blue-600"
+                        : "bg-green-50 text-green-600";
 
                     return (
                         <div
@@ -266,17 +275,9 @@ const RegisteredEventsList = ({ isActive }) => {
                                         </div>
                                     </div>
 
-                                    {/* Status badge */}
-                                    <span
-                                        className={`text-xs font-semibold px-3 py-1 rounded-full shrink-0 transition-colors duration-200 ${
-                                            status === "upcoming"
-                                                ? "bg-green-50 text-green-600"
-                                                : status === "ongoing"
-                                                ? "bg-blue-50 text-blue-600"
-                                                : "bg-gray-100 text-gray-500"
-                                        }`}
-                                    >
-                                        {status}
+                                    {/* Status badge — always upcoming or today since backend filters past */}
+                                    <span className={`text-xs font-semibold px-3 py-1 rounded-full shrink-0 transition-colors duration-200 ${statusStyle}`}>
+                                        {statusLabel}
                                     </span>
                                 </CardContent>
                             </Card>

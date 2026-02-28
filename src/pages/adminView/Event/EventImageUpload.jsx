@@ -1,8 +1,7 @@
 import React, { useRef, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../../../api/axiosInstance"; // ✅ use shared instance instead of raw axios + hardcoded URL
 import { Label } from "../../../components/ui/label.jsx";
 import { UploadCloudIcon, XIcon } from "lucide-react";
-import { Skeleton } from "../../../components/ui/skeleton";
 
 const EventImageUpload = ({
   imageFile,
@@ -14,16 +13,11 @@ const EventImageUpload = ({
 }) => {
   const inputRef = useRef(null);
 
-  // ✅ Handle file selection
   const handleImageFileChange = (event) => {
     const file = event.target.files[0];
-    if (file) {
-      setImageFile(file);
-      console.log("Selected file:", file);
-    }
+    if (file) setImageFile(file);
   };
 
-  // ✅ Handle drag-and-drop
   const handleDragOver = (event) => {
     event.preventDefault();
   };
@@ -34,16 +28,12 @@ const EventImageUpload = ({
     if (droppedFile) setImageFile(droppedFile);
   };
 
-  // ✅ Remove selected image
   const handleRemoveImage = () => {
     setImageFile(null);
-    if (inputRef.current) {
-      inputRef.current.value = "";
-    }
-    setUploadedImageUrl(""); // clear uploaded URL if any
+    if (inputRef.current) inputRef.current.value = "";
+    setUploadedImageUrl("");
   };
 
-  // ✅ Upload image to Cloudinary via your backend
   async function uploadImageToCloudinary() {
     try {
       setImageLoadingState(true);
@@ -51,15 +41,13 @@ const EventImageUpload = ({
       const data = new FormData();
       data.append("my_file", imageFile);
 
-      const response = await axios.post(
-        "http://localhost:5000/api/admin/events/upload-image",
+      // ✅ Uses axiosInstance which has baseURL + credentials configured,
+      //    so this works in dev, staging, and production without changes.
+      const response = await axiosInstance.post(
+        "/api/admin/events/upload-image",
         data,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
-
-      console.log(response, "response");
 
       if (response?.data?.success) {
         setUploadedImageUrl(response.data.result.secure_url);
@@ -73,11 +61,8 @@ const EventImageUpload = ({
     }
   }
 
-  // ✅ Trigger upload when a file is selected
   useEffect(() => {
-    if (imageFile) {
-      uploadImageToCloudinary();
-    }
+    if (imageFile) uploadImageToCloudinary();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageFile]);
 
@@ -98,7 +83,6 @@ const EventImageUpload = ({
         onDragOver={handleDragOver}
         onDrop={handleOnDrop}
       >
-        {/* Hidden file input */}
         <input
           type="file"
           id="image-upload"
@@ -108,7 +92,6 @@ const EventImageUpload = ({
           accept="image/*"
         />
 
-        {/* No image selected */}
         {!imageFile ? (
           <Label
             htmlFor="image-upload"
@@ -118,19 +101,15 @@ const EventImageUpload = ({
               <UploadCloudIcon className="w-8 h-8 text-blue-500" />
             </div>
             <span className="mt-3 text-gray-600 text-sm font-medium">
-              Drag & drop or <span className="text-blue-600">browse</span> to
-              upload
+              Drag & drop or <span className="text-blue-600">browse</span> to upload
             </span>
-            <span className="text-xs text-gray-400 mt-1">
-              (PNG, JPG up to 5MB)
-            </span>
+            <span className="text-xs text-gray-400 mt-1">(PNG, JPG up to 5MB)</span>
           </Label>
         ) : ImageLoadingState ? (
           <div className="w-48 h-48 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl animate-pulse flex items-center justify-center">
             <UploadCloudIcon className="w-8 h-8 text-gray-400 animate-bounce" />
           </div>
         ) : (
-          // ✅ Preview section
           <div className="flex flex-col items-center gap-3">
             <div className="relative group">
               <img
@@ -139,13 +118,13 @@ const EventImageUpload = ({
                 className="w-48 h-48 object-cover rounded-xl shadow-md border border-gray-200"
               />
               <button
+                type="button"
                 onClick={handleRemoveImage}
                 className="absolute top-2 right-2 bg-white/80 hover:bg-red-100 text-red-600 rounded-full p-1 shadow-sm transition"
               >
                 <XIcon className="w-5 h-5" />
               </button>
             </div>
-
             <div className="text-sm font-medium text-gray-700 truncate max-w-[12rem]">
               {imageFile.name}
             </div>

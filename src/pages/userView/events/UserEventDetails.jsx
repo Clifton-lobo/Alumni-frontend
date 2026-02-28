@@ -15,11 +15,13 @@ import {
   Tag,
   CircleCheckBig,
   AlertCircle,
+  Ban,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useDispatch, useSelector } from "react-redux";
-import { registerForEvent } from "../../../store/user-view/RegisterEventSlice";
+import { useEffect } from "react";
+import { registerForEvent, clearRegisterError } from "../../../store/user-view/RegisterEventSlice";
 
 const UserEventDetails = ({ event, open, onOpenChange }) => {
   const dispatch = useDispatch();
@@ -30,6 +32,19 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
 
   const { user } = useSelector((state) => state.auth || {});
 
+  // ✅ FIX: Clear any stale error from a previous event whenever:
+  //    - The dialog opens (user clicked a new event card)
+  //    - The event itself changes (same dialog, different event passed in)
+  //
+  // Without this, an error from Event A ("You have already registered")
+  // stays in Redux and immediately renders on Event B's dialog even
+  // though the user never tried registering for Event B.
+  useEffect(() => {
+    if (open) {
+      dispatch(clearRegisterError());
+    }
+  }, [open, event?._id, dispatch]);
+
   if (!event) return null;
 
   const isRegistered = !!registeredEvents[event._id];
@@ -39,8 +54,11 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
     event.capacity &&
     event.registrationsCount >= event.capacity;
 
+  const isPastEvent = new Date(event.date) < new Date();
+
   const handleRegister = () => {
-    if (!event._id || isRegistered || registering || isFull) return;
+    if (!event._id || isRegistered || registering || isFull || isPastEvent)
+      return;
 
     dispatch(
       registerForEvent({
@@ -51,30 +69,79 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
     );
   };
 
+  /* ─── Status banner ─── */
+  const statusBanner = () => {
+    if (isRegistered) {
+      return (
+        <div className="flex items-center gap-3 bg-green-50 border border-green-300 text-green-800 px-4 py-3 rounded-lg">
+          <CircleCheckBig size={20} className="shrink-0" />
+          <span className="font-medium text-sm">
+            You have successfully registered for this event.
+          </span>
+        </div>
+      );
+    }
+
+    if (isPastEvent) {
+      return (
+        <div className="flex items-center gap-3 bg-amber-50 border border-amber-300 text-amber-800 px-4 py-3 rounded-lg">
+          <Ban size={20} className="shrink-0" />
+          <span className="font-medium text-sm">
+            This event has already taken place. Registration is closed.
+          </span>
+        </div>
+      );
+    }
+
+    if (isFull) {
+      return (
+        <div className="flex items-center gap-3 bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg">
+          <AlertCircle size={20} className="shrink-0" />
+          <span className="font-medium text-sm">
+            This event is sold out. No seats are available.
+          </span>
+        </div>
+      );
+    }
+
+    // error only renders if the user actually clicked Register in THIS
+    // dialog session — stale errors from previous events are cleared on open
+    if (error) {
+      return (
+        <div className="flex items-center gap-2 bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg">
+          <AlertCircle size={18} className="shrink-0" />
+          <span className="text-sm">
+            {typeof error === "string"
+              ? error
+              : error?.message || "Something went wrong"}
+          </span>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
+  const registerButtonLabel = () => {
+    if (registering) return "Registering...";
+    if (isRegistered) return "Registered ✓";
+    if (isPastEvent) return "Event Ended";
+    if (isFull) return "Sold Out";
+    return "Register";
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0">
 
         {/* SCROLLABLE AREA */}
-        <div className="flex-1 overflow-y-auto px-4 md:px-6 pt-6">
+        <div className="flex-1 overflow-y-auto px-4 md:px-6 pt-6 pb-2">
 
           <DialogHeader>
             <DialogTitle className="text-2xl md:text-3xl font-bold pr-8">
               {event.title}
             </DialogTitle>
           </DialogHeader>
-
-          {/* ERROR */}
-          {error && (
-            <div className="flex items-center gap-2 bg-red-50 border border-red-300 text-red-700 px-3 md:px-4 py-2 md:py-3 rounded-lg mt-4">
-              <AlertCircle size={18} className="shrink-0" />
-              <span className="text-xs md:text-sm">
-                {typeof error === "string"
-                  ? error
-                  : error?.message || "Something went wrong"}
-              </span>
-            </div>
-          )}
 
           <div className="space-y-4 md:space-y-6 mt-4">
 
@@ -87,14 +154,12 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
 
             {/* MODE BADGE */}
             <div className="flex gap-2 flex-wrap">
-              {event.isVirtual && (
+              {event.isVirtual ? (
                 <span className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-full bg-purple-100 text-purple-700">
                   <Video size={14} />
                   Virtual Event
                 </span>
-              )}
-
-              {!event.isVirtual && (
+              ) : (
                 <span className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-700">
                   <MapPin size={14} />
                   In-Person Event
@@ -104,6 +169,12 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
               {isFull && (
                 <span className="bg-red-100 text-red-700 px-3 py-1.5 rounded-full text-xs font-semibold">
                   Sold Out
+                </span>
+              )}
+
+              {isPastEvent && (
+                <span className="bg-gray-100 text-gray-500 px-3 py-1.5 rounded-full text-xs font-semibold">
+                  Event Ended
                 </span>
               )}
             </div>
@@ -184,17 +255,15 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
               </p>
             </div>
 
-            {/* REGISTERED STATE */}
-            {isRegistered && (
-              <div className="flex items-center gap-3 bg-green-50 border border-green-300 text-green-800 px-4 md:px-5 py-3 md:py-4 rounded-lg">
-                <CircleCheckBig size={20} className="shrink-0" />
-                <span className="font-medium text-sm md:text-base">
-                  You have registered for this event.
-                </span>
-              </div>
-            )}
           </div>
         </div>
+
+        {/* STATUS BANNER */}
+        {statusBanner() && (
+          <div className="px-4 md:px-6 pt-3 pb-1">
+            {statusBanner()}
+          </div>
+        )}
 
         {/* FOOTER */}
         <DialogFooter className="border-t pt-4 pb-4 px-4 md:px-6 flex flex-row justify-between gap-3">
@@ -209,19 +278,18 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
 
           <Button
             onClick={handleRegister}
-            disabled={registering || isRegistered || isFull}
-            className={`flex-1 md:flex-initial ${isFull
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-950 hover:bg-blue-900"
-              }`}
-          >
-            {registering
-              ? "Registering..."
-              : isRegistered
-                ? "Registered ✓"
+            disabled={registering || isRegistered || isFull || isPastEvent}
+            className={`flex-1 md:flex-initial font-semibold transition-colors ${
+              isRegistered
+                ? "bg-green-600 hover:bg-green-600 cursor-not-allowed text-white"
+                : isPastEvent
+                ? "bg-gray-400 hover:bg-gray-400 cursor-not-allowed text-white"
                 : isFull
-                  ? "Sold Out"
-                  : "Register"}
+                ? "bg-gray-400 hover:bg-gray-400 cursor-not-allowed text-white"
+                : "bg-blue-950 hover:bg-blue-900 text-white"
+            }`}
+          >
+            {registerButtonLabel()}
           </Button>
         </DialogFooter>
       </DialogContent>

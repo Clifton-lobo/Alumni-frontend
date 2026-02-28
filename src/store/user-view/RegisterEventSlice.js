@@ -26,12 +26,11 @@ const userEventRegistrationSlice = createSlice({
     registering: false,
     error: null,
 
-    // 👇 PER-EVENT SUCCESS (this replaces the broken single `success`)
+    // PER-EVENT SUCCESS keyed by eventId
     registeredEvents: {
       // [eventId]: true
     },
 
-    // optional: keep last registration id if you want it
     registrationId: null,
   },
 
@@ -40,6 +39,12 @@ const userEventRegistrationSlice = createSlice({
       state.registering = false;
       state.error = null;
       state.registrationId = null;
+    },
+
+    // ✅ FIX: Clears stale error so it doesn't bleed into the next event's dialog.
+    // Dispatched in UserEventDetails whenever the dialog opens (see useEffect there).
+    clearRegisterError: (state) => {
+      state.error = null;
     },
   },
 
@@ -52,10 +57,7 @@ const userEventRegistrationSlice = createSlice({
 
       .addCase(registerForEvent.fulfilled, (state, action) => {
         state.registering = false;
-
-        // 👇 mark THIS event as registered
         state.registeredEvents[action.payload.eventId] = true;
-
         state.registrationId = action.payload.registrationId;
       })
 
@@ -66,8 +68,8 @@ const userEventRegistrationSlice = createSlice({
   },
 });
 
-
-export const { resetRegistrationState } =
+// ✅ clearRegisterError added to exports
+export const { resetRegistrationState, clearRegisterError } =
   userEventRegistrationSlice.actions;
 
 export default userEventRegistrationSlice.reducer;
