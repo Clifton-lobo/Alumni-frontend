@@ -1,5 +1,16 @@
 import React, { useEffect, useState, useRef } from "react";
-import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchNews,
+  fetchNewsStats,
+  fetchNewsById,
+  createNews,
+  updateNews,
+  togglePublish,
+  deleteNews,
+  clearSelectedNews,
+} from "../../../store/admin/AdminNewsSlice";
+
 import {
   Plus, Search, Edit2, Trash2, Eye, EyeOff, X,
   ImagePlus, Loader2, ChevronLeft, ChevronRight,
@@ -7,39 +18,43 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
+  Sheet, SheetContent, SheetHeader, SheetTitle,
 } from "@/components/ui/sheet";
 
+/* ─── Design tokens ─── */
 const NAVY = "#142A5D";
 const GOLD = "#EBAB09";
 
 const CATEGORIES = [
-  { value: "announcement",    label: "Announcement" },
-  { value: "achievement",     label: "Achievement"  },
-  { value: "event",           label: "Event"        },
-  { value: "general",         label: "General"      },
-  { value: "alumni-spotlight",label: "Alumni Spotlight" },
+  { value: "announcement",     label: "Announcement"    },
+  { value: "achievement",      label: "Achievement"     },
+  { value: "event",            label: "Event"           },
+  { value: "general",          label: "General"         },
+  { value: "alumni-spotlight", label: "Alumni Spotlight" },
 ];
 
 const CATEGORY_COLORS = {
-  announcement:     "bg-blue-50 text-blue-700 border-blue-200",
-  achievement:      "bg-green-50 text-green-700 border-green-200",
-  event:            "bg-purple-50 text-purple-700 border-purple-200",
-  general:          "bg-gray-50 text-gray-600 border-gray-200",
+  announcement:      "bg-blue-50 text-blue-700 border-blue-200",
+  achievement:       "bg-green-50 text-green-700 border-green-200",
+  event:             "bg-purple-50 text-purple-700 border-purple-200",
+  general:           "bg-gray-50 text-gray-600 border-gray-200",
   "alumni-spotlight":"bg-amber-50 text-amber-700 border-amber-200",
 };
 
 const formatDate = (d) =>
-  d ? new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "\u2014";
+  d
+    ? new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+    : "—";
 
-/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 STAT CARD \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
+/* ══════════════════════════════════════════════
+   STAT CARD
+══════════════════════════════════════════════ */
 const StatCard = ({ icon: Icon, label, value, color }) => (
   <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5 flex items-center gap-3 sm:gap-4">
-    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-      style={{ background: `${color}15` }}>
+    <div
+      className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+      style={{ background: `${color}15` }}
+    >
       <Icon className="h-4 w-4 sm:h-5 sm:w-5" style={{ color }} />
     </div>
     <div>
@@ -49,14 +64,16 @@ const StatCard = ({ icon: Icon, label, value, color }) => (
   </div>
 );
 
-/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 IMAGE UPLOADER \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
+/* ══════════════════════════════════════════════
+   IMAGE UPLOADER  (pure UI, no Redux needed)
+══════════════════════════════════════════════ */
 const ImageUploader = ({ preview, onChange, onRemove }) => {
   const fileRef = useRef(null);
   const [dragging, setDragging] = useState(false);
 
   const handleFile = (file) => {
     if (!file?.type.startsWith("image/")) { toast.error("Images only"); return; }
-    if (file.size > 5 * 1024 * 1024) { toast.error("Max 5MB"); return; }
+    if (file.size > 5 * 1024 * 1024)     { toast.error("Max 5MB");     return; }
     onChange(file);
   };
 
@@ -66,8 +83,11 @@ const ImageUploader = ({ preview, onChange, onRemove }) => {
       {preview ? (
         <div className="relative rounded-xl overflow-hidden border border-gray-200 aspect-[16/6]">
           <img src={preview} alt="cover" className="w-full h-full object-cover" />
-          <button onClick={onRemove}
-            className="absolute top-2 right-2 w-8 h-8 bg-black/60 text-white rounded-full flex items-center justify-center hover:bg-black/80 transition">
+          <button
+            type="button"
+            onClick={onRemove}
+            className="absolute top-2 right-2 w-8 h-8 bg-black/60 text-white rounded-full flex items-center justify-center hover:bg-black/80 transition"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -78,20 +98,31 @@ const ImageUploader = ({ preview, onChange, onRemove }) => {
           onDragLeave={() => setDragging(false)}
           onDrop={(e) => { e.preventDefault(); setDragging(false); handleFile(e.dataTransfer.files[0]); }}
           className={`border-2 border-dashed rounded-xl p-6 sm:p-8 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all
-            ${dragging ? "border-[#EBAB09] bg-amber-50" : "border-gray-200 hover:border-[#EBAB09] hover:bg-gray-50"}`}
+            ${dragging
+              ? "border-[#EBAB09] bg-amber-50"
+              : "border-gray-200 hover:border-[#EBAB09] hover:bg-gray-50"}`}
         >
           <ImagePlus className="h-7 w-7 sm:h-8 sm:w-8 text-gray-300" />
-          <p className="text-sm text-gray-500 text-center">Drop an image or <span className="text-[#EBAB09] font-medium">browse</span></p>
+          <p className="text-sm text-gray-500 text-center">
+            Drop an image or <span className="text-[#EBAB09] font-medium">browse</span>
+          </p>
           <p className="text-xs text-gray-400">PNG, JPG up to 5MB</p>
         </div>
       )}
-      <input ref={fileRef} type="file" accept="image/*" className="hidden"
-        onChange={(e) => handleFile(e.target.files[0])} />
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => handleFile(e.target.files[0])}
+      />
     </div>
   );
 };
 
-/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 TAG INPUT \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
+/* ══════════════════════════════════════════════
+   TAG INPUT  (pure UI)
+══════════════════════════════════════════════ */
 const TagInput = ({ tags, onChange }) => {
   const [input, setInput] = useState("");
 
@@ -108,9 +139,16 @@ const TagInput = ({ tags, onChange }) => {
       <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">Tags</label>
       <div className="flex flex-wrap gap-2 p-3 rounded-xl border border-gray-200 bg-gray-50 min-h-[52px]">
         {tags.map((t) => (
-          <span key={t} className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-[#142A5D] text-white">
+          <span
+            key={t}
+            className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-[#142A5D] text-white"
+          >
             #{t}
-            <button onClick={() => onChange(tags.filter((x) => x !== t))} className="hover:text-[#EBAB09] transition">
+            <button
+              type="button"
+              onClick={() => onChange(tags.filter((x) => x !== t))}
+              className="hover:text-[#EBAB09] transition"
+            >
               <X className="w-3 h-3" />
             </button>
           </span>
@@ -118,7 +156,9 @@ const TagInput = ({ tags, onChange }) => {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); add(); } }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === ",") { e.preventDefault(); add(); }
+          }}
           placeholder={tags.length < 8 ? "Add tag + Enter" : "Max 8 tags"}
           disabled={tags.length >= 8}
           className="flex-1 min-w-[120px] bg-transparent text-sm outline-none placeholder-gray-400 text-gray-800"
@@ -128,23 +168,32 @@ const TagInput = ({ tags, onChange }) => {
   );
 };
 
-/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 NEWS FORM SHEET \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
+/* ══════════════════════════════════════════════
+   NEWS FORM SHEET  (Redux-connected)
+══════════════════════════════════════════════ */
 const NewsSheet = ({ open, onClose, editNews, onSaved }) => {
-  const BLANK = { title: "", content: "", excerpt: "", category: "general", tags: [], isPublished: false };
-  const [form, setForm] = useState(BLANK);
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
+  const dispatch = useDispatch();
+  const { saving } = useSelector((s) => s.Adminnews);
 
+  const BLANK = {
+    title: "", content: "", excerpt: "",
+    category: "general", tags: [], isPublished: false,
+  };
+
+  const [form, setForm]               = useState(BLANK);
+  const [imageFile, setImageFile]     = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [errors, setErrors]           = useState({});
+
+  // Populate form when editing
   useEffect(() => {
     if (editNews) {
       setForm({
-        title: editNews.title || "",
-        content: editNews.content || "",
-        excerpt: editNews.excerpt || "",
-        category: editNews.category || "general",
-        tags: editNews.tags || [],
+        title:       editNews.title       || "",
+        content:     editNews.content     || "",
+        excerpt:     editNews.excerpt     || "",
+        category:    editNews.category    || "general",
+        tags:        editNews.tags        || [],
         isPublished: editNews.isPublished || false,
       });
       setImagePreview(editNews.coverImage?.url || null);
@@ -162,14 +211,9 @@ const NewsSheet = ({ open, onClose, editNews, onSaved }) => {
     if (errors[field]) setErrors((p) => ({ ...p, [field]: "" }));
   };
 
-  const handleImageChange = (file) => {
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
-  };
-
   const validate = () => {
     const e = {};
-    if (!form.title.trim() || form.title.trim().length < 5) e.title = "Title must be at least 5 characters";
+    if (!form.title.trim()   || form.title.trim().length   < 5)  e.title   = "Title must be at least 5 characters";
     if (!form.content.trim() || form.content.trim().length < 20) e.content = "Content must be at least 20 characters";
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -177,42 +221,38 @@ const NewsSheet = ({ open, onClose, editNews, onSaved }) => {
 
   const handleSubmit = async () => {
     if (!validate()) return;
-    setLoading(true);
-    try {
-      const data = new FormData();
-      data.append("title", form.title.trim());
-      data.append("content", form.content.trim());
-      data.append("excerpt", form.excerpt.trim());
-      data.append("category", form.category);
-      data.append("tags", JSON.stringify(form.tags));
-      data.append("isPublished", form.isPublished);
-      if (imageFile) data.append("coverImage", imageFile);
 
-      if (editNews) {
-        await axios.patch(`/api/admin/news/${editNews._id}`, data, {
-          headers: { "Content-Type": "multipart/form-data" },
-          withCredentials: true,
-        });
-        toast.success("News updated!");
-      } else {
-        await axios.post("/api/admin/news", data, {
-          headers: { "Content-Type": "multipart/form-data" },
-          withCredentials: true,
-        });
-        toast.success("News created!");
-      }
+    const fd = new FormData();
+    fd.append("title",       form.title.trim());
+    fd.append("content",     form.content.trim());
+    fd.append("excerpt",     form.excerpt.trim());
+    fd.append("category",    form.category);
+    fd.append("tags",        JSON.stringify(form.tags));
+    fd.append("isPublished", form.isPublished);
+    if (imageFile) fd.append("coverImage", imageFile);
+
+    let result;
+    if (editNews) {
+      result = await dispatch(updateNews({ id: editNews._id, formData: fd }));
+    } else {
+      result = await dispatch(createNews(fd));
+    }
+
+    const isSuccess = editNews
+      ? updateNews.fulfilled.match(result)
+      : createNews.fulfilled.match(result);
+
+    if (isSuccess) {
+      toast.success(editNews ? "News updated!" : "News created!");
       onSaved();
       onClose();
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to save news");
-    } finally {
-      setLoading(false);
+    } else {
+      toast.error(result.payload || "Failed to save article");
     }
   };
 
   return (
     <Sheet open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-      {/* Full-screen on mobile, 600px on sm+ */}
       <SheetContent
         side="right"
         className="w-full sm:max-w-[600px] p-0 flex flex-col h-full [&>button]:hidden"
@@ -251,7 +291,9 @@ const NewsSheet = ({ open, onClose, editNews, onSaved }) => {
               onChange={(e) => update("title", e.target.value)}
               placeholder="Enter a compelling headline..."
               className={`w-full h-11 px-4 rounded-xl border text-sm text-gray-800 outline-none transition
-                ${errors.title ? "border-red-400 bg-red-50" : "border-gray-200 bg-gray-50 focus:border-[#EBAB09] focus:bg-white"}`}
+                ${errors.title
+                  ? "border-red-400 bg-red-50"
+                  : "border-gray-200 bg-gray-50 focus:border-[#EBAB09] focus:bg-white"}`}
             />
             {errors.title && <p className="text-xs text-red-500">{errors.title}</p>}
           </div>
@@ -261,13 +303,14 @@ const NewsSheet = ({ open, onClose, editNews, onSaved }) => {
             <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">Category</label>
             <div className="flex flex-wrap gap-2">
               {CATEGORIES.map((c) => (
-                <button key={c.value} type="button"
+                <button
+                  key={c.value}
+                  type="button"
                   onClick={() => update("category", c.value)}
                   className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-semibold border transition-all
                     ${form.category === c.value
                       ? "bg-[#142A5D] text-white border-[#142A5D]"
-                      : "bg-gray-50 text-gray-600 border-gray-200 hover:border-[#EBAB09]"
-                    }`}
+                      : "bg-gray-50 text-gray-600 border-gray-200 hover:border-[#EBAB09]"}`}
                 >
                   {c.label}
                 </button>
@@ -278,7 +321,7 @@ const NewsSheet = ({ open, onClose, editNews, onSaved }) => {
           {/* Cover Image */}
           <ImageUploader
             preview={imagePreview}
-            onChange={handleImageChange}
+            onChange={(file) => { setImageFile(file); setImagePreview(URL.createObjectURL(file)); }}
             onRemove={() => { setImageFile(null); setImagePreview(null); }}
           />
 
@@ -291,7 +334,9 @@ const NewsSheet = ({ open, onClose, editNews, onSaved }) => {
               placeholder="Write the full article content here..."
               rows={8}
               className={`w-full px-4 py-3 rounded-xl border text-sm text-gray-800 outline-none transition resize-none leading-relaxed
-                ${errors.content ? "border-red-400 bg-red-50" : "border-gray-200 bg-gray-50 focus:border-[#EBAB09] focus:bg-white"}`}
+                ${errors.content
+                  ? "border-red-400 bg-red-50"
+                  : "border-gray-200 bg-gray-50 focus:border-[#EBAB09] focus:bg-white"}`}
             />
             {errors.content && <p className="text-xs text-red-500">{errors.content}</p>}
             <p className="text-xs text-gray-400 text-right">{form.content.length} characters</p>
@@ -300,7 +345,8 @@ const NewsSheet = ({ open, onClose, editNews, onSaved }) => {
           {/* Excerpt */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-              Excerpt <span className="font-normal text-gray-400">(auto-generated if blank)</span>
+              Excerpt{" "}
+              <span className="font-normal text-gray-400">(auto-generated if blank)</span>
             </label>
             <textarea
               value={form.excerpt}
@@ -320,20 +366,28 @@ const NewsSheet = ({ open, onClose, editNews, onSaved }) => {
             <div>
               <p className="text-sm font-semibold text-gray-800">Publish immediately</p>
               <p className="text-xs text-gray-500 mt-0.5">
-                {form.isPublished ? "Visible to all users right now" : "Save as draft \u2014 not visible to users"}
+                {form.isPublished
+                  ? "Visible to all users right now"
+                  : "Save as draft — not visible to users"}
               </p>
             </div>
             <button
               type="button"
               onClick={() => update("isPublished", !form.isPublished)}
-              className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-all duration-200 ${form.isPublished ? "bg-[#EBAB09]" : "bg-gray-300"}`}
+              className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-all duration-200 ${
+                form.isPublished ? "bg-[#EBAB09]" : "bg-gray-300"
+              }`}
             >
-              <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-200 ${form.isPublished ? "left-7" : "left-1"}`} />
+              <span
+                className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-200 ${
+                  form.isPublished ? "left-7" : "left-1"
+                }`}
+              />
             </button>
           </div>
         </div>
 
-        {/* Footer — always visible */}
+        {/* Footer */}
         <div className="px-4 py-4 sm:px-6 border-t border-gray-100 flex gap-3 bg-white flex-shrink-0">
           <button
             onClick={onClose}
@@ -343,12 +397,18 @@ const NewsSheet = ({ open, onClose, editNews, onSaved }) => {
           </button>
           <button
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={saving}
             className="flex-1 h-11 rounded-xl text-sm font-semibold text-black flex items-center justify-center gap-2 transition disabled:opacity-50"
             style={{ background: GOLD }}
           >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-            {loading ? "Saving..." : editNews ? "Save Changes" : form.isPublished ? "Publish Now" : "Save as Draft"}
+            {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+            {saving
+              ? "Saving..."
+              : editNews
+              ? "Save Changes"
+              : form.isPublished
+              ? "Publish Now"
+              : "Save as Draft"}
           </button>
         </div>
       </SheetContent>
@@ -356,7 +416,9 @@ const NewsSheet = ({ open, onClose, editNews, onSaved }) => {
   );
 };
 
-/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 DELETE CONFIRM \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
+/* ══════════════════════════════════════════════
+   DELETE CONFIRM  (pure UI)
+══════════════════════════════════════════════ */
 const DeleteConfirm = ({ news, onConfirm, onCancel, loading }) => (
   <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
     <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
@@ -365,14 +427,24 @@ const DeleteConfirm = ({ news, onConfirm, onCancel, loading }) => (
       </div>
       <h3 className="text-base font-bold text-gray-900 text-center">Delete Article?</h3>
       <p className="text-sm text-gray-500 text-center mt-1 mb-5">
-        "<span className="font-medium text-gray-700">{news?.title?.substring(0, 50)}{news?.title?.length > 50 ? "..." : ""}</span>" will be permanently deleted.
+        "
+        <span className="font-medium text-gray-700">
+          {news?.title?.substring(0, 50)}{news?.title?.length > 50 ? "..." : ""}
+        </span>
+        " will be permanently deleted.
       </p>
       <div className="flex gap-3">
-        <button onClick={onCancel} className="flex-1 h-10 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition">
+        <button
+          onClick={onCancel}
+          className="flex-1 h-10 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition"
+        >
           Cancel
         </button>
-        <button onClick={onConfirm} disabled={loading}
-          className="flex-1 h-10 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition disabled:opacity-50 flex items-center justify-center gap-2">
+        <button
+          onClick={onConfirm}
+          disabled={loading}
+          className="flex-1 h-10 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition disabled:opacity-50 flex items-center justify-center gap-2"
+        >
           {loading && <Loader2 className="w-4 h-4 animate-spin" />}
           Delete
         </button>
@@ -381,28 +453,43 @@ const DeleteConfirm = ({ news, onConfirm, onCancel, loading }) => (
   </div>
 );
 
-/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 PAGINATION \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
+/* ══════════════════════════════════════════════
+   PAGINATION  (pure UI)
+══════════════════════════════════════════════ */
 const Pagination = ({ pagination, onPageChange }) => {
   const { page, pages, total, limit } = pagination;
   if (!pages || pages <= 1) return null;
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-5 sm:mt-6 px-1">
       <p className="text-sm text-gray-400 order-2 sm:order-1">
-        Showing {(page - 1) * limit + 1}\u2013{Math.min(page * limit, total)} of {total}
+        Showing {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of {total}
       </p>
       <div className="flex items-center gap-1 order-1 sm:order-2">
-        <button onClick={() => onPageChange(page - 1)} disabled={page === 1}
-          className="p-2 rounded-lg bg-[#1e2d4d] text-white disabled:opacity-30 hover:bg-[#EBAB09] hover:text-black transition-all disabled:cursor-not-allowed">
+        <button
+          onClick={() => onPageChange(page - 1)}
+          disabled={page === 1}
+          className="p-2 rounded-lg bg-[#1e2d4d] text-white disabled:opacity-30 hover:bg-[#EBAB09] hover:text-black transition-all disabled:cursor-not-allowed"
+        >
           <ChevronLeft className="h-4 w-4" />
         </button>
         {Array.from({ length: pages }, (_, i) => i + 1).map((p) => (
-          <button key={p} onClick={() => onPageChange(p)}
-            className={`w-9 h-9 rounded-lg text-sm font-semibold transition-all ${p === page ? "bg-[#EBAB09] text-black" : "bg-[#1e2d4d] text-white hover:bg-[#EBAB09] hover:text-black"}`}>
+          <button
+            key={p}
+            onClick={() => onPageChange(p)}
+            className={`w-9 h-9 rounded-lg text-sm font-semibold transition-all ${
+              p === page
+                ? "bg-[#EBAB09] text-black"
+                : "bg-[#1e2d4d] text-white hover:bg-[#EBAB09] hover:text-black"
+            }`}
+          >
             {p}
           </button>
         ))}
-        <button onClick={() => onPageChange(page + 1)} disabled={page === pages}
-          className="p-2 rounded-lg bg-[#1e2d4d] text-white disabled:opacity-30 hover:bg-[#EBAB09] hover:text-black transition-all disabled:cursor-not-allowed">
+        <button
+          onClick={() => onPageChange(page + 1)}
+          disabled={page === pages}
+          className="p-2 rounded-lg bg-[#1e2d4d] text-white disabled:opacity-30 hover:bg-[#EBAB09] hover:text-black transition-all disabled:cursor-not-allowed"
+        >
           <ChevronRight className="h-4 w-4" />
         </button>
       </div>
@@ -410,97 +497,85 @@ const Pagination = ({ pagination, onPageChange }) => {
   );
 };
 
-/* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 MAIN PAGE \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
+/* ══════════════════════════════════════════════
+   MAIN PAGE  (Redux-connected)
+══════════════════════════════════════════════ */
 const NewsLetter = () => {
-  const [newsList, setNewsList]         = useState([]);
-  const [pagination, setPagination]     = useState({ total: 0, page: 1, pages: 1, limit: 10 });
-  const [stats, setStats]               = useState({ total: 0, published: 0, drafts: 0 });
-  const [loading, setLoading]           = useState(true);
-  const [search, setSearch]             = useState("");
-  const [filterCat, setFilterCat]       = useState("");
-  const [filterPub, setFilterPub]       = useState("");
-  const [sheetOpen, setSheetOpen]       = useState(false);
-  const [editNews, setEditNews]         = useState(null);
+  const dispatch = useDispatch();
+  const {
+    newsList, pagination, stats,
+    loading, togglingId, deleting,
+    selectedNews, selectedLoading,
+  } = useSelector((s) => s.Adminnews);
+
+  // Local UI state — filter values and modal open states
+  const [search, setSearch]           = useState("");
+  const [filterCat, setFilterCat]     = useState("");
+  const [filterPub, setFilterPub]     = useState("");
+  const [sheetOpen, setSheetOpen]     = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
-  const [deleteLoading, setDeleteLoading] = useState(false);
-  const [togglingId, setTogglingId]     = useState(null);
 
-  const fetchNews = async (page = 1) => {
-    setLoading(true);
-    try {
-      const params = { page, limit: 10 };
-      if (search)         params.search = search;
-      if (filterCat)      params.category = filterCat;
-      if (filterPub !== "") params.isPublished = filterPub;
-      const res = await axios.get("/api/admin/news", { params, withCredentials: true });
-      setNewsList(res.data.data);
-      setPagination(res.data.pagination);
-    } catch {
-      toast.error("Failed to load news");
-    } finally {
-      setLoading(false);
-    }
-  };
+  /* ── Helpers ── */
+  const load = (page = 1) =>
+    dispatch(fetchNews({ page, search, category: filterCat, isPublished: filterPub }));
 
-  const fetchStats = async () => {
-    try {
-      const [all, pub] = await Promise.all([
-        axios.get("/api/admin/news", { params: { limit: 1 }, withCredentials: true }),
-        axios.get("/api/admin/news", { params: { limit: 1, isPublished: true }, withCredentials: true }),
-      ]);
-      const total     = all.data.pagination.total;
-      const published = pub.data.pagination.total;
-      setStats({ total, published, drafts: total - published });
-    } catch {}
-  };
+  /* ── Initial + filter-driven fetch ── */
+  useEffect(() => { load(1); },           [filterCat, filterPub]); // eslint-disable-line
+  useEffect(() => { dispatch(fetchNewsStats()); }, [dispatch]);
 
-  useEffect(() => { fetchNews(1); }, [filterCat, filterPub]);
-  useEffect(() => { fetchStats(); }, []);
+  /* ── Search (on Enter or button click) ── */
+  const handleSearch = (e) => { e.preventDefault(); load(1); };
 
-  const handleSearch = (e) => { e.preventDefault(); fetchNews(1); };
-
+  /* ── Toggle publish ── */
   const handleTogglePublish = async (news) => {
-    setTogglingId(news._id);
-    try {
-      const res = await axios.patch(`/api/admin/news/${news._id}/toggle-publish`, {}, { withCredentials: true });
-      const { isPublished } = res.data.data;
-      setNewsList((prev) => prev.map((n) => n._id === news._id ? { ...n, isPublished } : n));
-      toast.success(isPublished ? "Published!" : "Moved to drafts");
-      fetchStats();
-    } catch {
-      toast.error("Failed to toggle publish status");
-    } finally {
-      setTogglingId(null);
+    const result = await dispatch(togglePublish(news._id));
+    if (togglePublish.fulfilled.match(result)) {
+      toast.success(result.payload.isPublished ? "Published!" : "Moved to drafts");
+      dispatch(fetchNewsStats());
+    } else {
+      toast.error(result.payload || "Failed to toggle publish status");
     }
   };
 
+  /* ── Delete ── */
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    setDeleteLoading(true);
-    try {
-      await axios.delete(`/api/admin/news/${deleteTarget._id}`, { withCredentials: true });
+    const result = await dispatch(deleteNews(deleteTarget._id));
+    if (deleteNews.fulfilled.match(result)) {
       toast.success("Article deleted");
       setDeleteTarget(null);
-      fetchNews(pagination.page);
-      fetchStats();
-    } catch {
-      toast.error("Failed to delete");
-    } finally {
-      setDeleteLoading(false);
+      dispatch(fetchNewsStats());
+      // If we just deleted the last item on this page, go back one page
+      const remaining = newsList.length - 1;
+      const targetPage = remaining === 0 && pagination.page > 1
+        ? pagination.page - 1
+        : pagination.page;
+      load(targetPage);
+    } else {
+      toast.error(result.payload || "Failed to delete");
     }
   };
 
+  /* ── Open edit sheet — fetch full article first ── */
   const openEdit = async (news) => {
-    try {
-      const res = await axios.get(`/api/admin/news/${news._id}`, { withCredentials: true });
-      setEditNews(res.data.data);
+    const result = await dispatch(fetchNewsById(news._id));
+    if (fetchNewsById.fulfilled.match(result)) {
       setSheetOpen(true);
-    } catch {
-      toast.error("Failed to load article");
+    } else {
+      toast.error(result.payload || "Failed to load article");
     }
   };
 
-  const handleSaved = () => { fetchNews(pagination.page); fetchStats(); };
+  /* ── After save ── */
+  const handleSaved = () => {
+    load(pagination.page);
+    dispatch(fetchNewsStats());
+  };
+
+  const handleCloseSheet = () => {
+    setSheetOpen(false);
+    dispatch(clearSelectedNews());
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
@@ -514,10 +589,12 @@ const NewsLetter = () => {
             </div>
             News Management
           </h1>
-          <p className="text-sm text-gray-500 mt-1 ml-11 sm:ml-12">Create and manage news articles for alumni</p>
+          <p className="text-sm text-gray-500 mt-1 ml-11 sm:ml-12">
+            Create and manage news articles for alumni
+          </p>
         </div>
         <button
-          onClick={() => { setEditNews(null); setSheetOpen(true); }}
+          onClick={() => { dispatch(clearSelectedNews()); setSheetOpen(true); }}
           className="flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-semibold text-black transition-all hover:opacity-90"
           style={{ background: GOLD }}
         >
@@ -528,15 +605,18 @@ const NewsLetter = () => {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-5 sm:mb-6">
-        <StatCard icon={Newspaper}   label="Total Articles" value={stats.total}     color={NAVY} />
-        <StatCard icon={CheckCircle} label="Published"       value={stats.published} color="#16a34a" />
-        <StatCard icon={Clock}       label="Drafts"          value={stats.drafts}    color="#d97706" />
+        <StatCard icon={Newspaper}   label="Total Articles" value={stats.total}     color={NAVY}      />
+        <StatCard icon={CheckCircle} label="Published"       value={stats.published} color="#16a34a"   />
+        <StatCard icon={Clock}       label="Drafts"          value={stats.drafts}    color="#d97706"   />
       </div>
 
       {/* Filters */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-3 sm:p-4 mb-4 sm:mb-5 flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3">
         {/* Search */}
-        <form onSubmit={handleSearch} className="flex items-center gap-2 w-full sm:flex-1 sm:min-w-[200px]">
+        <form
+          onSubmit={handleSearch}
+          className="flex items-center gap-2 w-full sm:flex-1 sm:min-w-[200px]"
+        >
           <div className="flex items-center gap-2 flex-1 bg-gray-50 rounded-xl border border-gray-200 px-3 py-2.5">
             <Search className="h-4 w-4 text-gray-400 flex-shrink-0" />
             <input
@@ -546,30 +626,40 @@ const NewsLetter = () => {
               className="flex-1 bg-transparent text-sm text-gray-700 outline-none placeholder-gray-400"
             />
           </div>
-          <button type="submit"
+          <button
+            type="submit"
             className="px-4 py-2.5 rounded-xl text-sm font-semibold text-black transition-all hover:opacity-80 whitespace-nowrap"
-            style={{ background: GOLD }}>
+            style={{ background: GOLD }}
+          >
             Search
           </button>
         </form>
 
         {/* Category filter */}
-        <select value={filterCat} onChange={(e) => setFilterCat(e.target.value)}
-          className="h-10 px-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-700 outline-none cursor-pointer w-full sm:w-auto">
+        <select
+          value={filterCat}
+          onChange={(e) => setFilterCat(e.target.value)}
+          className="h-10 px-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-700 outline-none cursor-pointer w-full sm:w-auto"
+        >
           <option value="">All Categories</option>
-          {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+          {CATEGORIES.map((c) => (
+            <option key={c.value} value={c.value}>{c.label}</option>
+          ))}
         </select>
 
         {/* Status filter */}
-        <select value={filterPub} onChange={(e) => setFilterPub(e.target.value)}
-          className="h-10 px-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-700 outline-none cursor-pointer w-full sm:w-auto">
+        <select
+          value={filterPub}
+          onChange={(e) => setFilterPub(e.target.value)}
+          className="h-10 px-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-700 outline-none cursor-pointer w-full sm:w-auto"
+        >
           <option value="">All Status</option>
           <option value="true">Published</option>
           <option value="false">Drafts</option>
         </select>
       </div>
 
-      {/* Table — horizontally scrollable on mobile */}
+      {/* Table */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           {loading ? (
@@ -582,7 +672,9 @@ const NewsLetter = () => {
                 <Newspaper className="h-6 w-6 sm:h-7 sm:w-7 text-gray-300" />
               </div>
               <p className="text-gray-500 font-medium">No articles found</p>
-              <p className="text-gray-400 text-sm mt-1">Create your first news article to get started.</p>
+              <p className="text-gray-400 text-sm mt-1">
+                Create your first news article to get started.
+              </p>
             </div>
           ) : (
             <table className="w-full min-w-[560px]">
@@ -598,19 +690,25 @@ const NewsLetter = () => {
               <tbody className="divide-y divide-gray-50">
                 {newsList.map((news) => (
                   <tr key={news._id} className="hover:bg-gray-50/50 transition-colors">
+
                     {/* Article */}
                     <td className="px-4 sm:px-5 py-3.5">
                       <div className="flex items-center gap-3">
                         {news.coverImage?.url ? (
-                          <img src={news.coverImage.url} alt=""
-                            className="w-10 h-9 sm:w-12 sm:h-10 rounded-lg object-cover flex-shrink-0 border border-gray-100" />
+                          <img
+                            src={news.coverImage.url}
+                            alt=""
+                            className="w-10 h-9 sm:w-12 sm:h-10 rounded-lg object-cover flex-shrink-0 border border-gray-100"
+                          />
                         ) : (
                           <div className="w-10 h-9 sm:w-12 sm:h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
                             <Newspaper className="h-4 w-4 text-gray-300" />
                           </div>
                         )}
                         <div className="min-w-0">
-                          <p className="text-sm font-semibold text-gray-900 truncate max-w-[160px] sm:max-w-[280px]">{news.title}</p>
+                          <p className="text-sm font-semibold text-gray-900 truncate max-w-[160px] sm:max-w-[280px]">
+                            {news.title}
+                          </p>
                           <p className="text-xs text-gray-400 truncate max-w-[160px] sm:max-w-[280px] mt-0.5">
                             {news.excerpt || "No excerpt"}
                           </p>
@@ -620,7 +718,11 @@ const NewsLetter = () => {
 
                     {/* Category */}
                     <td className="px-4 py-3.5 hidden md:table-cell">
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold border ${CATEGORY_COLORS[news.category] || CATEGORY_COLORS.general}`}>
+                      <span
+                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold border ${
+                          CATEGORY_COLORS[news.category] || CATEGORY_COLORS.general
+                        }`}
+                      >
                         <Tag className="h-3 w-3" />
                         {CATEGORIES.find((c) => c.value === news.category)?.label || news.category}
                       </span>
@@ -630,13 +732,15 @@ const NewsLetter = () => {
                     <td className="px-4 py-3.5 hidden lg:table-cell">
                       <div className="flex items-center gap-1.5 text-xs text-gray-500">
                         <Calendar className="h-3.5 w-3.5 text-gray-300" />
-                        {news.isPublished && news.publishedAt
-                          ? formatDate(news.publishedAt)
-                          : <span className="text-gray-400 italic">Not published</span>}
+                        {news.isPublished && news.publishedAt ? (
+                          formatDate(news.publishedAt)
+                        ) : (
+                          <span className="text-gray-400 italic">Not published</span>
+                        )}
                       </div>
                     </td>
 
-                    {/* Status */}
+                    {/* Status (clickable toggle) */}
                     <td className="px-4 py-3.5">
                       <button
                         onClick={() => handleTogglePublish(news)}
@@ -648,27 +752,38 @@ const NewsLetter = () => {
                           }`}
                         title={news.isPublished ? "Click to unpublish" : "Click to publish"}
                       >
-                        {togglingId === news._id
-                          ? <Loader2 className="h-3 w-3 animate-spin" />
-                          : news.isPublished
-                            ? <><Eye className="h-3 w-3" /><span className="hidden sm:inline">Published</span></>
-                            : <><EyeOff className="h-3 w-3" /><span className="hidden sm:inline">Draft</span></>
-                        }
+                        {togglingId === news._id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : news.isPublished ? (
+                          <><Eye className="h-3 w-3" /><span className="hidden sm:inline">Published</span></>
+                        ) : (
+                          <><EyeOff className="h-3 w-3" /><span className="hidden sm:inline">Draft</span></>
+                        )}
                       </button>
                     </td>
 
                     {/* Actions */}
                     <td className="px-4 sm:px-5 py-3.5">
                       <div className="flex items-center justify-end gap-2">
-                        <button onClick={() => openEdit(news)}
-                          className="w-8 h-8 rounded-lg bg-gray-100 text-gray-500 hover:bg-[#142A5D] hover:text-white transition-all flex items-center justify-center"
-                          title="Edit">
-                          <Edit2 className="h-3.5 w-3.5" />
+                        <button
+                          onClick={() => openEdit(news)}
+                          disabled={selectedLoading}
+                          className="w-8 h-8 rounded-lg bg-gray-100 text-gray-500 hover:bg-[#142A5D] hover:text-white transition-all flex items-center justify-center disabled:opacity-50"
+                          title="Edit"
+                        >
+                          {selectedLoading
+                            ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            : <Edit2 className="h-3.5 w-3.5" />}
                         </button>
-                        <button onClick={() => setDeleteTarget(news)}
-                          className="w-8 h-8 rounded-lg bg-gray-100 text-gray-500 hover:bg-red-600 hover:text-white transition-all flex items-center justify-center"
-                          title="Delete">
-                          <Trash2 className="h-3.5 w-3.5" />
+                        <button
+                          onClick={() => setDeleteTarget(news)}
+                          disabled={deleting === news._id}
+                          className="w-8 h-8 rounded-lg bg-gray-100 text-gray-500 hover:bg-red-600 hover:text-white transition-all flex items-center justify-center disabled:opacity-50"
+                          title="Delete"
+                        >
+                          {deleting === news._id
+                            ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            : <Trash2 className="h-3.5 w-3.5" />}
                         </button>
                       </div>
                     </td>
@@ -681,14 +796,14 @@ const NewsLetter = () => {
       </div>
 
       {!loading && newsList.length > 0 && (
-        <Pagination pagination={pagination} onPageChange={fetchNews} />
+        <Pagination pagination={pagination} onPageChange={load} />
       )}
 
-      {/* Sheet */}
+      {/* Edit / Create sheet */}
       <NewsSheet
         open={sheetOpen}
-        onClose={() => { setSheetOpen(false); setEditNews(null); }}
-        editNews={editNews}
+        onClose={handleCloseSheet}
+        editNews={selectedNews}
         onSaved={handleSaved}
       />
 
@@ -698,7 +813,7 @@ const NewsLetter = () => {
           news={deleteTarget}
           onConfirm={handleDelete}
           onCancel={() => setDeleteTarget(null)}
-          loading={deleteLoading}
+          loading={deleting === deleteTarget._id}
         />
       )}
     </div>
