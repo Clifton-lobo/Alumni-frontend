@@ -26,7 +26,8 @@ import {
   UserPlus,
   CheckCircle,
   Clock,
-  UserCheck
+  UserCheck,
+  Mail
 } from "lucide-react";
 
 /* ─────────────────────────────────────────────
@@ -354,6 +355,12 @@ const AlumniDirectory = () => {
                         </span>
                       )}
                     </h2>
+
+                    {/* Email */}
+                    <div className="flex items-center justify-center gap-1.5">
+                      <Mail className="w-4 h-4 text-slate-400" />
+                      {user.email || "Email not provided"}
+                    </div>
 
                     {/* Job */}
                     <div className="mt-1.5 flex items-center justify-center gap-1.5 text-sm text-blue-600">
