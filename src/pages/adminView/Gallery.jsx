@@ -187,7 +187,7 @@ const AlbumPhotosDialog = ({ album, open, onClose }) => {
   return (
     <>
       <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-        <DialogContent className="!w-[1300px] !max-w-[1300px] p-0 gap-0 rounded-2xl overflow-hidden max-h-[90vh] flex flex-col border-0
+        <DialogContent className="md:!w-[1300px] md:!max-w-[1300px] p-0 gap-0 rounded-2xl overflow-hidden max-h-[90vh] flex flex-col border-0
           [&>button]:top-4 [&>button]:right-4 [&>button]:z-20 [&>button]:rounded-full [&>button]:w-9 [&>button]:h-9 [&>button]:bg-gray-100">
 
           <DialogHeader className="flex-shrink-0 px-6 py-5 border-b border-gray-100">

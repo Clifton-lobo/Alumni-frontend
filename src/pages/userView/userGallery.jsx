@@ -311,7 +311,7 @@ const AlbumDialog = ({ open, onClose }) => {
         }}
       >
         <DialogContent
-          className="!w-[1300px] !max-w-[1300px] p-0 gap-0 rounded-3xl border-0
+          className="md:!w-[1300px] md:!max-w-[1300px] p-0 gap-0 rounded-3xl border-0
             overflow-hidden max-h-[92vh] flex flex-col shadow-2xl"
         >
           {loading.photos ? (
