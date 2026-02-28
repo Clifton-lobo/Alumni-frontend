@@ -12,7 +12,9 @@ import {
   fetchIncomingRequests,
   fetchOutgoingRequests,
   sendConnectionRequest,
-} from "../../../store/user-view/ConnectionSlice"; // ← adjust path
+  addAcceptedConnection,
+  removeOutgoingRequest,
+} from "../../../store/user-view/ConnectionSlice";
 import PaginationControls from "../../../components/common/Pagination";
 import SearchComponent from "../../../components/common/Search";
 import { openRequestsDialog } from "../../../store/user-view/ConnectionSlice";
@@ -27,7 +29,7 @@ import {
   CheckCircle,
   Clock,
   UserCheck,
-  Mail
+  Mail,
 } from "lucide-react";
 
 /* ─────────────────────────────────────────────
@@ -49,8 +51,6 @@ const getConnectionStatus = (
 
   if (
     outgoingRequests.some((r) => {
-      // populated (fetched from API): { recipient: { _id: "..." } }
-      // unpopulated (just sent):      { recipient: "..." }
       const id = r.recipient?._id?.toString() ?? r.recipient?.toString();
       return id === targetUserId;
     })
@@ -69,10 +69,9 @@ const getConnectionStatus = (
 };
 
 /* ─────────────────────────────────────────────
-  Connect Button — isolated so it reads cleanly
+  Connect Button
 ───────────────────────────────────────────── */
 const ConnectButton = ({ status, onConnect, onRespond, loading }) => {
-
   if (status === "ACCEPTED") {
     return (
       <button
@@ -116,6 +115,7 @@ const ConnectButton = ({ status, onConnect, onRespond, loading }) => {
       className="flex-1 px-4 py-2 rounded-lg bg-[#EBAB09] text-black text-sm font-semibold hover:bg-[#d49a00] flex items-center justify-center gap-2 transition disabled:opacity-50"
     >
       <UserPlus className="w-4 h-4" />
+      {/* ✅ FIX 1: loading is now per-card, so only THIS card shows "Sending..." */}
       {loading ? "Sending..." : "Connect"}
     </button>
   );
@@ -143,30 +143,58 @@ const AlumniDirectory = () => {
   // ── Auth ──────────────────────────────────
   const currentUser = useSelector((state) => state.auth.user);
 
-
   // ── Connection state ──────────────────────
   const {
     acceptedConnections,
     incomingRequests,
     outgoingRequests,
-    sendingRequest,
+    // ✅ FIX 1: Use sendingRequests map instead of sendingRequest boolean
+    sendingRequests,
   } = useSelector((state) => state.connections);
 
   /* =========================
     FETCH DATA
   ========================= */
 
-  // Fetch alumni whenever filters / page change
   useEffect(() => {
     dispatch(fetchAlumni());
   }, [currentPage, batch, stream, search]);
 
-  // Fetch connection data once on mount so status badges are accurate
   useEffect(() => {
     dispatch(fetchAcceptedConnections());
     dispatch(fetchIncomingRequests());
     dispatch(fetchOutgoingRequests());
   }, []);
+
+  /* =========================
+    ✅ FIX 2: SOCKET LISTENER
+    Listen for "connection:accepted" events emitted by the server
+    when User B accepts User A's request. This updates User A's
+    Redux state instantly without requiring a page refresh.
+
+    Wire this up wherever your socket is initialized (e.g. in a
+    useSocketSetup hook or your top-level App component). The snippet
+    below shows how it looks — move it to your central socket file
+    if you manage socket listeners there.
+
+    Example (in your socket setup hook / file):
+    ─────────────────────────────────────────────
+    import { addAcceptedConnection, removeOutgoingRequest } from "../store/user-view/ConnectionSlice";
+
+    socket.on("connection:accepted", (data) => {
+      // data.connection = the full populated connection document
+      dispatch(removeOutgoingRequest(data.connection._id));
+      dispatch(addAcceptedConnection(data.connection));
+    });
+    ─────────────────────────────────────────────
+
+    Backend (Node.js) — emit inside your accept handler:
+    ─────────────────────────────────────────────
+    io.to(connection.requester.toString()).emit("connection:accepted", {
+      connection: populatedConnection,
+    });
+    ─────────────────────────────────────────────
+  ========================= */
 
   const navigate = useNavigate();
 
@@ -179,8 +207,8 @@ const AlumniDirectory = () => {
           fullname: user.fullname,
           username: user.username,
           profileImage: user.profilePicture,
-        }
-      }
+        },
+      },
     });
   };
 
@@ -214,9 +242,7 @@ const AlumniDirectory = () => {
       {/* ================= HERO ================= */}
       <div className="bg-[#142A5D] text-white py-20 px-6">
         <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold">
-            Alumni Directory
-          </h1>
+          <h1 className="text-4xl md:text-5xl font-bold">Alumni Directory</h1>
 
           <p className="mt-4 text-white/80 text-lg">
             Connect with fellow alumni and grow your network.
@@ -273,9 +299,7 @@ const AlumniDirectory = () => {
           </div>
 
           {/* Total Results */}
-          <div className="text-slate-500 text-sm">
-            {totalUsers} Results
-          </div>
+          <div className="text-slate-500 text-sm">{totalUsers} Results</div>
         </div>
 
         {/* LOADING */}
@@ -321,9 +345,8 @@ const AlumniDirectory = () => {
                   key={user._id}
                   className="group relative bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col"
                 >
-
                   {/* Hover Accent */}
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-[#142A5D] scale-x-0 group-hover:scale-x-100 origin-left transitiontransform duration300" />
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-[#142A5D] scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
 
                   <div className="p-5 flex flex-col items-center text-center flex-1">
 
@@ -357,7 +380,7 @@ const AlumniDirectory = () => {
                     </h2>
 
                     {/* Email */}
-                    <div className="flex items-center justify-center gap-1.5">
+                    <div className="flex items-center justify-center gap-1.5 text-sm text-slate-500 mt-1">
                       <Mail className="w-4 h-4 text-slate-400" />
                       {user.email || "Email not provided"}
                     </div>
@@ -372,7 +395,6 @@ const AlumniDirectory = () => {
 
                     {/* Meta */}
                     <div className="mt-3 space-y-1 text-sm text-slate-600">
-
                       <div className="flex items-center justify-center gap-1.5">
                         <GraduationCap className="w-4 h-4 text-slate-400" />
                         {user.stream || "Stream not provided"}
@@ -380,7 +402,9 @@ const AlumniDirectory = () => {
 
                       <div className="flex items-center justify-center gap-1.5">
                         <Calendar className="w-4 h-4 text-slate-400" />
-                        {user.batch ? `Class of ${user.batch}` : "Batch not provided"}
+                        {user.batch
+                          ? `Class of ${user.batch}`
+                          : "Batch not provided"}
                       </div>
                     </div>
 
@@ -418,8 +442,11 @@ const AlumniDirectory = () => {
                       <ConnectButton
                         status={connectionStatus}
                         onRespond={() => dispatch(openRequestsDialog())}
-                        onConnect={() => handleConnect(user._id)}
-                        loading={sendingRequest}
+                        onConnect={() => handleConnect(userId)}
+                        // ✅ FIX 1: Pass loading state scoped to THIS user's ID only
+                        // Before: loading={sendingRequest}  ← single bool, ALL cards showed "Sending..."
+                        // After:  loading={!!sendingRequests[userId]} ← only the clicked card shows it
+                        loading={!!sendingRequests[userId]}
                       />
                     )}
 
@@ -430,12 +457,13 @@ const AlumniDirectory = () => {
                         handleMessage(user)
                       }
                       disabled={isCurrentUser || connectionStatus !== "ACCEPTED"}
-                      className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition ${isCurrentUser
-                        ? "bg-[#142A5D]/10 text-[#142A5D]"
-                        : connectionStatus === "ACCEPTED"
+                      className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition ${
+                        isCurrentUser
+                          ? "bg-[#142A5D]/10 text-[#142A5D]"
+                          : connectionStatus === "ACCEPTED"
                           ? "bg-[#142A5D] text-white hover:bg-[#0f2149]"
                           : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                        }`}
+                      }`}
                     >
                       <MessageCircle className="w-4 h-4" />
                       {isCurrentUser ? "Profile" : "Message"}
