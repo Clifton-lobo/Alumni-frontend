@@ -71,6 +71,19 @@ export const fetchEventDetails = createAsyncThunk(
   }
 );
 
+export const fetchMyRegisteredEvents = createAsyncThunk(
+  "events/fetchMyRegisteredEvents",
+  async (page = 1, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.get("/api/user/events/my-registrations", {
+        params: { page, limit: 5 },
+      });
+      return res.data; // ✅ return { events, totalPages, totalEvents, currentPage }
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Failed to fetch");
+    }
+  }
+);
 /* ------------------ SLICE ------------------ */
 
 const eventSlice = createSlice({

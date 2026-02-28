@@ -36,6 +36,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ConnectionsList from "./ConnectionsList";
 import { fetchAcceptedConnections } from "../../store/user-view/ConnectionSlice";
 import MyJobApplications from "./Jobs/MyJobApplications";
+// import { fetchMyRegisteredEvents } from "../../store/user-view/UserEventSlice"; // adjust path
+import RegisteredEventsList from "./RegisteredEventsList";
+
 
 
 
@@ -51,6 +54,8 @@ const UserProfile = () => {
   const [showConnections, setShowConnections] = useState(false);
   const { acceptedConnections } = useSelector((state) => state.connections);
   const [activeTab, setActiveTab] = useState("info");
+  // const [registeredEvents, setRegisteredEvents] = useState([]);
+  // const [eventsLoading, setEventsLoading] = useState(false);
 
 
   const { pagination: appPagination } = useSelector((state) => state.applications);
@@ -70,6 +75,23 @@ const UserProfile = () => {
       });
     }
   }, [error]);
+
+  // Fetch when tab becomes active
+  // ❌ DELETE this entire useEffect from UserProfile.jsx
+  // useEffect(() => {
+  //   if (activeTab === "events") {
+  //     setEventsLoading(true);
+  //     dispatch(fetchMyRegisteredEvents())
+  //       .unwrap()
+  //       .then((data) => {
+  //         setRegisteredEvents(data.events);
+  //         setEventsTotalPages(data.totalPages);
+  //         setEventsTotalCount(data.totalEvents);
+  //       })
+  //       .catch(() => toast.error("Failed to load registered events"))
+  //       .finally(() => setEventsLoading(false));
+  //   }
+  // }, [activeTab]);
 
   const [formData, setFormData] = useState({
     jobTitle: "",
@@ -526,16 +548,12 @@ const UserProfile = () => {
 
               </TabsContent>
 
+              {/* // Replace the "events" TabsContent with: */}
               <TabsContent value="events" className="mt-10">
-                <Card className="rounded-2xl bg-whites border-none shadow-xl">
-                  <CardContent className="py-16 text-center">
-                    <Briefcase className="h-10 w-10 text-gray-300 mx-auto mb-4" />
-                    <p className="text-gray-500">
-                      Registered events will appear here.
-                    </p>
-                  </CardContent>
-                </Card>
+                <RegisteredEventsList isActive={activeTab === "events"} />
               </TabsContent>
+
+
 
               <TabsContent value="applications" className="mt-10">
                 <MyJobApplications isActive={activeTab === "applications"} />

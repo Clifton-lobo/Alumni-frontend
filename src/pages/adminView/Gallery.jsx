@@ -144,7 +144,7 @@ const AlbumPhotosDialog = ({ album, open, onClose, onRefresh }) => {
   return (
     <>
       <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-        <DialogContent className="max-w-4xl p-0 gap-0 rounded-2xl overflow-hidden max-h-[90vh] flex flex-col border-0
+        <DialogContent className=" !w-[1300px] !max-w-[1300px] p-0 gap-0 rounded-2xl overflow-hidden max-h-[90vh] flex flex-col border-0
           [&>button]:top-4 [&>button]:right-4 [&>button]:z-20 [&>button]:rounded-full [&>button]:w-9 [&>button]:h-9 [&>button]:bg-gray-100">
           <DialogHeader className="flex-shrink-0 px-6 py-5 border-b border-gray-100">
             <div className="flex items-center justify-between pr-8">
@@ -646,11 +646,11 @@ const Gallery = () => {
                 return (
                   <div
                     key={album._id}
-                    onClick={(e) => {
-                      // Prevent clicks from action buttons triggering selection
-                      if (e.target.closest("button")) return;
-                      toggleSelect(album._id);
-                    }}
+                    // onClick={(e) => {
+                    //   // Prevent clicks from action buttons triggering selection
+                    //   if (e.target.closest("button")) return;
+                    //   toggleSelect(album._id);
+                    // }}
                     onDoubleClick={() => toggleSelect(album._id)} // optional
                     className={`group relative bg-white rounded-2xl border overflow-hidden transition-all cursor-pointer
     ${isSelected

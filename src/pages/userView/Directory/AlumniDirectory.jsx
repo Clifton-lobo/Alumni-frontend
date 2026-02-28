@@ -76,7 +76,7 @@ const ConnectButton = ({ status, onConnect, onRespond, loading }) => {
     return (
       <button
         disabled
-        className="flex-1 px-4 py-2 rounded-lg bg-green-100 text-green-700 text-sm font-medium flex items-center justify-center gap-2"
+        className="flex-1 px-4 py-2 rounded-lg bg-green-300 text-green-700 text-sm font-medium flex items-center justify-center gap-2"
       >
         <CheckCircle className="w-4 h-4" />
         Connected
@@ -88,7 +88,7 @@ const ConnectButton = ({ status, onConnect, onRespond, loading }) => {
     return (
       <button
         disabled
-        className="flex-1 px-4 py-2 rounded-lg bg-slate-100 text-slate-600 text-sm font-medium flex items-center justify-center gap-2"
+        className="flex-1 px-4 py-2 rounded-lg bg-green-100 text-slate-600 text-sm font-medium flex items-center justify-center gap-2"
       >
         <Clock className="w-4 h-4" />
         Pending
@@ -328,7 +328,7 @@ const AlumniDirectory = () => {
 
                     {/* Avatar */}
                     <div className="relative">
-                      <div className="w-20 h-20 rounded-full overflow-hidden bg-slate-200 flex items-center justify-center text-slate-600 text-xl font-semibold shadow">
+                      <div className="w-25 h-25 rounded-full overflow-hidden bg-slate-200 flex items-center justify-center text-slate-600 text-xl font-semibold shadow">
                         {user.profilePicture ? (
                           <img
                             src={user.profilePicture}
@@ -356,8 +356,8 @@ const AlumniDirectory = () => {
                     </h2>
 
                     {/* Job */}
-                    <div className="mt-1.5 flex items-center justify-center gap-1.5 text-sm text-slate-600">
-                      <Briefcase className="w-4 h-4 text-slate-400" />
+                    <div className="mt-1.5 flex items-center justify-center gap-1.5 text-sm text-blue-600">
+                      <Briefcase className="w-4 h-4 text-blue-600" />
                       {user.jobTitle
                         ? `${user.jobTitle}${user.company ? ` at ${user.company}` : ""}`
                         : "Professional details not posted"}

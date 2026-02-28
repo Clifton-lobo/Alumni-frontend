@@ -13,7 +13,7 @@ import AdminPostJobSheet from "./AdminPostJobSheet";
 import PaginationControls from "../../../components/common/Pagination";
 
 import { Button } from "@/components/ui/button";
-import { Plus, LayoutGrid, List } from "lucide-react";
+import { Plus, LayoutGrid, List, Briefcase } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -166,7 +166,7 @@ const Jobs = () => {
       )}
 
       {!loading.fetch && pendingJobs.length === 0 && (
-        <div style={{ textAlign: "center", padding: "6rem 2rem", borderRadius: "20px", background: "#fff", border: "1px dashed #e5e7eb" }}>
+      <div style={{ textAlign: "center", padding: "6rem 2rem", borderRadius: "20px", background: "#fff", border: "1px dashed #e5e7eb" }}>
           <Briefcase style={{ width: 36, height: 36, color: "#d1d5db", margin: "0 auto 12px" }} />
           <p style={{ color: "#9ca3af", fontSize: "14px" }}>No pending jobs match your filters</p>
         </div>

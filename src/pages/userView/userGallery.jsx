@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import ReactDOM from "react-dom";
+
 
 /* ─── Fonts ─── */
 const FontLink = () => (
@@ -125,15 +127,16 @@ const AlbumCard = ({ album, onClick }) => (
   </div>
 );
 
+
 /* ══════════════════════════════════════════════
-   PHOTO LIGHTBOX
+   PHOTO LIGHTBOX — rendered via portal
 ══════════════════════════════════════════════ */
 const Lightbox = ({ photos, startIndex, onClose }) => {
   const [idx, setIdx] = useState(startIndex);
 
   useEffect(() => {
     const fn = (e) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") { e.stopPropagation(); onClose(); }
       if (e.key === "ArrowRight") setIdx((i) => Math.min(i + 1, photos.length - 1));
       if (e.key === "ArrowLeft") setIdx((i) => Math.max(i - 1, 0));
     };
@@ -141,44 +144,135 @@ const Lightbox = ({ photos, startIndex, onClose }) => {
     return () => window.removeEventListener("keydown", fn);
   }, [photos.length, onClose]);
 
-  useEffect(() => { document.body.style.overflow = "hidden"; return () => { document.body.style.overflow = ""; }; }, []);
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
 
   const photo = photos[idx];
 
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center" style={{ background: "rgba(0,0,0,0.95)" }}>
-      {/* Close */}
-      <button onClick={onClose}
-        className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
-        <X className="h-5 w-5 text-white" />
-      </button>
+  const btnStyle = {
+    position: "absolute",
+    top: "50%",
+    transform: "translateY(-50%)",
+    width: 48,
+    height: 48,
+    borderRadius: "50%",
+    background: "rgba(255,255,255,0.15)",
+    border: "none",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 100001,
+    transition: "background 0.2s",
+  };
 
-      {/* Counter */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 gal-sans text-xs text-white/50">
-        {idx + 1} / {photos.length}
-      </div>
+  return ReactDOM.createPortal(
+    <div
+      style={{
+        position: "fixed",
+        top: 0, left: 0, right: 0, bottom: 0,
+        zIndex: 99999,
+      }}
+    >
+      {/* BACKDROP — only this closes */}
+      <div
+        onClick={onClose}
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "rgba(0,0,0,0.95)",
+        }}
+      />
 
-      {/* Prev */}
-      {idx > 0 && (
-        <button onClick={() => setIdx((i) => i - 1)}
-          className="absolute left-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
-          <ChevronLeft className="h-5 w-5 text-white" />
+      {/* CONTENT — this does NOT close */}
+      <div
+        style={{
+          position: "relative",
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {/* Close button */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onClose(); }}
+          style={{
+            position: "absolute", top: 16, right: 16,
+            width: 40, height: 40, borderRadius: "50%",
+            background: "rgba(255,255,255,0.1)", border: "none",
+            cursor: "pointer", display: "flex", alignItems: "center",
+            justifyContent: "center", zIndex: 100001,
+          }}
+        >
+          <X style={{ color: "white", width: 20, height: 20 }} />
         </button>
-      )}
 
-      {/* Image */}
-      <div className="max-w-5xl max-h-[85vh] w-full px-16 flex items-center justify-center">
-        <img src={photo.url} alt={photo.caption || ""} className="max-w-full max-h-[85vh] object-contain rounded-xl" />
-      </div>
+        {/* Counter */}
+        <div
+          className="gal-sans"
+          style={{
+            position: "absolute", bottom: 20,
+            left: "50%", transform: "translateX(-50%)",
+            color: "rgba(255,255,255,0.5)", fontSize: 13,
+            zIndex: 100001, pointerEvents: "none",
+          }}
+        >
+          {idx + 1} / {photos.length}
+        </div>
 
-      {/* Next */}
-      {idx < photos.length - 1 && (
-        <button onClick={() => setIdx((i) => i + 1)}
-          className="absolute right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
-          <ChevronRight className="h-5 w-5 text-white" />
+        {/* Prev button */}
+        <button
+          onClick={(e) => { e.stopPropagation(); setIdx((i) => Math.max(i - 1, 0)); }}
+          style={{ ...btnStyle, left: 16, opacity: idx === 0 ? 0.3 : 1 }}
+          disabled={idx === 0}
+        >
+          <ChevronLeft style={{ color: "white", width: 22, height: 22 }} />
         </button>
-      )}
-    </div>
+
+        {/* Image container */}
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            height: "100%",
+            padding: "60px 80px",
+            boxSizing: "border-box",
+          }}
+        >
+          <img
+            key={photo.url} // re-mounts on change for clean transition
+            src={photo.url}
+            alt={photo.caption || ""}
+            style={{
+              maxWidth: "100%",
+              maxHeight: "100%",
+              width: "auto",
+              height: "auto",
+              objectFit: "contain",
+              borderRadius: 12,
+              display: "block",
+            }}
+          />
+        </div>
+
+        {/* Next button */}
+        <button
+          onClick={(e) => { e.stopPropagation(); setIdx((i) => Math.min(i + 1, photos.length - 1)); }}
+          style={{ ...btnStyle, right: 16, opacity: idx === photos.length - 1 ? 0.3 : 1 }}
+          disabled={idx === photos.length - 1}
+        >
+          <ChevronRight style={{ color: "white", width: 22, height: 22 }} />
+        </button>
+      </div>
+    </div>,
+    document.body
   );
 };
 
@@ -190,24 +284,36 @@ const AlbumDialog = ({ open, onClose }) => {
   const { activeAlbum, activePhotos, loading } = useSelector((s) => s.gallery);
   const [lightboxIdx, setLightboxIdx] = useState(null);
 
-  // Reset lightbox whenever dialog closes or a new album is loaded
+  // Clear lightbox when dialog closes
   useEffect(() => {
     if (!open) setLightboxIdx(null);
   }, [open]);
 
+  const handleCloseAlbum = () => {
+    setLightboxIdx(null);
+    onClose();
+    dispatch(clearActiveAlbum());
+  };
+
   return (
     <>
-      <Dialog open={open} onOpenChange={(v) => { if (!v) { setLightboxIdx(null); onClose(); dispatch(clearActiveAlbum()); } }}>
+      <Dialog
+        open={open}
+        onOpenChange={(v) => {
+          if (!v) {
+            // If lightbox is open, just close lightbox — don't close album dialog
+            if (lightboxIdx !== null) {
+              setLightboxIdx(null);
+            } else {
+              handleCloseAlbum();
+            }
+          }
+        }}
+      >
         <DialogContent
-          className="
-    !w-[1300px]
-    !max-w-[1300px]
-    p-0 gap-0 rounded-3xl border-0
-    overflow-hidden max-h-[92vh]
-    flex flex-col shadow-2xl
-  "
+          className="!w-[1300px] !max-w-[1300px] p-0 gap-0 rounded-3xl border-0
+            overflow-hidden max-h-[92vh] flex flex-col shadow-2xl"
         >
-
           {loading.photos ? (
             <div className="flex flex-col items-center justify-center py-28 gap-3 gal-sans">
               <Loader2 className="h-7 w-7 animate-spin text-gray-300" />
@@ -222,7 +328,9 @@ const AlbumDialog = ({ open, onClose }) => {
                   {activeAlbum.eventDate && (
                     <span className="flex items-center gap-1.5">
                       <Calendar className="h-3.5 w-3.5" style={{ color: GOLD }} />
-                      {new Date(activeAlbum.eventDate).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+                      {new Date(activeAlbum.eventDate).toLocaleDateString("en-GB", {
+                        day: "numeric", month: "long", year: "numeric",
+                      })}
                     </span>
                   )}
                   <span className="flex items-center gap-1.5">
@@ -234,23 +342,17 @@ const AlbumDialog = ({ open, onClose }) => {
 
               {/* Photo grid */}
               <div className="flex-1 overflow-y-auto p-5">
-                <div className="photo-grid">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {activePhotos.map((photo, i) => (
-                    <div
-                      key={photo._id}
-                      className="photo-item fade-in"
-                      style={{
-                        animationDelay: `${i * 70}ms`,
-                      }}
-                    >
+                    <div key={photo._id} className="fade-in" style={{ animationDelay: `${i * 70}ms` }}>
                       <div
                         onClick={() => setLightboxIdx(i)}
-                        className="group relative overflow-hidden rounded-xl cursor-pointer bg-gray-100"
+                        className="group relative overflow-hidden rounded-xl cursor-pointer bg-gray-100 aspect-[4/3]"
                       >
                         <img
                           src={photo.url}
                           alt={photo.caption || ""}
-                          className="w-full h-auto block transition-transform duration-500 group-hover:scale-105"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
                           <ZoomIn className="h-7 w-7 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -265,9 +367,13 @@ const AlbumDialog = ({ open, onClose }) => {
         </DialogContent>
       </Dialog>
 
-      {/* Lightbox */}
+      {/* Lightbox — portal renders it on document.body, fully outside Dialog DOM */}
       {lightboxIdx !== null && (
-        <Lightbox photos={activePhotos} startIndex={lightboxIdx} onClose={() => setLightboxIdx(null)} />
+        <Lightbox
+          photos={activePhotos}
+          startIndex={lightboxIdx}
+          onClose={() => setLightboxIdx(null)}  // only closes lightbox, album stays open
+        />
       )}
     </>
   );
