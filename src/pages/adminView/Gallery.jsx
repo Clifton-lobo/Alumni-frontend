@@ -658,7 +658,7 @@ const Gallery = () => {
       style={{ background: "#F7F6F3", fontFamily: "'Outfit', system-ui, sans-serif" }}
     >
       {/* ── Header ── */}
-      <div className="bg-white border-b border-gray-100 px-4 sm:px-6 py-5 sticky top-0 z-10">
+      <div className="bg-white border-b border-gray-100 px-4 sm:px-6 py-5  top-0 z-10">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div>
             <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2.5">
