@@ -21,6 +21,10 @@ const CATS = [
   { value: "alumni-spotlight", label: "Spotlight" },
 ];
 
+const NAVY = "#142A5D";
+const GOLD = "#EBAB09";
+
+
 const CAT_COLORS = {
   announcement: { bg: "bg-blue-500", text: "text-white", softBg: "bg-blue-500/10", softText: "text-blue-500" },
   achievement: { bg: "bg-emerald-500", text: "text-white", softBg: "bg-emerald-500/10", softText: "text-emerald-500" },
@@ -388,57 +392,49 @@ const News = () => {
     <div className="min-h-screen font-sans bg-stone-100">
 
       {/* ══ MASTHEAD ══ */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800">
+      {/* ── Header ── */}
+      <div style={{ background: NAVY }}>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
 
-        {/* Soft ambient glow */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-24 -right-24 w-72 h-72 bg-amber-400/10 blur-3xl rounded-full" />
-          <div className="absolute top-10 left-1/3 w-64 h-64 bg-blue-500/10 blur-3xl rounded-full" />
-        </div>
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-5">
 
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-12">
-
-          {/* Top section */}
-          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
-
-            {/* Title Block */}
+            {/* Title Section */}
             <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-[2px] bg-amber-400" />
-                <span className="text-amber-400 text-xs font-semibold uppercase tracking-[0.25em]">
-                  Alumni Network
-                </span>
-              </div>
+              <p
+                className="text-xs font-semibold uppercase tracking-[0.2em] mb-2"
+                style={{ color: GOLD }}
+              >
+                Alumni Network
+              </p>
 
-              <h1 className="font-serif text-white text-4xl sm:text-5xl font-black tracking-tight leading-[1.1]">
+              <h1 className="gal-serif font-bold text-white text-3xl sm:text-4xl leading-tight">
                 Alumni News
               </h1>
 
-              <p className="text-white/50 mt-4 max-w-lg text-sm sm:text-base leading-relaxed">
-                Stories, milestones, and community highlights from our alumni network.
+              <p className="text-sm text-white/40 mt-1.5">
+                Stories, milestones, and community highlights from our alumni community
               </p>
             </div>
 
             {/* Search */}
-            <div className="w-full lg:w-[420px]">
+            <div className="w-full sm:max-w-md">
               <form
                 onSubmit={handleSearch}
-                className="flex items-center gap-3 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl px-5 py-3 shadow-xl"
+                className="flex items-center gap-2 bg-white/10 border border-white/15 rounded-xl px-4 py-2.5"
               >
-                <Search className="h-4 w-4 text-white/40" />
+                <Search className="h-4 w-4 text-white/30 flex-shrink-0" />
                 <input
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
-                  placeholder="Search stories..."
-                  className="flex-1 bg-transparent text-white text-sm outline-none placeholder-white/30"
+                  placeholder="Search stories…"
+                  className="flex-1 bg-transparent text-sm text-white placeholder-white/30 outline-none"
                 />
                 {searchInput && (
                   <button
                     type="button"
                     onClick={() => setSearchInput("")}
-                    className="text-white/40 hover:text-white transition"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-3.5 w-3.5 text-white/40 hover:text-white transition" />
                   </button>
                 )}
               </form>
@@ -447,18 +443,21 @@ const News = () => {
           </div>
 
           {/* Category Navigation */}
-          <div className="mt-10 flex items-center gap-3 overflow-x-auto scrollbar-hide">
+          <div className="mt-6 flex items-center gap-2 overflow-x-auto scrollbar-hide">
             {CATS.map((c) => (
               <button
                 key={c.value}
                 onClick={() => setCategory(c.value)}
-                className={`
-            px-5 py-2.5 rounded-full text-sm font-medium transition-all whitespace-nowrap
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition
             ${category === c.value
-                    ? "bg-amber-400 text-slate-900 shadow-lg shadow-amber-400/20"
-                    : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
-                  }
-          `}
+                    ? ""
+                    : "bg-white/10 text-white/70 hover:bg-white/15"
+                  }`}
+                style={
+                  category === c.value
+                    ? { background: GOLD, color: NAVY }
+                    : undefined
+                }
               >
                 {c.label}
               </button>
