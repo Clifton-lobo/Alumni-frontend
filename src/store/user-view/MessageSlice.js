@@ -9,7 +9,6 @@ export const sendMessage = createAsyncThunk(
     "messages/send",
     async ({ recipientId, content, replyTo, files = [] }, { rejectWithValue }) => {
         try {
-            // Always use FormData so multer can parse files + fields together
             const formData = new FormData();
             formData.append("recipientId", recipientId);
             if (content?.trim()) formData.append("content", content.trim());
@@ -133,6 +132,8 @@ const messageSlice = createSlice({
         activeConversationId: null,
         typingUsers: {},
         loading: false,
+        // NOTE: `sending` is kept but NO longer used to disable the send button
+        // or show a spinner — it's available if you need it elsewhere.
         sending: false,
         error: null,
     },
@@ -147,9 +148,7 @@ const messageSlice = createSlice({
             const { message } = action.payload;
 
             if (!state.messagesByConversation[conversationId]) {
-                state.messagesByConversation[conversationId] = {
-                    messages: [], hasMore: true, page: 1,
-                };
+                state.messagesByConversation[conversationId] = { messages: [], hasMore: true, page: 1 };
             }
 
             const bucket = state.messagesByConversation[conversationId];
@@ -209,48 +208,62 @@ const messageSlice = createSlice({
 
     extraReducers: (builder) => {
         builder
+            /* ─── SEND MESSAGE ─── */
             .addCase(sendMessage.pending, (state, action) => {
                 state.sending = true;
                 state.error = null;
 
-                // ── Optimistic insert ──
-                const { recipientId, content, replyTo, conversationId } = action.meta.arg;
-                const tempId = `temp_${Date.now()}`;
-                action.meta.tempId = tempId; // stash for fulfilled/rejected
+                // Optimistic insert — show message instantly in UI
+                const { content, replyTo, conversationId } = action.meta.arg;
+                if (!conversationId) return;
 
-                // We need a conversationId to know which bucket to insert into.
-                // Pass it as part of the thunk arg (see step 2).
-                if (conversationId) {
-                    if (!state.messagesByConversation[conversationId]) {
-                        state.messagesByConversation[conversationId] = { messages: [], hasMore: true, page: 1 };
-                    }
-                    state.messagesByConversation[conversationId].messages.push({
-                        _id: tempId,
-                        content: content?.trim() || "",
-                        sender: { _id: "ME" }, // sentinel — replaced on fulfilled
-                        replyTo: replyTo ? { _id: replyTo } : null,
-                        attachments: [],
-                        createdAt: new Date().toISOString(),
-                        readBy: [],
-                        _optimistic: true,
-                    });
+                const tempId = `temp_${Date.now()}_${Math.random()}`;
+                // Stash tempId so fulfilled/rejected can clean it up
+                action.meta.tempId = tempId;
+
+                if (!state.messagesByConversation[conversationId]) {
+                    state.messagesByConversation[conversationId] = { messages: [], hasMore: true, page: 1 };
                 }
+
+                state.messagesByConversation[conversationId].messages.push({
+                    _id: tempId,
+                    content: content?.trim() || "",
+                    sender: { _id: "ME" },
+                    replyTo: replyTo ? { _id: replyTo } : null,
+                    attachments: [],
+                    createdAt: new Date().toISOString(),
+                    readBy: [],
+                    _optimistic: true,
+                });
             })
             .addCase(sendMessage.fulfilled, (state, action) => {
                 state.sending = false;
                 const { message, conversationId } = action.payload;
                 const convId = conversationId?.toString();
 
-                // Remove the optimistic message, then insert the real one
-                if (state.messagesByConversation[convId]) {
-                    state.messagesByConversation[convId].messages =
-                        state.messagesByConversation[convId].messages.filter(
-                            m => !m._optimistic
-                        );
-                } else {
+                if (!state.messagesByConversation[convId]) {
                     state.messagesByConversation[convId] = { messages: [], hasMore: true, page: 1 };
                 }
-                state.messagesByConversation[convId].messages.push(message);
+
+                // Remove ALL optimistic messages and replace with the confirmed one.
+                // Using filter(_optimistic) means if you spammed 3 messages quickly,
+                // each fulfilled response removes only the OLDEST optimistic and inserts
+                // the real one — the remaining optimistics stay visible until their own
+                // fulfilled events arrive. This is the cleanest approach for spam-send.
+                const bucket = state.messagesByConversation[convId];
+                const firstOptimisticIdx = bucket.messages.findIndex(m => m._optimistic);
+                if (firstOptimisticIdx !== -1) {
+                    bucket.messages.splice(firstOptimisticIdx, 1); // remove first optimistic
+                }
+
+                // Avoid duplicate if socket already delivered it
+                const alreadyExists = bucket.messages.some(m => m._id === message._id);
+                if (!alreadyExists) {
+                    bucket.messages.push(message);
+                }
+
+                // Re-sort just in case (server createdAt may differ slightly)
+                bucket.messages.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
                 const conv = state.conversations.find(c => c.id === convId);
                 if (conv) {
@@ -262,26 +275,33 @@ const messageSlice = createSlice({
                 state.sending = false;
                 state.error = action.payload;
 
-                // Remove the optimistic message on failure
+                // Remove the first optimistic message that failed
                 const { conversationId } = action.meta.arg;
                 if (conversationId && state.messagesByConversation[conversationId]) {
-                    state.messagesByConversation[conversationId].messages =
-                        state.messagesByConversation[conversationId].messages.filter(
-                            m => !m._optimistic
-                        );
+                    const bucket = state.messagesByConversation[conversationId];
+                    const firstOptimisticIdx = bucket.messages.findIndex(m => m._optimistic);
+                    if (firstOptimisticIdx !== -1) {
+                        bucket.messages.splice(firstOptimisticIdx, 1);
+                    }
                 }
             })
+
+            /* ─── FETCH MESSAGES ─── */
             .addCase(fetchMessages.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchMessages.fulfilled, (state, action) => {
                 state.loading = false;
                 const { conversationId, messages, hasMore, page } = action.payload;
                 if (page === 1) {
+                    // Merge: server messages take precedence; keep any optimistic messages
                     const existing = state.messagesByConversation[conversationId]?.messages || [];
+                    const optimistics = existing.filter(m => m._optimistic);
                     const map = new Map();
                     messages.forEach(m => map.set(m._id, m));
-                    existing.forEach(m => { if (!map.has(m._id)) map.set(m._id, m); });
                     state.messagesByConversation[conversationId] = {
-                        messages: Array.from(map.values()).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)),
+                        messages: [
+                            ...Array.from(map.values()).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)),
+                            ...optimistics,
+                        ],
                         hasMore,
                         page,
                     };
@@ -296,19 +316,21 @@ const messageSlice = createSlice({
             })
             .addCase(fetchMessages.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
 
+            /* ─── FETCH CONVERSATIONS ─── */
             .addCase(fetchConversations.pending, (state) => { state.loading = true; })
             .addCase(fetchConversations.fulfilled, (state, action) => {
                 state.loading = false;
-                // REPLACE entirely — don't merge with stale state
                 state.conversations = action.payload;
             })
             .addCase(fetchConversations.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
 
+            /* ─── MARK AS READ ─── */
             .addCase(markAsRead.fulfilled, (state, action) => {
                 const conv = state.conversations.find((c) => c.id === action.payload);
                 if (conv) conv.unreadCount = 0;
             })
 
+            /* ─── EDIT MESSAGE ─── */
             .addCase(editMessage.fulfilled, (state, action) => {
                 const msg = action.payload;
                 const bucket = state.messagesByConversation[msg.conversation];
@@ -318,12 +340,14 @@ const messageSlice = createSlice({
                 }
             })
 
+            /* ─── DELETE FOR ME ─── */
             .addCase(deleteMessageForMe.fulfilled, (state, action) => {
                 const { messageId, conversationId } = action.payload;
                 const bucket = state.messagesByConversation[conversationId];
                 if (bucket) bucket.messages = bucket.messages.filter((m) => m._id !== messageId);
             })
 
+            /* ─── DELETE FOR EVERYONE ─── */
             .addCase(deleteMessageForEveryone.fulfilled, (state, action) => {
                 const { messageId, conversationId } = action.payload;
                 const bucket = state.messagesByConversation[conversationId];
@@ -333,12 +357,15 @@ const messageSlice = createSlice({
                 }
             })
 
+            /* ─── CLEAR CHAT ─── */
             .addCase(clearChat.fulfilled, (state, action) => {
                 const conversationId = action.payload;
                 state.messagesByConversation[conversationId] = { messages: [], hasMore: false, page: 1 };
                 const conv = state.conversations.find((c) => c.id === conversationId);
                 if (conv) { conv.lastMessage = null; conv.unreadCount = 0; }
             })
+
+            /* ─── LOGOUT ─── */
             .addCase(logoutUser.fulfilled, () => ({
                 messagesByConversation: {},
                 conversations: [],

@@ -55,6 +55,7 @@ const formatFileSize = (bytes) => {
 /* ══════════════════════════════════════════════════ ERROR TOAST */
 const ErrorToast = ({ message, onClose }) => {
     useEffect(() => {
+        if (!message) return;
         const timer = setTimeout(onClose, 4000);
         return () => clearTimeout(timer);
     }, [message]);
@@ -116,92 +117,50 @@ const ImageLightbox = ({ images, startIndex = 0, onClose }) => {
     return (
         <AnimatePresence>
             <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 className="fixed inset-0 z-[9999] flex flex-col"
                 style={{ background: "rgba(0,0,0,0.92)" }}
                 onClick={onClose}
             >
-                {/* Top bar */}
-                <div
-                    className="flex items-center justify-between px-5 py-3 flex-shrink-0"
-                    onClick={e => e.stopPropagation()}
-                >
+                <div className="flex items-center justify-between px-5 py-3 flex-shrink-0" onClick={e => e.stopPropagation()}>
                     <span className="text-white/60 text-sm font-medium">
                         {images.length > 1 ? `${current + 1} / ${images.length}` : img.name}
                     </span>
                     <div className="flex items-center gap-2">
-                        <a
-                            href={img.url}
-                            download={img.name}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                        <a href={img.url} download={img.name} target="_blank" rel="noopener noreferrer"
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 text-xs transition"
-                            onClick={e => e.stopPropagation()}
-                        >
+                            onClick={e => e.stopPropagation()}>
                             <Download className="w-3.5 h-3.5" /> Download
                         </a>
-                        <button
-                            onClick={onClose}
-                            className="w-8 h-8 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition"
-                        >
+                        <button onClick={onClose}
+                            className="w-8 h-8 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition">
                             <X className="w-4 h-4" />
                         </button>
                     </div>
                 </div>
-
-                {/* Image area */}
-                <div
-                    className="flex-1 flex items-center justify-center px-16 relative min-h-0"
-                    onClick={e => e.stopPropagation()}
-                >
+                <div className="flex-1 flex items-center justify-center px-16 relative min-h-0" onClick={e => e.stopPropagation()}>
                     {current > 0 && (
-                        <button
-                            onClick={() => setCurrent(i => i - 1)}
-                            className="absolute left-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/25 flex items-center justify-center text-white transition z-10"
-                        >
+                        <button onClick={() => setCurrent(i => i - 1)}
+                            className="absolute left-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/25 flex items-center justify-center text-white transition z-10">
                             <ArrowLeft className="w-5 h-5" />
                         </button>
                     )}
-
-                    <motion.img
-                        key={current}
-                        initial={{ opacity: 0, scale: 0.96 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.15 }}
-                        src={img.url}
-                        alt={img.name}
+                    <motion.img key={current} initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.15 }} src={img.url} alt={img.name}
                         className="max-w-full max-h-full object-contain rounded-lg select-none"
-                        style={{ maxHeight: "calc(100vh - 140px)" }}
-                        draggable={false}
-                    />
-
+                        style={{ maxHeight: "calc(100vh - 140px)" }} draggable={false} />
                     {current < images.length - 1 && (
-                        <button
-                            onClick={() => setCurrent(i => i + 1)}
-                            className="absolute right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/25 flex items-center justify-center text-white transition z-10"
-                        >
+                        <button onClick={() => setCurrent(i => i + 1)}
+                            className="absolute right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/25 flex items-center justify-center text-white transition z-10">
                             <ArrowLeft className="w-5 h-5 rotate-180" />
                         </button>
                     )}
                 </div>
-
-                {/* Thumbnail strip */}
                 {images.length > 1 && (
-                    <div
-                        className="flex justify-center gap-2 px-4 py-3 flex-shrink-0"
-                        onClick={e => e.stopPropagation()}
-                    >
+                    <div className="flex justify-center gap-2 px-4 py-3 flex-shrink-0" onClick={e => e.stopPropagation()}>
                         {images.map((im, i) => (
-                            <button
-                                key={i}
-                                onClick={() => setCurrent(i)}
-                                className={`w-12 h-12 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 ${i === current
-                                    ? "border-white scale-110"
-                                    : "border-transparent opacity-50 hover:opacity-80"
-                                    }`}
-                            >
+                            <button key={i} onClick={() => setCurrent(i)}
+                                className={`w-12 h-12 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 ${i === current ? "border-white scale-110" : "border-transparent opacity-50 hover:opacity-80"}`}>
                                 <img src={im.url} alt={im.name} className="w-full h-full object-cover" />
                             </button>
                         ))}
@@ -215,40 +174,20 @@ const ImageLightbox = ({ images, startIndex = 0, onClose }) => {
 /* ══════════════════════════════════════════════════ ATTACHMENT RENDERER */
 const AttachmentRenderer = ({ attachment, isMine, allImageAttachments = [], onOpenLightbox }) => {
     const { url, type, name, size } = attachment;
-
     if (type === "image") {
         const indexInGroup = allImageAttachments.findIndex(a => a.url === url);
         return (
-            <button
-                onClick={() => onOpenLightbox?.(allImageAttachments, indexInGroup >= 0 ? indexInGroup : 0)}
-                className="block mt-1.5 rounded-xl overflow-hidden focus:outline-none"
-            >
-                <img
-                    src={url}
-                    alt={name}
-                    className="max-w-[260px] max-h-[200px] object-cover hover:opacity-90 transition cursor-zoom-in rounded-xl"
-                />
+            <button onClick={() => onOpenLightbox?.(allImageAttachments, indexInGroup >= 0 ? indexInGroup : 0)}
+                className="block mt-1.5 rounded-xl overflow-hidden focus:outline-none">
+                <img src={url} alt={name} className="max-w-[260px] max-h-[200px] object-cover hover:opacity-90 transition cursor-zoom-in rounded-xl" />
             </button>
         );
     }
-    if (type === "video") {
-        return (
-            <div className="mt-1.5">
-                <video src={url} controls className="rounded-xl max-w-[260px] max-h-[200px]" />
-            </div>
-        );
-    }
-    if (type === "audio") {
-        return (
-            <div className="mt-1.5">
-                <audio src={url} controls className="max-w-[240px]" />
-            </div>
-        );
-    }
+    if (type === "video") return <div className="mt-1.5"><video src={url} controls className="rounded-xl max-w-[260px] max-h-[200px]" /></div>;
+    if (type === "audio") return <div className="mt-1.5"><audio src={url} controls className="max-w-[240px]" /></div>;
     return (
         <a href={url} target="_blank" rel="noopener noreferrer" download={name}
-            className={`mt-1.5 flex items-center gap-3 px-3 py-2.5 rounded-xl transition
-                ${isMine ? "bg-white/15 hover:bg-white/25" : "bg-gray-100 hover:bg-gray-200"}`}>
+            className={`mt-1.5 flex items-center gap-3 px-3 py-2.5 rounded-xl transition ${isMine ? "bg-white/15 hover:bg-white/25" : "bg-gray-100 hover:bg-gray-200"}`}>
             <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${isMine ? "bg-white/20" : "bg-blue-100"}`}>
                 <FileText className={`w-4 h-4 ${isMine ? "text-white" : "text-blue-600"}`} />
             </div>
@@ -265,32 +204,25 @@ const AttachmentRenderer = ({ attachment, isMine, allImageAttachments = [], onOp
 const AttachmentPreview = ({ files, onRemove }) => {
     if (!files.length) return null;
     return (
-        <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
+        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="px-4 py-2 bg-white border-t border-gray-100 flex gap-2 flex-wrap overflow-hidden"
-        >
+            className="px-4 py-2 bg-white border-t border-gray-100 flex gap-2 flex-wrap overflow-hidden">
             {files.map((file, i) => {
                 const isImage = file.type.startsWith("image/");
                 const isVideo = file.type.startsWith("video/");
                 const isAudio = file.type.startsWith("audio/");
                 const previewUrl = isImage ? URL.createObjectURL(file) : null;
-
                 return (
                     <div key={i} className="relative group flex-shrink-0">
                         {isImage ? (
-                            <img src={previewUrl} alt={file.name}
-                                className="w-16 h-16 object-cover rounded-xl border border-gray-200" />
+                            <img src={previewUrl} alt={file.name} className="w-16 h-16 object-cover rounded-xl border border-gray-200" />
                         ) : isVideo ? (
                             <div className="w-16 h-16 rounded-xl border border-gray-200 bg-gray-100 flex flex-col items-center justify-center gap-1">
-                                <Video className="w-5 h-5 text-gray-500" />
-                                <span className="text-[9px] text-gray-400">Video</span>
+                                <Video className="w-5 h-5 text-gray-500" /><span className="text-[9px] text-gray-400">Video</span>
                             </div>
                         ) : isAudio ? (
                             <div className="w-16 h-16 rounded-xl border border-gray-200 bg-gray-100 flex flex-col items-center justify-center gap-1">
-                                <Music className="w-5 h-5 text-gray-500" />
-                                <span className="text-[9px] text-gray-400">Audio</span>
+                                <Music className="w-5 h-5 text-gray-500" /><span className="text-[9px] text-gray-400">Audio</span>
                             </div>
                         ) : (
                             <div className="h-16 px-3 rounded-xl border border-gray-200 bg-gray-50 flex items-center gap-2">
@@ -321,11 +253,8 @@ const validateFiles = (newFiles, existingFiles = []) => {
     }
     const valid = [];
     for (const file of newFiles) {
-        if (file.size > MAX_FILE_SIZE) {
-            errors.push(`"${file.name}" exceeds the 25MB limit (${formatFileSize(file.size)}).`);
-        } else {
-            valid.push(file);
-        }
+        if (file.size > MAX_FILE_SIZE) errors.push(`"${file.name}" exceeds the 25MB limit.`);
+        else valid.push(file);
     }
     return { valid, errors };
 };
@@ -338,11 +267,9 @@ const ConversationItem = ({ conv, isActive, onClick }) => {
     const preview = lastMsg?.deletedForEveryone ? "This message was deleted"
         : hasAttachment && !lastMsg?.content ? "📎 Attachment"
             : lastMsg?.content || "Start a conversation";
-
     return (
         <motion.button onClick={onClick} whileTap={{ scale: 0.98 }}
-            className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-all relative
-                ${isActive ? "bg-blue-50" : "hover:bg-gray-50"}`}>
+            className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-all relative ${isActive ? "bg-blue-50" : "hover:bg-gray-50"}`}>
             {isActive && <span className="absolute left-0 top-0 bottom-0 w-[3px] rounded-r-full" style={{ background: GOLD }} />}
             <Avatar user={conv.otherUser} size="md" />
             <div className="flex-1 min-w-0">
@@ -374,8 +301,7 @@ const ReplyPreviewInBubble = ({ replyTo, isMine, onClick }) => {
     const hasAttachment = replyTo.attachments?.length > 0;
     return (
         <div onClick={onClick}
-            className={`mb-1.5 rounded-lg overflow-hidden cursor-pointer transition-opacity hover:opacity-80
-                ${isMine ? "bg-white/15" : "bg-black/5"}`}>
+            className={`mb-1.5 rounded-lg overflow-hidden cursor-pointer transition-opacity hover:opacity-80 ${isMine ? "bg-white/15" : "bg-black/5"}`}>
             <div className="flex">
                 <div className="w-1 flex-shrink-0 rounded-l-lg" style={{ background: isMine ? "rgba(255,255,255,0.6)" : GOLD }} />
                 <div className="px-2.5 py-1.5 flex-1 min-w-0">
@@ -392,34 +318,25 @@ const ReplyPreviewInBubble = ({ replyTo, isMine, onClick }) => {
 };
 
 /* ══════════════════════════════════════════════════ FLOATING MENU */
-const FloatingMenu = ({ isMine, anchorRef, onClose, children }) => {
+const FloatingMenu = ({ isMine, anchorRef, children }) => {
     const menuRef = useRef(null);
-    const [position, setPosition] = useState({ top: true }); // true = open downward
+    const [openUpward, setOpenUpward] = useState(false);
 
     useEffect(() => {
-        if (!anchorRef.current || !menuRef.current) return;
-
+        if (!anchorRef.current) return;
         const anchorRect = anchorRef.current.getBoundingClientRect();
-        const menuHeight = menuRef.current.offsetHeight || 160; // estimated if not yet painted
-        const viewportHeight = window.innerHeight;
-        const spaceBelow = viewportHeight - anchorRect.bottom;
-
-        // If not enough space below, open upward
-        setPosition({ top: spaceBelow >= menuHeight + 8 });
+        const spaceBelow = window.innerHeight - anchorRect.bottom;
+        setOpenUpward(spaceBelow < 168);
     }, []);
 
     return (
-        <motion.div
-            ref={menuRef}
+        <motion.div ref={menuRef}
             initial={{ opacity: 0, scale: 0.85, y: -4 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.85, y: -4 }}
             transition={{ duration: 0.12 }}
             className={`absolute ${isMine ? "right-0" : "left-0"} bg-white rounded-2xl shadow-2xl border border-gray-100 py-1.5 min-w-[165px] z-30`}
-            style={position.top
-                ? { top: "36px" }          // open downward
-                : { bottom: "36px" }        // flip upward
-            }
+            style={openUpward ? { bottom: "36px" } : { top: "36px" }}
         >
             {children}
         </motion.div>
@@ -438,9 +355,7 @@ const MessageBubble = ({ msg, isMine, onReply, onEdit, onDeleteMe, onDeleteEvery
     const imageAttachments = msg.attachments?.filter(a => a.type === "image") || [];
 
     useEffect(() => {
-        const handler = (e) => {
-            if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
-        };
+        const handler = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false); };
         document.addEventListener("mousedown", handler);
         return () => document.removeEventListener("mousedown", handler);
     }, []);
@@ -454,51 +369,36 @@ const MessageBubble = ({ msg, isMine, onReply, onEdit, onDeleteMe, onDeleteEvery
     };
     const handleTouchEnd = () => {
         if ((isMine && swipeX <= -45) || (!isMine && swipeX >= 45)) onReply(msg);
-        setSwipeX(0);
-        touchStartX.current = null;
+        setSwipeX(0); touchStartX.current = null;
     };
 
     return (
-        <div
-            className={`flex ${isMine ? "justify-end" : "justify-start"} group mb-1`}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-        >
+        <div className={`flex ${isMine ? "justify-end" : "justify-start"} group mb-1`}
+            onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
             <AnimatePresence>
                 {Math.abs(swipeX) > 20 && (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.6 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.6 }}
-                        className={`absolute top-1/2 -translate-y-1/2 ${isMine ? "left-2" : "right-2"} w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center z-10`}
-                    >
+                    <motion.div initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.6 }}
+                        className={`absolute top-1/2 -translate-y-1/2 ${isMine ? "left-2" : "right-2"} w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center z-10`}>
                         <Reply className="w-4 h-4 text-gray-600" />
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            <motion.div
-                animate={{ x: swipeX }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className={`flex items-end gap-1.5 max-w-[72%] min-w-0 ${isMine ? "flex-row-reverse" : "flex-row"}`}
-            >
+            <motion.div animate={{ x: swipeX }} transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                className={`flex items-end gap-1.5 max-w-[72%] min-w-0 ${isMine ? "flex-row-reverse" : "flex-row"}`}>
                 {!isMine && <Avatar user={msg.sender} size="sm" />}
 
                 <div className="relative flex flex-col gap-1">
                     {/* Bubble */}
-                    <div
-                        className={`relative px-3 py-2 rounded-2xl text-sm shadow-sm
-                            ${isMine ? "text-white rounded-tr-sm" : "bg-white text-gray-800 rounded-tl-sm border border-gray-100"}
-                            ${isDeleted ? "italic opacity-60" : ""}`}
-                        style={isMine ? { background: `linear-gradient(135deg, ${BLUE}, #1e3d7a)` } : {}}
-                    >
+                    <div className={`relative px-3 py-2 rounded-2xl text-sm shadow-sm
+                        ${isMine ? "text-white rounded-tr-sm" : "bg-white text-gray-800 rounded-tl-sm border border-gray-100"}
+                        ${isDeleted ? "italic opacity-60" : ""}
+                        ${msg._optimistic ? "opacity-75" : ""}`}
+                        style={isMine ? { background: `linear-gradient(135deg, ${BLUE}, #1e3d7a)` } : {}}>
+
                         {!isDeleted && msg.replyTo && (
-                            <ReplyPreviewInBubble
-                                replyTo={msg.replyTo}
-                                isMine={isMine}
-                                onClick={() => scrollToMessage?.(msg.replyTo._id)}
-                            />
+                            <ReplyPreviewInBubble replyTo={msg.replyTo} isMine={isMine}
+                                onClick={() => scrollToMessage?.(msg.replyTo._id)} />
                         )}
 
                         {isDeleted ? (
@@ -510,13 +410,8 @@ const MessageBubble = ({ msg, isMine, onReply, onEdit, onDeleteMe, onDeleteEvery
                                 {hasAttachments && (
                                     <div className="flex flex-col gap-1.5">
                                         {msg.attachments.map((att, i) => (
-                                            <AttachmentRenderer
-                                                key={i}
-                                                attachment={att}
-                                                isMine={isMine}
-                                                allImageAttachments={imageAttachments}
-                                                onOpenLightbox={onOpenLightbox}
-                                            />
+                                            <AttachmentRenderer key={i} attachment={att} isMine={isMine}
+                                                allImageAttachments={imageAttachments} onOpenLightbox={onOpenLightbox} />
                                         ))}
                                     </div>
                                 )}
@@ -526,22 +421,20 @@ const MessageBubble = ({ msg, isMine, onReply, onEdit, onDeleteMe, onDeleteEvery
                                     </p>
                                 )}
                                 <div className={`flex items-center gap-1 mt-0.5 ${isMine ? "justify-end" : "justify-start"}`}>
-                                    {isEdited && (
-                                        <span className={`text-[10px] ${isMine ? "text-blue-200" : "text-gray-400"}`}>edited</span>
-                                    )}
-                                    <span className={`text-[10px] ${isMine ? "text-blue-200" : "text-gray-400"}`}>
-                                        {formatTime(msg.createdAt)}
-                                    </span>
+                                    {isEdited && <span className={`text-[10px] ${isMine ? "text-blue-200" : "text-gray-400"}`}>edited</span>}
+                                    <span className={`text-[10px] ${isMine ? "text-blue-200" : "text-gray-400"}`}>{formatTime(msg.createdAt)}</span>
                                     {isMine && (
-                                        msg.readBy?.length > 0
-                                            ? <CheckCheck className="w-3.5 h-3.5 text-blue-300" />
-                                            : <Check className="w-3.5 h-3.5 text-blue-200/70" />
+                                        // Optimistic = single faded tick. Sent = single tick. Read = double tick.
+                                        msg._optimistic
+                                            ? <Check className="w-3.5 h-3.5 text-blue-200/40" />
+                                            : msg.readBy?.length > 0
+                                                ? <CheckCheck className="w-3.5 h-3.5 text-blue-300" />
+                                                : <Check className="w-3.5 h-3.5 text-blue-200/70" />
                                     )}
                                 </div>
                             </>
                         )}
 
-                        {/* Bubble tail */}
                         {isMine ? (
                             <div className="absolute -right-[5px] bottom-0 w-0 h-0"
                                 style={{ borderLeft: "6px solid #1e3d7a", borderBottom: "6px solid transparent" }} />
@@ -551,57 +444,36 @@ const MessageBubble = ({ msg, isMine, onReply, onEdit, onDeleteMe, onDeleteEvery
                         )}
                     </div>
 
-                    {/* Context menu button */}
-                    {!isDeleted && (
-                        <div
-                            ref={menuRef}
-                            className={`absolute top-1 ${isMine ? "-left-9" : "-right-9"} opacity-0 group-hover:opacity-100 transition-opacity z-20`}
-                        >
-                            <button
-                                onClick={() => setMenuOpen(v => !v)}
-                                className="w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center text-gray-400 hover:text-gray-700 transition-all"
-                            >
+                    {/* Context menu — hidden while optimistic (no real _id yet) */}
+                    {!isDeleted && !msg._optimistic && (
+                        <div ref={menuRef}
+                            className={`absolute top-1 ${isMine ? "-left-9" : "-right-9"} opacity-0 group-hover:opacity-100 transition-opacity z-20`}>
+                            <button onClick={() => setMenuOpen(v => !v)}
+                                className="w-7 h-7 rounded-full bg-white shadow-md flex items-center justify-center text-gray-400 hover:text-gray-700 transition-all">
                                 <ChevronDown className="w-3.5 h-3.5" />
                             </button>
-
                             <AnimatePresence>
                                 {menuOpen && (
-                                    <FloatingMenu
-                                        isMine={isMine}
-                                        anchorRef={menuRef}
-                                        onClose={() => setMenuOpen(false)}
-                                    >
-                                        <button
-                                            onClick={() => { onReply(msg); setMenuOpen(false); }}
-                                            className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50 transition"
-                                        >
+                                    <FloatingMenu isMine={isMine} anchorRef={menuRef}>
+                                        <button onClick={() => { onReply(msg); setMenuOpen(false); }}
+                                            className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50 transition">
                                             <Reply className="w-3.5 h-3.5 text-gray-400" /> Reply
                                         </button>
-
                                         {isMine && !hasAttachments && (
-                                            <button
-                                                onClick={() => { onEdit(msg); setMenuOpen(false); }}
-                                                className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50 transition"
-                                            >
+                                            <button onClick={() => { onEdit(msg); setMenuOpen(false); }}
+                                                className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50 transition">
                                                 <Pencil className="w-3.5 h-3.5 text-gray-400" /> Edit
                                             </button>
                                         )}
-
                                         <div className="my-1 border-t border-gray-100" />
-
                                         {isMine && (
-                                            <button
-                                                onClick={() => { onDeleteEveryone(msg._id); setMenuOpen(false); }}
-                                                className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-red-500 hover:bg-red-50 transition"
-                                            >
+                                            <button onClick={() => { onDeleteEveryone(msg._id); setMenuOpen(false); }}
+                                                className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-red-500 hover:bg-red-50 transition">
                                                 <Trash2 className="w-3.5 h-3.5" /> Delete for everyone
                                             </button>
                                         )}
-
-                                        <button
-                                            onClick={() => { onDeleteMe(msg._id); setMenuOpen(false); }}
-                                            className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-gray-500 hover:bg-gray-50 transition"
-                                        >
+                                        <button onClick={() => { onDeleteMe(msg._id); setMenuOpen(false); }}
+                                            className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-gray-500 hover:bg-gray-50 transition">
                                             <Trash2 className="w-3.5 h-3.5 text-gray-400" /> Delete for me
                                         </button>
                                     </FloatingMenu>
@@ -684,7 +556,6 @@ const NewChatPanel = ({ recipientId, recipientUser, onConversationCreated }) => 
     const [attachedFiles, setAttachedFiles] = useState([]);
     const [fileError, setFileError] = useState(null);
     const [lightbox, setLightbox] = useState(null);
-    const { sending } = useSelector(s => s.messages);
     const inputRef = useRef(null);
     const fileInputRef = useRef(null);
 
@@ -696,17 +567,20 @@ const NewChatPanel = ({ recipientId, recipientUser, onConversationCreated }) => 
         e.target.value = "";
     };
 
-    const handleSend = async () => {
+    const handleSend = () => {
         const content = text.trim();
         if (!content && attachedFiles.length === 0) return;
-        const result = await dispatch(sendMessage({ recipientId, content, replyTo: null, files: attachedFiles }));
-        if (result.meta.requestStatus === "fulfilled") {
-            onConversationCreated(result.payload.conversationId);
-            setText("");
-            setAttachedFiles([]);
-        } else {
-            setFileError(result.payload || "Failed to send message.");
-        }
+        // Clear immediately
+        setText("");
+        setAttachedFiles([]);
+        dispatch(sendMessage({ recipientId, content, replyTo: null, files: attachedFiles }))
+            .then((result) => {
+                if (result.meta.requestStatus === "fulfilled") {
+                    onConversationCreated(result.payload.conversationId);
+                } else {
+                    setFileError(result.payload || "Failed to send message.");
+                }
+            });
     };
 
     const handleKeyDown = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } };
@@ -720,22 +594,18 @@ const NewChatPanel = ({ recipientId, recipientUser, onConversationCreated }) => 
                     <p className="text-xs text-gray-400">Send your first message</p>
                 </div>
             </div>
-
             <div className="flex-1 flex items-center justify-center" style={{ background: "#EAE6DF" }}>
                 <div className="text-center text-gray-500">
                     <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-30" />
                     <p className="text-sm">No messages yet. Say hello!</p>
                 </div>
             </div>
-
             <ErrorToast message={fileError} onClose={() => setFileError(null)} />
-
             <AnimatePresence>
                 {attachedFiles.length > 0 && (
                     <AttachmentPreview files={attachedFiles} onRemove={(i) => setAttachedFiles(prev => prev.filter((_, idx) => idx !== i))} />
                 )}
             </AnimatePresence>
-
             <div className="px-3 py-2.5 bg-gray-100 border-t border-gray-200 flex items-end gap-2 flex-shrink-0">
                 <input ref={fileInputRef} type="file" multiple accept="image/*,video/*,audio/*,.pdf,.doc,.docx" className="hidden" onChange={handleFileChange} />
                 <button onClick={() => fileInputRef.current?.click()}
@@ -748,20 +618,13 @@ const NewChatPanel = ({ recipientId, recipientUser, onConversationCreated }) => 
                         className="flex-1 resize-none text-sm text-gray-800 outline-none bg-transparent max-h-32 overflow-y-auto leading-relaxed placeholder-gray-400"
                         style={{ minHeight: "24px" }} />
                 </div>
-                <button onClick={handleSend} disabled={(!text.trim() && attachedFiles.length === 0) || sending}
+                <button onClick={handleSend} disabled={!text.trim() && attachedFiles.length === 0}
                     className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 transition-all disabled:opacity-40 active:scale-95 shadow-md"
                     style={{ background: BLUE }}>
-                    {sending ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <Send className="w-4 h-4 text-white ml-0.5" />}
+                    <Send className="w-4 h-4 text-white ml-0.5" />
                 </button>
             </div>
-
-            {lightbox && (
-                <ImageLightbox
-                    images={lightbox.images}
-                    startIndex={lightbox.startIndex}
-                    onClose={() => setLightbox(null)}
-                />
-            )}
+            {lightbox && <ImageLightbox images={lightbox.images} startIndex={lightbox.startIndex} onClose={() => setLightbox(null)} />}
         </div>
     );
 };
@@ -774,23 +637,20 @@ const ChatPanel = ({ conversationId, currentUserId }) => {
     const [editingMsg, setEditingMsg] = useState(null);
     const [attachedFiles, setAttachedFiles] = useState([]);
     const [fileError, setFileError] = useState(null);
-    const [lightbox, setLightbox] = useState(null); // { images, startIndex }
+    const [lightbox, setLightbox] = useState(null);
     const messageRefs = useRef({});
     const bottomRef = useRef(null);
     const inputRef = useRef(null);
     const fileInputRef = useRef(null);
 
-    const { messagesByConversation, conversations, sending, error } = useSelector(s => s.messages);
+    const { messagesByConversation, conversations, error } = useSelector(s => s.messages);
     const bucket = messagesByConversation[conversationId] || { messages: [], hasMore: false };
     const messages = bucket.messages;
     const activeConv = conversations.find(c => c.id === conversationId);
     const otherUser = activeConv?.otherUser;
 
     useEffect(() => {
-        if (error) {
-            setFileError(error);
-            dispatch(clearError());
-        }
+        if (error) { setFileError(error); dispatch(clearError()); }
     }, [error]);
 
     const scrollToMessage = (messageId) => {
@@ -808,12 +668,8 @@ const ChatPanel = ({ conversationId, currentUserId }) => {
         dispatch(fetchMessages({ conversationId, page: 1 }));
         dispatch(markAsRead(conversationId));
         dispatch(setActiveConversation(conversationId.toString()));
-        setText("");
-        setReplyTo(null);
-        setEditingMsg(null);
-        setAttachedFiles([]);
-        setFileError(null);
-        setLightbox(null);
+        setText(""); setReplyTo(null); setEditingMsg(null);
+        setAttachedFiles([]); setFileError(null); setLightbox(null);
     }, [conversationId]);
 
     useEffect(() => {
@@ -828,10 +684,11 @@ const ChatPanel = ({ conversationId, currentUserId }) => {
         e.target.value = "";
     };
 
-    const handleSend = async () => {
+    const handleSend = () => {
         const content = text.trim();
         if (!content && attachedFiles.length === 0) return;
 
+        // ── Edit mode ──
         if (editingMsg) {
             if (!content) return;
             dispatch(editMessage({ messageId: editingMsg._id, content }));
@@ -840,22 +697,27 @@ const ChatPanel = ({ conversationId, currentUserId }) => {
             return;
         }
 
-        const result = await dispatch(sendMessage({
+        // ── Snapshot args BEFORE clearing state ──
+        const snapshot = {
             recipientId: otherUser?._id,
             content,
             replyTo: replyTo?._id || null,
             files: attachedFiles,
-            conversationId, // for optimistic UI
-        }));
+            conversationId,
+        };
 
-        if (result.meta.requestStatus === "fulfilled") {
-            setReplyTo(null);
-            setAttachedFiles([]);
-            setText("");
-            inputRef.current?.focus();
-        } else {
-            setFileError(result.payload || "Failed to send message.");
-        }
+        // ── Clear UI immediately — don't wait for server ──
+        setText("");
+        setReplyTo(null);
+        setAttachedFiles([]);
+        inputRef.current?.focus();
+
+        // ── Fire and forget ──
+        dispatch(sendMessage(snapshot)).then((result) => {
+            if (result.meta.requestStatus === "rejected") {
+                setFileError(result.payload || "Failed to send message.");
+            }
+        });
     };
 
     const handleKeyDown = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } };
@@ -863,6 +725,7 @@ const ChatPanel = ({ conversationId, currentUserId }) => {
     const handleEdit = (msg) => { setReplyTo(null); setEditingMsg(msg); setText(msg.content); inputRef.current?.focus(); };
     const cancelCompose = () => { setEditingMsg(null); setReplyTo(null); setText(""); setAttachedFiles([]); };
 
+    const canSend = text.trim().length > 0 || attachedFiles.length > 0;
     const grouped = groupMessagesByDate(messages);
 
     return (
@@ -916,19 +779,15 @@ const ChatPanel = ({ conversationId, currentUserId }) => {
 
             <AnimatePresence>
                 {attachedFiles.length > 0 && (
-                    <AttachmentPreview
-                        files={attachedFiles}
-                        onRemove={(i) => setAttachedFiles(prev => prev.filter((_, idx) => idx !== i))}
-                    />
+                    <AttachmentPreview files={attachedFiles}
+                        onRemove={(i) => setAttachedFiles(prev => prev.filter((_, idx) => idx !== i))} />
                 )}
             </AnimatePresence>
 
             {/* Input */}
             <div className="px-3 py-2.5 bg-gray-100 border-t border-gray-200 flex items-end gap-2 flex-shrink-0">
-                <input ref={fileInputRef} type="file" multiple
-                    accept="image/*,video/*,audio/*,.pdf,.doc,.docx"
+                <input ref={fileInputRef} type="file" multiple accept="image/*,video/*,audio/*,.pdf,.doc,.docx"
                     className="hidden" onChange={handleFileChange} />
-
                 {!editingMsg && (
                     <button onClick={() => fileInputRef.current?.click()}
                         title="Attach files (max 5, 25MB each)"
@@ -936,7 +795,6 @@ const ChatPanel = ({ conversationId, currentUserId }) => {
                         <Paperclip className="w-5 h-5" />
                     </button>
                 )}
-
                 <div className="flex-1 bg-white rounded-3xl border border-gray-200 shadow-sm flex items-end px-4 py-2 gap-2">
                     <textarea ref={inputRef} rows={1} value={text}
                         onChange={(e) => setText(e.target.value)}
@@ -945,23 +803,15 @@ const ChatPanel = ({ conversationId, currentUserId }) => {
                         className="flex-1 resize-none text-sm text-gray-800 outline-none bg-transparent max-h-32 overflow-y-auto leading-relaxed placeholder-gray-400"
                         style={{ minHeight: "24px" }} />
                 </div>
-
-                <button onClick={handleSend}
-                    disabled={(!text.trim() && attachedFiles.length === 0) || sending}
+                {/* No spinner — send button is always just a send icon */}
+                <button onClick={handleSend} disabled={!canSend}
                     className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 transition-all disabled:opacity-40 active:scale-95 shadow-md"
                     style={{ background: BLUE }}>
-                    {sending ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <Send className="w-4 h-4 text-white ml-0.5" />}
+                    <Send className="w-4 h-4 text-white ml-0.5" />
                 </button>
             </div>
 
-            {/* Image Lightbox */}
-            {lightbox && (
-                <ImageLightbox
-                    images={lightbox.images}
-                    startIndex={lightbox.startIndex}
-                    onClose={() => setLightbox(null)}
-                />
-            )}
+            {lightbox && <ImageLightbox images={lightbox.images} startIndex={lightbox.startIndex} onClose={() => setLightbox(null)} />}
         </div>
     );
 };
@@ -986,8 +836,7 @@ const MessagingPage = () => {
         const conv = conversations.find(c => c.otherUser?._id?.toString() === recipientId.toString());
         if (conv) {
             dispatch(setActiveConversation(conv.id));
-            setPendingRecipient(null);
-            setPendingRecipientUser(null);
+            setPendingRecipient(null); setPendingRecipientUser(null);
         } else {
             dispatch(setActiveConversation(null));
             setPendingRecipient(recipientId);
@@ -1005,8 +854,7 @@ const MessagingPage = () => {
 
     const handleSelectConversation = (convId) => {
         dispatch(setActiveConversation(convId));
-        setPendingRecipient(null);
-        setPendingRecipientUser(null);
+        setPendingRecipient(null); setPendingRecipientUser(null);
         setMobileView("chat");
     };
 
@@ -1015,7 +863,6 @@ const MessagingPage = () => {
     return (
         <div className="h-screen flex flex-col">
             <div className="flex flex-1 overflow-hidden">
-                {/* Sidebar */}
                 <div className={`flex flex-col border-r border-gray-200 bg-white w-full md:w-[320px] lg:w-[360px] flex-shrink-0
                     ${mobileView === "chat" ? "hidden md:flex" : "flex"}`}>
                     <div className="h-16 flex items-center gap-3 px-4 border-b border-gray-100 flex-shrink-0" style={{ background: BLUE }}>
@@ -1055,7 +902,6 @@ const MessagingPage = () => {
                     </div>
                 </div>
 
-                {/* Chat area */}
                 <div className={`flex-1 flex flex-col min-w-0 ${mobileView === "list" ? "hidden md:flex" : "flex"}`}>
                     {mobileView === "chat" && (
                         <button onClick={() => { setMobileView("list"); setPendingRecipient(null); }}
@@ -1069,8 +915,7 @@ const MessagingPage = () => {
                         <NewChatPanel recipientId={pendingRecipient} recipientUser={pendingRecipientUser}
                             currentUserId={currentUserId}
                             onConversationCreated={(convId) => {
-                                setPendingRecipient(null);
-                                setPendingRecipientUser(null);
+                                setPendingRecipient(null); setPendingRecipientUser(null);
                                 dispatch(setActiveConversation(convId));
                             }} />
                     ) : (
