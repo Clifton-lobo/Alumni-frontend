@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axiosInstance from "../../../api/axiosInstance"; // ✅ use shared instance instead of raw axios + hardcoded URL
 import {
   Sheet,
   SheetContent,
@@ -163,7 +163,7 @@ const PostJobForm = ({ open, onOpenChange, onJobCreated }) => {
         }),
       };
 
-      const res = await axios.post(
+      const res = await axiosInstance.post(
         "/api/user/jobs/alumni/jobs/create",
         payload,
         { withCredentials: true }
