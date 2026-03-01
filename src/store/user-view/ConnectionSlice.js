@@ -1,13 +1,11 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axiosInstance from "../../api/axiosInstance"; // adjust path
+import axiosInstance from "../../api/axiosInstance";
 import { logoutUser } from "../authSlice/authSlice";
-
 
 /* ============================
    ASYNC THUNKS
 ============================ */
 
-// Send connection request
 export const sendConnectionRequest = createAsyncThunk(
   "connections/sendRequest",
   async (recipientId, { rejectWithValue }) => {
@@ -24,7 +22,6 @@ export const sendConnectionRequest = createAsyncThunk(
   }
 );
 
-// Accept connection request
 export const acceptConnectionRequest = createAsyncThunk(
   "connections/accept",
   async (connectionId, { rejectWithValue }) => {
@@ -41,7 +38,6 @@ export const acceptConnectionRequest = createAsyncThunk(
   }
 );
 
-// Reject connection request
 export const rejectConnectionRequest = createAsyncThunk(
   "connections/reject",
   async (connectionId, { rejectWithValue }) => {
@@ -58,13 +54,12 @@ export const rejectConnectionRequest = createAsyncThunk(
   }
 );
 
-// Fetch accepted connections
 export const fetchAcceptedConnections = createAsyncThunk(
   "connections/fetchAccepted",
   async ({ page = 1, limit = 20 } = {}, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get("/api/user/connect/accept", {
-        params: { page, limit }
+        params: { page, limit },
       });
       return response.data;
     } catch (error) {
@@ -75,12 +70,13 @@ export const fetchAcceptedConnections = createAsyncThunk(
   }
 );
 
-// Remove connection
 export const removeConnection = createAsyncThunk(
   "connections/remove",
   async (connectionId, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.delete(`/api/user/connect/${connectionId}`);
+      const response = await axiosInstance.delete(
+        `/api/user/connect/${connectionId}`
+      );
       return { connectionId, ...response.data };
     } catch (error) {
       return rejectWithValue(
@@ -90,7 +86,6 @@ export const removeConnection = createAsyncThunk(
   }
 );
 
-// Fetch incoming requests
 export const fetchIncomingRequests = createAsyncThunk(
   "connections/fetchIncoming",
   async (_, { rejectWithValue }) => {
@@ -105,7 +100,6 @@ export const fetchIncomingRequests = createAsyncThunk(
   }
 );
 
-// Fetch outgoing requests
 export const fetchOutgoingRequests = createAsyncThunk(
   "connections/fetchOutgoing",
   async (_, { rejectWithValue }) => {
@@ -121,6 +115,41 @@ export const fetchOutgoingRequests = createAsyncThunk(
 );
 
 /* ============================
+   HELPERS
+============================ */
+
+// Normalise a raw populated Connection document into the shape stored in
+// acceptedConnections: { _id, user: <other party's full object>, connectedAt }
+//
+// The "other party" depends on who the current viewer is:
+//   - For the ACCEPTOR  → other party is the requester
+//   - For the REQUESTER → other party is the recipient (used in socket handler)
+//
+// When we only have the connection object from the accept response we always
+// treat `requester` as the other party from the acceptor's perspective.
+const normaliseAccepted = (conn, currentUserId) => {
+  if (!conn) return null;
+
+  // Determine the other party. conn.requester / conn.recipient may be a full
+  // populated object or just an ID string depending on call site.
+  const requesterId =
+    conn.requester?._id?.toString() ?? conn.requester?.toString();
+  const recipientId =
+    conn.recipient?._id?.toString() ?? conn.recipient?.toString();
+
+  const otherParty =
+    currentUserId && requesterId === currentUserId
+      ? conn.recipient   // I am the requester → other is recipient
+      : conn.requester;  // I am the acceptor  → other is requester
+
+  return {
+    _id: conn._id,
+    user: otherParty ?? null,  // full populated user object (or null as fallback)
+    connectedAt: conn.respondedAt ?? conn.connectedAt ?? new Date().toISOString(),
+  };
+};
+
+/* ============================
    SLICE
 ============================ */
 
@@ -134,9 +163,8 @@ const connectionSlice = createSlice({
     loading: false,
     error: null,
 
-    // ✅ FIX 1: Per-user loading map instead of single boolean
-    // Shape: { [recipientId]: true }
-    // This way only the clicked card shows "Sending..." instead of all cards
+    // Per-user loading map — { [recipientId]: true }
+    // Only the clicked card shows "Sending…" instead of all cards
     sendingRequests: {},
 
     acceptingRequest: false,
@@ -151,41 +179,53 @@ const connectionSlice = createSlice({
       state.error = null;
     },
 
-    // Real-time socket handlers
+    // ── Real-time socket reducers ──────────────────────────────────────────
+
     addIncomingRequest(state, action) {
-      state.incomingRequests.unshift(action.payload);
+      // action.payload = full populated Connection document
+      const exists = state.incomingRequests.some(
+        (r) => r._id === action.payload._id
+      );
+      if (!exists) state.incomingRequests.unshift(action.payload);
     },
 
     removeIncomingRequest(state, action) {
-      const connectionId = action.payload;
+      // action.payload = connectionId string
       state.incomingRequests = state.incomingRequests.filter(
-        (req) => req._id !== connectionId
+        (req) => req._id?.toString() !== action.payload?.toString()
       );
     },
 
+    // Used by socket "connection:accepted" on User A's side:
+    // move the outgoing request → accepted connections with full user object
     addAcceptedConnection(state, action) {
-      // Avoid duplicates before adding
+      // action.payload = full populated Connection document
+      // We store it in normalised shape; currentUserId not available here so
+      // the socket handler should dispatch normaliseAccepted manually OR we
+      // detect which party we are from the payload.
+      const conn = action.payload;
       const exists = state.acceptedConnections.some(
-        (c) => c._id === action.payload._id
+        (c) => c._id?.toString() === conn._id?.toString()
       );
       if (!exists) {
-        state.acceptedConnections.unshift(action.payload);
+        // Store as-is if already normalised ({ _id, user, connectedAt }),
+        // otherwise store raw — getConnectionStatus handles both shapes.
+        state.acceptedConnections.unshift(conn);
       }
     },
 
     removeAcceptedConnection(state, action) {
-      const connectionId = action.payload;
+      // action.payload = connectionId string
       state.acceptedConnections = state.acceptedConnections.filter(
-        (conn) => conn.id !== connectionId
+        (conn) => conn._id?.toString() !== action.payload?.toString()
       );
     },
 
-    // ✅ FIX 2: Remove a specific outgoing request by connection _id
-    // Used by the socket listener when User B accepts — moves it to accepted on User A's side
+    // Used by socket "connection:accepted" on User A's side to clean outgoing list
     removeOutgoingRequest(state, action) {
-      const connectionId = action.payload;
+      // action.payload = connectionId string
       state.outgoingRequests = state.outgoingRequests.filter(
-        (req) => req._id !== connectionId
+        (req) => req._id?.toString() !== action.payload?.toString()
       );
     },
 
@@ -200,22 +240,36 @@ const connectionSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-      // ─── Send connection request ───────────────────────────────────────────
-      // ✅ FIX 1: action.meta.arg = the recipientId passed to the thunk
-      // We key sendingRequests by recipientId so only that card shows "Sending..."
+      // ─── Send connection request ─────────────────────────────────────────
       .addCase(sendConnectionRequest.pending, (state, action) => {
         state.sendingRequests[action.meta.arg] = true;
         state.error = null;
       })
       .addCase(sendConnectionRequest.fulfilled, (state, action) => {
-        // Clear the loading state for this specific recipient
         delete state.sendingRequests[action.meta.arg];
 
-        if (action.payload.connection?.status === "PENDING") {
-          state.outgoingRequests.unshift(action.payload.connection);
+        const conn = action.payload.connection;
+        if (!conn) return;
+
+        if (conn.status === "PENDING") {
+          // Avoid duplicates
+          const exists = state.outgoingRequests.some(
+            (r) => r._id?.toString() === conn._id?.toString()
+          );
+          if (!exists) state.outgoingRequests.unshift(conn);
         }
-        if (action.payload.connection?.status === "ACCEPTED") {
-          state.acceptedConnections.unshift(action.payload.connection);
+
+        if (conn.status === "ACCEPTED") {
+          // Auto-accepted (was a reverse pending) — normalise and store
+          const normalised = {
+            _id: conn._id,
+            user: conn.recipient ?? null,  // sender is requester → other is recipient
+            connectedAt: conn.respondedAt,
+          };
+          const exists = state.acceptedConnections.some(
+            (c) => c._id?.toString() === conn._id?.toString()
+          );
+          if (!exists) state.acceptedConnections.unshift(normalised);
         }
       })
       .addCase(sendConnectionRequest.rejected, (state, action) => {
@@ -223,40 +277,58 @@ const connectionSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ─── Accept connection ─────────────────────────────────────────────────
+      // ─── Accept connection ───────────────────────────────────────────────
       .addCase(acceptConnectionRequest.pending, (state) => {
         state.acceptingRequest = true;
         state.error = null;
       })
       .addCase(acceptConnectionRequest.fulfilled, (state, action) => {
         state.acceptingRequest = false;
-        const connectionId = action.payload.connection._id;
 
+        const conn = action.payload.connection;
+        if (!conn) return;
+
+        const connectionId = conn._id?.toString();
+
+        // Remove from incoming requests
         state.incomingRequests = state.incomingRequests.filter(
-          (req) => req._id !== connectionId
+          (req) => req._id?.toString() !== connectionId
         );
 
-        state.acceptedConnections.unshift({
-          id: connectionId,
-          connectedAt: action.payload.connection.respondedAt,
-        });
+        // FIX: store a normalised entry with the full requester object so
+        // getConnectionStatus (which checks c.user?._id) can find it immediately
+        // without requiring a page refresh.
+        // The acceptor's "other party" is always the requester.
+        const normalised = {
+          _id: conn._id,
+          user: conn.requester ?? null,   // ← full populated object from backend
+          connectedAt: conn.respondedAt ?? new Date().toISOString(),
+        };
+
+        const alreadyExists = state.acceptedConnections.some(
+          (c) => c._id?.toString() === connectionId
+        );
+        if (!alreadyExists) {
+          state.acceptedConnections.unshift(normalised);
+        }
       })
       .addCase(acceptConnectionRequest.rejected, (state, action) => {
         state.acceptingRequest = false;
         state.error = action.payload;
       })
 
-      // ─── Reject connection ─────────────────────────────────────────────────
+      // ─── Reject connection ───────────────────────────────────────────────
       .addCase(rejectConnectionRequest.pending, (state) => {
         state.rejectingRequest = true;
         state.error = null;
       })
       .addCase(rejectConnectionRequest.fulfilled, (state, action) => {
         state.rejectingRequest = false;
-        const connectionId = action.payload.connection._id;
+        const connectionId = action.payload.connection?._id?.toString();
+        if (!connectionId) return;
 
         state.incomingRequests = state.incomingRequests.filter(
-          (req) => req._id !== connectionId
+          (req) => req._id?.toString() !== connectionId
         );
       })
       .addCase(rejectConnectionRequest.rejected, (state, action) => {
@@ -264,17 +336,19 @@ const connectionSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ─── Remove connection ─────────────────────────────────────────────────
+      // ─── Remove connection ───────────────────────────────────────────────
       .addCase(removeConnection.pending, (state) => {
         state.removingConnection = true;
         state.error = null;
       })
       .addCase(removeConnection.fulfilled, (state, action) => {
         state.removingConnection = false;
-        const connectionId = action.payload.connectionId;
+        const connectionId = action.payload.connectionId?.toString();
+        if (!connectionId) return;
 
+        // FIX: was `conn.id` (undefined) — now uses `conn._id` consistently
         state.acceptedConnections = state.acceptedConnections.filter(
-          (conn) => conn.id !== connectionId
+          (conn) => conn._id?.toString() !== connectionId
         );
       })
       .addCase(removeConnection.rejected, (state, action) => {
@@ -282,13 +356,14 @@ const connectionSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ─── Fetch accepted connections ────────────────────────────────────────
+      // ─── Fetch accepted connections ──────────────────────────────────────
       .addCase(fetchAcceptedConnections.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchAcceptedConnections.fulfilled, (state, action) => {
         state.loading = false;
+        // Backend now returns { _id, user, connectedAt }[] — store directly
         state.acceptedConnections = Array.isArray(action.payload)
           ? action.payload
           : action.payload.connections || [];
@@ -298,35 +373,39 @@ const connectionSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ─── Fetch incoming requests ───────────────────────────────────────────
+      // ─── Fetch incoming requests ─────────────────────────────────────────
       .addCase(fetchIncomingRequests.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchIncomingRequests.fulfilled, (state, action) => {
         state.loading = false;
-        state.incomingRequests = action.payload;
+        state.incomingRequests = Array.isArray(action.payload)
+          ? action.payload
+          : [];
       })
       .addCase(fetchIncomingRequests.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
-      // ─── Fetch outgoing requests ───────────────────────────────────────────
+      // ─── Fetch outgoing requests ─────────────────────────────────────────
       .addCase(fetchOutgoingRequests.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(fetchOutgoingRequests.fulfilled, (state, action) => {
         state.loading = false;
-        state.outgoingRequests = action.payload;
+        state.outgoingRequests = Array.isArray(action.payload)
+          ? action.payload
+          : [];
       })
       .addCase(fetchOutgoingRequests.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
-      // ─── Logout ────────────────────────────────────────────────────────────
+      // ─── Logout ──────────────────────────────────────────────────────────
       .addCase(logoutUser.fulfilled, (state) => {
         state.acceptedConnections = [];
         state.incomingRequests = [];
@@ -343,7 +422,7 @@ export const {
   removeIncomingRequest,
   addAcceptedConnection,
   removeAcceptedConnection,
-  removeOutgoingRequest,  // ✅ FIX 2: exported for socket listener usage
+  removeOutgoingRequest,
   openRequestsDialog,
   closeRequestsDialog,
 } = connectionSlice.actions;

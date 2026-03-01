@@ -320,7 +320,10 @@ const messageSlice = createSlice({
             .addCase(fetchConversations.pending, (state) => { state.loading = true; })
             .addCase(fetchConversations.fulfilled, (state, action) => {
                 state.loading = false;
-                state.conversations = action.payload;
+                state.conversations = action.payload.map(c => ({
+                    ...c,
+                    id: c.id?.toString(), // ← ensure string
+                }));
             })
             .addCase(fetchConversations.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
 

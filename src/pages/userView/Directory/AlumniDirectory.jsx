@@ -12,8 +12,6 @@ import {
   fetchIncomingRequests,
   fetchOutgoingRequests,
   sendConnectionRequest,
-  addAcceptedConnection,
-  removeOutgoingRequest,
 } from "../../../store/user-view/ConnectionSlice";
 import PaginationControls from "../../../components/common/Pagination";
 import SearchComponent from "../../../components/common/Search";
@@ -34,8 +32,9 @@ import {
 
 /* ─────────────────────────────────────────────
   Helper: derive connection status for a user
-  Returns: "SELF" | "ACCEPTED" | "PENDING_SENT"
-          | "PENDING_RECEIVED" | "NONE"
+  Mirrors ProfileDialog exactly:
+  - Guards against undefined/null targetUserId
+  - Only returns SELF when BOTH ids exist and match
 ───────────────────────────────────────────── */
 const getConnectionStatus = (
   targetUserId,
@@ -44,7 +43,11 @@ const getConnectionStatus = (
   outgoingRequests,
   incomingRequests
 ) => {
-  if (targetUserId === currentUserId) return "SELF";
+  // Only treat as self when both IDs are real and equal
+  if (targetUserId && currentUserId && targetUserId === currentUserId)
+    return "SELF";
+
+  if (!targetUserId) return "NONE"; // can't determine — show Connect
 
   if (acceptedConnections.some((c) => c.user?._id?.toString() === targetUserId))
     return "ACCEPTED";
@@ -69,14 +72,14 @@ const getConnectionStatus = (
 };
 
 /* ─────────────────────────────────────────────
-  Connect Button
+  Connect Button — mirrors ProfileDialog exactly
 ───────────────────────────────────────────── */
 const ConnectButton = ({ status, onConnect, onRespond, loading }) => {
   if (status === "ACCEPTED") {
     return (
       <button
         disabled
-        className="flex-1 px-4 py-2 rounded-lg bg-green-300 text-green-700 text-sm font-medium flex items-center justify-center gap-2"
+        className="flex-1 px-4 py-2 rounded-lg bg-green-100 text-green-700 text-sm font-semibold flex items-center justify-center gap-2 border border-green-200"
       >
         <CheckCircle className="w-4 h-4" />
         Connected
@@ -88,10 +91,10 @@ const ConnectButton = ({ status, onConnect, onRespond, loading }) => {
     return (
       <button
         disabled
-        className="flex-1 px-4 py-2 rounded-lg bg-green-100 text-slate-600 text-sm font-medium flex items-center justify-center gap-2"
+        className="flex-1 px-4 py-2 rounded-lg bg-amber-50 text-amber-700 text-sm font-semibold flex items-center justify-center gap-2 border border-amber-200"
       >
         <Clock className="w-4 h-4" />
-        Pending
+        Request Sent
       </button>
     );
   }
@@ -100,7 +103,7 @@ const ConnectButton = ({ status, onConnect, onRespond, loading }) => {
     return (
       <button
         onClick={onRespond}
-        className="flex-1 px-4 py-2 rounded-lg bg-blue-100 text-blue-700 text-sm font-medium hover:bg-blue-200 flex items-center justify-center gap-2 transition"
+        className="flex-1 px-4 py-2 rounded-lg bg-blue-100 text-blue-700 text-sm font-semibold hover:bg-blue-200 flex items-center justify-center gap-2 border border-blue-200 transition"
       >
         <UserCheck className="w-4 h-4" />
         Respond
@@ -108,15 +111,15 @@ const ConnectButton = ({ status, onConnect, onRespond, loading }) => {
     );
   }
 
+  // NONE — show Connect
   return (
     <button
       onClick={onConnect}
       disabled={loading}
-      className="flex-1 px-4 py-2 rounded-lg bg-[#EBAB09] text-black text-sm font-semibold hover:bg-[#d49a00] flex items-center justify-center gap-2 transition disabled:opacity-50"
+      className="flex-1 px-4 py-2 rounded-lg bg-[#EBAB09] text-black text-sm font-semibold hover:bg-[#d49a00] flex items-center justify-center gap-2 transition disabled:opacity-50 cursor-pointer"
     >
       <UserPlus className="w-4 h-4" />
-      {/* ✅ FIX 1: loading is now per-card, so only THIS card shows "Sending..." */}
-      {loading ? "Sending..." : "Connect"}
+      {loading ? "Sending…" : "Connect"}
     </button>
   );
 };
@@ -126,6 +129,7 @@ const ConnectButton = ({ status, onConnect, onRespond, loading }) => {
 ───────────────────────────────────────────── */
 const AlumniDirectory = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // ── Alumni state ──────────────────────────
   const {
@@ -148,14 +152,15 @@ const AlumniDirectory = () => {
     acceptedConnections,
     incomingRequests,
     outgoingRequests,
-    // ✅ FIX 1: Use sendingRequests map instead of sendingRequest boolean
     sendingRequests,
   } = useSelector((state) => state.connections);
+
+  const currentUserId =
+    currentUser?.id?.toString() || currentUser?._id?.toString();
 
   /* =========================
     FETCH DATA
   ========================= */
-
   useEffect(() => {
     dispatch(fetchAlumni());
   }, [currentPage, batch, stream, search]);
@@ -167,37 +172,10 @@ const AlumniDirectory = () => {
   }, []);
 
   /* =========================
-    ✅ FIX 2: SOCKET LISTENER
-    Listen for "connection:accepted" events emitted by the server
-    when User B accepts User A's request. This updates User A's
-    Redux state instantly without requiring a page refresh.
-
-    Wire this up wherever your socket is initialized (e.g. in a
-    useSocketSetup hook or your top-level App component). The snippet
-    below shows how it looks — move it to your central socket file
-    if you manage socket listeners there.
-
-    Example (in your socket setup hook / file):
-    ─────────────────────────────────────────────
-    import { addAcceptedConnection, removeOutgoingRequest } from "../store/user-view/ConnectionSlice";
-
-    socket.on("connection:accepted", (data) => {
-      // data.connection = the full populated connection document
-      dispatch(removeOutgoingRequest(data.connection._id));
-      dispatch(addAcceptedConnection(data.connection));
-    });
-    ─────────────────────────────────────────────
-
-    Backend (Node.js) — emit inside your accept handler:
-    ─────────────────────────────────────────────
-    io.to(connection.requester.toString()).emit("connection:accepted", {
-      connection: populatedConnection,
-    });
-    ─────────────────────────────────────────────
+    HANDLERS
   ========================= */
 
-  const navigate = useNavigate();
-
+  // Mirror ProfileDialog: navigate to /user/messages with recipientId + recipientUser
   const handleMessage = (user) => {
     navigate("/user/messages", {
       state: {
@@ -206,36 +184,27 @@ const AlumniDirectory = () => {
           _id: user._id.toString(),
           fullname: user.fullname,
           username: user.username,
-          profileImage: user.profilePicture,
+          profileImage: user.profilePicture, // field name matches MessagingPage Avatar
         },
       },
     });
   };
-
-  /* =========================
-    MEMOIZED VALUES
-  ========================= */
-
-  const currentUserId =
-    currentUser?.id?.toString() || currentUser?._id?.toString();
-
-  const years = useMemo(() => {
-    const currentYear = new Date().getFullYear();
-    return Array.from({ length: 50 }, (_, i) => currentYear - i);
-  }, []);
-
-  /* =========================
-    HANDLERS
-  ========================= */
 
   const handleConnect = (recipientId) => {
     dispatch(sendConnectionRequest(recipientId));
   };
 
   /* =========================
+    MEMOIZED VALUES
+  ========================= */
+  const years = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    return Array.from({ length: 50 }, (_, i) => currentYear - i);
+  }, []);
+
+  /* =========================
     RENDER
   ========================= */
-
   return (
     <div className="min-h-screen bg-[#F5F6F8]">
 
@@ -243,11 +212,9 @@ const AlumniDirectory = () => {
       <div className="bg-[#142A5D] text-white py-20 px-6">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold">Alumni Directory</h1>
-
           <p className="mt-4 text-white/80 text-lg">
             Connect with fellow alumni and grow your network.
           </p>
-
           <div className="mt-8 max-w-xl mx-auto">
             <SearchComponent
               placeholder="Search alumni..."
@@ -263,8 +230,6 @@ const AlumniDirectory = () => {
         {/* FILTERS */}
         <div className="bg-white rounded-md shadow-sm p-6 mb-10 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex gap-4 flex-wrap">
-
-            {/* Batch */}
             <select
               value={batch}
               onChange={(e) => dispatch(setBatch(e.target.value))}
@@ -272,13 +237,10 @@ const AlumniDirectory = () => {
             >
               <option value="">All Years</option>
               {years.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
+                <option key={year} value={year}>{year}</option>
               ))}
             </select>
 
-            {/* Stream */}
             <select
               value={stream}
               onChange={(e) => dispatch(setStream(e.target.value))}
@@ -297,32 +259,24 @@ const AlumniDirectory = () => {
               <option value="MBA">MBA</option>
             </select>
           </div>
-
-          {/* Total Results */}
           <div className="text-slate-500 text-sm">{totalUsers} Results</div>
         </div>
 
         {/* LOADING */}
         {loading && (
-          <div className="text-center py-20 text-slate-500">
-            Loading alumni...
-          </div>
+          <div className="text-center py-20 text-slate-500">Loading alumni...</div>
         )}
 
         {/* ERROR */}
         {error && (
           <div className="text-center py-20 text-red-500 font-medium">
-            {typeof error === "string"
-              ? error
-              : error?.message || "Something went wrong"}
+            {typeof error === "string" ? error : error?.message || "Something went wrong"}
           </div>
         )}
 
         {/* EMPTY STATE */}
         {!loading && !error && alumniList.length === 0 && (
-          <div className="text-center py-20 text-slate-500">
-            No alumni found.
-          </div>
+          <div className="text-center py-20 text-slate-500">No alumni found.</div>
         )}
 
         {/* GRID */}
@@ -330,7 +284,13 @@ const AlumniDirectory = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {alumniList.map((user) => {
               const userId = user._id?.toString();
-              const isCurrentUser = currentUserId === userId;
+
+              // Mirror ProfileDialog: isCurrentUser derived separately from status
+              const isCurrentUser = !!(userId && currentUserId && userId === currentUserId);
+              const isAdmin = user.role === "admin";
+
+              // Mirror ProfileDialog: showActions = not admin AND not self
+              const showActions = !isAdmin && !isCurrentUser;
 
               const connectionStatus = getConnectionStatus(
                 userId,
@@ -352,20 +312,17 @@ const AlumniDirectory = () => {
 
                     {/* Avatar */}
                     <div className="relative">
-                      <div className="w-25 h-25 rounded-full overflow-hidden bg-slate-200 flex items-center justify-center text-slate-600 text-xl font-semibold shadow">
+                      <div className="w-20 h-20 rounded-full overflow-hidden bg-slate-200 flex items-center justify-center text-slate-600 text-xl font-semibold shadow">
                         {user.profilePicture ? (
-                          <img
-                            src={user.profilePicture}
-                            alt={user.fullname}
-                            className="w-full h-full object-cover"
-                          />
+                          <img src={user.profilePicture} alt={user.fullname} className="w-full h-full object-cover" />
                         ) : (
                           user.fullname?.charAt(0)?.toUpperCase() || "U"
                         )}
                       </div>
-
                       {connectionStatus === "ACCEPTED" && (
-                        <UserCheck className="absolute -bottom-1 -right-1 w-5 h-5 text-green-600 bg-white rounded-full p-1 shadow" />
+                        <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow">
+                          <UserCheck className="w-4 h-4 text-green-600" />
+                        </div>
                       )}
                     </div>
 
@@ -373,7 +330,7 @@ const AlumniDirectory = () => {
                     <h2 className="mt-3 text-base font-semibold text-slate-900">
                       {user.fullname}
                       {isCurrentUser && (
-                        <span className="ml-2 text-[10px] bg-[#142A5D]/10 text-[#142A5D] px-2 py-0.5 rounded">
+                        <span className="ml-2 text-[10px] bg-[#142A5D]/10 text-[#142A5D] px-2 py-0.5 rounded-full font-medium">
                           You
                         </span>
                       )}
@@ -399,12 +356,9 @@ const AlumniDirectory = () => {
                         <GraduationCap className="w-4 h-4 text-slate-400" />
                         {user.stream || "Stream not provided"}
                       </div>
-
                       <div className="flex items-center justify-center gap-1.5">
                         <Calendar className="w-4 h-4 text-slate-400" />
-                        {user.batch
-                          ? `Class of ${user.batch}`
-                          : "Batch not provided"}
+                        {user.batch ? `Class of ${user.batch}` : "Batch not provided"}
                       </div>
                     </div>
 
@@ -412,11 +366,7 @@ const AlumniDirectory = () => {
                     <div className="mt-3">
                       {user.linkedin ? (
                         <a
-                          href={
-                            user.linkedin.startsWith("http")
-                              ? user.linkedin
-                              : `https://${user.linkedin}`
-                          }
+                          href={user.linkedin.startsWith("http") ? user.linkedin : `https://${user.linkedin}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1.5 text-sm text-[#142A5D] hover:underline"
@@ -425,9 +375,7 @@ const AlumniDirectory = () => {
                           LinkedIn
                         </a>
                       ) : (
-                        <span className="text-xs text-slate-400 italic">
-                          LinkedIn not posted
-                        </span>
+                        <span className="text-xs text-slate-400 italic">LinkedIn not posted</span>
                       )}
                     </div>
                   </div>
@@ -435,40 +383,45 @@ const AlumniDirectory = () => {
                   {/* Divider */}
                   <div className="border-t border-gray-100" />
 
-                  {/* Actions */}
-                  <div className="p-4 bg-gray-50 flex gap-2.5">
-
-                    {!isCurrentUser && (
+                  {/* ── Actions — mirrors ProfileDialog showActions logic ── */}
+                  {showActions && (
+                    <div className="p-4 bg-gray-50 flex gap-2.5">
                       <ConnectButton
                         status={connectionStatus}
                         onRespond={() => dispatch(openRequestsDialog())}
                         onConnect={() => handleConnect(userId)}
-                        // ✅ FIX 1: Pass loading state scoped to THIS user's ID only
-                        // Before: loading={sendingRequest}  ← single bool, ALL cards showed "Sending..."
-                        // After:  loading={!!sendingRequests[userId]} ← only the clicked card shows it
                         loading={!!sendingRequests[userId]}
                       />
-                    )}
 
-                    <button
-                      onClick={() =>
-                        !isCurrentUser &&
-                        connectionStatus === "ACCEPTED" &&
-                        handleMessage(user)
-                      }
-                      disabled={isCurrentUser || connectionStatus !== "ACCEPTED"}
-                      className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition ${
-                        isCurrentUser
-                          ? "bg-[#142A5D]/10 text-[#142A5D]"
-                          : connectionStatus === "ACCEPTED"
-                          ? "bg-[#142A5D] text-white hover:bg-[#0f2149]"
-                          : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                      }`}
-                    >
-                      <MessageCircle className="w-4 h-4" />
-                      {isCurrentUser ? "Profile" : "Message"}
-                    </button>
-                  </div>
+                      {/*
+                        Message button:
+                        - ACCEPTED  → enabled, navigates to chat
+                        - All other → disabled (greyed out)
+                        Mirrors ProfileDialog exactly.
+                      */}
+                      <button
+                        onClick={connectionStatus === "ACCEPTED" ? () => handleMessage(user) : undefined}
+                        disabled={connectionStatus !== "ACCEPTED"}
+                        className={`flex-1 px-4 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 transition
+                          ${connectionStatus === "ACCEPTED"
+                            ? "bg-[#142A5D] text-white hover:bg-[#0f2149] cursor-pointer"
+                            : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                          }`}
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        Message
+                      </button>
+                    </div>
+                  )}
+
+                  {/* ── Self notice ── */}
+                  {isCurrentUser && (
+                    <div className="p-4 bg-gray-50">
+                      <div className="flex items-center justify-center py-2 rounded-xl bg-[#142A5D]/5 border border-[#142A5D]/15 text-[#142A5D] text-sm font-medium">
+                        This is you
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}

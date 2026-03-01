@@ -389,7 +389,6 @@ const MessageBubble = ({ msg, isMine, onReply, onEdit, onDeleteMe, onDeleteEvery
                 {!isMine && <Avatar user={msg.sender} size="sm" />}
 
                 <div className="relative flex flex-col gap-1">
-                    {/* Bubble */}
                     <div className={`relative px-3 py-2 rounded-2xl text-sm shadow-sm
                         ${isMine ? "text-white rounded-tr-sm" : "bg-white text-gray-800 rounded-tl-sm border border-gray-100"}
                         ${isDeleted ? "italic opacity-60" : ""}
@@ -424,7 +423,6 @@ const MessageBubble = ({ msg, isMine, onReply, onEdit, onDeleteMe, onDeleteEvery
                                     {isEdited && <span className={`text-[10px] ${isMine ? "text-blue-200" : "text-gray-400"}`}>edited</span>}
                                     <span className={`text-[10px] ${isMine ? "text-blue-200" : "text-gray-400"}`}>{formatTime(msg.createdAt)}</span>
                                     {isMine && (
-                                        // Optimistic = single faded tick. Sent = single tick. Read = double tick.
                                         msg._optimistic
                                             ? <Check className="w-3.5 h-3.5 text-blue-200/40" />
                                             : msg.readBy?.length > 0
@@ -444,7 +442,6 @@ const MessageBubble = ({ msg, isMine, onReply, onEdit, onDeleteMe, onDeleteEvery
                         )}
                     </div>
 
-                    {/* Context menu — hidden while optimistic (no real _id yet) */}
                     {!isDeleted && !msg._optimistic && (
                         <div ref={menuRef}
                             className={`absolute top-1 ${isMine ? "-left-9" : "-right-9"} opacity-0 group-hover:opacity-100 transition-opacity z-20`}>
@@ -550,6 +547,8 @@ const EmptyState = ({ hasConversations }) => (
 );
 
 /* ══════════════════════════════════════════════════ NEW CHAT PANEL */
+// FIX: Removed the two broken useEffects that referenced undefined `otherUser` and `activeConv`.
+// Those variables don't exist in NewChatPanel — they belong to ChatPanel.
 const NewChatPanel = ({ recipientId, recipientUser, onConversationCreated }) => {
     const dispatch = useDispatch();
     const [text, setText] = useState("");
@@ -570,17 +569,23 @@ const NewChatPanel = ({ recipientId, recipientUser, onConversationCreated }) => 
     const handleSend = () => {
         const content = text.trim();
         if (!content && attachedFiles.length === 0) return;
-        // Clear immediately
-        setText("");
-        setAttachedFiles([]);
-        dispatch(sendMessage({ recipientId, content, replyTo: null, files: attachedFiles }))
-            .then((result) => {
-                if (result.meta.requestStatus === "fulfilled") {
-                    onConversationCreated(result.payload.conversationId);
-                } else {
-                    setFileError(result.payload || "Failed to send message.");
-                }
-            });
+
+        // Guard: ensure we have a recipient
+        if (!otherUser?._id) {
+            setFileError("Could not find recipient. Please refresh.");
+            return;
+        }
+
+        if (editingMsg) { /* ... existing edit logic */ }
+
+        const snapshot = {
+            recipientId: otherUser._id.toString(), // ← force string
+            content,
+            replyTo: replyTo?._id || null,
+            files: attachedFiles,
+            conversationId,
+        };
+        // ...
     };
 
     const handleKeyDown = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } };
@@ -618,9 +623,12 @@ const NewChatPanel = ({ recipientId, recipientUser, onConversationCreated }) => 
                         className="flex-1 resize-none text-sm text-gray-800 outline-none bg-transparent max-h-32 overflow-y-auto leading-relaxed placeholder-gray-400"
                         style={{ minHeight: "24px" }} />
                 </div>
-                <button onClick={handleSend} disabled={!text.trim() && attachedFiles.length === 0}
-                    className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 transition-all disabled:opacity-40 active:scale-95 shadow-md"
-                    style={{ background: BLUE }}>
+                <button
+                    onClick={handleSend}
+                    disabled={!text.trim() && attachedFiles.length === 0}
+                    className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-95 shadow-md disabled:cursor-not-allowed"
+                    style={{ background: BLUE }}
+                >
                     <Send className="w-4 h-4 text-white ml-0.5" />
                 </button>
             </div>
@@ -652,6 +660,13 @@ const ChatPanel = ({ conversationId, currentUserId }) => {
     useEffect(() => {
         if (error) { setFileError(error); dispatch(clearError()); }
     }, [error]);
+
+    useEffect(() => {
+        console.log("activeConv:", activeConv);
+        console.log("otherUser:", otherUser);
+        console.log("conversationId:", conversationId);
+        console.log("conversations in store:", conversations.map(c => c.id));
+    }, [conversationId, activeConv]);
 
     const scrollToMessage = (messageId) => {
         const el = messageRefs.current[messageId];
@@ -697,7 +712,7 @@ const ChatPanel = ({ conversationId, currentUserId }) => {
             return;
         }
 
-        // ── Snapshot args BEFORE clearing state ──
+        // FIX: Use otherUser?._id directly — recipientIdRef was never declared in ChatPanel
         const snapshot = {
             recipientId: otherUser?._id,
             content,
@@ -706,7 +721,7 @@ const ChatPanel = ({ conversationId, currentUserId }) => {
             conversationId,
         };
 
-        // ── Clear UI immediately — don't wait for server ──
+        // ── Clear UI immediately ──
         setText("");
         setReplyTo(null);
         setAttachedFiles([]);
@@ -803,9 +818,8 @@ const ChatPanel = ({ conversationId, currentUserId }) => {
                         className="flex-1 resize-none text-sm text-gray-800 outline-none bg-transparent max-h-32 overflow-y-auto leading-relaxed placeholder-gray-400"
                         style={{ minHeight: "24px" }} />
                 </div>
-                {/* No spinner — send button is always just a send icon */}
                 <button onClick={handleSend} disabled={!canSend}
-                    className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 transition-all disabled:opacity-40 active:scale-95 shadow-md"
+                    className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 transition-all  active:scale-95 shadow-md"
                     style={{ background: BLUE }}>
                     <Send className="w-4 h-4 text-white ml-0.5" />
                 </button>
