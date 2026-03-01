@@ -209,23 +209,68 @@ const messageSlice = createSlice({
 
     extraReducers: (builder) => {
         builder
-            .addCase(sendMessage.pending, (state) => { state.sending = true; state.error = null; })
+            .addCase(sendMessage.pending, (state, action) => {
+                state.sending = true;
+                state.error = null;
+
+                // ── Optimistic insert ──
+                const { recipientId, content, replyTo, conversationId } = action.meta.arg;
+                const tempId = `temp_${Date.now()}`;
+                action.meta.tempId = tempId; // stash for fulfilled/rejected
+
+                // We need a conversationId to know which bucket to insert into.
+                // Pass it as part of the thunk arg (see step 2).
+                if (conversationId) {
+                    if (!state.messagesByConversation[conversationId]) {
+                        state.messagesByConversation[conversationId] = { messages: [], hasMore: true, page: 1 };
+                    }
+                    state.messagesByConversation[conversationId].messages.push({
+                        _id: tempId,
+                        content: content?.trim() || "",
+                        sender: { _id: "ME" }, // sentinel — replaced on fulfilled
+                        replyTo: replyTo ? { _id: replyTo } : null,
+                        attachments: [],
+                        createdAt: new Date().toISOString(),
+                        readBy: [],
+                        _optimistic: true,
+                    });
+                }
+            })
             .addCase(sendMessage.fulfilled, (state, action) => {
                 state.sending = false;
                 const { message, conversationId } = action.payload;
                 const convId = conversationId?.toString();
-                if (!state.messagesByConversation[convId]) {
+
+                // Remove the optimistic message, then insert the real one
+                if (state.messagesByConversation[convId]) {
+                    state.messagesByConversation[convId].messages =
+                        state.messagesByConversation[convId].messages.filter(
+                            m => !m._optimistic
+                        );
+                } else {
                     state.messagesByConversation[convId] = { messages: [], hasMore: true, page: 1 };
                 }
                 state.messagesByConversation[convId].messages.push(message);
-                const conv = state.conversations.find((c) => c.id === convId);
+
+                const conv = state.conversations.find(c => c.id === convId);
                 if (conv) {
                     conv.lastMessage = message;
-                    state.conversations = [conv, ...state.conversations.filter((c) => c.id !== convId)];
+                    state.conversations = [conv, ...state.conversations.filter(c => c.id !== convId)];
                 }
             })
-            .addCase(sendMessage.rejected, (state, action) => { state.sending = false; state.error = action.payload; })
+            .addCase(sendMessage.rejected, (state, action) => {
+                state.sending = false;
+                state.error = action.payload;
 
+                // Remove the optimistic message on failure
+                const { conversationId } = action.meta.arg;
+                if (conversationId && state.messagesByConversation[conversationId]) {
+                    state.messagesByConversation[conversationId].messages =
+                        state.messagesByConversation[conversationId].messages.filter(
+                            m => !m._optimistic
+                        );
+                }
+            })
             .addCase(fetchMessages.pending, (state) => { state.loading = true; state.error = null; })
             .addCase(fetchMessages.fulfilled, (state, action) => {
                 state.loading = false;

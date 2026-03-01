@@ -17,7 +17,7 @@ import { useOutletContext } from "react-router-dom";
 
 const BLUE = "#142A5D";
 const GOLD = "#F2A20A";
-const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
+const MAX_FILE_SIZE = 25 * 1024 * 1024;
 const MAX_FILES = 5;
 
 /* ══════════════════════════════════════════════════ UTILS */
@@ -92,16 +92,143 @@ const Avatar = ({ user, size = "md" }) => {
     );
 };
 
+/* ══════════════════════════════════════════════════ IMAGE LIGHTBOX */
+const ImageLightbox = ({ images, startIndex = 0, onClose }) => {
+    const [current, setCurrent] = useState(startIndex);
+
+    useEffect(() => {
+        const handleKey = (e) => {
+            if (e.key === "Escape") onClose();
+            if (e.key === "ArrowRight") setCurrent(i => Math.min(i + 1, images.length - 1));
+            if (e.key === "ArrowLeft") setCurrent(i => Math.max(i - 1, 0));
+        };
+        document.addEventListener("keydown", handleKey);
+        return () => document.removeEventListener("keydown", handleKey);
+    }, [images.length, onClose]);
+
+    useEffect(() => {
+        document.body.style.overflow = "hidden";
+        return () => { document.body.style.overflow = ""; };
+    }, []);
+
+    const img = images[current];
+
+    return (
+        <AnimatePresence>
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[9999] flex flex-col"
+                style={{ background: "rgba(0,0,0,0.92)" }}
+                onClick={onClose}
+            >
+                {/* Top bar */}
+                <div
+                    className="flex items-center justify-between px-5 py-3 flex-shrink-0"
+                    onClick={e => e.stopPropagation()}
+                >
+                    <span className="text-white/60 text-sm font-medium">
+                        {images.length > 1 ? `${current + 1} / ${images.length}` : img.name}
+                    </span>
+                    <div className="flex items-center gap-2">
+                        <a
+                            href={img.url}
+                            download={img.name}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 text-xs transition"
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <Download className="w-3.5 h-3.5" /> Download
+                        </a>
+                        <button
+                            onClick={onClose}
+                            className="w-8 h-8 rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-white/15 transition"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+
+                {/* Image area */}
+                <div
+                    className="flex-1 flex items-center justify-center px-16 relative min-h-0"
+                    onClick={e => e.stopPropagation()}
+                >
+                    {current > 0 && (
+                        <button
+                            onClick={() => setCurrent(i => i - 1)}
+                            className="absolute left-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/25 flex items-center justify-center text-white transition z-10"
+                        >
+                            <ArrowLeft className="w-5 h-5" />
+                        </button>
+                    )}
+
+                    <motion.img
+                        key={current}
+                        initial={{ opacity: 0, scale: 0.96 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.15 }}
+                        src={img.url}
+                        alt={img.name}
+                        className="max-w-full max-h-full object-contain rounded-lg select-none"
+                        style={{ maxHeight: "calc(100vh - 140px)" }}
+                        draggable={false}
+                    />
+
+                    {current < images.length - 1 && (
+                        <button
+                            onClick={() => setCurrent(i => i + 1)}
+                            className="absolute right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/25 flex items-center justify-center text-white transition z-10"
+                        >
+                            <ArrowLeft className="w-5 h-5 rotate-180" />
+                        </button>
+                    )}
+                </div>
+
+                {/* Thumbnail strip */}
+                {images.length > 1 && (
+                    <div
+                        className="flex justify-center gap-2 px-4 py-3 flex-shrink-0"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        {images.map((im, i) => (
+                            <button
+                                key={i}
+                                onClick={() => setCurrent(i)}
+                                className={`w-12 h-12 rounded-lg overflow-hidden border-2 transition-all flex-shrink-0 ${i === current
+                                    ? "border-white scale-110"
+                                    : "border-transparent opacity-50 hover:opacity-80"
+                                    }`}
+                            >
+                                <img src={im.url} alt={im.name} className="w-full h-full object-cover" />
+                            </button>
+                        ))}
+                    </div>
+                )}
+            </motion.div>
+        </AnimatePresence>
+    );
+};
+
 /* ══════════════════════════════════════════════════ ATTACHMENT RENDERER */
-const AttachmentRenderer = ({ attachment, isMine }) => {
+const AttachmentRenderer = ({ attachment, isMine, allImageAttachments = [], onOpenLightbox }) => {
     const { url, type, name, size } = attachment;
 
     if (type === "image") {
+        const indexInGroup = allImageAttachments.findIndex(a => a.url === url);
         return (
-            <a href={url} target="_blank" rel="noopener noreferrer" className="block mt-1.5">
-                <img src={url} alt={name}
-                    className="rounded-xl max-w-[260px] max-h-[200px] object-cover cursor-pointer hover:opacity-90 transition" />
-            </a>
+            <button
+                onClick={() => onOpenLightbox?.(allImageAttachments, indexInGroup >= 0 ? indexInGroup : 0)}
+                className="block mt-1.5 rounded-xl overflow-hidden focus:outline-none"
+            >
+                <img
+                    src={url}
+                    alt={name}
+                    className="max-w-[260px] max-h-[200px] object-cover hover:opacity-90 transition cursor-zoom-in rounded-xl"
+                />
+            </button>
         );
     }
     if (type === "video") {
@@ -188,13 +315,10 @@ const AttachmentPreview = ({ files, onRemove }) => {
 /* ══════════════════════════════════════════════════ FILE VALIDATION */
 const validateFiles = (newFiles, existingFiles = []) => {
     const errors = [];
-
-    // Check count
     if (existingFiles.length + newFiles.length > MAX_FILES) {
         errors.push(`You can only attach up to ${MAX_FILES} files per message.`);
         return { valid: [], errors };
     }
-
     const valid = [];
     for (const file of newFiles) {
         if (file.size > MAX_FILE_SIZE) {
@@ -203,7 +327,6 @@ const validateFiles = (newFiles, existingFiles = []) => {
             valid.push(file);
         }
     }
-
     return { valid, errors };
 };
 
@@ -268,19 +391,43 @@ const ReplyPreviewInBubble = ({ replyTo, isMine, onClick }) => {
     );
 };
 
-/* ══════════════════════════════════════════════════ MESSAGE BUBBLE
-   REPLACE the entire MessageBubble component in MessagingPage.jsx
-   with this fixed version.
-   
-   THE BUG: The menu button was inside `flex flex-col gap-1` which 
-   has no `position: relative`, so `absolute` positioned menu escaped 
-   and got clipped by the messages overflow-y-auto container.
-   
-   THE FIX: Wrap bubble + menu in a `relative` div so `absolute` 
-   children position correctly within each message row.
-══════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════ FLOATING MENU */
+const FloatingMenu = ({ isMine, anchorRef, onClose, children }) => {
+    const menuRef = useRef(null);
+    const [position, setPosition] = useState({ top: true }); // true = open downward
 
-const MessageBubble = ({ msg, isMine, onReply, onEdit, onDeleteMe, onDeleteEveryone, scrollToMessage }) => {
+    useEffect(() => {
+        if (!anchorRef.current || !menuRef.current) return;
+
+        const anchorRect = anchorRef.current.getBoundingClientRect();
+        const menuHeight = menuRef.current.offsetHeight || 160; // estimated if not yet painted
+        const viewportHeight = window.innerHeight;
+        const spaceBelow = viewportHeight - anchorRect.bottom;
+
+        // If not enough space below, open upward
+        setPosition({ top: spaceBelow >= menuHeight + 8 });
+    }, []);
+
+    return (
+        <motion.div
+            ref={menuRef}
+            initial={{ opacity: 0, scale: 0.85, y: -4 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.85, y: -4 }}
+            transition={{ duration: 0.12 }}
+            className={`absolute ${isMine ? "right-0" : "left-0"} bg-white rounded-2xl shadow-2xl border border-gray-100 py-1.5 min-w-[165px] z-30`}
+            style={position.top
+                ? { top: "36px" }          // open downward
+                : { bottom: "36px" }        // flip upward
+            }
+        >
+            {children}
+        </motion.div>
+    );
+};
+
+/* ══════════════════════════════════════════════════ MESSAGE BUBBLE */
+const MessageBubble = ({ msg, isMine, onReply, onEdit, onDeleteMe, onDeleteEveryone, scrollToMessage, onOpenLightbox }) => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [swipeX, setSwipeX] = useState(0);
     const menuRef = useRef(null);
@@ -288,6 +435,7 @@ const MessageBubble = ({ msg, isMine, onReply, onEdit, onDeleteMe, onDeleteEvery
     const isDeleted = msg.deletedForEveryone;
     const isEdited = !!msg.editedAt;
     const hasAttachments = msg.attachments?.length > 0;
+    const imageAttachments = msg.attachments?.filter(a => a.type === "image") || [];
 
     useEffect(() => {
         const handler = (e) => {
@@ -337,9 +485,7 @@ const MessageBubble = ({ msg, isMine, onReply, onEdit, onDeleteMe, onDeleteEvery
             >
                 {!isMine && <Avatar user={msg.sender} size="sm" />}
 
-                {/* ── KEY FIX: relative wrapper so absolute menu positions correctly ── */}
                 <div className="relative flex flex-col gap-1">
-
                     {/* Bubble */}
                     <div
                         className={`relative px-3 py-2 rounded-2xl text-sm shadow-sm
@@ -364,7 +510,13 @@ const MessageBubble = ({ msg, isMine, onReply, onEdit, onDeleteMe, onDeleteEvery
                                 {hasAttachments && (
                                     <div className="flex flex-col gap-1.5">
                                         {msg.attachments.map((att, i) => (
-                                            <AttachmentRenderer key={i} attachment={att} isMine={isMine} />
+                                            <AttachmentRenderer
+                                                key={i}
+                                                attachment={att}
+                                                isMine={isMine}
+                                                allImageAttachments={imageAttachments}
+                                                onOpenLightbox={onOpenLightbox}
+                                            />
                                         ))}
                                     </div>
                                 )}
@@ -399,7 +551,7 @@ const MessageBubble = ({ msg, isMine, onReply, onEdit, onDeleteMe, onDeleteEvery
                         )}
                     </div>
 
-                    {/* ── Context menu button — shows on hover ── */}
+                    {/* Context menu button */}
                     {!isDeleted && (
                         <div
                             ref={menuRef}
@@ -414,14 +566,11 @@ const MessageBubble = ({ msg, isMine, onReply, onEdit, onDeleteMe, onDeleteEvery
 
                             <AnimatePresence>
                                 {menuOpen && (
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.85, y: -4 }}
-                                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                                        exit={{ opacity: 0, scale: 0.85, y: -4 }}
-                                        transition={{ duration: 0.12 }}
-                                        className={`absolute top-8 ${isMine ? "right-0" : "left-0"} bg-white rounded-2xl shadow-2xl border border-gray-100 py-1.5 min-w-[165px] z-30`}
+                                    <FloatingMenu
+                                        isMine={isMine}
+                                        anchorRef={menuRef}
+                                        onClose={() => setMenuOpen(false)}
                                     >
-                                        {/* Reply — always visible */}
                                         <button
                                             onClick={() => { onReply(msg); setMenuOpen(false); }}
                                             className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50 transition"
@@ -429,7 +578,6 @@ const MessageBubble = ({ msg, isMine, onReply, onEdit, onDeleteMe, onDeleteEvery
                                             <Reply className="w-3.5 h-3.5 text-gray-400" /> Reply
                                         </button>
 
-                                        {/* Edit — only mine, only text messages */}
                                         {isMine && !hasAttachments && (
                                             <button
                                                 onClick={() => { onEdit(msg); setMenuOpen(false); }}
@@ -441,7 +589,6 @@ const MessageBubble = ({ msg, isMine, onReply, onEdit, onDeleteMe, onDeleteEvery
 
                                         <div className="my-1 border-t border-gray-100" />
 
-                                        {/* Delete for everyone — only mine */}
                                         {isMine && (
                                             <button
                                                 onClick={() => { onDeleteEveryone(msg._id); setMenuOpen(false); }}
@@ -451,14 +598,13 @@ const MessageBubble = ({ msg, isMine, onReply, onEdit, onDeleteMe, onDeleteEvery
                                             </button>
                                         )}
 
-                                        {/* Delete for me — always visible */}
                                         <button
                                             onClick={() => { onDeleteMe(msg._id); setMenuOpen(false); }}
                                             className="flex items-center gap-2.5 w-full px-4 py-2.5 text-xs text-gray-500 hover:bg-gray-50 transition"
                                         >
                                             <Trash2 className="w-3.5 h-3.5 text-gray-400" /> Delete for me
                                         </button>
-                                    </motion.div>
+                                    </FloatingMenu>
                                 )}
                             </AnimatePresence>
                         </div>
@@ -537,6 +683,7 @@ const NewChatPanel = ({ recipientId, recipientUser, onConversationCreated }) => 
     const [text, setText] = useState("");
     const [attachedFiles, setAttachedFiles] = useState([]);
     const [fileError, setFileError] = useState(null);
+    const [lightbox, setLightbox] = useState(null);
     const { sending } = useSelector(s => s.messages);
     const inputRef = useRef(null);
     const fileInputRef = useRef(null);
@@ -607,6 +754,14 @@ const NewChatPanel = ({ recipientId, recipientUser, onConversationCreated }) => 
                     {sending ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <Send className="w-4 h-4 text-white ml-0.5" />}
                 </button>
             </div>
+
+            {lightbox && (
+                <ImageLightbox
+                    images={lightbox.images}
+                    startIndex={lightbox.startIndex}
+                    onClose={() => setLightbox(null)}
+                />
+            )}
         </div>
     );
 };
@@ -619,6 +774,7 @@ const ChatPanel = ({ conversationId, currentUserId }) => {
     const [editingMsg, setEditingMsg] = useState(null);
     const [attachedFiles, setAttachedFiles] = useState([]);
     const [fileError, setFileError] = useState(null);
+    const [lightbox, setLightbox] = useState(null); // { images, startIndex }
     const messageRefs = useRef({});
     const bottomRef = useRef(null);
     const inputRef = useRef(null);
@@ -630,7 +786,6 @@ const ChatPanel = ({ conversationId, currentUserId }) => {
     const activeConv = conversations.find(c => c.id === conversationId);
     const otherUser = activeConv?.otherUser;
 
-    // Dismiss redux error automatically
     useEffect(() => {
         if (error) {
             setFileError(error);
@@ -658,13 +813,13 @@ const ChatPanel = ({ conversationId, currentUserId }) => {
         setEditingMsg(null);
         setAttachedFiles([]);
         setFileError(null);
+        setLightbox(null);
     }, [conversationId]);
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages.length]);
 
-    // ── Client-side file validation ──
     const handleFileChange = (e) => {
         const newFiles = Array.from(e.target.files);
         const { valid, errors } = validateFiles(newFiles, attachedFiles);
@@ -690,6 +845,7 @@ const ChatPanel = ({ conversationId, currentUserId }) => {
             content,
             replyTo: replyTo?._id || null,
             files: attachedFiles,
+            conversationId, // for optimistic UI
         }));
 
         if (result.meta.requestStatus === "fulfilled") {
@@ -698,7 +854,6 @@ const ChatPanel = ({ conversationId, currentUserId }) => {
             setText("");
             inputRef.current?.focus();
         } else {
-            // Backend error (e.g. server-side size check)
             setFileError(result.payload || "Failed to send message.");
         }
     };
@@ -721,27 +876,33 @@ const ChatPanel = ({ conversationId, currentUserId }) => {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 space-y-0.5" style={{ background: "#EAE6DF" }}>                {grouped.map((item, i) =>
-                item.type === "date" ? (
-                    <div key={i} className="flex justify-center my-4">
-                        <span className="text-[11px] text-gray-600 bg-white/80 backdrop-blur px-3 py-1 rounded-full shadow-sm font-medium">
-                            {item.label}
-                        </span>
-                    </div>
-                ) : (
-                    <div key={item.data._id} ref={(el) => { if (el) messageRefs.current[item.data._id] = el; }}>
-                        <MessageBubble
-                            msg={item.data}
-                            isMine={item.data.sender?._id === currentUserId || item.data.sender === currentUserId}
-                            onReply={handleReply}
-                            onEdit={handleEdit}
-                            scrollToMessage={scrollToMessage}
-                            onDeleteMe={(id) => dispatch(deleteMessageForMe({ messageId: id, conversationId }))}
-                            onDeleteEveryone={(id) => dispatch(deleteMessageForEveryone({ messageId: id, conversationId }))}
-                        />
-                    </div>
-                )
-            )}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 space-y-0.5" style={{ background: "#EAE6DF" }}>
+                {grouped.map((item, i) =>
+                    item.type === "date" ? (
+                        <div key={i} className="flex justify-center my-4">
+                            <span className="text-[11px] text-gray-600 bg-white/80 backdrop-blur px-3 py-1 rounded-full shadow-sm font-medium">
+                                {item.label}
+                            </span>
+                        </div>
+                    ) : (
+                        <div key={item.data._id} ref={(el) => { if (el) messageRefs.current[item.data._id] = el; }}>
+                            <MessageBubble
+                                msg={item.data}
+                                isMine={
+                                    item.data._optimistic ||
+                                    item.data.sender?._id === currentUserId ||
+                                    item.data.sender === currentUserId
+                                }
+                                onReply={handleReply}
+                                onEdit={handleEdit}
+                                scrollToMessage={scrollToMessage}
+                                onDeleteMe={(id) => dispatch(deleteMessageForMe({ messageId: id, conversationId }))}
+                                onDeleteEveryone={(id) => dispatch(deleteMessageForEveryone({ messageId: id, conversationId }))}
+                                onOpenLightbox={(images, startIndex) => setLightbox({ images, startIndex })}
+                            />
+                        </div>
+                    )
+                )}
                 <div ref={bottomRef} />
             </div>
 
@@ -751,10 +912,8 @@ const ChatPanel = ({ conversationId, currentUserId }) => {
                 {editingMsg && <EditBanner editingMsg={editingMsg} onCancel={cancelCompose} />}
             </AnimatePresence>
 
-            {/* Error toast — shown above attachment preview */}
             <ErrorToast message={fileError} onClose={() => setFileError(null)} />
 
-            {/* Attachment preview */}
             <AnimatePresence>
                 {attachedFiles.length > 0 && (
                     <AttachmentPreview
@@ -794,6 +953,15 @@ const ChatPanel = ({ conversationId, currentUserId }) => {
                     {sending ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <Send className="w-4 h-4 text-white ml-0.5" />}
                 </button>
             </div>
+
+            {/* Image Lightbox */}
+            {lightbox && (
+                <ImageLightbox
+                    images={lightbox.images}
+                    startIndex={lightbox.startIndex}
+                    onClose={() => setLightbox(null)}
+                />
+            )}
         </div>
     );
 };
