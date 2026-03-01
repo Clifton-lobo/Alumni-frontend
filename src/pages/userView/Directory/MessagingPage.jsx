@@ -549,7 +549,7 @@ const EmptyState = ({ hasConversations }) => (
 /* ══════════════════════════════════════════════════ NEW CHAT PANEL */
 // FIX: Removed the two broken useEffects that referenced undefined `otherUser` and `activeConv`.
 // Those variables don't exist in NewChatPanel — they belong to ChatPanel.
-const NewChatPanel = ({ recipientId, recipientUser, onConversationCreated }) => {
+const NewChatPanel = ({ recipientId, recipientUser, currentUserId, onConversationCreated }) => {
     const dispatch = useDispatch();
     const [text, setText] = useState("");
     const [attachedFiles, setAttachedFiles] = useState([]);
@@ -557,6 +557,12 @@ const NewChatPanel = ({ recipientId, recipientUser, onConversationCreated }) => 
     const [lightbox, setLightbox] = useState(null);
     const inputRef = useRef(null);
     const fileInputRef = useRef(null);
+
+    const { error } = useSelector(s => s.messages);
+
+    useEffect(() => {
+        if (error) { setFileError(error); dispatch(clearError()); }
+    }, [error]);
 
     const handleFileChange = (e) => {
         const newFiles = Array.from(e.target.files);
@@ -569,70 +575,100 @@ const NewChatPanel = ({ recipientId, recipientUser, onConversationCreated }) => 
     const handleSend = () => {
         const content = text.trim();
         if (!content && attachedFiles.length === 0) return;
-
-        // Guard: ensure we have a recipient
-        if (!otherUser?._id) {
+        if (!recipientId) {
             setFileError("Could not find recipient. Please refresh.");
             return;
         }
 
-        if (editingMsg) { /* ... existing edit logic */ }
-
         const snapshot = {
-            recipientId: otherUser._id.toString(), // ← force string
+            recipientId: recipientId.toString(),
             content,
-            replyTo: replyTo?._id || null,
+            replyTo: null,
             files: attachedFiles,
-            conversationId,
         };
-        // ...
+
+        setText("");
+        setAttachedFiles([]);
+        inputRef.current?.focus();
+
+        dispatch(sendMessage(snapshot)).then((result) => {
+            if (result.meta.requestStatus === "rejected") {
+                setFileError(result.payload || "Failed to send message.");
+            } else if (result.meta.requestStatus === "fulfilled") {
+                // Conversation was just created — hand off the new conversationId
+                const convId = result.payload?.conversationId?.toString();
+                if (convId) {
+                    dispatch(fetchConversations()); // refresh sidebar
+                    onConversationCreated?.(convId);
+                }
+            }
+        });
     };
 
-    const handleKeyDown = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } };
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
+    };
+
+    const canSend = text.trim().length > 0 || attachedFiles.length > 0;
 
     return (
         <div className="flex-1 flex flex-col h-full min-w-0">
             <div className="h-16 flex items-center gap-3 px-4 border-b border-gray-100 bg-white flex-shrink-0 shadow-sm">
                 <Avatar user={recipientUser} size="md" />
                 <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 truncate">{recipientUser?.fullname || recipientUser?.username || "New Conversation"}</p>
+                    <p className="font-semibold text-gray-900 truncate">
+                        {recipientUser?.fullname || recipientUser?.username || "New Conversation"}
+                    </p>
                     <p className="text-xs text-gray-400">Send your first message</p>
                 </div>
             </div>
+
             <div className="flex-1 flex items-center justify-center" style={{ background: "#EAE6DF" }}>
                 <div className="text-center text-gray-500">
                     <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-30" />
                     <p className="text-sm">No messages yet. Say hello!</p>
                 </div>
             </div>
+
             <ErrorToast message={fileError} onClose={() => setFileError(null)} />
+
             <AnimatePresence>
                 {attachedFiles.length > 0 && (
-                    <AttachmentPreview files={attachedFiles} onRemove={(i) => setAttachedFiles(prev => prev.filter((_, idx) => idx !== i))} />
+                    <AttachmentPreview
+                        files={attachedFiles}
+                        onRemove={(i) => setAttachedFiles(prev => prev.filter((_, idx) => idx !== i))}
+                    />
                 )}
             </AnimatePresence>
+
             <div className="px-3 py-2.5 bg-gray-100 border-t border-gray-200 flex items-end gap-2 flex-shrink-0">
-                <input ref={fileInputRef} type="file" multiple accept="image/*,video/*,audio/*,.pdf,.doc,.docx" className="hidden" onChange={handleFileChange} />
+                <input ref={fileInputRef} type="file" multiple
+                    accept="image/*,video/*,audio/*,.pdf,.doc,.docx"
+                    className="hidden" onChange={handleFileChange} />
                 <button onClick={() => fileInputRef.current?.click()}
+                    title="Attach files (max 5, 25MB each)"
                     className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-200 transition flex-shrink-0">
                     <Paperclip className="w-5 h-5" />
                 </button>
                 <div className="flex-1 bg-white rounded-3xl border border-gray-200 shadow-sm flex items-end px-4 py-2">
-                    <textarea ref={inputRef} rows={1} value={text} onChange={(e) => setText(e.target.value)} onKeyDown={handleKeyDown}
+                    <textarea ref={inputRef} rows={1} value={text}
+                        onChange={(e) => setText(e.target.value)}
+                        onKeyDown={handleKeyDown}
                         placeholder="Type a message"
                         className="flex-1 resize-none text-sm text-gray-800 outline-none bg-transparent max-h-32 overflow-y-auto leading-relaxed placeholder-gray-400"
                         style={{ minHeight: "24px" }} />
                 </div>
-                <button
-                    onClick={handleSend}
-                    disabled={!text.trim() && attachedFiles.length === 0}
-                    className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-95 shadow-md disabled:cursor-not-allowed"
-                    style={{ background: BLUE }}
-                >
+                <button onClick={handleSend} disabled={!canSend}
+                    className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-95 shadow-md  disabled:cursor-not-allowed"
+                    style={{ background: BLUE }}>
                     <Send className="w-4 h-4 text-white ml-0.5" />
                 </button>
             </div>
-            {lightbox && <ImageLightbox images={lightbox.images} startIndex={lightbox.startIndex} onClose={() => setLightbox(null)} />}
+
+            {lightbox && (
+                <ImageLightbox images={lightbox.images} startIndex={lightbox.startIndex}
+                    onClose={() => setLightbox(null)} />
+            )}
         </div>
     );
 };
