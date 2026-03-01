@@ -55,7 +55,7 @@ const JobCard = ({ job, view = "grid", onApply }) => {
     return (
       <div className="group relative bg-white rounded-2xl border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-[#EBAB09]">
         <div className="absolute top-0 left-0 right-0 h-[3px] bg-transparent group-hover:bg-[#EBAB09] transition-all duration-300" />
-
+{/* 
         {isAdminPosted && (
           <div className="absolute top-4 right-4">
             <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 border border-green-200">
@@ -63,7 +63,7 @@ const JobCard = ({ job, view = "grid", onApply }) => {
               <span className="text-xs font-medium text-green-700">Verified</span>
             </div>
           </div>
-        )}
+        )} */}
 
         <div className="p-6">
           <div className="flex items-start gap-5">
@@ -165,14 +165,14 @@ const JobCard = ({ job, view = "grid", onApply }) => {
     <div className="group relative bg-white rounded-2xl border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
       <div className="absolute top-0 left-0 right-0 h-[4px] bg-transparent group-hover:bg-[#EBAB09] transition-all duration-300" />
 
-      {isAdminPosted && (
+      {/* {isAdminPosted && (
         <div className="absolute top-4 right-4">
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 border border-green-200">
             <Shield className="h-3.5 w-3.5 text-green-600" />
             <span className="text-xs font-medium text-green-700">Verified</span>
           </div>
         </div>
-      )}
+      )} */}
 
       <div className="p-6 flex flex-col h-full">
         {/* Header */}

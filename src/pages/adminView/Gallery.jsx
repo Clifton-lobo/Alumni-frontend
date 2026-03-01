@@ -740,10 +740,12 @@ const Gallery = () => {
 
           {/* Selection info */}
           {selected.length > 0 && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-200 rounded-xl text-xs font-medium text-amber-700">
+            <div 
+            onClick={() => setSelected([])}
+            className="flex items-center gap-2 px-3 py-2 cursor-pointer bg-amber-50 border border-amber-200 rounded-xl text-xs font-medium text-amber-700">
               <CheckCircle className="h-3.5 w-3.5" />
               {selected.length} selected
-              <button onClick={() => setSelected([])}>
+              <button >
                 <X className="h-3 w-3 hover:text-amber-900" />
               </button>
             </div>

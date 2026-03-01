@@ -14,7 +14,7 @@ import NewsReducer from "./user-view/UserNewsSlice.js"
 import GalleryReducer from "./user-view/GallerySlice.js"
 import AdminGalleryReducer from "./admin/AdminGallerySlice.js"
 import AdminNewsReducer from "./admin/AdminNewsSlice.js"
-
+import adminApplicationsReducer from "./admin/AdminJobApplicationSlice.js"
 
 export const store = configureStore({
   reducer: {
@@ -32,7 +32,8 @@ export const store = configureStore({
     news : NewsReducer,
     gallery:GalleryReducer,
     Admingallery: AdminGalleryReducer,
-    Adminnews : AdminNewsReducer
+    Adminnews : AdminNewsReducer,
+    adminApplications : adminApplicationsReducer
     
   },
 });
