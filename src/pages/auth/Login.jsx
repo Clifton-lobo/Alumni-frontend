@@ -102,126 +102,154 @@ const Login = () => {
       </div>
 
       {/* ── Right panel ── */}
-      <div className="flex-1 flex flex-col justify-center px-6 sm:px-12 lg:px-16 xl:px-24 py-12">
+      {/* ── Right panel ── */}
+      <div className="flex-1 flex flex-col min-h-screen lg:justify-center">
 
-        {/* Mobile logo */}
-        <div className="flex items-center gap-2.5 mb-10 lg:hidden">
-          <div className="w-14 h-14 flex items-center justify-center">
-            <img src={vpmLogo} alt="VPM Logo" className="w-full h-full object-contain" />
+        {/* Mobile hero header */}
+        <div
+          className="lg:hidden relative overflow-hidden px-6 pt-14 pb-10"
+          style={{ background: NAVY }}
+        >
+          <div className="absolute -bottom-20 -right-20 w-64 h-64 rounded-full opacity-10"
+            style={{ border: `50px solid ${GOLD}` }} />
+          <div className="absolute -top-12 -left-12 w-44 h-44 rounded-full opacity-[0.07]"
+            style={{ border: `35px solid ${GOLD}` }} />
+          <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{ background: GOLD, opacity: 0.3 }} />
+
+          <div className="relative z-10 flex items-center gap-3 mb-8">
+            <div className="w-10 h-10">
+              <img src={vpmLogo} alt="VPM Logo" className="w-full h-full object-contain" />
+            </div>
+            <span className="font-serif font-bold text-white text-xl tracking-wide">Alumni Connect</span>
           </div>
-          <span className="font-serif font-bold text-3xl" style={{ color: NAVY }}>Alumni Connect</span>
+
+          <div className="relative z-10">
+            <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-2" style={{ color: GOLD }}>
+              Welcome back
+            </p>
+            <h1 className="font-serif text-3xl font-black text-white leading-tight mb-2">
+              Reconnect with<br />your community.
+            </h1>
+            <p className="text-white/50 text-sm leading-relaxed max-w-xs">
+              Stay connected with fellow alumni and discover new opportunities.
+            </p>
+          </div>
+
+          <div className="relative z-10 flex items-center gap-8 mt-7 pt-5 border-t border-white/10">
+            {[{ value: "12K+", label: "Alumni" }, { value: "400+", label: "Companies" }, { value: "80+", label: "Countries" }].map(({ value, label }) => (
+              <div key={label}>
+                <p className="font-serif font-black text-lg text-white">{value}</p>
+                <p className="text-[10px] text-white/40 uppercase tracking-widest">{label}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div className="max-w-sm w-full mx-auto lg:mx-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3" style={{ color: GOLD }}>
-            Sign in
-          </p>
-          <h2 className="font-serif text-3xl font-black mb-1" style={{ color: NAVY }}>
-            Welcome back
-          </h2>
-          <p className="text-sm text-gray-400 mb-8">
-            Don't have an account?{" "}
-            <Link
-              to="/auth/register"
-              className="font-semibold underline underline-offset-2 hover:opacity-70 transition-opacity"
-              style={{ color: NAVY }}
-            >
-              Register here
-            </Link>
-          </p>
+        {/* Form area */}
+        <div className="flex-1 flex flex-col justify-center px-5 sm:px-8 lg:px-16 xl:px-24 py-8 lg:py-12">
+          <div className="max-w-sm w-full mx-auto lg:mx-0">
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-
-            {/* Email */}
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5 text-gray-500">
-                Email address
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300 pointer-events-none" />
-                <input
-                  type="email"
-                  name="email"
-                  value={loginData.email}
-                  onChange={handleChange}
-                  placeholder="you@example.com"
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 bg-white text-sm
-                    text-gray-800 placeholder-gray-300 outline-none transition
-                    focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
-                />
-              </div>
+            {/* Desktop heading */}
+            <div className="hidden lg:block mb-8">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3" style={{ color: GOLD }}>
+                Sign in
+              </p>
+              <h2 className="font-serif text-3xl font-black mb-1" style={{ color: NAVY }}>
+                Welcome back
+              </h2>
             </div>
 
-            {/* Password */}
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-semibold uppercase tracking-widest text-gray-500">
-                  Password
+            {/* Mobile heading */}
+            <div className="lg:hidden mb-5 mt-1">
+              <h2 className="font-serif text-2xl font-black" style={{ color: NAVY }}>Sign in</h2>
+            </div>
+
+            <p className="text-sm text-gray-400 mb-6">
+              Don't have an account?{" "}
+              <Link to="/auth/register"
+                className="font-semibold underline underline-offset-2 hover:opacity-70 transition-opacity"
+                style={{ color: NAVY }}>
+                Register here
+              </Link>
+            </p>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+
+              {/* Email */}
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5 text-gray-500">
+                  Email address
                 </label>
-                <Link
-                  to="/auth/forgot-password"
-                  className="text-xs text-gray-400 hover:text-gray-600 underline underline-offset-2 transition-colors"
-                >
-                  Forgot password?
-                </Link>
+                <div className="relative">
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300 pointer-events-none" />
+                  <input
+                    type="email" name="email" value={loginData.email} onChange={handleChange}
+                    placeholder="you@example.com"
+                    className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-gray-200 bg-white text-sm
+                text-gray-800 placeholder-gray-300 outline-none transition
+                focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+                  />
+                </div>
               </div>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300 pointer-events-none" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={loginData.password}
-                  onChange={handleChange}
-                  placeholder="Enter your password"
-                  className="w-full pl-10 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-sm
-                    text-gray-800 placeholder-gray-300 outline-none transition
-                    focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 transition-colors"
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
+
+              {/* Password */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-semibold uppercase tracking-widest text-gray-500">
+                    Password
+                  </label>
+                  <Link to="/auth/forgot-password"
+                    className="text-xs text-gray-400 hover:text-gray-600 underline underline-offset-2 transition-colors">
+                    Forgot password?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300 pointer-events-none" />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password" value={loginData.password} onChange={handleChange}
+                    placeholder="Enter your password"
+                    className="w-full pl-10 pr-10 py-3.5 rounded-xl border border-gray-200 bg-white text-sm
+                text-gray-800 placeholder-gray-300 outline-none transition
+                focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+                  />
+                  <button type="button" onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 transition-colors">
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
+
+              {/* Submit */}
+              <button type="submit" disabled={isLoading}
+                className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold
+            transition-all duration-200 hover:opacity-90 active:scale-[0.98] mt-2
+            disabled:opacity-60 disabled:cursor-not-allowed"
+                style={{ background: NAVY, color: "white" }}>
+                {isLoading ? (
+                  <>
+                    <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                    Signing in…
+                  </>
+                ) : (
+                  <>Sign in <ArrowRight className="h-4 w-4" /></>
+                )}
+              </button>
+            </form>
+
+            <div className="flex items-center gap-3 mt-6 mb-5">
+              <div className="h-px flex-1 bg-gray-100" />
+              <div className="w-1.5 h-1.5 rounded-full" style={{ background: GOLD }} />
+              <div className="h-px flex-1 bg-gray-100" />
             </div>
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold
-                transition-all duration-200 hover:opacity-90 active:scale-[0.98] mt-2
-                disabled:opacity-60 disabled:cursor-not-allowed"
-              style={{ background: NAVY, color: "white" }}
-            >
-              {isLoading ? (
-                <>
-                  <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                  Signing in…
-                </>
-              ) : (
-                <>
-                  Sign in <ArrowRight className="h-4 w-4" />
-                </>
-              )}
-            </button>
-          </form>
-
-          {/* Ornament divider */}
-          <div className="flex items-center gap-3 mt-6 mb-5">
-            <div className="h-px flex-1 bg-gray-100" />
-            <div className="w-1.5 h-1.5 rounded-full" style={{ background: GOLD }} />
-            <div className="h-px flex-1 bg-gray-100" />
+            <p className="text-xs text-gray-400 text-center leading-relaxed">
+              By signing in you agree to our{" "}
+              <span className="underline underline-offset-2 cursor-pointer hover:text-gray-600 transition-colors">Terms of Service</span>
+              {" "}and{" "}
+              <span className="underline underline-offset-2 cursor-pointer hover:text-gray-600 transition-colors">Privacy Policy</span>.
+            </p>
           </div>
-
-          <p className="text-xs text-gray-400 text-center leading-relaxed">
-            By signing in you agree to our{" "}
-            <span className="underline underline-offset-2 cursor-pointer hover:text-gray-600 transition-colors">Terms of Service</span>
-            {" "}and{" "}
-            <span className="underline underline-offset-2 cursor-pointer hover:text-gray-600 transition-colors">Privacy Policy</span>.
-          </p>
         </div>
       </div>
     </div>
@@ -229,6 +257,9 @@ const Login = () => {
 };
 
 export default Login;
+
+
+
 // import React, { useState } from "react";
 // import { Link, useNavigate } from "react-router-dom";
 // import { useDispatch, useSelector } from "react-redux";

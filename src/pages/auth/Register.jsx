@@ -129,127 +129,170 @@ const Register = () => {
       </div>
 
       {/* ── Right panel (scrollable form) ── */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="min-h-full flex flex-col justify-center px-6 sm:px-12 lg:px-16 xl:px-20 py-12">
+      {/* ── Right panel (scrollable form) ── */}
+<div className="flex-1 flex flex-col min-h-screen lg:overflow-y-auto">
 
-          {/* Mobile logo */}
-          <div className="flex items-center gap-2.5 mb-8 lg:hidden">
-            <div className="w-14 h-14 flex items-center justify-center">
-              <img src={vpmLogo} alt="VPM Logo" className="w-full h-full object-contain" />
-            </div>
-            <span className="font-serif font-bold text-3xl" style={{ color: NAVY }}>Alumni Connect</span>
-          </div>
+  {/* Mobile hero header */}
+  <div
+    className="lg:hidden relative overflow-hidden px-6 pt-14 pb-10"
+    style={{ background: NAVY }}
+  >
+    <div className="absolute -bottom-20 -right-20 w-64 h-64 rounded-full opacity-10"
+      style={{ border: `50px solid ${GOLD}` }} />
+    <div className="absolute -top-12 -left-12 w-44 h-44 rounded-full opacity-[0.07]"
+      style={{ border: `35px solid ${GOLD}` }} />
+    <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{ background: GOLD, opacity: 0.3 }} />
 
-          <div className="max-w-lg w-full mx-auto lg:mx-0">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3" style={{ color: GOLD }}>
-              Get started
-            </p>
-            <h2 className="font-serif text-3xl font-black mb-1" style={{ color: NAVY }}>
-              Create your account
-            </h2>
-            <p className="text-sm text-gray-400 mb-8">
-              Already have an account?{" "}
-              <Link to="/auth/login"
-                className="font-semibold underline underline-offset-2 hover:opacity-70 transition-opacity"
-                style={{ color: NAVY }}>
-                Sign in here
-              </Link>
-            </p>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-
-              {/* Row 1 — Full name + Username */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Field label="Full Name" icon={User}>
-                  <input type="text" name="fullname" value={registerData.fullname}
-                    onChange={handleChange} placeholder="Jane Smith"
-                    className={inputCls()} />
-                </Field>
-                <Field label="Username" icon={AtSign}>
-                  <input type="text" name="username" value={registerData.username}
-                    onChange={handleChange} placeholder="janesmith"
-                    className={inputCls()} />
-                </Field>
-              </div>
-
-              {/* Row 2 — Batch + Stream */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Field label="Graduation Year" icon={GraduationCap}>
-                  <input type="number" name="batch" value={registerData.batch}
-                    onChange={handleChange} min="1900" max="2100" placeholder="2022"
-                    className={inputCls()} />
-                </Field>
-                <Field label="Stream" icon={BookOpen}>
-                  <select name="stream" value={registerData.stream} onChange={handleChange}
-                    className={`${inputCls()} appearance-none pr-9 text-gray-800
-                      ${!registerData.stream ? "text-gray-300" : ""}`}>
-                    <option value="" disabled className="text-gray-300">Select stream</option>
-                    {STREAMS.map((s) => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                  <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300 pointer-events-none" />
-                </Field>
-              </div>
-
-              {/* Row 3 — Phone + Email */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Field label="Phone Number" icon={Phone}>
-                  <input type="text" name="phoneno" value={registerData.phoneno}
-                    onChange={handleChange} placeholder="10-digit number" maxLength={10}
-                    className={inputCls()} />
-                </Field>
-                <Field label="Email Address" icon={Mail}>
-                  <input type="email" name="email" value={registerData.email}
-                    onChange={handleChange} placeholder="you@example.com"
-                    className={inputCls()} />
-                </Field>
-              </div>
-
-              {/* Password */}
-              <Field label="Password" icon={Lock}>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  name="password" value={registerData.password}
-                  onChange={handleChange} placeholder="Minimum 6 characters"
-                  className={`${inputCls()} pr-10`} />
-                <button type="button" onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 transition-colors">
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </Field>
-
-              {/* Submit */}
-              <button type="submit" disabled={isLoading}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold
-                  transition-all duration-200 hover:opacity-90 active:scale-[0.98] mt-2
-                  disabled:opacity-60 disabled:cursor-not-allowed"
-                style={{ background: NAVY, color: "white" }}>
-                {isLoading ? (
-                  <>
-                    <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                    Creating account…
-                  </>
-                ) : (
-                  <>Create account <ArrowRight className="h-4 w-4" /></>
-                )}
-              </button>
-            </form>
-
-            {/* Ornament divider */}
-            <div className="flex items-center gap-3 mt-6 mb-5">
-              <div className="h-px flex-1 bg-gray-100" />
-              <div className="w-1.5 h-1.5 rounded-full" style={{ background: GOLD }} />
-              <div className="h-px flex-1 bg-gray-100" />
-            </div>
-
-            <p className="text-xs text-gray-400 text-center leading-relaxed">
-              By registering you agree to our{" "}
-              <span className="underline underline-offset-2 cursor-pointer hover:text-gray-600 transition-colors">Terms of Service</span>
-              {" "}and{" "}
-              <span className="underline underline-offset-2 cursor-pointer hover:text-gray-600 transition-colors">Privacy Policy</span>.
-            </p>
-          </div>
-        </div>
+    <div className="relative z-10 flex items-center gap-3 mb-8">
+      <div className="w-10 h-10">
+        <img src={vpmLogo} alt="VPM Logo" className="w-full h-full object-contain" />
       </div>
+      <span className="font-serif font-bold text-white text-xl tracking-wide">Alumni Connect</span>
+    </div>
+
+    <div className="relative z-10">
+      <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-2" style={{ color: GOLD }}>
+        Join the network
+      </p>
+      <h1 className="font-serif text-3xl font-black text-white leading-tight mb-2">
+        Your journey<br />starts here.
+      </h1>
+      <p className="text-white/50 text-sm leading-relaxed max-w-xs">
+        Create your profile and join a thriving community of graduates making a difference.
+      </p>
+    </div>
+
+    <div className="relative z-10 flex items-center gap-6 mt-7 pt-5 border-t border-white/10">
+      {[{ n: "01", label: "Profile" }, { n: "02", label: "Connect" }, { n: "03", label: "Explore" }].map(({ n, label }) => (
+        <div key={n} className="flex items-center gap-2">
+          <span className="font-serif font-black text-sm" style={{ color: GOLD }}>{n}</span>
+          <span className="text-[11px] text-white/60 font-medium">{label}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  {/* Form area */}
+  <div className="flex-1 flex flex-col justify-center px-5 sm:px-10 lg:px-16 xl:px-20 py-8 lg:py-12">
+    <div className="max-w-lg w-full mx-auto lg:mx-0">
+
+      {/* Desktop heading */}
+      <div className="hidden lg:block mb-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3" style={{ color: GOLD }}>
+          Get started
+        </p>
+        <h2 className="font-serif text-3xl font-black mb-1" style={{ color: NAVY }}>
+          Create your account
+        </h2>
+      </div>
+
+      {/* Mobile heading */}
+      <div className="lg:hidden mb-5 mt-1">
+        <h2 className="font-serif text-2xl font-black" style={{ color: NAVY }}>Create account</h2>
+      </div>
+
+      <p className="text-sm text-gray-400 mb-6">
+        Already have an account?{" "}
+        <Link to="/auth/login"
+          className="font-semibold underline underline-offset-2 hover:opacity-70 transition-opacity"
+          style={{ color: NAVY }}>
+          Sign in here
+        </Link>
+      </p>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+
+        {/* Row 1 — Full name + Username */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="Full Name" icon={User}>
+            <input type="text" name="fullname" value={registerData.fullname}
+              onChange={handleChange} placeholder="Jane Smith"
+              className={inputCls()} />
+          </Field>
+          <Field label="Username" icon={AtSign}>
+            <input type="text" name="username" value={registerData.username}
+              onChange={handleChange} placeholder="janesmith"
+              className={inputCls()} />
+          </Field>
+        </div>
+
+        {/* Row 2 — Batch + Stream */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="Graduation Year" icon={GraduationCap}>
+            <input type="number" name="batch" value={registerData.batch}
+              onChange={handleChange} min="1900" max="2100" placeholder="2022"
+              className={inputCls()} />
+          </Field>
+          <Field label="Stream" icon={BookOpen}>
+            <select name="stream" value={registerData.stream} onChange={handleChange}
+              className={`${inputCls()} appearance-none pr-9 text-gray-800
+                ${!registerData.stream ? "text-gray-300" : ""}`}>
+              <option value="" disabled className="text-gray-300">Select stream</option>
+              {STREAMS.map((s) => <option key={s} value={s}>{s}</option>)}
+            </select>
+            <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300 pointer-events-none" />
+          </Field>
+        </div>
+
+        {/* Row 3 — Phone + Email */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="Phone Number" icon={Phone}>
+            <input type="text" name="phoneno" value={registerData.phoneno}
+              onChange={handleChange} placeholder="10-digit number" maxLength={10}
+              className={inputCls()} />
+          </Field>
+          <Field label="Email Address" icon={Mail}>
+            <input type="email" name="email" value={registerData.email}
+              onChange={handleChange} placeholder="you@example.com"
+              className={inputCls()} />
+          </Field>
+        </div>
+
+        {/* Password */}
+        <Field label="Password" icon={Lock}>
+          <input
+            type={showPassword ? "text" : "password"}
+            name="password" value={registerData.password}
+            onChange={handleChange} placeholder="Minimum 6 characters"
+            className={`${inputCls()} pr-10`} />
+          <button type="button" onClick={() => setShowPassword((v) => !v)}
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 transition-colors">
+            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+        </Field>
+
+        {/* Submit */}
+        <button type="submit" disabled={isLoading}
+          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold
+            transition-all duration-200 hover:opacity-90 active:scale-[0.98] mt-2
+            disabled:opacity-60 disabled:cursor-not-allowed"
+          style={{ background: NAVY, color: "white" }}>
+          {isLoading ? (
+            <>
+              <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+              Creating account…
+            </>
+          ) : (
+            <>Create account <ArrowRight className="h-4 w-4" /></>
+          )}
+        </button>
+      </form>
+
+      <div className="flex items-center gap-3 mt-6 mb-5">
+        <div className="h-px flex-1 bg-gray-100" />
+        <div className="w-1.5 h-1.5 rounded-full" style={{ background: GOLD }} />
+        <div className="h-px flex-1 bg-gray-100" />
+      </div>
+
+      <p className="text-xs text-gray-400 text-center leading-relaxed">
+        By registering you agree to our{" "}
+        <span className="underline underline-offset-2 cursor-pointer hover:text-gray-600 transition-colors">Terms of Service</span>
+        {" "}and{" "}
+        <span className="underline underline-offset-2 cursor-pointer hover:text-gray-600 transition-colors">Privacy Policy</span>.
+      </p>
+    </div>
+  </div>
+</div>
     </div>
   );
 };
