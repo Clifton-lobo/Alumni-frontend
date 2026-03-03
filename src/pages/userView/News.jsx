@@ -98,35 +98,40 @@ const HeroCard = ({ article, onClick }) => (
     {/* Left gold bar */}
     <div className="absolute top-0 left-0 w-1 h-full bg-amber-400" />
 
-    {/* Content */}
-    <div className="relative z-10 flex flex-col justify-end h-full min-h-[460px] p-6 sm:p-8 md:p-10">
-      <div className="maxl">
-        <div className="flex items-center gap-3 mb-4 animate-[fadeUp_0.5s_ease_both]">
-          <CatPill cat={article.category} />
-          <span className="text-xs text-white/40 flex items-center gap-1 font-sans">
-            <Clock className="h-3 w-3" /> {timeAgo(article.publishedAt)}
-          </span>
-        </div>
+   {/* Content */}
+<div className="relative z-10 flex items-end h-full min-h-[460px] p-6 sm:p-8 md:p-10">
+  <div className="w-full flex items-end justify-between gap-6">
 
-        <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-[2.8rem] font-black text-white leading-[1.1] mb-4
-          [text-shadow:0_2px_24px_rgba(0,0,0,0.6)] animate-[fadeUp_0.5s_0.08s_ease_both]">
-          {article.title}
-        </h1>
-
-        <p className="font-sans text-sm sm:text-base text-white/60 leading-relaxed mb-7 max-w-2xl line-clamp-2
-          animate-[fadeUp_0.5s_0.16s_ease_both]">
-          {article.excerpt}
-        </p>
-
-        <div className="flex w-full items-center justify-between  animate-[fadeUp_0.5s_0.16s_ease_both]">
-
-          <button className="flex flex-end items-center gap-2  justify-end font-sans text-sm font-semibold px-5 py-2.5 rounded-xl
-            bg-amber-400 text-slate-900 transition-all hover:scale-105 active:scale-95">
-            Read Story <ArrowUpRight className="h-4 w-4" />
-          </button>
-        </div>
+    {/* LEFT SIDE */}
+    <div className="flex-1">
+      <div className="flex items-center gap-3 mb-3 animate-[fadeUp_0.5s_ease_both]">
+        <CatPill cat={article.category} />
+        <span className="text-xs text-white/40 flex items-center gap-1 font-sans">
+          <Clock className="h-3 w-3" /> {timeAgo(article.publishedAt)}
+        </span>
       </div>
+
+      <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-[2.8rem] font-black text-white leading-[1.1] mb-3
+        [text-shadow:0_2px_24px_rgba(0,0,0,0.6)] animate-[fadeUp_0.5s_0.08s_ease_both]">
+        {article.title}
+      </h1>
+
+      <p className="font-sans text-sm sm:text-base text-white/60 leading-relaxed max-w-2xl line-clamp-2
+        animate-[fadeUp_0.5s_0.16s_ease_both]">
+        {article.excerpt}
+      </p>
     </div>
+
+    {/* RIGHT SIDE BUTTON */}
+    <div className="flex-shrink-0 animate-[fadeUp_0.5s_0.16s_ease_both]">
+      <button className="flex items-center gap-2 font-sans text-sm font-semibold px-5 py-2.5 rounded-xl
+        bg-amber-400 text-slate-900 transition-all hover:scale-105 active:scale-95">
+        Read Story <ArrowUpRight className="h-4 w-4" />
+      </button>
+    </div>
+
+  </div>
+</div>
   </div>
 );
 
@@ -417,8 +422,9 @@ const News = () => {
   };
 
   const isFiltering = searchText || category;
-  const hero = !isFiltering && pageFromUrl === 1 ? list.find(a => a.newsType === "main") : null;
-  const rest = hero ? list.filter(a => a._id !== hero._id) : list;
+  const hero = !isFiltering && pageFromUrl === 1
+    ? (list.find(a => a.newsType === "main") || list[0])
+    : null; const rest = hero ? list.filter(a => a._id !== hero._id) : list;
 
   return (
     <div className="min-h-screen font-sans bg-stone-100">
