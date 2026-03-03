@@ -103,8 +103,8 @@ const UserJobs = () => {
   const isLoading = loading.fetch;
 
   // ── Read URL params ──
-  const pageFromUrl        = parseInt(searchParams.get("page")) || 1;
-  const searchFromUrl      = searchParams.get("search") || "";
+  const pageFromUrl             = parseInt(searchParams.get("page")) || 1;
+  const searchFromUrl           = searchParams.get("search") || "";
   const employmentTypeFromUrl   = searchParams.get("employmentType") || "";
   const workModeFromUrl         = searchParams.get("workMode") || "";
   const experienceLevelFromUrl  = searchParams.get("experienceLevel") || "";
@@ -114,10 +114,14 @@ const UserJobs = () => {
   const [view, setView]               = useState("tile");
   const [applyJob, setApplyJob]       = useState(null);
 
+  // ── Refs ──
+  const debounceRef      = useRef(null);
+  const userTypingRef    = useRef(false);
+  const listContainerRef = useRef(null);   // ← scroll target
+  const prevPageRef      = useRef(pageFromUrl); // ← track previous page
+
   // ── Search input: local state, debounced → URL ──
   const [searchInput, setSearchInput] = useState(searchFromUrl);
-  const debounceRef    = useRef(null);
-  const userTypingRef  = useRef(false);   // true while debounce is pending
 
   // Sync URL → input when user navigates back/forward (but NOT while typing)
   useEffect(() => {
@@ -148,12 +152,11 @@ const UserJobs = () => {
     }, 400);
   }, [setSearchParams]);
 
-  // Cleanup on unmount
+  // Cleanup debounce on unmount
   useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
 
   // ── Fetch on URL change ──
   useEffect(() => {
-    
     dispatch(fetchPublicJobs({
       page: pageFromUrl,
       limit: 18,
@@ -164,6 +167,26 @@ const UserJobs = () => {
       search: searchFromUrl,
     }));
   }, [dispatch, pageFromUrl, searchFromUrl, employmentTypeFromUrl, workModeFromUrl, experienceLevelFromUrl, cityFromUrl]);
+
+  // ── Smooth scroll to list after page change ──
+  useEffect(() => {
+    if (isLoading) return;
+
+    if (prevPageRef.current !== pageFromUrl) {
+      prevPageRef.current = pageFromUrl;
+
+      setTimeout(() => {
+        const element = listContainerRef.current;
+        if (!element) return;
+
+        const headerOffset = 120;
+        const offsetPosition =
+          element.getBoundingClientRect().top + window.scrollY - headerOffset;
+
+        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+      }, 300);
+    }
+  }, [isLoading, pageFromUrl]);
 
   // ── Handlers ──
   const handleFilterChange = useCallback((newFilters) => {
@@ -197,8 +220,7 @@ const UserJobs = () => {
       city: cityFromUrl,
       search: searchFromUrl,
     }));
-        window.scrollTo({ top: 0, behavior: "smooth" });
-
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [dispatch, pageFromUrl, searchFromUrl, employmentTypeFromUrl, workModeFromUrl, experienceLevelFromUrl, cityFromUrl]);
 
   const filters = {
@@ -265,8 +287,8 @@ const UserJobs = () => {
         </div>
       </section>
 
-      {/* FILTERS + JOBS */}
-      <section className="max-w-7xl mx-auto px-6 py-8">
+      {/* FILTERS + JOBS — ref attached here as scroll target */}
+      <section ref={listContainerRef} className="max-w-7xl mx-auto px-6 py-8">
         <div className="mb-8">
           <JobFilters
             filters={filters}
