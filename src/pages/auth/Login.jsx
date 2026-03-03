@@ -3,10 +3,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../../store/authSlice/authSlice.js";
 import { toast } from "sonner";
+import { Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
+import vpmLogo from "../../assets/VpmLogo.png";
+
+
+const NAVY = "#142A5D";
+const GOLD = "#EBAB09";
 
 const Login = () => {
   const initialState = { email: "", password: "" };
   const [loginData, setLoginData] = useState(initialState);
+  const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isLoading } = useSelector((s) => s.auth);
@@ -17,82 +24,306 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // ── Client-side validation ──
-    if (!loginData.email.trim()) {
-      toast.error("Please enter your email.");
-      return;
-    }
-    if (!loginData.password) {
-      toast.error("Please enter your password.");
-      return;
-    }
+    if (!loginData.email.trim()) { toast.error("Please enter your email."); return; }
+    if (!loginData.password) { toast.error("Please enter your password."); return; }
 
     dispatch(loginUser(loginData))
       .unwrap()
       .then((data) => {
         toast.success(data.message || "Logged in successfully!");
-        // navigate based on role
-        if (data.user?.role === "admin") {
-          navigate("/admin/dashboard");
-        } else {
-          navigate("/user/home");
-        }
+        if (data.user?.role === "admin") navigate("/admin/dashboard");
+        else navigate("/user/home");
       })
-      .catch((err) => {
-        // err is already the string from rejectWithValue
-        toast.error(err || "Login failed. Please try again.");
-      });
+      .catch((err) => toast.error(err || "Login failed. Please try again."));
   };
 
   return (
-    <div>
-      <h2 className="text-2xl font-semibold text-center text-indigo-700 mb-6">
-        Login to Your Account
-      </h2>
+    <div className="min-h-screen flex font-sans" style={{ background: "#F5F3EE" }}>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-600">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={loginData.email}
-            onChange={handleChange}
-            placeholder="Enter your email"
-            className="w-full mt-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+      {/* ── Left panel ── */}
+      <div
+        className="hidden lg:flex lg:w-[47%] flex-col justify-between p-12 relative overflow-hidden"
+        style={{ background: NAVY }}
+      >
+        {/* Decorative rings */}
+        <div
+          className="absolute -bottom-32 -left-32 w-[480px] h-[480px] rounded-full opacity-10"
+          style={{ border: `80px solid ${GOLD}` }}
+        />
+        <div
+          className="absolute -top-20 -right-20 w-[300px] h-[300px] rounded-full opacity-[0.07]"
+          style={{ border: `50px solid ${GOLD}` }}
+        />
+        {/* Subtle gold right border */}
+        <div className="absolute top-0 right-0 w-[3px] h-full" style={{ background: GOLD, opacity: 0.25 }} />
+
+        {/* Wordmark */}
+        <div className="flex items-center gap-3">
+          <div className="w-25 h-25 flex items-center justify-center">
+            <img src={vpmLogo} alt="VPM Logo" className="w-full h-full object-contain" />
+          </div>
+          <span className="font-serif font-bold text-white text-5xl tracking-wide">Alumni Connect</span>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-600">Password</label>
-          <input
-            type="password"
-            name="password"
-            value={loginData.password}
-            onChange={handleChange}
-            placeholder="Enter your password"
-            className="w-full mt-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
+        {/* Center copy */}
+        <div className="relative z-10">
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] mb-4" style={{ color: GOLD }}>
+            Welcome back
+          </p>
+          <h1 className="font-serif text-4xl xl:text-5xl font-black text-white leading-[1.1] mb-6">
+            Reconnect with<br />your community.
+          </h1>
+          <p className="text-white/50 text-base leading-relaxed max-w-sm">
+            Stay connected with fellow alumni, discover opportunities, and celebrate milestones together.
+          </p>
+
+          {/* Stats */}
+          <div className="flex items-center gap-8 mt-10">
+            {[
+              { value: "12K+", label: "Alumni" },
+              { value: "400+", label: "Companies" },
+              { value: "80+", label: "Countries" },
+            ].map(({ value, label }) => (
+              <div key={label}>
+                <p className="font-serif font-black text-2xl text-white">{value}</p>
+                <p className="text-xs text-white/40 mt-0.5 uppercase tracking-widest">{label}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full bg-indigo-600 text-white py-3 rounded-lg font-medium hover:bg-indigo-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          {isLoading ? "Logging in…" : "Login"}
-        </button>
-      </form>
+        {/* Bottom quote */}
+        <div className="relative z-10 border-l-2 pl-4" style={{ borderColor: GOLD }}>
+          <p className="text-white/60 text-sm leading-relaxed italic">
+            "The alumni network opened doors I didn't even know existed."
+          </p>
+          <p className="text-white/30 text-xs mt-2 uppercase tracking-widest">— Class of 2019</p>
+        </div>
+      </div>
 
-      <p className="mt-4 text-sm text-center text-gray-600">
-        Don't have an account?{" "}
-        <Link to="/auth/register" className="text-indigo-600 hover:underline">
-          Register
-        </Link>
-      </p>
+      {/* ── Right panel ── */}
+      <div className="flex-1 flex flex-col justify-center px-6 sm:px-12 lg:px-16 xl:px-24 py-12">
+
+        {/* Mobile logo */}
+        <div className="flex items-center gap-2.5 mb-10 lg:hidden">
+          <div className="w-8 h-8 flex items-center justify-center">
+            <img src={vpmLogo} alt="VPM Logo" className="w-full h-full object-contain" />
+          </div>
+          <span className="font-serif font-bold text-lg" style={{ color: NAVY }}>AlumniNet</span>
+        </div>
+
+        <div className="max-w-sm w-full mx-auto lg:mx-0">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3" style={{ color: GOLD }}>
+            Sign in
+          </p>
+          <h2 className="font-serif text-3xl font-black mb-1" style={{ color: NAVY }}>
+            Welcome back
+          </h2>
+          <p className="text-sm text-gray-400 mb-8">
+            Don't have an account?{" "}
+            <Link
+              to="/auth/register"
+              className="font-semibold underline underline-offset-2 hover:opacity-70 transition-opacity"
+              style={{ color: NAVY }}
+            >
+              Register here
+            </Link>
+          </p>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+
+            {/* Email */}
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5 text-gray-500">
+                Email address
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300 pointer-events-none" />
+                <input
+                  type="email"
+                  name="email"
+                  value={loginData.email}
+                  onChange={handleChange}
+                  placeholder="you@example.com"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 bg-white text-sm
+                    text-gray-800 placeholder-gray-300 outline-none transition
+                    focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+                />
+              </div>
+            </div>
+
+            {/* Password */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold uppercase tracking-widest text-gray-500">
+                  Password
+                </label>
+                <Link
+                  to="/auth/forgot-password"
+                  className="text-xs text-gray-400 hover:text-gray-600 underline underline-offset-2 transition-colors"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300 pointer-events-none" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={loginData.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                  className="w-full pl-10 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-sm
+                    text-gray-800 placeholder-gray-300 outline-none transition
+                    focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold
+                transition-all duration-200 hover:opacity-90 active:scale-[0.98] mt-2
+                disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{ background: NAVY, color: "white" }}
+            >
+              {isLoading ? (
+                <>
+                  <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                  Signing in…
+                </>
+              ) : (
+                <>
+                  Sign in <ArrowRight className="h-4 w-4" />
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Ornament divider */}
+          <div className="flex items-center gap-3 mt-6 mb-5">
+            <div className="h-px flex-1 bg-gray-100" />
+            <div className="w-1.5 h-1.5 rounded-full" style={{ background: GOLD }} />
+            <div className="h-px flex-1 bg-gray-100" />
+          </div>
+
+          <p className="text-xs text-gray-400 text-center leading-relaxed">
+            By signing in you agree to our{" "}
+            <span className="underline underline-offset-2 cursor-pointer hover:text-gray-600 transition-colors">Terms of Service</span>
+            {" "}and{" "}
+            <span className="underline underline-offset-2 cursor-pointer hover:text-gray-600 transition-colors">Privacy Policy</span>.
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
 
 export default Login;
+// import React, { useState } from "react";
+// import { Link, useNavigate } from "react-router-dom";
+// import { useDispatch, useSelector } from "react-redux";
+// import { loginUser } from "../../store/authSlice/authSlice.js";
+// import { toast } from "sonner";
+
+// const Login = () => {
+//   const initialState = { email: "", password: "" };
+//   const [loginData, setLoginData] = useState(initialState);
+//   const dispatch = useDispatch();
+//   const navigate = useNavigate();
+//   const { isLoading } = useSelector((s) => s.auth);
+
+//   const handleChange = (e) => {
+//     setLoginData({ ...loginData, [e.target.name]: e.target.value });
+//   };
+
+//   const handleSubmit = (e) => {
+//     e.preventDefault();
+
+//     // ── Client-side validation ──
+//     if (!loginData.email.trim()) {
+//       toast.error("Please enter your email.");
+//       return;
+//     }
+//     if (!loginData.password) {
+//       toast.error("Please enter your password.");
+//       return;
+//     }
+
+//     dispatch(loginUser(loginData))
+//       .unwrap()
+//       .then((data) => {
+//         toast.success(data.message || "Logged in successfully!");
+//         // navigate based on role
+//         if (data.user?.role === "admin") {
+//           navigate("/admin/dashboard");
+//         } else {
+//           navigate("/user/home");
+//         }
+//       })
+//       .catch((err) => {
+//         // err is already the string from rejectWithValue
+//         toast.error(err || "Login failed. Please try again.");
+//       });
+//   };
+
+//   return (
+//     <div>
+//       <h2 className="text-2xl font-semibold text-center text-indigo-700 mb-6">
+//         Login to Your Account
+//       </h2>
+
+//       <form onSubmit={handleSubmit} className="space-y-4">
+//         <div>
+//           <label className="block text-sm font-medium text-gray-600">Email</label>
+//           <input
+//             type="email"
+//             name="email"
+//             value={loginData.email}
+//             onChange={handleChange}
+//             placeholder="Enter your email"
+//             className="w-full mt-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+//           />
+//         </div>
+
+//         <div>
+//           <label className="block text-sm font-medium text-gray-600">Password</label>
+//           <input
+//             type="password"
+//             name="password"
+//             value={loginData.password}
+//             onChange={handleChange}
+//             placeholder="Enter your password"
+//             className="w-full mt-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+//           />
+//         </div>
+
+//         <button
+//           type="submit"
+//           disabled={isLoading}
+//           className="w-full bg-indigo-600 text-white py-3 rounded-lg font-medium hover:bg-indigo-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
+//         >
+//           {isLoading ? "Logging in…" : "Login"}
+//         </button>
+//       </form>
+
+//       <p className="mt-4 text-sm text-center text-gray-600">
+//         Don't have an account?{" "}
+//         <Link to="/auth/register" className="text-indigo-600 hover:underline">
+//           Register
+//         </Link>
+//       </p>
+//     </div>
+//   );
+// };
+
+// export default Login;

@@ -379,22 +379,25 @@ const News = () => {
     if (prevPageRef.current !== pageFromUrl) {
       prevPageRef.current = pageFromUrl;
       setTimeout(() => {
-        if (!listRef.current) return;
-        const top = listRef.current.getBoundingClientRect().top + window.scrollY - 120;
-        window.scrollTo({ top, behavior: "smooth" });
+        const element = listRef.current;
+        if (!element) return;
+        const headerOffset = 120;
+        const offsetPosition =
+          element.getBoundingClientRect().top + window.scrollY - headerOffset;
+        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
       }, 300);
     }
   }, [loading.list, pageFromUrl]);
 
   /* ── Page change handler ── */
   const onPageChange = (page) => {
+    prevPageRef.current = pageFromUrl; // snapshot current before update
     setSearchParams((prev) => {
       const p = new URLSearchParams(prev);
       p.set("page", String(page));
       return p;
     });
   };
-
   /* ── Clear search ── */
   const clearSearch = () => {
     setSearchInput("");
@@ -498,7 +501,6 @@ const News = () => {
 
       {/* ══ MAIN CONTENT ══ */}
       <div ref={listRef} className="max-w-7xl mx-auto px-4 sm:px-6 py-7 sm:py-10">
-
         {/* Skeletons */}
         {loading.list && (
           <div className="space-y-6">
