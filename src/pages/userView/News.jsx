@@ -572,10 +572,23 @@ const News = () => {
           )}
 
           {/* Content — subtle fade but no jump */}
-          <div className={`transition-opacity duration-300 ${loading.list ? "opacity-80" : "opacity-100"}`}>
+          <div className={`transition-opacity duration-300 ${loading.list ? "opacity-50" : "opacity-100"}`}>
             {list.length === 0 && !loading.list ? (
               <div className="flex flex-col items-center justify-center py-28 text-center">
-                {/* keep your empty state */}
+                <div className="w-20 h-20 rounded-3xl flex items-center justify-center mb-6 bg-slate-900/5">
+                  <Newspaper className="h-8 w-8 text-gray-300" />
+                </div>
+                <h3 className="font-serif text-xl font-bold text-gray-800 mb-2">No stories found</h3>
+                <p className="font-sans text-sm text-gray-400 max-w-xs leading-relaxed mb-6">
+                  {searchText
+                    ? `We couldn't find anything for "${searchText}". Try a different term.`
+                    : "There are no published stories yet. Check back soon."}
+                </p>
+                {isFiltering && (
+                  <button onClick={clearAll} className="px-6 py-2.5 rounded-xl font-sans text-sm font-semibold bg-amber-400 text-slate-900 hover:opacity-90 transition-opacity">
+                    Clear filters
+                  </button>
+                )}
               </div>
             ) : (
               <div className="space-y-6 sm:space-y-8">
