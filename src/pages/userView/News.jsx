@@ -98,48 +98,45 @@ const HeroCard = ({ article, onClick }) => (
     {/* Left gold bar */}
     <div className="absolute top-0 left-0 w-1 h-full bg-amber-400" />
 
-   {/* Content */}
-<div className="relative z-10 flex items-end h-full min-h-[460px] p-6 sm:p-8 md:p-10">
-  <div className="w-full flex items-end justify-between gap-6">
+    {/* Content */}
+    <div className="relative z-10 flex items-end h-full min-h-[460px] p-6 sm:p-8 md:p-10">
+      <div className="w-full flex items-end justify-between gap-6">
 
-    {/* LEFT SIDE */}
-    <div className="flex-1">
-      <div className="flex items-center gap-3 mb-3 animate-[fadeUp_0.5s_ease_both]">
-        <CatPill cat={article.category} />
-        <span className="text-xs text-white/40 flex items-center gap-1 font-sans">
-          <Clock className="h-3 w-3" /> {timeAgo(article.publishedAt)}
-        </span>
-      </div>
+        {/* LEFT SIDE */}
+        <div className="flex-1">
+          <div className="flex items-center gap-3 mb-3 animate-[fadeUp_0.5s_ease_both]">
+            <CatPill cat={article.category} />
+            <span className="text-xs text-white/40 flex items-center gap-1 font-sans">
+              <Clock className="h-3 w-3" /> {timeAgo(article.publishedAt)}
+            </span>
+          </div>
 
-      <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-[2.8rem] font-black text-white leading-[1.1] mb-3
+          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-[2.8rem] font-black text-white leading-[1.1] mb-3
         [text-shadow:0_2px_24px_rgba(0,0,0,0.6)] animate-[fadeUp_0.5s_0.08s_ease_both]">
-        {article.title}
-      </h1>
+            {article.title}
+          </h1>
 
-      <p className="font-sans text-sm sm:text-base text-white/60 leading-relaxed max-w-2xl line-clamp-2
+          <p className="font-sans text-sm sm:text-base text-white/60 leading-relaxed max-w-2xl line-clamp-2
         animate-[fadeUp_0.5s_0.16s_ease_both]">
-        {article.excerpt}
-      </p>
-    </div>
+            {article.excerpt}
+          </p>
+        </div>
 
-    {/* RIGHT SIDE BUTTON */}
-    <div className="flex-shrink-0 animate-[fadeUp_0.5s_0.16s_ease_both]">
-      <button className="flex items-center gap-2 font-sans text-sm font-semibold px-5 py-2.5 rounded-xl
+        {/* RIGHT SIDE BUTTON */}
+        <div className="flex-shrink-0 animate-[fadeUp_0.5s_0.16s_ease_both]">
+          <button className="flex items-center gap-2 font-sans text-sm font-semibold px-5 py-2.5 rounded-xl
         bg-amber-400 text-slate-900 transition-all hover:scale-105 active:scale-95">
-        Read Story <ArrowUpRight className="h-4 w-4" />
-      </button>
-    </div>
+            Read Story <ArrowUpRight className="h-4 w-4" />
+          </button>
+        </div>
 
-  </div>
-</div>
+      </div>
+    </div>
   </div>
 );
 
 /* ══════════════════════════════════════════
    PHOTO CARD
-══════════════════════════════════════════ */
-/* ══════════════════════════════════════════
-   PHOTO CARD  — matches homepage News card style
 ══════════════════════════════════════════ */
 const PhotoCard = ({ article, onClick }) => (
   <div
@@ -353,6 +350,32 @@ const News = () => {
     });
   }, [category]);
 
+  const smoothScrollTo = (targetY, duration = 700) => {
+    const startY = window.scrollY;
+    const distance = targetY - startY;
+    let startTime = null;
+
+    const easeInOutCubic = (t) =>
+      t < 0.5
+        ? 4 * t * t * t
+        : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+    const animation = (currentTime) => {
+      if (!startTime) startTime = currentTime;
+      const timeElapsed = currentTime - startTime;
+      const progress = Math.min(timeElapsed / duration, 1);
+
+      const easedProgress = easeInOutCubic(progress);
+      window.scrollTo(0, startY + distance * easedProgress);
+
+      if (progress < 1) {
+        requestAnimationFrame(animation);
+      }
+    };
+
+    requestAnimationFrame(animation);
+  };
+
   /* ── Debounced search ── */
   useEffect(() => {
     if (isFirstRender.current) { isFirstRender.current = false; return; }
@@ -379,21 +402,26 @@ const News = () => {
   }, [searchInput]);
 
   /* ── Scroll to list on page change ── */
-  useEffect(() => {
-    if (loading.list) return;
-    if (prevPageRef.current !== pageFromUrl) {
-      prevPageRef.current = pageFromUrl;
-      setTimeout(() => {
-        const element = listRef.current;
-        if (!element) return;
-        const headerOffset = 120;
-        const offsetPosition =
-          element.getBoundingClientRect().top + window.scrollY - headerOffset;
-        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
-      }, 300);
-    }
-  }, [loading.list, pageFromUrl]);
+useEffect(() => {
+  if (loading.list) return;
 
+  if (prevPageRef.current !== pageFromUrl) {
+    prevPageRef.current = pageFromUrl;
+
+    requestAnimationFrame(() => {
+      const element = listRef.current;
+      if (!element) return;
+
+      const headerOffset = 120;
+      const offsetPosition =
+        element.getBoundingClientRect().top +
+        window.scrollY -
+        headerOffset;
+
+      smoothScrollTo(offsetPosition, 800); // ← controlled duration
+    });
+  }
+}, [loading.list, pageFromUrl]);
   /* ── Page change handler ── */
   const onPageChange = (page) => {
     prevPageRef.current = pageFromUrl; // snapshot current before update
@@ -506,26 +534,10 @@ const News = () => {
       )}
 
       {/* ══ MAIN CONTENT ══ */}
-      <div ref={listRef} className="max-w-7xl mx-auto px-4 sm:px-6 py-7 sm:py-10">
-        {/* Skeletons */}
-        {loading.list && (
-          <div className="space-y-6">
-            <Skel className="h-[460px] rounded-2xl" />
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-              {[0, 1, 2].map((i) => (
-                <div key={i} className="bg-white rounded-2xl overflow-hidden border border-gray-100">
-                  <Skel className="aspect-video rounded-none" />
-                  <div className="p-5 space-y-2.5">
-                    <Skel className="h-3 w-16 rounded" />
-                    <Skel className="h-4 w-4/5 rounded" />
-                    <Skel className="h-3 w-full rounded" />
-                    <Skel className="h-3 w-3/5 rounded" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+      <div
+        ref={listRef}
+        className="max-w-7xl mx-auto px-4 sm:px-6 py-7 sm:py-10 relative min-h-[800px]"
+      >
 
         {/* Empty state */}
         {!loading.list && list.length === 0 && (
@@ -547,25 +559,36 @@ const News = () => {
           </div>
         )}
 
-        {/* Article grid */}
-        {!loading.list && list.length > 0 && (
-          <div className="space-y-6 sm:space-y-8">
-            {hero && <HeroCard article={hero} onClick={openArticle} />}
-            {rest.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-                {rest.map((a) => <PhotoCard key={a._id} article={a} onClick={openArticle} />)}
-              </div>
-            )}
-            {pagination.pages > 1 && (
-              <div className="mx-auto max-w-6xl px-4 md:px-6">
-                <PaginationControls
-                  currentPage={pageFromUrl}
-                  totalPages={pagination.pages}
-                  onPageChange={onPageChange}
-                />
-              </div>
-            )}          </div>
-        )}
+        <div
+          className={`transition-opacity duration-300 ease-in-out ${loading.list ? "opacity-40" : "opacity-100"
+            }`}
+        >
+          {list.length === 0 && !loading.list ? (
+            <div className="flex flex-col items-center justify-center py-28 text-center">
+              {/* keep your empty state */}
+            </div>
+          ) : (
+            <div className="space-y-6 sm:space-y-8">
+              {hero && <HeroCard article={hero} onClick={openArticle} />}
+              {rest.length > 0 && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+                  {rest.map((a) => (
+                    <PhotoCard key={a._id} article={a} onClick={openArticle} />
+                  ))}
+                </div>
+              )}
+              {pagination.pages > 1 && (
+                <div className="mx-auto max-w-6xl px-4 md:px-6">
+                  <PaginationControls
+                    currentPage={pageFromUrl}
+                    totalPages={pagination.pages}
+                    onPageChange={onPageChange}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ══ FOOTER ══ */}

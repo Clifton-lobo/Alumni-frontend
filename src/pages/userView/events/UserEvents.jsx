@@ -1,7 +1,6 @@
 import eventPageAlumniEvent from "../../../assets/evenPageAlumniEvent2.png";
 import EventFilter from "./EventFilter";
 import PaginationControls from "../../../components/common/Pagination.jsx";
-import LoadingOverlay from "../../../config/LoadingOverlay.jsx";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState, useRef } from "react";
 import { fetchFilteredEvents } from "../../../store/user-view/UserEventSlice";
