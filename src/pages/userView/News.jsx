@@ -402,26 +402,26 @@ const News = () => {
   }, [searchInput]);
 
   /* ── Scroll to list on page change ── */
-useEffect(() => {
-  if (loading.list) return;
+  useEffect(() => {
+    if (loading.list) return;
 
-  if (prevPageRef.current !== pageFromUrl) {
-    prevPageRef.current = pageFromUrl;
+    if (prevPageRef.current !== pageFromUrl) {
+      prevPageRef.current = pageFromUrl;
 
-    requestAnimationFrame(() => {
-      const element = listRef.current;
-      if (!element) return;
+      requestAnimationFrame(() => {
+        const element = listRef.current;
+        if (!element) return;
 
-      const headerOffset = 120;
-      const offsetPosition =
-        element.getBoundingClientRect().top +
-        window.scrollY -
-        headerOffset;
+        const headerOffset = 120;
+        const offsetPosition =
+          element.getBoundingClientRect().top +
+          window.scrollY -
+          headerOffset;
 
-      smoothScrollTo(offsetPosition, 800); // ← controlled duration
-    });
-  }
-}, [loading.list, pageFromUrl]);
+        smoothScrollTo(offsetPosition, 800); // ← controlled duration
+      });
+    }
+  }, [loading.list, pageFromUrl]);
   /* ── Page change handler ── */
   const onPageChange = (page) => {
     prevPageRef.current = pageFromUrl; // snapshot current before update
@@ -559,35 +559,46 @@ useEffect(() => {
           </div>
         )}
 
-        <div
-          className={`transition-opacity duration-300 ease-in-out ${loading.list ? "opacity-80" : "opacity-100"
-            }`}
-        >
-          {list.length === 0 && !loading.list ? (
-            <div className="flex flex-col items-center justify-center py-28 text-center">
-              {/* keep your empty state */}
-            </div>
-          ) : (
-            <div className="space-y-6 sm:space-y-8">
-              {hero && <HeroCard article={hero} onClick={openArticle} />}
-              {rest.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-                  {rest.map((a) => (
-                    <PhotoCard key={a._id} article={a} onClick={openArticle} />
-                  ))}
-                </div>
-              )}
-              {pagination.pages > 1 && (
-                <div className="mx-auto max-w-6xl px-4 md:px-6">
-                  <PaginationControls
-                    currentPage={pageFromUrl}
-                    totalPages={pagination.pages}
-                    onPageChange={onPageChange}
-                  />
-                </div>
-              )}
+        <div className="relative">
+
+          {/* Spinner overlay — sits on top, doesn't affect layout */}
+          {loading.list && (
+            <div className="absolute inset-0 z-10 flex items-start justify-center pt-20 pointer-events-none">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-8 h-8 rounded-full border-2 border-gray-200 border-t-amber-400 animate-spin" />
+                <p className="text-xs text-gray-400 font-sans">Loading stories…</p>
+              </div>
             </div>
           )}
+
+          {/* Content — subtle fade but no jump */}
+          <div className={`transition-opacity duration-300 ${loading.list ? "opacity-40" : "opacity-100"}`}>
+            {list.length === 0 && !loading.list ? (
+              <div className="flex flex-col items-center justify-center py-28 text-center">
+                {/* keep your empty state */}
+              </div>
+            ) : (
+              <div className="space-y-6 sm:space-y-8">
+                {hero && <HeroCard article={hero} onClick={openArticle} />}
+                {rest.length > 0 && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+                    {rest.map((a) => (
+                      <PhotoCard key={a._id} article={a} onClick={openArticle} />
+                    ))}
+                  </div>
+                )}
+                {pagination.pages > 1 && (
+                  <div className="mx-auto max-w-6xl px-4 md:px-6">
+                    <PaginationControls
+                      currentPage={pageFromUrl}
+                      totalPages={pagination.pages}
+                      onPageChange={onPageChange}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
