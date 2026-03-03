@@ -106,10 +106,10 @@ const Login = () => {
 
         {/* Mobile logo */}
         <div className="flex items-center gap-2.5 mb-10 lg:hidden">
-          <div className="w-8 h-8 flex items-center justify-center">
+          <div className="w-14 h-14 flex items-center justify-center">
             <img src={vpmLogo} alt="VPM Logo" className="w-full h-full object-contain" />
           </div>
-          <span className="font-serif font-bold text-lg" style={{ color: NAVY }}>AlumniNet</span>
+          <span className="font-serif font-bold text-3xl" style={{ color: NAVY }}>Alumni Connect</span>
         </div>
 
         <div className="max-w-sm w-full mx-auto lg:mx-0">
