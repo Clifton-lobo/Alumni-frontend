@@ -13,6 +13,7 @@ import {
   closeRequestsDialog,
 } from "../../store/user-view/ConnectionSlice";
 import { disconnectSocket } from "../../../socket/socket"; // adjust path
+import vpmLogo from "../../assets/VpmLogo.png";
 
 const BRAND_BLUE = "#142A5D";
 const BRAND_GOLD = "#F2A20A";
@@ -142,8 +143,12 @@ const Navbar = () => {
             {/* LOGO */}
             <div className="flex flex-1 items-center">
               <Link to="/user/home" className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isBlue ? "bg-white/10" : "bg-[#142A5D]"}`}>
-                  <span className="text-white font-bold text-lg">🎓</span>
+                <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center">
+                  <img
+                    src={vpmLogo}
+                    alt="VPM R.Z. Shah College Logo"
+                    className="w-full h-full object-contain"
+                  />
                 </div>
                 <div className="flex items-baseline gap-2">
                   <span className={`text-xl md:text-xl font-serif font-semibold tracking-wide ${isBlue ? "text-white" : "text-[#142A5D]"}`}>

@@ -1,18 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
 import { fetchPublicJobs } from "../../../store/user-view/UserJobSlice";
 
 import JobCard from "./JobCard";
 import JobFilters from "./JobFilter";
 import PostJobForm from "./PostJobForm";
+import ApplyJobDialog from "./ApplyJobDialog";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Briefcase,
-  Search,
-  Plus,
-} from "lucide-react";
+import { Briefcase, Search, Plus } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
@@ -20,12 +18,80 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
+  PaginationEllipsis,
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
-import ApplyJobDialog from "./ApplyJobDialog";
 
+// ─────────────────────────────────────────────
+// Pagination component
+// ─────────────────────────────────────────────
+const PaginationControls = ({ currentPage, totalPages, onPageChange, delta = 2 }) => {
+  const pages = [];
+  const start = Math.max(1, currentPage - delta);
+  const end = Math.min(totalPages, currentPage + delta);
+  for (let i = start; i <= end; i++) pages.push(i);
+
+  return (
+    <div className="flex justify-center mt-10">
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer hover:bg-blue-400"}
+              onClick={() => onPageChange(currentPage - 1)}
+            />
+          </PaginationItem>
+
+          {pages[0] > 1 && (
+            <>
+              <PaginationItem>
+                <PaginationLink onClick={() => onPageChange(1)} className="cursor-pointer">1</PaginationLink>
+              </PaginationItem>
+              {pages[0] > 2 && <PaginationItem><PaginationEllipsis /></PaginationItem>}
+            </>
+          )}
+
+          {pages.map((page) => (
+            <PaginationItem key={page}>
+              <PaginationLink
+                isActive={page === currentPage}
+                onClick={() => onPageChange(page)}
+                className="cursor-pointer transition-colors duration-200 hover:bg-blue-950 hover:text-white"
+              >
+                {page}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+
+          {pages[pages.length - 1] < totalPages && (
+            <>
+              {pages[pages.length - 1] < totalPages - 1 && <PaginationItem><PaginationEllipsis /></PaginationItem>}
+              <PaginationItem>
+                <PaginationLink onClick={() => onPageChange(totalPages)} className="cursor-pointer">
+                  {totalPages}
+                </PaginationLink>
+              </PaginationItem>
+            </>
+          )}
+
+          <PaginationItem>
+            <PaginationNext
+              className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer hover:bg-blue-400"}
+              onClick={() => onPageChange(currentPage + 1)}
+            />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────
+// Main component
+// ─────────────────────────────────────────────
 const UserJobs = () => {
   const dispatch = useDispatch();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const {
     list = [],
@@ -36,63 +102,117 @@ const UserJobs = () => {
 
   const isLoading = loading.fetch;
 
+  // ── Read URL params ──
+  const pageFromUrl        = parseInt(searchParams.get("page")) || 1;
+  const searchFromUrl      = searchParams.get("search") || "";
+  const employmentTypeFromUrl   = searchParams.get("employmentType") || "";
+  const workModeFromUrl         = searchParams.get("workMode") || "";
+  const experienceLevelFromUrl  = searchParams.get("experienceLevel") || "";
+  const cityFromUrl             = searchParams.get("city") || "";
+
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [view, setView] = useState("tile");
-  const [searchInput, setSearchInput] = useState("");
-  const [applyJob, setApplyJob] = useState(null);
+  const [view, setView]               = useState("tile");
+  const [applyJob, setApplyJob]       = useState(null);
 
+  // ── Search input: local state, debounced → URL ──
+  const [searchInput, setSearchInput] = useState(searchFromUrl);
+  const debounceRef    = useRef(null);
+  const userTypingRef  = useRef(false);   // true while debounce is pending
 
+  // Sync URL → input when user navigates back/forward (but NOT while typing)
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      setFilters((prev) => ({
-        ...prev,
-        search: searchInput,
-        page: 1,
-      }));
+    if (!userTypingRef.current) {
+      setSearchInput(searchFromUrl);
+    }
+  }, [searchFromUrl]);
+
+  const handleSearchChange = useCallback((e) => {
+    const value = e.target.value;
+    setSearchInput(value);
+    userTypingRef.current = true;
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    debounceRef.current = setTimeout(() => {
+      userTypingRef.current = false;
+      setSearchParams((prev) => {
+        const params = new URLSearchParams(prev);
+        if (value.trim()) {
+          params.set("search", value.trim());
+        } else {
+          params.delete("search");
+        }
+        params.set("page", "1");
+        return params;
+      });
     }, 400);
+  }, [setSearchParams]);
 
-    return () => clearTimeout(timeout);
-  }, [searchInput]);
+  // Cleanup on unmount
+  useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
 
-
-  const [filters, setFilters] = useState({
-    page: 1,
-    limit: 18,
-    employmentType: "",
-    workMode: "",
-    experienceLevel: "",
-    city: "",
-    search: "",
-  });
-
+  // ── Fetch on URL change ──
   useEffect(() => {
-    dispatch(fetchPublicJobs(filters));
-  }, [dispatch, filters]);
-
-  /* ================= FILTER HANDLERS ================= */
-
-  const handleFilterChange = (newFilters) => {
-    setFilters((prev) => ({
-      ...prev,
-      ...newFilters,
-      page: 1,
+    
+    dispatch(fetchPublicJobs({
+      page: pageFromUrl,
+      limit: 18,
+      employmentType: employmentTypeFromUrl,
+      workMode: workModeFromUrl,
+      experienceLevel: experienceLevelFromUrl,
+      city: cityFromUrl,
+      search: searchFromUrl,
     }));
-  };
+  }, [dispatch, pageFromUrl, searchFromUrl, employmentTypeFromUrl, workModeFromUrl, experienceLevelFromUrl, cityFromUrl]);
 
-  const handlePageChange = (page) => {
-    setFilters((prev) => ({ ...prev, page }));
-  };
+  // ── Handlers ──
+  const handleFilterChange = useCallback((newFilters) => {
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      Object.entries(newFilters).forEach(([key, value]) => {
+        if (value) params.set(key, value);
+        else params.delete(key);
+      });
+      params.set("page", "1");
+      return params;
+    });
+  }, [setSearchParams]);
 
-  const handleJobCreated = () => {
+  const handlePageChange = useCallback((page) => {
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      params.set("page", String(page));
+      return params;
+    });
+  }, [setSearchParams]);
+
+  const handleJobCreated = useCallback(() => {
     setIsSheetOpen(false);
-    dispatch(fetchPublicJobs(filters));
-  };
 
-  /* ================= UI ================= */
+    dispatch(fetchPublicJobs({
+      page: pageFromUrl, limit: 18,
+      employmentType: employmentTypeFromUrl,
+      workMode: workModeFromUrl,
+      experienceLevel: experienceLevelFromUrl,
+      city: cityFromUrl,
+      search: searchFromUrl,
+    }));
+        window.scrollTo({ top: 0, behavior: "smooth" });
+
+  }, [dispatch, pageFromUrl, searchFromUrl, employmentTypeFromUrl, workModeFromUrl, experienceLevelFromUrl, cityFromUrl]);
+
+  const filters = {
+    page: pageFromUrl, limit: 18,
+    employmentType: employmentTypeFromUrl,
+    workMode: workModeFromUrl,
+    experienceLevel: experienceLevelFromUrl,
+    city: cityFromUrl,
+    search: searchFromUrl,
+  };
 
   return (
     <div className="bg-white min-h-screen">
-      {/* ================= HERO (FROM CODE 1) ================= */}
+      {/* HERO */}
       <section className="relative overflow-hidden bg-white">
         <div className="mx-auto max-w-7xl px-6 pt-10 pb-16">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -100,19 +220,14 @@ const UserJobs = () => {
               <p className="text-sm font-semibold uppercase tracking-widest text-slate-500">
                 Alumni & Partner Companies
               </p>
-
               <h1 className="mt-6 text-[clamp(3rem,5vw,5.5rem)] font-extrabold leading-[1.05] text-slate-900">
                 Opportunities shared by
-                <span className="block">
-                  people who once sat beside you.
-                </span>
+                <span className="block">people who once sat beside you.</span>
               </h1>
-
               <p className="mt-8 max-w-xl text-lg text-slate-600">
                 Explore career opportunities shared by alumni and trusted partners.
               </p>
             </div>
-
             <div className="relative">
               <div className="absolute -inset-6 bg-indigo-200/40 rounded-3xl blur-3xl" />
               <img
@@ -125,8 +240,8 @@ const UserJobs = () => {
         </div>
       </section>
 
-      {/* ================= SEARCH + CTA ================= */}
-      <section className=" ">
+      {/* SEARCH + CTA */}
+      <section>
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
@@ -135,15 +250,13 @@ const UserJobs = () => {
                 type="text"
                 placeholder="Search jobs, companies, keywords..."
                 value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
+                onChange={handleSearchChange}
                 className="pl-12 h-14 text-lg bg-gray-100 border-border rounded-xl"
               />
-
             </div>
-
             <Button
               onClick={() => setIsSheetOpen(true)}
-              className="h-14 px-15  bg-[#EBAB09] hover:bg-yellow-500 text-white cursor-pointer rounded-xl"
+              className="h-14 px-15 bg-[#EBAB09] hover:bg-yellow-500 text-white cursor-pointer rounded-xl"
             >
               <Plus className="h-5 w-5 mr-2" />
               Post a Job
@@ -152,7 +265,7 @@ const UserJobs = () => {
         </div>
       </section>
 
-      {/* ================= FILTERS + JOBS ================= */}
+      {/* FILTERS + JOBS */}
       <section className="max-w-7xl mx-auto px-6 py-8">
         <div className="mb-8">
           <JobFilters
@@ -164,125 +277,59 @@ const UserJobs = () => {
           />
         </div>
 
-        {/* RESULTS INFO */}
         {!isLoading && !error && (
           <div className="flex items-center justify-between mb-6">
             <p className="text-muted-foreground">
-              Showing{" "}
-              <span className="font-semibold text-foreground">
-                {pagination.total}
-              </span>{" "}
+              Showing <span className="font-semibold text-foreground">{pagination.total}</span>{" "}
               job{pagination.total !== 1 && "s"}
             </p>
           </div>
         )}
 
-        {/* LOADING */}
         {isLoading && (
           <div className="flex justify-center py-20">
             <div className="h-12 w-12 animate-spin rounded-full border-4 border-gold border-t-transparent" />
           </div>
         )}
 
-        {/* ERROR */}
         {!isLoading && error && (
           <div className="bg-destructive/10 text-destructive p-4 rounded-xl">
-            {typeof error === "string"
-              ? error
-              : error?.message || "Something went wrong"}
+            {typeof error === "string" ? error : error?.message || "Something went wrong"}
           </div>
         )}
-        {/* EMPTY */}
+
         {!isLoading && !error && list.length === 0 && (
           <div className="text-center py-20 bg-card rounded-2xl border border-border">
             <Briefcase className="mx-auto h-16 w-16 text-muted-foreground/50" />
-            <h3 className="mt-6 text-xl font-semibold text-foreground">
-              No jobs found
-            </h3>
+            <h3 className="mt-6 text-xl font-semibold text-foreground">No jobs found</h3>
           </div>
         )}
 
-        {/* JOB LIST */}
         {!isLoading && !error && list.length > 0 && (
           <>
-            <div
-              className={cn(
-                "gap-6",
-                view === "tile"
-                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-                  : "flex flex-col"
-              )}
-            >
+            <div className={cn("gap-6", view === "tile" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "flex flex-col")}>
               {list.map((job) => (
-                <JobCard
-                  key={job._id}
-                  job={job}
-                  onApply={(job) => setApplyJob(job)}
-                  view={view} />
+                <JobCard key={job._id} job={job} onApply={(job) => setApplyJob(job)} view={view} />
               ))}
             </div>
 
-            {/* PAGINATION */}
             {pagination.pages > 1 && (
-              <div className="mt-12 flex justify-center">
-                <Pagination>
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious
-                        onClick={() =>
-                          handlePageChange(
-                            Math.max(1, pagination.page - 1)
-                          )
-                        }
-                      />
-                    </PaginationItem>
-
-                    {[...Array(pagination.pages)].map((_, i) => {
-                      const page = i + 1;
-                      return (
-                        <PaginationItem key={page}>
-                          <PaginationLink
-                            isActive={pagination.page === page}
-                            onClick={() => handlePageChange(page)}
-                          >
-                            {page}
-                          </PaginationLink>
-                        </PaginationItem>
-                      );
-                    })}
-
-                    <PaginationItem>
-                      <PaginationNext
-                        onClick={() =>
-                          handlePageChange(
-                            Math.min(
-                              pagination.pages,
-                              pagination.page + 1
-                            )
-                          )
-                        }
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              </div>
+              <PaginationControls
+                currentPage={pageFromUrl}
+                totalPages={pagination.pages}
+                onPageChange={handlePageChange}
+              />
             )}
           </>
         )}
       </section>
 
-      {/* ================= POST JOB SHEET ================= */}
-      <PostJobForm
-        open={isSheetOpen}
-        onOpenChange={setIsSheetOpen}
-        onJobCreated={handleJobCreated}
-      />
+      <PostJobForm open={isSheetOpen} onOpenChange={setIsSheetOpen} onJobCreated={handleJobCreated} />
       <ApplyJobDialog
         open={!!applyJob}
         onOpenChange={(open) => { if (!open) setApplyJob(null); }}
         job={applyJob}
       />
-
     </div>
   );
 };
