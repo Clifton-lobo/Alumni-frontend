@@ -8,8 +8,10 @@ import {
 import {
   Search, X, Calendar, Eye, Tag, ChevronLeft, ChevronRight,
   Newspaper, ArrowUpRight, Clock, AlertCircle,
+  ArrowRight,
 } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import PaginationControls from "../../components/common/Pagination.jsx"; // adjust path
 
 /* ─── Constants ─── */
 const CATS = [
@@ -117,9 +119,7 @@ const HeroCard = ({ article, onClick }) => (
         </p>
 
         <div className="flex w-full items-center justify-between  animate-[fadeUp_0.5s_0.16s_ease_both]">
-          <span className="font-sans text-xs text-white/30 flex items-center gap-1.5">
-            <Eye className="h-3.5 w-3.5" /> {article.viewCount || 0} views
-          </span>
+
           <button className="flex flex-end items-center gap-2  justify-end font-sans text-sm font-semibold px-5 py-2.5 rounded-xl
             bg-amber-400 text-slate-900 transition-all hover:scale-105 active:scale-95">
             Read Story <ArrowUpRight className="h-4 w-4" />
@@ -133,14 +133,17 @@ const HeroCard = ({ article, onClick }) => (
 /* ══════════════════════════════════════════
    PHOTO CARD
 ══════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   PHOTO CARD  — matches homepage News card style
+══════════════════════════════════════════ */
 const PhotoCard = ({ article, onClick }) => (
   <div
     onClick={() => onClick(article._id)}
-    className="group cursor-pointer bg-white rounded-2xl overflow-hidden border border-gray-100/80
-      shadow-[0_2px_12px_rgba(0,0,0,0.06)] transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-2xl"
+    className="group cursor-pointer bg-white rounded-2xl overflow-hidden border border-gray-100
+      shadow-[0_2px_16px_rgba(0,0,0,0.06)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl"
   >
     {/* Image */}
-    <div className="relative overflow-hidden bg-gray-100 aspect-[4/3]">
+    <div className="relative overflow-hidden bg-gray-100 aspect-[16/10]">
       {article.coverImage?.url ? (
         <img
           src={article.coverImage.url}
@@ -152,26 +155,46 @@ const PhotoCard = ({ article, onClick }) => (
           <Newspaper className="h-10 w-10 text-gray-200" />
         </div>
       )}
-      <div className="absolute top-3 left-3">
-        <CatPill cat={article.category} />
-      </div>
     </div>
 
     {/* Text */}
-    <div className="p-4 sm:p-5">
-      <h3 className="font-serif font-bold text-gray-900 text-base sm:text-lg leading-snug line-clamp-2 mb-2
-        group-hover:opacity-70 transition-opacity">
-        {article.title}
+    <div className="p-5 sm:p-6 flex flex-col">
+      {/* Category + Date row */}
+      <div className="flex items-center gap-2.5 mb-3">
+        <span className="flex items-center gap-1 font-sans text-xs font-semibold" style={{ color: GOLD }}>
+          <Tag className="h-3 w-3" />
+          {catLabel(article.category)}
+        </span>
+        <span className="text-gray-300 text-xs">·</span>
+        <span className="flex items-center gap-1 font-sans text-xs text-gray-400">
+          <Clock className="h-3 w-3" />
+          {fmtDate(article.publishedAt)}
+        </span>
+      </div>
+
+      {/* Title */}
+      <h3
+        className="font-serif font-bold text-gray-900 text-base sm:text-[1.1rem] leading-snug line-clamp-2 mb-2.5 transition-colors duration-200 h-[3rem] overflow-hidden"
+        style={{ color: "#142A5D" }}
+      >
+        <span className="group-hover:text-amber-500 transition-colors duration-200">
+          {article.title}
+        </span>
       </h3>
-      <p className="font-sans text-xs sm:text-sm text-gray-400 leading-relaxed line-clamp-2 mb-4">
+
+      {/* Excerpt */}
+      <p className="font-sans text-sm text-gray-500 leading-relaxed line-clamp-2 mb-5 h-[2.8rem] overflow-hidden"
+      >
         {article.excerpt}
       </p>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3 font-sans text-xs text-gray-400">
-          <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{timeAgo(article.publishedAt)}</span>
-          <span className="flex items-center gap-1"><Eye className="h-3 w-3" />{article.viewCount || 0}</span>
-        </div>
-        <ArrowUpRight className="h-4 w-4 text-gray-300 group-hover:text-amber-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+
+      {/* Read More */}
+      <div className="flex items-center gap-1.5 font-sans text-sm font-semibold mt-auto" style={{ color: GOLD }}>
+
+        <span>Read More</span>
+        <ArrowRight
+          className="h-4 w-4 transition-transform duration-200 ease-out group-hover:translate-x-1"
+        />
       </div>
     </div>
   </div>
@@ -231,13 +254,7 @@ const ArticleModal = ({ open, onClose }) => {
                   <Calendar className="h-3.5 w-3.5 text-amber-400" />
                   {fmtDate(article.publishedAt)}
                 </span>
-                <span className="flex items-center gap-1.5">
-                  <Eye className="h-3.5 w-3.5 text-amber-400" />
-                  {article.viewCount} views
-                </span>
-                {article.postedBy?.name && (
-                  <span>by <strong className="text-gray-600">{article.postedBy.name}</strong></span>
-                )}
+
               </div>
 
               {/* Title */}
@@ -287,68 +304,6 @@ const ArticleModal = ({ open, onClose }) => {
 };
 
 /* ══════════════════════════════════════════
-   PAGINATION
-══════════════════════════════════════════ */
-const Pagination = ({ pagination, onPageChange }) => {
-  const { page, pages, total, limit } = pagination;
-  if (!pages || pages <= 1) return null;
-
-  const getPages = () => {
-    if (pages <= 5) return Array.from({ length: pages }, (_, i) => i + 1);
-    if (page <= 3) return [1, 2, 3, 4, "…", pages];
-    if (page >= pages - 2) return [1, "…", pages - 3, pages - 2, pages - 1, pages];
-    return [1, "…", page - 1, page, page + 1, "…", pages];
-  };
-
-  return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-10 mt-10 border-t border-gray-100">
-      <p className="font-sans text-sm text-gray-400 order-2 sm:order-1">
-        {(page - 1) * limit + 1}–{Math.min(page * limit, total)} of{" "}
-        <strong className="text-gray-600">{total}</strong> stories
-      </p>
-      <div className="flex items-center gap-1.5 order-1 sm:order-2">
-        <button
-          onClick={() => onPageChange(page - 1)}
-          disabled={page === 1}
-          className="w-9 h-9 rounded-xl flex items-center justify-center bg-slate-900 text-white
-            transition-all disabled:opacity-25 hover:opacity-80">
-          <ChevronLeft className="h-4 w-4" />
-        </button>
-
-        {getPages().map((p, i) =>
-          p === "…" ? (
-            <span key={`e${i}`} className="w-9 h-9 flex items-center justify-center text-gray-300 font-sans text-sm">…</span>
-          ) : (
-            <button
-              key={p}
-              onClick={() => onPageChange(p)}
-              className={`w-9 h-9 rounded-xl font-sans text-sm font-semibold transition-all hover:opacity-90
-                ${p === page
-                  ? "bg-amber-400 text-slate-900"
-                  : "bg-slate-900/10 text-slate-900"
-                }`}>
-              {p}
-            </button>
-          )
-        )}
-
-        <button
-          onClick={() => onPageChange(page + 1)}
-          disabled={page === pages}
-          className="w-9 h-9 rounded-xl flex items-center justify-center bg-slate-900 text-white
-            transition-all disabled:opacity-25 hover:opacity-80">
-          <ChevronRight className="h-4 w-4" />
-        </button>
-      </div>
-    </div>
-  );
-};
-
-/* ══════════════════════════════════════════
-   MAIN PAGE
-══════════════════════════════════════════ */
-
-/* ══════════════════════════════════════════
    MAIN PAGE
 ══════════════════════════════════════════ */
 import { useSearchParams } from "react-router-dom"; // 👈 add this import at top
@@ -363,21 +318,21 @@ const News = () => {
 
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
 
-  const [searchInput, setSearchInput]   = useState("");
-  const [searchText, setSearchText]     = useState(""); // debounced value
-  const [category, setCategory]         = useState("");
-  const [modalOpen, setModalOpen]       = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+  const [searchText, setSearchText] = useState(""); // debounced value
+  const [category, setCategory] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
 
   const isFirstRender = useRef(true);
-  const didMountRef   = useRef(false);
-  const prevPageRef   = useRef(pageFromUrl);
-  const listRef       = useRef(null);
+  const didMountRef = useRef(false);
+  const prevPageRef = useRef(pageFromUrl);
+  const listRef = useRef(null);
 
   /* ── Main fetch — page + filters + debounced search ── */
   const load = useCallback((page = pageFromUrl) => {
     const params = { page, limit: 10 };
-    if (searchText) params.search   = searchText;
-    if (category)   params.category = category;
+    if (searchText) params.search = searchText;
+    if (category) params.category = category;
     dispatch(fetchPublicNews(params));
   }, [dispatch, searchText, category, pageFromUrl]);
 
@@ -593,8 +548,15 @@ const News = () => {
                 {rest.map((a) => <PhotoCard key={a._id} article={a} onClick={openArticle} />)}
               </div>
             )}
-            <Pagination pagination={pagination} onPageChange={onPageChange} />
-          </div>
+            {pagination.pages > 1 && (
+              <div className="mx-auto max-w-6xl px-4 md:px-6">
+                <PaginationControls
+                  currentPage={pageFromUrl}
+                  totalPages={pagination.pages}
+                  onPageChange={onPageChange}
+                />
+              </div>
+            )}          </div>
         )}
       </div>
 
