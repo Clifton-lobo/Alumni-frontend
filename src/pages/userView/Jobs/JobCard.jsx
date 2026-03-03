@@ -101,10 +101,10 @@ const JobCard = ({ job, view = "grid", onApply }) => {
   if (isList) {
     return (
       <>
-        <div className="group relative bg-white rounded-2xl border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-[#EBAB09]">
+        <div className="group relative bg-white rounded-2xl border shadow2xl border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-[#EBAB09]">
           <div className="absolute top-0 left-0 right-0 h-[3px] bg-transparent group-hover:bg-[#EBAB09] transition-all duration-300" />
 
-          <div className="p-6">
+          <div className="p-6 ">
             <div className="flex items-start gap-5">
               <div className="p-4 rounded-xl bg-[#152A5D] text-[#EBAB09] flex-shrink-0">
                 <Briefcase className="h-6 w-6" />
@@ -200,7 +200,7 @@ const JobCard = ({ job, view = "grid", onApply }) => {
   /* ═══════════════ GRID VIEW ═══════════════ */
   return (
     <>
-      <div className="group relative bg-white rounded-2xl border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+      <div className="group relative bg-white shadow-md rounded-2xl border border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
         <div className="absolute top-0 left-0 right-0 h-[4px] bg-transparent group-hover:bg-[#EBAB09] transition-all duration-300" />
 
         <div className="p-6 flex flex-col h-full">

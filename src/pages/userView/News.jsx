@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchPublicNews,
@@ -347,32 +347,106 @@ const Pagination = ({ pagination, onPageChange }) => {
 /* ══════════════════════════════════════════
    MAIN PAGE
 ══════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════
+   MAIN PAGE
+══════════════════════════════════════════ */
+import { useSearchParams } from "react-router-dom"; // 👈 add this import at top
+
+const DEBOUNCE_DELAY = 500;
+const MIN_SEARCH_LENGTH = 2;
+
 const News = () => {
   const dispatch = useDispatch();
   const { list, pagination, loading } = useSelector((s) => s.news);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [search, setSearch] = useState("");
-  const [searchInput, setSearchInput] = useState("");
-  const [category, setCategory] = useState("");
-  const [modalOpen, setModalOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
+  const pageFromUrl = parseInt(searchParams.get("page")) || 1;
 
-  const load = useCallback((page = 1) => {
-    const params = { page, limit: 9 };
-    if (search) params.search = search;
-    if (category) params.category = category;
+  const [searchInput, setSearchInput]   = useState("");
+  const [searchText, setSearchText]     = useState(""); // debounced value
+  const [category, setCategory]         = useState("");
+  const [modalOpen, setModalOpen]       = useState(false);
+
+  const isFirstRender = useRef(true);
+  const didMountRef   = useRef(false);
+  const prevPageRef   = useRef(pageFromUrl);
+  const listRef       = useRef(null);
+
+  /* ── Main fetch — page + filters + debounced search ── */
+  const load = useCallback((page = pageFromUrl) => {
+    const params = { page, limit: 10 };
+    if (searchText) params.search   = searchText;
+    if (category)   params.category = category;
     dispatch(fetchPublicNews(params));
-  }, [dispatch, search, category]);
+  }, [dispatch, searchText, category, pageFromUrl]);
 
-  useEffect(() => { load(1); }, [search, category]);
+  useEffect(() => { load(pageFromUrl); }, [category, searchText, pageFromUrl]);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    setSearch(searchInput.trim());
-    setSearchOpen(false);
+  /* ── Reset page to 1 when category changes ── */
+  useEffect(() => {
+    if (!didMountRef.current) { didMountRef.current = true; return; }
+    setSearchParams((prev) => {
+      const p = new URLSearchParams(prev);
+      p.set("page", "1");
+      return p;
+    });
+  }, [category]);
+
+  /* ── Debounced search ── */
+  useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
+
+    const trimmed = searchInput.trim();
+    if (trimmed !== "" && trimmed.length < MIN_SEARCH_LENGTH) return;
+
+    const timer = setTimeout(() => {
+      setSearchText(trimmed);
+      setSearchParams((prev) => {
+        const p = new URLSearchParams(prev);
+        p.set("page", "1");
+        return p;
+      });
+      // Direct dispatch in case already on page 1
+      dispatch(fetchPublicNews({
+        page: 1, limit: 10,
+        search: trimmed || undefined,
+        category: category || undefined,
+      }));
+    }, DEBOUNCE_DELAY);
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  /* ── Scroll to list on page change ── */
+  useEffect(() => {
+    if (loading.list) return;
+    if (prevPageRef.current !== pageFromUrl) {
+      prevPageRef.current = pageFromUrl;
+      setTimeout(() => {
+        if (!listRef.current) return;
+        const top = listRef.current.getBoundingClientRect().top + window.scrollY - 120;
+        window.scrollTo({ top, behavior: "smooth" });
+      }, 300);
+    }
+  }, [loading.list, pageFromUrl]);
+
+  /* ── Page change handler ── */
+  const onPageChange = (page) => {
+    setSearchParams((prev) => {
+      const p = new URLSearchParams(prev);
+      p.set("page", String(page));
+      return p;
+    });
   };
 
-  const clearAll = () => { setSearch(""); setSearchInput(""); setCategory(""); };
+  /* ── Clear search ── */
+  const clearSearch = () => {
+    setSearchInput("");
+    setSearchText("");
+  };
+
+  const clearAll = () => { clearSearch(); setCategory(""); };
 
   const openArticle = (id) => {
     dispatch(fetchNewsById(id));
@@ -384,44 +458,32 @@ const News = () => {
     dispatch(clearArticle());
   };
 
-  const isFiltering = search || category;
-  const hero = list[0];
-  const rest = list.slice(1);
+  const isFiltering = searchText || category;
+  const hero = !isFiltering && pageFromUrl === 1 ? list.find(a => a.newsType === "main") : null;
+  const rest = hero ? list.filter(a => a._id !== hero._id) : list;
 
   return (
     <div className="min-h-screen font-sans bg-stone-100">
 
-      {/* ══ MASTHEAD ══ */}
-      {/* ── Header ── */}
+      {/* ══ HEADER ══ */}
       <div style={{ background: NAVY }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
-
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-5">
-
-            {/* Title Section */}
             <div>
-              <p
-                className="text-xs font-semibold uppercase tracking-[0.2em] mb-2"
-                style={{ color: GOLD }}
-              >
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-2" style={{ color: GOLD }}>
                 Alumni Network
               </p>
-
               <h1 className="gal-serif font-bold text-white text-3xl sm:text-4xl leading-tight">
                 Alumni News
               </h1>
-
               <p className="text-sm text-white/40 mt-1.5">
                 Stories, milestones, and community highlights from our alumni community
               </p>
             </div>
 
-            {/* Search */}
+            {/* Search — now debounced on input change */}
             <div className="w-full sm:max-w-md">
-              <form
-                onSubmit={handleSearch}
-                className="flex items-center gap-2 bg-white/10 border border-white/15 rounded-xl px-4 py-2.5"
-              >
+              <div className="flex items-center gap-2 bg-white/10 border border-white/15 rounded-xl px-4 py-2.5">
                 <Search className="h-4 w-4 text-white/30 flex-shrink-0" />
                 <input
                   value={searchInput}
@@ -430,61 +492,46 @@ const News = () => {
                   className="flex-1 bg-transparent text-sm text-white placeholder-white/30 outline-none"
                 />
                 {searchInput && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchInput("")}
-                  >
+                  <button type="button" onClick={clearSearch}>
                     <X className="h-3.5 w-3.5 text-white/40 hover:text-white transition" />
                   </button>
                 )}
-              </form>
+              </div>
             </div>
-
           </div>
 
-          {/* Category Navigation */}
+          {/* Category Nav */}
           <div className="mt-6 flex items-center gap-2 overflow-x-auto scrollbar-hide">
             {CATS.map((c) => (
               <button
                 key={c.value}
                 onClick={() => setCategory(c.value)}
                 className={`px-4 py-2 rounded-xl text-sm font-medium transition
-            ${category === c.value
-                    ? ""
-                    : "bg-white/10 text-white/70 hover:bg-white/15"
-                  }`}
-                style={
-                  category === c.value
-                    ? { background: GOLD, color: NAVY }
-                    : undefined
-                }
+                  ${category === c.value ? "" : "bg-white/10 text-white/70 hover:bg-white/15"}`}
+                style={category === c.value ? { background: GOLD, color: NAVY } : undefined}
               >
                 {c.label}
               </button>
             ))}
           </div>
-
         </div>
       </div>
+
       {/* ══ ACTIVE FILTER PILLS ══ */}
       {isFiltering && (
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-5 animate-[fadeUp_0.5s_ease_both]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-5">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-sans text-xs text-gray-400">Showing:</span>
-            {search && (
+            {searchText && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-900 text-white">
-                "{search}"
-                <button onClick={() => { setSearch(""); setSearchInput(""); }}>
-                  <X className="w-3 h-3 opacity-60 hover:opacity-100" />
-                </button>
+                "{searchText}"
+                <button onClick={clearSearch}><X className="w-3 h-3 opacity-60 hover:opacity-100" /></button>
               </span>
             )}
             {category && (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-900 text-white">
                 {catLabel(category)}
-                <button onClick={() => setCategory("")}>
-                  <X className="w-3 h-3 opacity-60 hover:opacity-100" />
-                </button>
+                <button onClick={() => setCategory("")}><X className="w-3 h-3 opacity-60 hover:opacity-100" /></button>
               </span>
             )}
             <button onClick={clearAll} className="font-sans text-xs text-gray-400 underline underline-offset-2 hover:text-gray-700">
@@ -495,9 +542,9 @@ const News = () => {
       )}
 
       {/* ══ MAIN CONTENT ══ */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-7 sm:py-10">
+      <div ref={listRef} className="max-w-7xl mx-auto px-4 sm:px-6 py-7 sm:py-10">
 
-        {/* Loading skeletons */}
+        {/* Skeletons */}
         {loading.list && (
           <div className="space-y-6">
             <Skel className="h-[460px] rounded-2xl" />
@@ -525,15 +572,12 @@ const News = () => {
             </div>
             <h3 className="font-serif text-xl font-bold text-gray-800 mb-2">No stories found</h3>
             <p className="font-sans text-sm text-gray-400 max-w-xs leading-relaxed mb-6">
-              {search
-                ? `We couldn't find anything for "${search}". Try a different term.`
+              {searchText
+                ? `We couldn't find anything for "${searchText}". Try a different term.`
                 : "There are no published stories yet. Check back soon."}
             </p>
             {isFiltering && (
-              <button
-                onClick={clearAll}
-                className="px-6 py-2.5 rounded-xl font-sans text-sm font-semibold
-                  bg-amber-400 text-slate-900 hover:opacity-90 transition-opacity">
+              <button onClick={clearAll} className="px-6 py-2.5 rounded-xl font-sans text-sm font-semibold bg-amber-400 text-slate-900 hover:opacity-90 transition-opacity">
                 Clear filters
               </button>
             )}
@@ -546,12 +590,10 @@ const News = () => {
             {hero && <HeroCard article={hero} onClick={openArticle} />}
             {rest.length > 0 && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-                {rest.map((a) => (
-                  <PhotoCard key={a._id} article={a} onClick={openArticle} />
-                ))}
+                {rest.map((a) => <PhotoCard key={a._id} article={a} onClick={openArticle} />)}
               </div>
             )}
-            <Pagination pagination={pagination} onPageChange={load} />
+            <Pagination pagination={pagination} onPageChange={onPageChange} />
           </div>
         )}
       </div>

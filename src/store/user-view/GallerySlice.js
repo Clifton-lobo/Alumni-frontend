@@ -63,7 +63,7 @@ const gallerySlice = createSlice({
   name: "gallery",
   initialState: {
     albums:     [],
-    pagination: { total: 0, page: 1, pages: 1, limit: 12 },
+    pagination: { total: 0, page: 1, pages: 1, limit: 21 },
 
     /* Active album + its photos */
     activeAlbum:  null,

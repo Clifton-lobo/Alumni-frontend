@@ -49,7 +49,7 @@ const newsSlice = createSlice({
   name: "news",
   initialState: {
     list:       [],
-    pagination: { total: 0, page: 1, pages: 1, limit: 9 },
+    pagination: { total: 0, page: 1, pages: 1, limit:9 },
     article:    null,
     latest:     [],
     loading: {

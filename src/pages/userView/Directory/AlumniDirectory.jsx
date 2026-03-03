@@ -1,22 +1,17 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   fetchAlumni,
-  setPage,
-  setBatch,
-  setStream,
-  setSearch,
 } from "../../../store/user-view/AlumniDirectorySlice";
 import {
   fetchAcceptedConnections,
   fetchIncomingRequests,
   fetchOutgoingRequests,
   sendConnectionRequest,
+  openRequestsDialog,
 } from "../../../store/user-view/ConnectionSlice";
 import PaginationControls from "../../../components/common/Pagination";
-import SearchComponent from "../../../components/common/Search";
-import { openRequestsDialog } from "../../../store/user-view/ConnectionSlice";
-import { useNavigate } from "react-router-dom";
 import {
   Briefcase,
   GraduationCap,
@@ -28,13 +23,14 @@ import {
   Clock,
   UserCheck,
   Mail,
+  Search,
 } from "lucide-react";
+
+const DEBOUNCE_DELAY = 500;
+const MIN_SEARCH_LENGTH = 2;
 
 /* ─────────────────────────────────────────────
   Helper: derive connection status for a user
-  Mirrors ProfileDialog exactly:
-  - Guards against undefined/null targetUserId
-  - Only returns SELF when BOTH ids exist and match
 ───────────────────────────────────────────── */
 const getConnectionStatus = (
   targetUserId,
@@ -43,15 +39,11 @@ const getConnectionStatus = (
   outgoingRequests,
   incomingRequests
 ) => {
-  // Only treat as self when both IDs are real and equal
   if (targetUserId && currentUserId && targetUserId === currentUserId)
     return "SELF";
-
-  if (!targetUserId) return "NONE"; // can't determine — show Connect
-
+  if (!targetUserId) return "NONE";
   if (acceptedConnections.some((c) => c.user?._id?.toString() === targetUserId))
     return "ACCEPTED";
-
   if (
     outgoingRequests.some((r) => {
       const id = r.recipient?._id?.toString() ?? r.recipient?.toString();
@@ -59,7 +51,6 @@ const getConnectionStatus = (
     })
   )
     return "PENDING_SENT";
-
   if (
     incomingRequests.some((r) => {
       const id = r.requester?._id?.toString() ?? r.requester?.toString();
@@ -67,12 +58,11 @@ const getConnectionStatus = (
     })
   )
     return "PENDING_RECEIVED";
-
   return "NONE";
 };
 
 /* ─────────────────────────────────────────────
-  Connect Button — mirrors ProfileDialog exactly
+  Connect Button
 ───────────────────────────────────────────── */
 const ConnectButton = ({ status, onConnect, onRespond, loading }) => {
   if (status === "ACCEPTED") {
@@ -86,7 +76,6 @@ const ConnectButton = ({ status, onConnect, onRespond, loading }) => {
       </button>
     );
   }
-
   if (status === "PENDING_SENT") {
     return (
       <button
@@ -98,7 +87,6 @@ const ConnectButton = ({ status, onConnect, onRespond, loading }) => {
       </button>
     );
   }
-
   if (status === "PENDING_RECEIVED") {
     return (
       <button
@@ -110,14 +98,16 @@ const ConnectButton = ({ status, onConnect, onRespond, loading }) => {
       </button>
     );
   }
-
-  // NONE — show Connect
   return (
     <button
       onClick={onConnect}
       disabled={loading}
-      className="flex-1 px-4 py-2 rounded-lg bg-[#EBAB09] text-black text-sm font-semibold hover:bg-[#d49a00] flex items-center justify-center gap-2 transition disabled:opacity-50 cursor-pointer"
-    >
+      className="flex-1 px-4 py-2 rounded-lg 
+bg-gradient-to-r from-[#2A4A88] via-[#4A6FC1] to-[#2A4A88] shadow-inner
+   text-white text-sm font-semibold 
+hover:bg-[#2F5C8E] 
+flex items-center justify-center gap-2 
+transition disabled:opacity-50 cursor-pointer"    >
       <UserPlus className="w-4 h-4" />
       {loading ? "Sending…" : "Connect"}
     </button>
@@ -130,52 +120,176 @@ const ConnectButton = ({ status, onConnect, onRespond, loading }) => {
 const AlumniDirectory = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  // ── Alumni state ──────────────────────────
-  const {
-    alumniList,
-    loading,
-    error,
-    currentPage,
-    totalPages,
-    totalUsers,
-    batch,
-    stream,
-    search,
-  } = useSelector((state) => state.alumni);
+  // ── Read URL params ──
+  const pageFromUrl = parseInt(searchParams.get("page")) || 1;
+  const searchFromUrl = searchParams.get("search") || "";
+  const batchFromUrl = searchParams.get("batch") || "";
+  const streamFromUrl = searchParams.get("stream") || "";
 
-  // ── Auth ──────────────────────────────────
+  // ── Alumni state ──
+  const { alumniList, loading, error, totalPages, totalUsers } = useSelector(
+    (state) => state.alumni
+  );
+
+  // ── Auth ──
   const currentUser = useSelector((state) => state.auth.user);
 
-  // ── Connection state ──────────────────────
-  const {
-    acceptedConnections,
-    incomingRequests,
-    outgoingRequests,
-    sendingRequests,
-  } = useSelector((state) => state.connections);
+  // ── Connection state ──
+  const { acceptedConnections, incomingRequests, outgoingRequests, sendingRequests } =
+    useSelector((state) => state.connections);
 
   const currentUserId =
     currentUser?.id?.toString() || currentUser?._id?.toString();
 
-  /* =========================
-    FETCH DATA
-  ========================= */
-  useEffect(() => {
-    dispatch(fetchAlumni());
-  }, [currentPage, batch, stream, search]);
+  // ── Local search text — pure local state, NOT synced from URL
+  //    Mirrors UserEvents exactly: user types freely, debounce
+  //    writes to URL, but the input itself is never reset externally.
+  const [searchText, setSearchText] = useState("");
 
+  // ── Refs ──
+  const isFirstRender = useRef(true);
+  const didMountRef = useRef(false);
+  const listContainerRef = useRef(null);
+  const prevPageRef = useRef(pageFromUrl);
+
+  /* -----------------------------------
+     MAIN FETCH — URL param driven
+     searchFromUrl (written by debounce)
+     is the API source of truth.
+  ----------------------------------- */
+  useEffect(() => {
+    dispatch(
+      fetchAlumni({
+        page: pageFromUrl,
+        search: searchFromUrl,
+        batch: batchFromUrl,
+        stream: streamFromUrl,
+      })
+    );
+  }, [pageFromUrl, searchFromUrl, batchFromUrl, streamFromUrl, dispatch]);
+
+  /* -----------------------------------
+     FETCH CONNECTIONS (once)
+  ----------------------------------- */
   useEffect(() => {
     dispatch(fetchAcceptedConnections());
     dispatch(fetchIncomingRequests());
     dispatch(fetchOutgoingRequests());
   }, []);
 
-  /* =========================
-    HANDLERS
-  ========================= */
+  /* -----------------------------------
+     RESET PAGE WHEN FILTERS CHANGE
+     (skip first mount so URL page is
+      respected on load)
+  ----------------------------------- */
+  useEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      params.set("page", "1");
+      return params;
+    });
+  }, [batchFromUrl, streamFromUrl]);
 
-  // Mirror ProfileDialog: navigate to /user/messages with recipientId + recipientUser
+  /* -----------------------------------
+     DEBOUNCED SEARCH — mirrors UserEvents:
+     1. Resets page to 1 via URL
+     2. Also dispatches directly in case
+        user is already on page 1 (URL
+        wouldn't change, so main fetch
+        useEffect above wouldn't re-run)
+  ----------------------------------- */
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    const trimmed = searchText.trim();
+    if (trimmed !== "" && trimmed.length < MIN_SEARCH_LENGTH) return;
+
+    const timer = setTimeout(() => {
+      // Write search + reset page in URL
+      setSearchParams((prev) => {
+        const params = new URLSearchParams(prev);
+        if (trimmed) params.set("search", trimmed);
+        else params.delete("search");
+        params.set("page", "1");
+        return params;
+      });
+
+      // Direct dispatch for when user is already on page 1
+      dispatch(
+        fetchAlumni({
+          page: 1,
+          search: trimmed || undefined,
+          batch: batchFromUrl,
+          stream: streamFromUrl,
+        })
+      );
+    }, DEBOUNCE_DELAY);
+
+    return () => clearTimeout(timer);
+  }, [searchText, batchFromUrl, streamFromUrl, dispatch]);
+
+  /* -----------------------------------
+     SCROLL TO LIST AFTER PAGE CHANGE
+  ----------------------------------- */
+  useEffect(() => {
+    if (loading) return;
+
+    if (prevPageRef.current !== pageFromUrl) {
+      prevPageRef.current = pageFromUrl;
+
+      setTimeout(() => {
+        const element = listContainerRef.current;
+        if (!element) return;
+
+        const headerOffset = 120;
+        const offsetPosition =
+          element.getBoundingClientRect().top + window.scrollY - headerOffset;
+
+        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+      }, 300);
+    }
+  }, [loading, pageFromUrl]);
+
+  /* -----------------------------------
+     HANDLERS
+  ----------------------------------- */
+  const handleBatchChange = (value) => {
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      if (value) params.set("batch", value);
+      else params.delete("batch");
+      params.set("page", "1");
+      return params;
+    });
+  };
+
+  const handleStreamChange = (value) => {
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      if (value) params.set("stream", value);
+      else params.delete("stream");
+      params.set("page", "1");
+      return params;
+    });
+  };
+
+  const handlePageChange = (page) => {
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      params.set("page", String(page));
+      return params;
+    });
+  };
+
   const handleMessage = (user) => {
     navigate("/user/messages", {
       state: {
@@ -184,7 +298,7 @@ const AlumniDirectory = () => {
           _id: user._id.toString(),
           fullname: user.fullname,
           username: user.username,
-          profileImage: user.profilePicture, // field name matches MessagingPage Avatar
+          profileImage: user.profilePicture,
         },
       },
     });
@@ -194,45 +308,64 @@ const AlumniDirectory = () => {
     dispatch(sendConnectionRequest(recipientId));
   };
 
-  /* =========================
-    MEMOIZED VALUES
-  ========================= */
+  /* -----------------------------------
+     MEMOIZED VALUES
+  ----------------------------------- */
   const years = useMemo(() => {
     const currentYear = new Date().getFullYear();
     return Array.from({ length: 50 }, (_, i) => currentYear - i);
   }, []);
 
-  /* =========================
-    RENDER
-  ========================= */
+  /* -----------------------------------
+     RENDER
+  ----------------------------------- */
   return (
     <div className="min-h-screen bg-[#F5F6F8]">
 
-      {/* ================= HERO ================= */}
+      {/* ── HERO (original UI unchanged) ── */}
       <div className="bg-[#142A5D] text-white py-20 px-6">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold">Alumni Directory</h1>
           <p className="mt-4 text-white/80 text-lg">
             Connect with fellow alumni and grow your network.
           </p>
+
+          {/* Search bar — original SearchComponent replaced with
+              inline input that mirrors UserEvents logic exactly */}
           <div className="mt-8 max-w-xl mx-auto">
-            <SearchComponent
-              placeholder="Search alumni..."
-              onSearch={(query) => dispatch(setSearch(query))}
-            />
+            <div className="mx-auto max-w-4xl px-4 mt-8">
+              <div className="flex items-center gap-3">
+
+                <div className="relative flex-1">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#142A5D]/60" />
+
+                  <input
+                    type="text"
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    placeholder="Search alumni by name, batch, company..."
+                    className="w-full rounded-xl border border-[#142A5D]/20 bg-white px-12 py-3 text-[#142A5D] outline-none transition-all duration-200 placeholder:text-[#142A5D]/50 focus:border-[#142A5D] focus:ring-2 focus:ring-[#142A5D]/10"
+                  />
+                </div>
+
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ================= CONTENT ================= */}
+      {/* ── CONTENT ── */}
       <div className="max-w-7xl mx-auto px-6 -mt-12 pb-20">
 
-        {/* FILTERS */}
-        <div className="bg-white rounded-md shadow-sm p-6 mb-10 flex flex-col md:flex-row justify-between items-center gap-6">
+        {/* FILTERS — also the scroll target */}
+        <div
+          ref={listContainerRef}
+          className="bg-white rounded-md shadow-sm p-6 mb-10 flex flex-col md:flex-row justify-between items-center gap-6"
+        >
           <div className="flex gap-4 flex-wrap">
             <select
-              value={batch}
-              onChange={(e) => dispatch(setBatch(e.target.value))}
+              value={batchFromUrl}
+              onChange={(e) => handleBatchChange(e.target.value)}
               className="border rounded-md px-4 py-2 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#142A5D]/30"
             >
               <option value="">All Years</option>
@@ -242,8 +375,8 @@ const AlumniDirectory = () => {
             </select>
 
             <select
-              value={stream}
-              onChange={(e) => dispatch(setStream(e.target.value))}
+              value={streamFromUrl}
+              onChange={(e) => handleStreamChange(e.target.value)}
               className="border rounded-md px-4 py-2 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#142A5D]/30"
             >
               <option value="">All Departments</option>
@@ -284,12 +417,8 @@ const AlumniDirectory = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {alumniList.map((user) => {
               const userId = user._id?.toString();
-
-              // Mirror ProfileDialog: isCurrentUser derived separately from status
               const isCurrentUser = !!(userId && currentUserId && userId === currentUserId);
               const isAdmin = user.role === "admin";
-
-              // Mirror ProfileDialog: showActions = not admin AND not self
               const showActions = !isAdmin && !isCurrentUser;
 
               const connectionStatus = getConnectionStatus(
@@ -303,11 +432,11 @@ const AlumniDirectory = () => {
               return (
                 <div
                   key={user._id}
-                  className="group relative bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col"
+                  className="group relative bg-white rounded-2xl border hovershadow-md hover:shadow-2xl transition-all duration-300 border-gray-100 shadow-sm  overflow-hidden flex flex-col"
                 >
                   {/* Hover Accent */}
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-[#142A5D] scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
 
+                 {/* alumni card */}
                   <div className="p-5 flex flex-col items-center text-center flex-1">
 
                     {/* Avatar */}
@@ -383,7 +512,7 @@ const AlumniDirectory = () => {
                   {/* Divider */}
                   <div className="border-t border-gray-100" />
 
-                  {/* ── Actions — mirrors ProfileDialog showActions logic ── */}
+                  {/* Actions */}
                   {showActions && (
                     <div className="p-4 bg-gray-50 flex gap-2.5">
                       <ConnectButton
@@ -392,13 +521,6 @@ const AlumniDirectory = () => {
                         onConnect={() => handleConnect(userId)}
                         loading={!!sendingRequests[userId]}
                       />
-
-                      {/*
-                        Message button:
-                        - ACCEPTED  → enabled, navigates to chat
-                        - All other → disabled (greyed out)
-                        Mirrors ProfileDialog exactly.
-                      */}
                       <button
                         onClick={connectionStatus === "ACCEPTED" ? () => handleMessage(user) : undefined}
                         disabled={connectionStatus !== "ACCEPTED"}
@@ -414,7 +536,7 @@ const AlumniDirectory = () => {
                     </div>
                   )}
 
-                  {/* ── Self notice ── */}
+                  {/* Self notice */}
                   {isCurrentUser && (
                     <div className="p-4 bg-gray-50">
                       <div className="flex items-center justify-center py-2 rounded-xl bg-[#142A5D]/5 border border-[#142A5D]/15 text-[#142A5D] text-sm font-medium">
@@ -432,9 +554,9 @@ const AlumniDirectory = () => {
         {totalPages > 1 && (
           <div className="mt-16">
             <PaginationControls
-              currentPage={currentPage}
+              currentPage={pageFromUrl}
               totalPages={totalPages}
-              onPageChange={(page) => dispatch(setPage(page))}
+              onPageChange={handlePageChange}
             />
           </div>
         )}

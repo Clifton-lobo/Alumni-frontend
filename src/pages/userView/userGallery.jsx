@@ -16,6 +16,8 @@ import {
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import ReactDOM from "react-dom";
+import PaginationControls from "../../components/common/Pagination.jsx"; // adjust path as needed
+
 
 
 /* ─── Fonts ─── */
@@ -687,24 +689,89 @@ const MyUploadsDialog = ({ open, onClose }) => {
 /* ══════════════════════════════════════════════
    MAIN GALLERY PAGE
 ══════════════════════════════════════════════ */
-const Gallery = () => {
+/* ══════════════════════════════════════════════
+   MAIN GALLERY PAGE
+══════════════════════════════════════════════ */
+import { useSearchParams } from "react-router-dom"; // 👈 add at top
+
+const DEBOUNCE_DELAY = 500;
+const MIN_SEARCH_LENGTH = 2;
+
+const UserGallery = () => {
   const dispatch = useDispatch();
   const { albums, pagination, loading } = useSelector((s) => s.gallery);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [search, setSearch] = useState("");
+  const pageFromUrl = parseInt(searchParams.get("page")) || 1;
+
   const [searchInput, setSearchInput] = useState("");
+  const [searchText, setSearchText] = useState(""); // debounced value
+
+  const debounceRef = useRef(null);
+  const userTypingRef = useRef(false);
+  const prevPageRef = useRef(pageFromUrl);
+  const listRef = useRef(null);
+
   const [albumOpen, setAlbumOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [myUploadsOpen, setMyUploadsOpen] = useState(false);
 
-  const load = useCallback((page = 1) => {
-    const params = { page, limit: 12 };
-    if (search) params.search = search;
+  /* ── Main fetch ── */
+  useEffect(() => {
+    const params = { page: pageFromUrl, limit: 12 };
+    if (searchText) params.search = searchText;
     dispatch(fetchApprovedAlbums(params));
-  }, [dispatch, search]);
+  }, [searchText, pageFromUrl, dispatch]);
 
-  useEffect(() => { load(1); }, [search]);
+  /* ── Debounced search ── */
 
+  // ✅ Add this instead
+  const handleSearchChange = useCallback((e) => {
+    const value = e.target.value;
+    setSearchInput(value);
+    userTypingRef.current = true;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      userTypingRef.current = false;
+      setSearchText(value.trim());
+      setSearchParams((prev) => {
+        const p = new URLSearchParams(prev);
+        p.set("page", "1");
+        return p;
+      });
+    }, 500);
+  }, [setSearchParams]);
+
+  // cleanup on unmount
+  useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
+
+  /* ── Scroll to list on page change ── */
+  useEffect(() => {
+    if (loading.albums) return;
+    if (prevPageRef.current !== pageFromUrl) {
+      prevPageRef.current = pageFromUrl;
+      setTimeout(() => {
+        if (!listRef.current) return;
+        const top = listRef.current.getBoundingClientRect().top + window.scrollY - 120;
+        window.scrollTo({ top, behavior: "smooth" });
+      }, 300);
+    }
+  }, [loading.albums, pageFromUrl]);
+
+  /* ── Page change handler ── */
+  const onPageChange = (page) => {
+    setSearchParams((prev) => {
+      const p = new URLSearchParams(prev);
+      p.set("page", String(page));
+      return p;
+    });
+  };
+
+  const clearSearch = () => {
+    setSearchInput("");
+    setSearchText("");
+    if (debounceRef.current) clearTimeout(debounceRef.current); // 👈 add this
+  };
   const openAlbum = (id) => {
     dispatch(fetchAlbumPhotos(id));
     setAlbumOpen(true);
@@ -750,18 +817,17 @@ const Gallery = () => {
               </div>
             </div>
 
-            {/* Search */}
+            {/* Search — debounced on onChange */}
             <div className="mt-6 flex items-center gap-2 bg-white/10 border border-white/15 rounded-xl px-4 py-2.5 max-w-md">
               <Search className="h-4 w-4 text-white/30 flex-shrink-0" />
               <input
                 value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") setSearch(searchInput.trim()); }}
+                onChange={handleSearchChange}
                 placeholder="Search albums…"
                 className="flex-1 bg-transparent text-sm text-white placeholder-white/30 outline-none"
               />
               {searchInput && (
-                <button onClick={() => { setSearchInput(""); setSearch(""); }}>
+                <button onClick={clearSearch}>
                   <X className="h-3.5 w-3.5 text-white/40 hover:text-white transition" />
                 </button>
               )}
@@ -770,14 +836,7 @@ const Gallery = () => {
         </div>
 
         {/* ── Content ── */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
-
-          {/* Loading */}
-          {loading.albums && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {Array.from({ length: 6 }).map((_, i) => <AlbumSkeleton key={i} />)}
-            </div>
-          )}
+        <div ref={listRef} className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
 
           {/* Empty */}
           {!loading.albums && albums.length === 0 && (
@@ -788,10 +847,10 @@ const Gallery = () => {
               </div>
               <h3 className="gal-serif text-xl font-bold text-gray-700 mb-2">No albums yet</h3>
               <p className="text-sm text-gray-400 max-w-xs">
-                {search ? `No albums found for "${search}".` : "Be the first to share your photos!"}
+                {searchText ? `No albums found for "${searchText}".` : "Be the first to share your photos!"}
               </p>
-              {search && (
-                <button onClick={() => { setSearch(""); setSearchInput(""); }}
+              {searchText && (
+                <button onClick={clearSearch}
                   className="mt-4 px-5 py-2 rounded-xl text-sm font-semibold text-white transition hover:opacity-90"
                   style={{ background: NAVY }}>
                   Clear search
@@ -800,39 +859,35 @@ const Gallery = () => {
             </div>
           )}
 
-          {/* Album grid */}
-          {!loading.albums && albums.length > 0 && (
-            <>
+          {/* Album grid — stays mounted, fades instead of disappearing */}
+          {albums.length > 0 && (
+            <div className={`transition-opacity duration-300 ease-in-out ${loading.albums ? "opacity-40 pointer-events-none" : "opacity-100"
+              }`}>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
                 {albums.map((album) => (
                   <AlbumCard key={album._id} album={album} onClick={openAlbum} />
                 ))}
               </div>
 
-              {/* Pagination */}
               {pagination.pages > 1 && (
-                <div className="flex items-center justify-center gap-2 mt-10">
-                  <button
-                    onClick={() => load(pagination.page - 1)}
-                    disabled={pagination.page === 1}
-                    className="w-9 h-9 rounded-xl flex items-center justify-center disabled:opacity-30 transition"
-                    style={{ background: NAVY, color: "#fff" }}>
-                    <ChevronLeft className="h-4 w-4" />
-                  </button>
-                  <span className="text-sm text-gray-500 px-3">
-                    {pagination.page} / {pagination.pages}
-                  </span>
-                  <button
-                    onClick={() => load(pagination.page + 1)}
-                    disabled={pagination.page === pagination.pages}
-                    className="w-9 h-9 rounded-xl flex items-center justify-center disabled:opacity-30 transition"
-                    style={{ background: NAVY, color: "#fff" }}>
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
+                <div className="mx-auto my-10 max-w-6xl px-4 md:px-6">
+                  <PaginationControls
+                    currentPage={pageFromUrl}
+                    totalPages={pagination.pages}
+                    onPageChange={onPageChange}
+                  />
                 </div>
               )}
-            </>
+            </div>
           )}
+
+          {/* Subtle spinner below faded grid */}
+          {loading.albums && (
+            <div className="flex justify-center py-8">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-200 border-t-amber-400" />
+            </div>
+          )}
+
         </div>
       </div>
 
@@ -844,4 +899,4 @@ const Gallery = () => {
   );
 };
 
-export default Gallery;
+export default UserGallery;

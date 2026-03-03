@@ -1,31 +1,33 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../api/axiosInstance";
+
 /* ============================
    ASYNC THUNK
+   Accepts params directly — does NOT read from getState()
+   so URL-driven fetches are always in sync.
 ============================ */
-
 export const fetchAlumni = createAsyncThunk(
   "alumni/fetchAlumni",
-  async (_, { getState, rejectWithValue }) => {
+  async (params = {}, { getState, rejectWithValue }) => {
     try {
-      const {
-        currentPage,
-        search,
-        loggedInOnly,
-        limit,
-        batch,
-        stream,
-        
-      } = getState().alumni;
+      const state = getState().alumni;
+
+      // Prefer explicitly passed params, fall back to Redux state
+      const page   = params.page   ?? state.currentPage;
+      const search = params.search ?? state.search;
+      const batch  = params.batch  ?? state.batch;
+      const stream = params.stream ?? state.stream;
+      const limit  = params.limit  ?? state.limit;
+      const loggedInOnly = params.loggedInOnly ?? state.loggedInOnly;
 
       const response = await axiosInstance.get("/api/auth/alumni", {
         params: {
-          page: currentPage,
+          page,
           limit,
           search: search || undefined,
           loggedIn: loggedInOnly ? "true" : undefined,
-          batch: batch || undefined,     // ✅ added
-          stream: stream || undefined,   // ✅ added
+          batch: batch || undefined,
+          stream: stream || undefined,
         },
         withCredentials: true,
       });
@@ -39,11 +41,9 @@ export const fetchAlumni = createAsyncThunk(
   }
 );
 
-
 /* ============================
    SLICE
 ============================ */
-
 const alumniSlice = createSlice({
   name: "alumni",
   initialState: {
@@ -53,29 +53,33 @@ const alumniSlice = createSlice({
     currentPage: 1,
     totalPages: 1,
     totalUsers: 0,
-    limit: 20,
+    limit: 21,
     search: "",
     loggedInOnly: false,
-    search: "",  
-    batch: "",    
+    batch: "",
     stream: "",
   },
 
   reducers: {
     setSearch(state, action) {
       state.search = action.payload;
-      state.currentPage = 1; // Reset page on search
+      state.currentPage = 1;
     },
-
     setLoggedInOnly(state, action) {
       state.loggedInOnly = action.payload;
-      state.currentPage = 1; // Reset page on filter change
+      state.currentPage = 1;
     },
-
     setPage(state, action) {
       state.currentPage = action.payload;
     },
-
+    setBatch(state, action) {
+      state.batch = action.payload;
+      state.currentPage = 1;
+    },
+    setStream(state, action) {
+      state.stream = action.payload;
+      state.currentPage = 1;
+    },
     resetAlumniState(state) {
       state.alumniList = [];
       state.currentPage = 1;
@@ -83,18 +87,10 @@ const alumniSlice = createSlice({
       state.totalUsers = 0;
       state.search = "";
       state.loggedInOnly = false;
+      state.batch = "";
+      state.stream = "";
       state.error = null;
     },
-    setBatch(state, action) {
-      state.batch = action.payload;
-      state.currentPage = 1;
-    },
-
-    setStream(state, action) {
-      state.stream = action.payload;
-      state.currentPage = 1;
-    },
-
   },
 
   extraReducers: (builder) => {
@@ -103,7 +99,6 @@ const alumniSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-
       .addCase(fetchAlumni.fulfilled, (state, action) => {
         state.loading = false;
         state.alumniList = action.payload.data;
@@ -111,7 +106,6 @@ const alumniSlice = createSlice({
         state.totalPages = action.payload.totalPages;
         state.totalUsers = action.payload.totalUsers;
       })
-
       .addCase(fetchAlumni.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
@@ -126,8 +120,6 @@ export const {
   setBatch,
   setStream,
   resetAlumniState,
-
 } = alumniSlice.actions;
-
 
 export default alumniSlice.reducer;

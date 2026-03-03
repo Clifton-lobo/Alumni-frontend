@@ -149,7 +149,7 @@ const UserJobs = () => {
         params.set("page", "1");
         return params;
       });
-    }, 400);
+    }, 500);
   }, [setSearchParams]);
 
   // Cleanup debounce on unmount

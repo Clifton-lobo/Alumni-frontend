@@ -26,19 +26,19 @@ const NAVY = "#142A5D";
 const GOLD = "#EBAB09";
 
 const CATEGORIES = [
-  { value: "announcement",     label: "Announcement"    },
-  { value: "achievement",      label: "Achievement"     },
-  { value: "event",            label: "Event"           },
-  { value: "general",          label: "General"         },
+  { value: "announcement", label: "Announcement" },
+  { value: "achievement", label: "Achievement" },
+  { value: "event", label: "Event" },
+  { value: "general", label: "General" },
   { value: "alumni-spotlight", label: "Alumni Spotlight" },
 ];
 
 const CATEGORY_COLORS = {
-  announcement:      "bg-blue-50 text-blue-700 border-blue-200",
-  achievement:       "bg-green-50 text-green-700 border-green-200",
-  event:             "bg-purple-50 text-purple-700 border-purple-200",
-  general:           "bg-gray-50 text-gray-600 border-gray-200",
-  "alumni-spotlight":"bg-amber-50 text-amber-700 border-amber-200",
+  announcement: "bg-blue-50 text-blue-700 border-blue-200",
+  achievement: "bg-green-50 text-green-700 border-green-200",
+  event: "bg-purple-50 text-purple-700 border-purple-200",
+  general: "bg-gray-50 text-gray-600 border-gray-200",
+  "alumni-spotlight": "bg-amber-50 text-amber-700 border-amber-200",
 };
 
 const formatDate = (d) =>
@@ -73,7 +73,7 @@ const ImageUploader = ({ preview, onChange, onRemove }) => {
 
   const handleFile = (file) => {
     if (!file?.type.startsWith("image/")) { toast.error("Images only"); return; }
-    if (file.size > 5 * 1024 * 1024)     { toast.error("Max 5MB");     return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("Max 5MB"); return; }
     onChange(file);
   };
 
@@ -176,25 +176,30 @@ const NewsSheet = ({ open, onClose, editNews, onSaved }) => {
   const { saving } = useSelector((s) => s.Adminnews);
 
   const BLANK = {
-    title: "", content: "", excerpt: "",
-    category: "general", tags: [], isPublished: false,
+    title: "", content: "",
+    excerpt: "",
+    category: "general", tags: [],
+    isPublished: true,
+    newsType: "regular", // 👈 add
+
   };
 
-  const [form, setForm]               = useState(BLANK);
-  const [imageFile, setImageFile]     = useState(null);
+  const [form, setForm] = useState(BLANK);
+  const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const [errors, setErrors]           = useState({});
+  const [errors, setErrors] = useState({});
 
   // Populate form when editing
   useEffect(() => {
     if (editNews) {
       setForm({
-        title:       editNews.title       || "",
-        content:     editNews.content     || "",
-        excerpt:     editNews.excerpt     || "",
-        category:    editNews.category    || "general",
-        tags:        editNews.tags        || [],
-        isPublished: editNews.isPublished || false,
+        title: editNews.title || "",
+        content: editNews.content || "",
+        excerpt: editNews.excerpt || "",
+        category: editNews.category || "general",
+        newsType: editNews.newsType || "regular",
+        tags: editNews.tags || [],
+        isPublished: editNews.isPublished || true,
       });
       setImagePreview(editNews.coverImage?.url || null);
       setImageFile(null);
@@ -213,7 +218,7 @@ const NewsSheet = ({ open, onClose, editNews, onSaved }) => {
 
   const validate = () => {
     const e = {};
-    if (!form.title.trim()   || form.title.trim().length   < 5)  e.title   = "Title must be at least 5 characters";
+    if (!form.title.trim() || form.title.trim().length < 5) e.title = "Title must be at least 5 characters";
     if (!form.content.trim() || form.content.trim().length < 20) e.content = "Content must be at least 20 characters";
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -223,11 +228,12 @@ const NewsSheet = ({ open, onClose, editNews, onSaved }) => {
     if (!validate()) return;
 
     const fd = new FormData();
-    fd.append("title",       form.title.trim());
-    fd.append("content",     form.content.trim());
-    fd.append("excerpt",     form.excerpt.trim());
-    fd.append("category",    form.category);
-    fd.append("tags",        JSON.stringify(form.tags));
+    fd.append("title", form.title.trim());
+    fd.append("content", form.content.trim());
+    fd.append("excerpt", form.excerpt.trim());
+    fd.append("category", form.category);
+    fd.append("newsType", form.newsType);
+    fd.append("tags", JSON.stringify(form.tags));
     fd.append("isPublished", form.isPublished);
     if (imageFile) fd.append("coverImage", imageFile);
 
@@ -358,6 +364,37 @@ const NewsSheet = ({ open, onClose, editNews, onSaved }) => {
             />
           </div>
 
+          {/* Story Type */}
+          <div className="space-y-2">
+            <label className="text-xs font-semibold uppercase tracking-wider text-gray-500">Story Type</label>
+            <div className="flex gap-3">
+              {[
+                { value: "regular", label: "Regular Story", desc: "Shown in the news grid" },
+                { value: "main", label: "⭐ Headline", desc: "Featured hero on page 1" },
+              ].map(({ value, label, desc }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => update("newsType", value)}
+                  className={`flex-1 p-3 rounded-xl border-2 text-left transition-all
+          ${form.newsType === value
+                      ? "border-[#EBAB09] bg-amber-50"
+                      : "border-gray-200 bg-gray-50 hover:border-gray-300"}`}
+                >
+                  <p className={`text-sm font-semibold ${form.newsType === value ? "text-amber-700" : "text-gray-700"}`}>
+                    {label}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-0.5">{desc}</p>
+                </button>
+              ))}
+            </div>
+            {form.newsType === "main" && (
+              <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                ⚠️ Only one headline is shown at a time. The previous headline will be demoted automatically.
+              </p>
+            )}
+          </div>
+
           {/* Tags */}
           <TagInput tags={form.tags} onChange={(t) => update("tags", t)} />
 
@@ -374,14 +411,12 @@ const NewsSheet = ({ open, onClose, editNews, onSaved }) => {
             <button
               type="button"
               onClick={() => update("isPublished", !form.isPublished)}
-              className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-all duration-200 ${
-                form.isPublished ? "bg-[#EBAB09]" : "bg-gray-300"
-              }`}
+              className={`relative flex-shrink-0 w-12 h-6 rounded-full transition-all duration-200 ${form.isPublished ? "bg-[#EBAB09]" : "bg-gray-300"
+                }`}
             >
               <span
-                className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-200 ${
-                  form.isPublished ? "left-7" : "left-1"
-                }`}
+                className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all duration-200 ${form.isPublished ? "left-7" : "left-1"
+                  }`}
               />
             </button>
           </div>
@@ -399,16 +434,19 @@ const NewsSheet = ({ open, onClose, editNews, onSaved }) => {
             onClick={handleSubmit}
             disabled={saving}
             className="flex-1 h-11 rounded-xl text-sm font-semibold text-black flex items-center justify-center gap-2 transition disabled:opacity-50"
-            style={{ background: GOLD }}
+            style={{
+              background: form.isPublished ? "NAVY" : "#6b7280",
+              color: "white"
+            }}
           >
             {saving && <Loader2 className="w-4 h-4 animate-spin" />}
             {saving
               ? "Saving..."
               : editNews
-              ? "Save Changes"
-              : form.isPublished
-              ? "Publish Now"
-              : "Save as Draft"}
+                ? "Save Changes"
+                : form.isPublished
+                  ? "Publish Now"
+                  : "Save as Draft"}
           </button>
         </div>
       </SheetContent>
@@ -476,11 +514,10 @@ const Pagination = ({ pagination, onPageChange }) => {
           <button
             key={p}
             onClick={() => onPageChange(p)}
-            className={`w-9 h-9 rounded-lg text-sm font-semibold transition-all ${
-              p === page
-                ? "bg-[#EBAB09] text-black"
-                : "bg-[#1e2d4d] text-white hover:bg-[#EBAB09] hover:text-black"
-            }`}
+            className={`w-9 h-9 rounded-lg text-sm font-semibold transition-all ${p === page
+              ? "bg-[#EBAB09] text-black"
+              : "bg-[#1e2d4d] text-white hover:bg-[#EBAB09] hover:text-black"
+              }`}
           >
             {p}
           </button>
@@ -509,10 +546,10 @@ const NewsLetter = () => {
   } = useSelector((s) => s.Adminnews);
 
   // Local UI state — filter values and modal open states
-  const [search, setSearch]           = useState("");
-  const [filterCat, setFilterCat]     = useState("");
-  const [filterPub, setFilterPub]     = useState("");
-  const [sheetOpen, setSheetOpen]     = useState(false);
+  const [search, setSearch] = useState("");
+  const [filterCat, setFilterCat] = useState("");
+  const [filterPub, setFilterPub] = useState("");
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
 
   /* ── Helpers ── */
@@ -520,7 +557,7 @@ const NewsLetter = () => {
     dispatch(fetchNews({ page, search, category: filterCat, isPublished: filterPub }));
 
   /* ── Initial + filter-driven fetch ── */
-  useEffect(() => { load(1); },           [filterCat, filterPub]); // eslint-disable-line
+  useEffect(() => { load(1); }, [filterCat, filterPub]); // eslint-disable-line
   useEffect(() => { dispatch(fetchNewsStats()); }, [dispatch]);
 
   /* ── Search (on Enter or button click) ── */
@@ -605,9 +642,9 @@ const NewsLetter = () => {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-5 sm:mb-6">
-        <StatCard icon={Newspaper}   label="Total Articles" value={stats.total}     color={NAVY}      />
-        <StatCard icon={CheckCircle} label="Published"       value={stats.published} color="#16a34a"   />
-        <StatCard icon={Clock}       label="Drafts"          value={stats.drafts}    color="#d97706"   />
+        <StatCard icon={Newspaper} label="Total Articles" value={stats.total} color={NAVY} />
+        <StatCard icon={CheckCircle} label="Published" value={stats.published} color="#16a34a" />
+        <StatCard icon={Clock} label="Drafts" value={stats.drafts} color="#d97706" />
       </div>
 
       {/* Filters */}
@@ -719,9 +756,8 @@ const NewsLetter = () => {
                     {/* Category */}
                     <td className="px-4 py-3.5 hidden md:table-cell">
                       <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold border ${
-                          CATEGORY_COLORS[news.category] || CATEGORY_COLORS.general
-                        }`}
+                        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold border ${CATEGORY_COLORS[news.category] || CATEGORY_COLORS.general
+                          }`}
                       >
                         <Tag className="h-3 w-3" />
                         {CATEGORIES.find((c) => c.value === news.category)?.label || news.category}
