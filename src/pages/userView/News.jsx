@@ -572,7 +572,7 @@ const News = () => {
           )}
 
           {/* Content — subtle fade but no jump */}
-          <div className={`transition-opacity duration-300 ${loading.list ? "opacity-40" : "opacity-100"}`}>
+          <div className={`transition-opacity duration-300 ${loading.list ? "opacity-80" : "opacity-100"}`}>
             {list.length === 0 && !loading.list ? (
               <div className="flex flex-col items-center justify-center py-28 text-center">
                 {/* keep your empty state */}
