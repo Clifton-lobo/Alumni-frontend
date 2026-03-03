@@ -560,7 +560,7 @@ useEffect(() => {
         )}
 
         <div
-          className={`transition-opacity duration-300 ease-in-out ${loading.list ? "opacity-40" : "opacity-100"
+          className={`transition-opacity duration-300 ease-in-out ${loading.list ? "opacity-80" : "opacity-100"
             }`}
         >
           {list.length === 0 && !loading.list ? (
