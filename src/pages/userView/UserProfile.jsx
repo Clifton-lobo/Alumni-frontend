@@ -401,39 +401,63 @@ const UserProfile = () => {
               </CardContent>
             </Card>
 
-            <Card className="rounded-2xl bg-white border-none shadow-xl">
-              <CardContent className="p-6">
-                <div className="grid grid-cols-2 gap-6">
+            <Card className="rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+              <CardContent className="p-0">
+                <button
+                  type="button"
+                  onClick={() => setShowConnections(true)}
+                  className="group w-full flex items-center justify-between px-6 py-5 cursor-pointer"
+                >
 
-                  {/* Jobs Posted */}
-                  <div className="bg-[#F3F4F6] hover:bg-[#ECEEF2] transition-colors rounded-2xl p-6 text-center cursor-default">
-                    <div className="w-10 h-10 mx-auto mb-3 flex items-center justify-center rounded-xl bg-white shadow-sm">
-                      <Briefcase className="h-5 w-5 text-[#D4A437]" />
+                  {/* Left Section */}
+                  <div className="flex items-center gap-4">
+
+                    {/* Icon */}
+                    <div className="w-11 h-11 rounded-xl bg-amber-50 group-hover:bg-amber-100 transition-colors flex items-center justify-center shrink-0">
+                      <Users className="h-5 w-5 text-[#EBAB09]" />
                     </div>
 
-                    <p className="text-3xl font-bold text-[#0F2747]">12</p>
-                    <p className="text-sm text-gray-500 mt-1">Jobs Posted</p>
-                  </div>
+                    {/* Text */}
+                    <div className="flex flex-col text-left">
+                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                        Connections
+                      </span>
 
-                  {/* Connections */}
-                  <div
-                    onClick={() => setShowConnections(true)}
-                    className="bg-[#F3F4F6] hover:bg-amber-50 transition-all duration-200 rounded-2xl p-6 text-center cursor-pointer hover:shadow-md"
-                  >
-                    <div className="w-10 h-10 mx-auto mb-3 flex items-center justify-center rounded-xl bg-white shadow-sm">
-                      <Users className="h-5 w-5 text-[#D4A437]" />
+                      <div className="flex items-end gap-2">
+                        <span className="text-2xl font-bold text-slate-900 leading-none">
+                          {acceptedConnections.length}
+                        </span>
+                        <span className="text-sm text-slate-500 mb-0.5">
+                          total
+                        </span>
+                      </div>
                     </div>
-
-                    <p className="text-3xl font-bold text-[#0F2747]">
-                      {acceptedConnections.length}
-                    </p>
-                    <p className="text-sm text-gray-500 mt-1">Connections</p>
                   </div>
 
-                </div>
+                  {/* Right Arrow */}
+                  <div className="flex items-center gap-2 text-sm font-semibold text-amber-600">
+                    <span className="opacity-80 group-hover:opacity-100">
+                      View
+                    </span>
+
+                    <svg
+                      className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1"
+                      viewBox="0 0 14 14"
+                      fill="none"
+                    >
+                      <path
+                        d="M2.5 7h9M8 3.5L11.5 7 8 10.5"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+
+                </button>
               </CardContent>
             </Card>
-
           </div>
 
           {/* RIGHT CONTENT */}

@@ -212,9 +212,7 @@ const ArticleModal = ({ open, onClose }) => {
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
       <DialogContent className=" md:!w-[1000px]
     md:!max-w-[1000px] p-0 gap-0 overflow-hidden rounded-3xl border-0
-        [&>button]:z-20 [&>button]:top-4 [&>button]:right-4 [&>button]:rounded-full
-        [&>button]:bg-black/10 [&>button]:hover:bg-black/20
-        [&>button]:w-9 [&>button]:h-9 [&>button]:text-gray-700
+        [&>button]:p-1  [&>button]:rounded-full  [&>button]:cursor-pointer 
         max-h-[90vh] overflow-y-auto">
 
         {loading.article ? (
@@ -465,7 +463,7 @@ const News = () => {
               <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-2" style={{ color: GOLD }}>
                 Alumni Network
               </p>
-              <h1 className="gal-serif font-bold text-white text-3xl sm:text-4xl leading-tight">
+              <h1 className="galserif font-bold text-white text-3xl sm:text-4xl leading-tight">
                 Alumni News
               </h1>
               <p className="text-sm text-white/40 mt-1.5">

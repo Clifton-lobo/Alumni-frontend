@@ -132,7 +132,9 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0">
+      <DialogContent className="max-w-2xl max-h-[90vh]
+       [&>button]:p-1 [&>button]:mr-2  [&>button]:cursor-pointer [&>button]:rounded-full
+ gap-0 rounded-3xl border-0 flex flex-col p-0">
 
         {/* SCROLLABLE AREA */}
         <div className="flex-1 overflow-y-auto px-4 md:px-6 pt-6 pb-2">

@@ -140,7 +140,7 @@ const Login = () => {
           <div className="relative z-10 flex items-center gap-3 mb-8">
 
             {/* Logo */}
-            <div className="w-10 h-10 flex items-center justify-center">
+            <div className="w-10 h-10  flex items-center justify-center">
               <img
                 src={vpmLogo}
                 alt="VPM Logo"

@@ -11,14 +11,13 @@ import {
 import {
   Search, X, Upload, Images, Calendar, ChevronLeft, ChevronRight,
   Loader2, AlertCircle, CheckCircle, Clock, ImagePlus, FolderOpen,
-  ArrowLeft, ZoomIn, Download,
+  ZoomIn,
 } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import ReactDOM from "react-dom";
-import PaginationControls from "../../components/common/Pagination.jsx"; // adjust path as needed
-
-
+import PaginationControls from "../../components/common/Pagination.jsx";
+import { useSearchParams } from "react-router-dom";
 
 /* ─── Fonts ─── */
 const FontLink = () => (
@@ -36,56 +35,74 @@ const globalStyle = `
   .gal-sans  { font-family: 'Outfit', system-ui, sans-serif; }
   .album-card { transition: transform 0.4s cubic-bezier(.22,1,.36,1), box-shadow 0.4s ease; }
   .album-card:hover { transform: translateY(-4px); box-shadow: 0 20px 50px -10px rgba(0,0,0,0.18); }
-  .img-zoom img { transition: transform 0.6s cubic-bezier(.22,1,.36,1); }
-  .img-zoom:hover img { transform: scale(1.08); }
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
- @keyframes fadeInUp {
-  from {
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .fade-in {
     opacity: 0;
-    transform: translateY(16px) scale(0.98);
+    animation: fadeInUp 0.6s cubic-bezier(.22,1,.36,1) forwards;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.fade-in {
-  opacity: 0;
-  animation: fadeInUp 0.6s cubic-bezier(.22,1,.36,1) forwards;
-}
-.photo-grid { columns: 3; column-gap: 18px; }
-  @media (max-width: 768px) { .photo-grid { columns: 2; } }
-  @media (max-width: 480px) { .photo-grid { columns: 1; } }
-  .photo-item { break-inside: avoid; margin-bottom: 12px; }
   .drop-zone { border: 2px dashed; transition: all 0.2s ease; }
   .drop-zone.active { border-color: ${GOLD}; background: ${GOLD}10; }
-`;
 
+  /* ── Album Panel overlay ── */
+  .album-overlay {
+    position: fixed; inset: 0; z-index: 9000;
+    background: rgba(0,0,0,0.55);
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+    animation: overlayIn 0.2s ease;
+  }
+  @keyframes overlayIn { from { opacity: 0 } to { opacity: 1 } }
+  .album-panel {
+    position: relative; background: #fff; border-radius: 24px;
+    width: 100%; max-width: 1100px; max-height: 90vh;
+    display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.28);
+    animation: panelIn 0.25s cubic-bezier(.22,1,.36,1);
+  }
+  @keyframes panelIn {
+    from { opacity: 0; transform: scale(0.96) translateY(12px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  /* ── Lightbox ── */
+  .lb-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,0.96);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .lb-btn {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 52px; height: 52px; border-radius: 50%;
+    background: rgba(255,255,255,0.14); border: none;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.18s; z-index: 2; color: #fff;
+  }
+  .lb-btn:hover:not(:disabled) { background: rgba(255,255,255,0.26); }
+  .lb-btn:disabled { opacity: 0.2; cursor: default; }
+  .lb-close {
+    position: absolute; top: 16px; right: 16px;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255,255,255,0.12); border: none;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    color: #fff; z-index: 2; transition: background 0.18s;
+  }
+  .lb-close:hover { background: rgba(255,255,255,0.24); }
+`;
 
 /* ── Helpers ── */
 const fmtDate = (d) =>
   d ? new Date(d).toLocaleDateString("en-GB", { month: "short", year: "numeric" }) : "";
 
 const statusConfig = {
-  pending: { label: "Under Review", color: "bg-amber-100 text-amber-700", icon: Clock },
-  approved: { label: "Live", color: "bg-green-100 text-green-700", icon: CheckCircle },
-  rejected: { label: "Rejected", color: "bg-red-100 text-red-600", icon: AlertCircle },
+  pending:  { label: "Under Review", color: "bg-amber-100 text-amber-700", icon: Clock },
+  approved: { label: "Live",         color: "bg-green-100 text-green-700",  icon: CheckCircle },
+  rejected: { label: "Rejected",     color: "bg-red-100 text-red-600",      icon: AlertCircle },
 };
-
-/* ══════════════════════════════════════════════
-   SKELETON
-══════════════════════════════════════════════ */
-const AlbumSkeleton = () => (
-  <div className="rounded-2xl overflow-hidden bg-white border border-gray-100 animate-pulse">
-    <div className="aspect-[4/3] bg-gray-200" />
-    <div className="p-4 space-y-2">
-      <div className="h-4 bg-gray-200 rounded w-3/4" />
-      <div className="h-3 bg-gray-100 rounded w-1/2" />
-    </div>
-  </div>
-);
 
 /* ══════════════════════════════════════════════
    ALBUM CARD
@@ -105,7 +122,6 @@ const AlbumCard = ({ album, onClick }) => (
           <Images className="h-12 w-12 text-gray-300" />
         </div>
       )}
-      {/* Dark gradient + meta overlay — bottom third */}
       <div className="absolute inset-0"
         style={{ background: "linear-gradient(to top, rgba(10,20,50,0.85) 0%, transparent 55%)" }} />
       <div className="absolute bottom-0 left-0 right-0 p-4">
@@ -129,193 +145,154 @@ const AlbumCard = ({ album, onClick }) => (
   </div>
 );
 
-
 /* ══════════════════════════════════════════════
-   PHOTO LIGHTBOX — rendered via portal
+   LIGHTBOX — pure portal, zero Radix involvement
+   z-index 9999 sits above AlbumPanel (9000)
 ══════════════════════════════════════════════ */
 const Lightbox = ({ photos, startIndex, onClose }) => {
   const [idx, setIdx] = useState(startIndex);
 
-  useEffect(() => {
-    const fn = (e) => {
-      if (e.key === "Escape") { e.stopPropagation(); onClose(); }
-      if (e.key === "ArrowRight") setIdx((i) => Math.min(i + 1, photos.length - 1));
-      if (e.key === "ArrowLeft") setIdx((i) => Math.max(i - 1, 0));
-    };
-    window.addEventListener("keydown", fn);
-    return () => window.removeEventListener("keydown", fn);
-  }, [photos.length, onClose]);
-
+  /* lock body scroll */
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = ""; };
   }, []);
 
+  /* keyboard */
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === "Escape")     { e.stopPropagation(); onClose(); }
+      if (e.key === "ArrowRight") setIdx((i) => Math.min(i + 1, photos.length - 1));
+      if (e.key === "ArrowLeft")  setIdx((i) => Math.max(i - 1, 0));
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [photos.length, onClose]);
+
   const photo = photos[idx];
 
-  const btnStyle = {
-    position: "absolute",
-    top: "50%",
-    transform: "translateY(-50%)",
-    width: 48,
-    height: 48,
-    borderRadius: "50%",
-    background: "rgba(255,255,255,0.15)",
-    border: "none",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 100001,
-    transition: "background 0.2s",
-  };
-
   return ReactDOM.createPortal(
-    <div
-      style={{
-        position: "fixed",
-        top: 0, left: 0, right: 0, bottom: 0,
-        zIndex: 99999,
-      }}
-    >
-      {/* BACKDROP — only this closes */}
-      <div
-        onClick={onClose}
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: "rgba(0,0,0,0.95)",
-        }}
-      />
+    /* backdrop click → close */
+    <div className="lb-overlay" onClick={onClose}>
 
-      {/* CONTENT — this does NOT close */}
+      {/* close */}
+      <button className="lb-close" onClick={(e) => { e.stopPropagation(); onClose(); }}>
+        <X size={18} />
+      </button>
+
+      {/* counter */}
+      <div className="gal-sans" style={{
+        position: "absolute", bottom: 20,
+        left: "50%", transform: "translateX(-50%)",
+        color: "rgba(255,255,255,0.45)", fontSize: 13, pointerEvents: "none",
+      }}>
+        {idx + 1} / {photos.length}
+      </div>
+
+      {/* prev */}
+      <button
+        className="lb-btn"
+        style={{ left: 16 }}
+        disabled={idx === 0}
+        onClick={(e) => { e.stopPropagation(); setIdx((i) => Math.max(i - 1, 0)); }}
+      >
+        <ChevronLeft size={26} />
+      </button>
+
+      {/* image — stopPropagation so clicking photo doesn't close */}
       <div
+        onClick={(e) => e.stopPropagation()}
         style={{
-          position: "relative",
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          maxWidth: "calc(100vw - 160px)",
+          maxHeight: "calc(100vh - 80px)",
+          display: "flex", alignItems: "center", justifyContent: "center",
         }}
       >
-        {/* Close button */}
-        <button
-          onClick={(e) => { e.stopPropagation(); onClose(); }}
+        <img
+          key={idx}
+          src={photo.url}
+          alt={photo.caption || ""}
           style={{
-            position: "absolute", top: 16, right: 16,
-            width: 40, height: 40, borderRadius: "50%",
-            background: "rgba(255,255,255,0.1)", border: "none",
-            cursor: "pointer", display: "flex", alignItems: "center",
-            justifyContent: "center", zIndex: 100001,
+            maxWidth: "100%", maxHeight: "calc(100vh - 80px)",
+            width: "auto", height: "auto",
+            objectFit: "contain", borderRadius: 10,
+            display: "block", userSelect: "none",
           }}
-        >
-          <X style={{ color: "white", width: 20, height: 20 }} />
-        </button>
-
-        {/* Counter */}
-        <div
-          className="gal-sans"
-          style={{
-            position: "absolute", bottom: 20,
-            left: "50%", transform: "translateX(-50%)",
-            color: "rgba(255,255,255,0.5)", fontSize: 13,
-            zIndex: 100001, pointerEvents: "none",
-          }}
-        >
-          {idx + 1} / {photos.length}
-        </div>
-
-        {/* Prev button */}
-        <button
-          onClick={(e) => { e.stopPropagation(); setIdx((i) => Math.max(i - 1, 0)); }}
-          style={{ ...btnStyle, left: 16, opacity: idx === 0 ? 0.3 : 1 }}
-          disabled={idx === 0}
-        >
-          <ChevronLeft style={{ color: "white", width: 22, height: 22 }} />
-        </button>
-
-        {/* Image container */}
-        <div
-          onClick={(e) => e.stopPropagation()}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "100%",
-            height: "100%",
-            padding: "60px 80px",
-            boxSizing: "border-box",
-          }}
-        >
-          <img
-            key={photo.url} // re-mounts on change for clean transition
-            src={photo.url}
-            alt={photo.caption || ""}
-            style={{
-              maxWidth: "100%",
-              maxHeight: "100%",
-              width: "auto",
-              height: "auto",
-              objectFit: "contain",
-              borderRadius: 12,
-              display: "block",
-            }}
-          />
-        </div>
-
-        {/* Next button */}
-        <button
-          onClick={(e) => { e.stopPropagation(); setIdx((i) => Math.min(i + 1, photos.length - 1)); }}
-          style={{ ...btnStyle, right: 16, opacity: idx === photos.length - 1 ? 0.3 : 1 }}
-          disabled={idx === photos.length - 1}
-        >
-          <ChevronRight style={{ color: "white", width: 22, height: 22 }} />
-        </button>
+        />
       </div>
+
+      {/* next */}
+      <button
+        className="lb-btn"
+        style={{ right: 16 }}
+        disabled={idx === photos.length - 1}
+        onClick={(e) => { e.stopPropagation(); setIdx((i) => Math.min(i + 1, photos.length - 1)); }}
+      >
+        <ChevronRight size={26} />
+      </button>
     </div>,
     document.body
   );
 };
 
 /* ══════════════════════════════════════════════
-   ALBUM DETAIL DIALOG
+   ALBUM PANEL — pure portal (NO DialogContent at all)
+   This eliminates ALL Radix event interception.
 ══════════════════════════════════════════════ */
-const AlbumDialog = ({ open, onClose }) => {
+const AlbumPanel = ({ open, onClose }) => {
   const dispatch = useDispatch();
   const { activeAlbum, activePhotos, loading } = useSelector((s) => s.gallery);
   const [lightboxIdx, setLightboxIdx] = useState(null);
 
-  // Clear lightbox when dialog closes
+  /* lock body scroll */
   useEffect(() => {
-    if (!open) setLightboxIdx(null);
+    if (open) document.body.style.overflow = "hidden";
+    else      document.body.style.overflow = "";
+    return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  const handleCloseAlbum = () => {
+  /* Escape key: close lightbox first, then panel */
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => {
+      if (e.key !== "Escape") return;
+      e.stopPropagation();
+      if (lightboxIdx !== null) setLightboxIdx(null);
+      else handleClose();
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [open, lightboxIdx]);
+
+  const handleClose = () => {
     setLightboxIdx(null);
     onClose();
     dispatch(clearActiveAlbum());
   };
 
-  return (
+  if (!open) return null;
+
+  return ReactDOM.createPortal(
     <>
-      <Dialog
-        open={open}
-        onOpenChange={(v) => {
-          if (!v) {
-            // If lightbox is open, just close lightbox — don't close album dialog
-            if (lightboxIdx !== null) {
-              setLightboxIdx(null);
-            } else {
-              handleCloseAlbum();
-            }
-          }
-        }}
-      >
-        <DialogContent
-          className="md:!w-[1300px] md:!max-w-[1300px] p-0 gap-0 rounded-3xl border-0
-            overflow-hidden max-h-[92vh] flex flex-col shadow-2xl"
-        >
+      {/* overlay backdrop — click closes panel */}
+      <div className="album-overlay" onClick={handleClose}>
+
+        {/* panel — stopPropagation so clicks inside don't hit backdrop */}
+        <div className="album-panel" onClick={(e) => e.stopPropagation()}>
+
+          {/* close btn */}
+          <button
+            onClick={handleClose}
+            style={{
+              position: "absolute", top: 14, right: 14, zIndex: 10,
+              width: 34, height: 34, borderRadius: "50%",
+              background: "#f3f4f6", border: "none", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}
+          >
+            <X size={16} color="#374151" />
+          </button>
+
           {loading.photos ? (
             <div className="flex flex-col items-center justify-center py-28 gap-3 gal-sans">
               <Loader2 className="h-7 w-7 animate-spin text-gray-300" />
@@ -346,7 +323,7 @@ const AlbumDialog = ({ open, onClose }) => {
               <div className="flex-1 overflow-y-auto p-5">
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {activePhotos.map((photo, i) => (
-                    <div key={photo._id} className="fade-in" style={{ animationDelay: `${i * 70}ms` }}>
+                    <div key={photo._id} className="fade-in" style={{ animationDelay: `${i * 60}ms` }}>
                       <div
                         onClick={() => setLightboxIdx(i)}
                         className="group relative overflow-hidden rounded-xl cursor-pointer bg-gray-100 aspect-[4/3]"
@@ -366,80 +343,58 @@ const AlbumDialog = ({ open, onClose }) => {
               </div>
             </>
           ) : null}
-        </DialogContent>
-      </Dialog>
+        </div>
+      </div>
 
-      {/* Lightbox — portal renders it on document.body, fully outside Dialog DOM */}
+      {/* Lightbox at z-9999 — above everything */}
       {lightboxIdx !== null && (
         <Lightbox
           photos={activePhotos}
           startIndex={lightboxIdx}
-          onClose={() => setLightboxIdx(null)}  // only closes lightbox, album stays open
+          onClose={() => setLightboxIdx(null)}
         />
       )}
-    </>
+    </>,
+    document.body
   );
 };
 
 /* ══════════════════════════════════════════════
-   UPLOAD MODAL
+   UPLOAD MODAL (no lightbox inside — DialogContent is fine)
 ══════════════════════════════════════════════ */
 const UploadModal = ({ open, onClose }) => {
   const dispatch = useDispatch();
   const { loading, submitSuccess, error } = useSelector((s) => s.gallery);
 
-  const [title, setTitle] = useState("");
+  const [title, setTitle]             = useState("");
   const [description, setDescription] = useState("");
-  const [eventDate, setEventDate] = useState("");
-  const [files, setFiles] = useState([]);
-  const [previews, setPreviews] = useState([]);
-  const [dragging, setDragging] = useState(false);
-  const fileRef = useRef(null);
+  const [eventDate, setEventDate]     = useState("");
+  const [files, setFiles]             = useState([]);
+  const [previews, setPreviews]       = useState([]);
+  const [dragging, setDragging]       = useState(false);
 
   useEffect(() => {
     if (submitSuccess) {
       toast.success("Album submitted! It'll go live once approved by admin.");
       dispatch(clearSubmitState());
-      onClose();
-      reset();
+      onClose(); reset();
     }
   }, [submitSuccess]);
 
-  useEffect(() => {
-    if (error) toast.error(error);
-  }, [error]);
+  useEffect(() => { if (error) toast.error(error); }, [error]);
 
   const reset = () => {
-    setTitle(""); setDescription(""); setEventDate("");
-    setFiles([]); setPreviews([]);
+    setTitle(""); setDescription(""); setEventDate(""); setFiles([]); setPreviews([]);
   };
 
   const handleFiles = (newFiles) => {
-    const incoming = Array.from(newFiles)
-      .filter((f) => f.type.startsWith("image/"));
-
-    setFiles((prev) => {
-      const combined = [...prev, ...incoming];
-
-      const unique = combined.filter(
-        (file, index, self) =>
-          index === self.findIndex(
-            (f) => f.name === file.name && f.size === file.size
-          )
-      );
-
-      return unique.slice(0, 50);
-    });
-
-    setPreviews((prev) => {
-      const newPreviews = incoming.map((f) => URL.createObjectURL(f));
-      return [...prev, ...newPreviews].slice(0, 50);
-    });
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault(); setDragging(false);
-    handleFiles(e.dataTransfer.files);
+    const incoming = Array.from(newFiles).filter((f) => f.type.startsWith("image/"));
+    setFiles((prev) =>
+      [...prev, ...incoming]
+        .filter((f, i, s) => i === s.findIndex((x) => x.name === f.name && x.size === f.size))
+        .slice(0, 50)
+    );
+    setPreviews((prev) => [...prev, ...incoming.map((f) => URL.createObjectURL(f))].slice(0, 50));
   };
 
   const handleSubmit = () => {
@@ -458,124 +413,76 @@ const UploadModal = ({ open, onClose }) => {
       <DialogContent className="max-w-xl p-0 gap-0 rounded-2xl border-0 overflow-hidden max-h-[90vh] flex flex-col
         [&>button]:top-4 [&>button]:right-4 [&>button]:z-20 [&>button]:rounded-full [&>button]:w-9 [&>button]:h-9 [&>button]:bg-gray-100">
 
-        {/* Header */}
         <div className="flex-shrink-0 px-6 pt-6 pb-4 border-b border-gray-100">
           <h2 className="gal-serif font-bold text-xl text-gray-900">Share Your Photos</h2>
           <p className="gal-sans text-sm text-gray-400 mt-1">Upload a folder of photos — admin will review and publish them.</p>
         </div>
 
-        {/* Body */}
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4 gal-sans">
-          {/* Title */}
           <div>
             <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
               Album Title <span className="text-red-400">*</span>
             </label>
-            <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+            <input value={title} onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Annual Sports Day 2024"
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-800 outline-none focus:border-[#EBAB09] focus:ring-2 focus:ring-[#EBAB09]/20 transition"
-            />
+              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-800 outline-none focus:border-[#EBAB09] focus:ring-2 focus:ring-[#EBAB09]/20 transition" />
           </div>
 
-          {/* Event Date */}
           <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-              Event Date
-            </label>
-            <input
-              type="date"
-              value={eventDate}
-              onChange={(e) => setEventDate(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-800 outline-none focus:border-[#EBAB09] focus:ring-2 focus:ring-[#EBAB09]/20 transition"
-            />
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Event Date</label>
+            <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-800 outline-none focus:border-[#EBAB09] focus:ring-2 focus:ring-[#EBAB09]/20 transition" />
           </div>
 
-          {/* Description */}
           <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-              Description
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={2}
+            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Description</label>
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2}
               placeholder="Brief description…"
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-800 outline-none focus:border-[#EBAB09] focus:ring-2 focus:ring-[#EBAB09]/20 transition resize-none"
-            />
+              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm text-gray-800 outline-none focus:border-[#EBAB09] focus:ring-2 focus:ring-[#EBAB09]/20 transition resize-none" />
           </div>
 
-          {/* Drop zone */}
           <div>
-            {/* ✅ div instead of label here */}
             <div className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
               Photos <span className="text-red-400">*</span>{" "}
               <span className="normal-case font-normal text-gray-400">(max 50)</span>
             </div>
-
-
-
-            {/* ✅ Only ONE label — wraps the input */}
             <label
-              className={`drop-zone rounded-2xl p-6 text-center cursor-pointer block relative ${dragging ? "active" : "border-gray-200"
-                }`}
+              className={`drop-zone rounded-2xl p-6 text-center cursor-pointer block relative ${dragging ? "active" : "border-gray-200"}`}
               onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
               onDragLeave={() => setDragging(false)}
               onDrop={(e) => { e.preventDefault(); setDragging(false); handleFiles(e.dataTransfer.files); }}
             >
-              <input
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={(e) => handleFiles(e.target.files)}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              />
+              <input type="file" multiple accept="image/*" onChange={(e) => handleFiles(e.target.files)}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
               <ImagePlus className="h-8 w-8 mx-auto mb-2 text-gray-300 pointer-events-none" />
               <p className="text-sm text-gray-500 pointer-events-none">
-                Drop photos here or{" "}
-                <span className="font-semibold" style={{ color: GOLD }}>browse</span>
+                Drop photos here or <span className="font-semibold" style={{ color: GOLD }}>browse</span>
               </p>
-              <p className="text-xs text-gray-400 mt-1 pointer-events-none">
-                JPG, PNG, WebP — up to 50 images
-              </p>
-
-
-
+              <p className="text-xs text-gray-400 mt-1 pointer-events-none">JPG, PNG, WebP — up to 50 images</p>
             </label>
 
-            <p className="text-xs text-white p-3 rounded-xl mt-1 pointer-events-none bg-green-400 ">
+            <p className="text-xs text-white p-3 rounded-xl mt-1 bg-green-400">
               Hold <span className="font-medium">Ctrl</span> (or <span className="font-medium">Cmd</span> on Mac)
               or <span className="font-medium">Shift</span> to select multiple files
             </p>
 
-            {/* Previews */}
             {previews.length > 0 && (
               <div className="mt-3">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-xs text-gray-400">
-                    {files.length} photo{files.length !== 1 ? "s" : ""} selected
-                  </p>
-                  {/* ✅ Clear all button */}
-                  <button
-                    onClick={() => { setFiles([]); setPreviews([]); }}
-                    className="text-xs text-red-400 hover:text-red-600 transition"
-                  >
-                    Clear all
-                  </button>
+                  <p className="text-xs text-gray-400">{files.length} photo{files.length !== 1 ? "s" : ""} selected</p>
+                  <button onClick={() => { setFiles([]); setPreviews([]); }}
+                    className="text-xs text-red-400 hover:text-red-600 transition">Clear all</button>
                 </div>
                 <div className="grid grid-cols-5 gap-1.5 max-h-40 overflow-y-auto">
                   {previews.slice(0, 20).map((url, i) => (
                     <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 group">
                       <img src={url} alt="" className="w-full h-full object-cover" />
-                      {/* ✅ Remove individual photo */}
                       <button
                         onClick={() => {
-                          setFiles((prev) => prev.filter((_, idx) => idx !== i));
-                          setPreviews((prev) => prev.filter((_, idx) => idx !== i));
+                          setFiles((prev) => prev.filter((_, di) => di !== i));
+                          setPreviews((prev) => prev.filter((_, di) => di !== i));
                         }}
-                        className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-black/60 text-white 
-                       opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
+                        className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 transition flex items-center justify-center"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -591,7 +498,6 @@ const UploadModal = ({ open, onClose }) => {
             )}
           </div>
 
-          {/* Notice */}
           <div className="flex items-start gap-3 p-3.5 rounded-xl bg-amber-50 border border-amber-100">
             <Clock className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
             <p className="text-xs text-amber-700 leading-relaxed">
@@ -600,21 +506,17 @@ const UploadModal = ({ open, onClose }) => {
           </div>
         </div>
 
-        {/* Footer */}
         <div className="flex-shrink-0 px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3">
           <button onClick={() => { onClose(); reset(); }}
             className="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-500 hover:text-gray-700 transition gal-sans">
             Cancel
           </button>
-          <button
-            onClick={handleSubmit}
-            disabled={loading.submit}
+          <button onClick={handleSubmit} disabled={loading.submit}
             className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-50 gal-sans"
             style={{ background: NAVY, color: "#fff" }}>
             {loading.submit
               ? <><Loader2 className="h-4 w-4 animate-spin" /> Uploading…</>
-              : <><Upload className="h-4 w-4" /> Submit Album</>
-            }
+              : <><Upload className="h-4 w-4" /> Submit Album</>}
           </button>
         </div>
       </DialogContent>
@@ -661,8 +563,7 @@ const MyUploadsDialog = ({ open, onClose }) => {
                     <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
                       {album.coverImage?.url
                         ? <img src={album.coverImage.url} alt="" className="w-full h-full object-cover" />
-                        : <div className="w-full h-full flex items-center justify-center"><Images className="h-5 w-5 text-gray-300" /></div>
-                      }
+                        : <div className="w-full h-full flex items-center justify-center"><Images className="h-5 w-5 text-gray-300" /></div>}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-gray-800 truncate">{album.title}</p>
@@ -689,14 +590,6 @@ const MyUploadsDialog = ({ open, onClose }) => {
 /* ══════════════════════════════════════════════
    MAIN GALLERY PAGE
 ══════════════════════════════════════════════ */
-/* ══════════════════════════════════════════════
-   MAIN GALLERY PAGE
-══════════════════════════════════════════════ */
-import { useSearchParams } from "react-router-dom"; // 👈 add at top
-
-const DEBOUNCE_DELAY = 500;
-const MIN_SEARCH_LENGTH = 2;
-
 const UserGallery = () => {
   const dispatch = useDispatch();
   const { albums, pagination, loading } = useSelector((s) => s.gallery);
@@ -705,73 +598,54 @@ const UserGallery = () => {
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
 
   const [searchInput, setSearchInput] = useState("");
-  const [searchText, setSearchText] = useState(""); // debounced value
+  const [searchText, setSearchText]   = useState("");
 
-  const debounceRef = useRef(null);
-  const userTypingRef = useRef(false);
-  const prevPageRef = useRef(pageFromUrl);
-  const listRef = useRef(null);
+  const debounceRef  = useRef(null);
+  const prevPageRef  = useRef(pageFromUrl);
+  const listRef      = useRef(null);
 
-  const [albumOpen, setAlbumOpen] = useState(false);
-  const [uploadOpen, setUploadOpen] = useState(false);
+  const [albumOpen,     setAlbumOpen]     = useState(false);
+  const [uploadOpen,    setUploadOpen]    = useState(false);
   const [myUploadsOpen, setMyUploadsOpen] = useState(false);
 
-  /* ── Main fetch ── */
   useEffect(() => {
     const params = { page: pageFromUrl, limit: 12 };
     if (searchText) params.search = searchText;
     dispatch(fetchApprovedAlbums(params));
   }, [searchText, pageFromUrl, dispatch]);
 
-  /* ── Debounced search ── */
-
-  // ✅ Add this instead
   const handleSearchChange = useCallback((e) => {
     const value = e.target.value;
     setSearchInput(value);
-    userTypingRef.current = true;
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      userTypingRef.current = false;
       setSearchText(value.trim());
-      setSearchParams((prev) => {
-        const p = new URLSearchParams(prev);
-        p.set("page", "1");
-        return p;
-      });
+      setSearchParams((prev) => { const p = new URLSearchParams(prev); p.set("page", "1"); return p; });
     }, 500);
   }, [setSearchParams]);
 
-  // cleanup on unmount
   useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
 
-  /* ── Scroll to list on page change ── */
   useEffect(() => {
     if (loading.albums) return;
     if (prevPageRef.current !== pageFromUrl) {
       prevPageRef.current = pageFromUrl;
       setTimeout(() => {
         if (!listRef.current) return;
-        const top = listRef.current.getBoundingClientRect().top + window.scrollY - 120;
-        window.scrollTo({ top, behavior: "smooth" });
+        window.scrollTo({ top: listRef.current.getBoundingClientRect().top + window.scrollY - 120, behavior: "smooth" });
       }, 300);
     }
   }, [loading.albums, pageFromUrl]);
 
-  /* ── Page change handler ── */
   const onPageChange = (page) => {
-    setSearchParams((prev) => {
-      const p = new URLSearchParams(prev);
-      p.set("page", String(page));
-      return p;
-    });
+    setSearchParams((prev) => { const p = new URLSearchParams(prev); p.set("page", String(page)); return p; });
   };
 
   const clearSearch = () => {
-    setSearchInput("");
-    setSearchText("");
-    if (debounceRef.current) clearTimeout(debounceRef.current); // 👈 add this
+    setSearchInput(""); setSearchText("");
+    if (debounceRef.current) clearTimeout(debounceRef.current);
   };
+
   const openAlbum = (id) => {
     dispatch(fetchAlbumPhotos(id));
     setAlbumOpen(true);
@@ -784,7 +658,7 @@ const UserGallery = () => {
 
       <div className="min-h-screen gal-sans" style={{ background: "#F8F7F4" }}>
 
-        {/* ── Header ── */}
+        {/* Header */}
         <div style={{ background: NAVY }}>
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-5">
@@ -792,32 +666,26 @@ const UserGallery = () => {
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-2" style={{ color: GOLD }}>
                   Alumni Network
                 </p>
-                <h1 className="gal-serif font-bold text-white text-3xl sm:text-4xl leading-tight">
+                <h1 className="gal-serif font-extrabold text-white text-3xl sm:text-4xl leading-tight">
                   Photo Gallery
                 </h1>
-                <p className="text-sm text-white/40 mt-1.5">
-                  Memories from our community events
-                </p>
+                <p className="text-sm text-white/40 mt-1.5">Memories from our community events</p>
               </div>
-
               <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setMyUploadsOpen(true)}
+                <button onClick={() => setMyUploadsOpen(true)}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-white/10 text-white/70 hover:bg-white/15 transition">
                   <FolderOpen className="h-4 w-4" />
                   <span className="hidden sm:inline">My Uploads</span>
                 </button>
-                <button
-                  onClick={() => setUploadOpen(true)}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition hover:opacity-90"
-                  style={{ background: GOLD, color: NAVY }}>
+                <button onClick={() => setUploadOpen(true)}
+                  className="flex items-center gap-2 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition hover:opacity-90"
+                  style={{ background: GOLD }}>
                   <Upload className="h-4 w-4" />
                   Share Photos
                 </button>
               </div>
             </div>
 
-            {/* Search — debounced on onChange */}
             <div className="mt-6 flex items-center gap-2 bg-white/10 border border-white/15 rounded-xl px-4 py-2.5 max-w-md">
               <Search className="h-4 w-4 text-white/30 flex-shrink-0" />
               <input
@@ -835,10 +703,9 @@ const UserGallery = () => {
           </div>
         </div>
 
-        {/* ── Content ── */}
+        {/* Content */}
         <div ref={listRef} className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
 
-          {/* Empty */}
           {!loading.albums && albums.length === 0 && (
             <div className="flex flex-col items-center justify-center py-24 text-center">
               <div className="w-20 h-20 rounded-3xl flex items-center justify-center mb-5"
@@ -859,10 +726,8 @@ const UserGallery = () => {
             </div>
           )}
 
-          {/* Album grid — stays mounted, fades instead of disappearing */}
           {albums.length > 0 && (
-            <div className={`transition-opacity duration-300 ease-in-out ${loading.albums ? "opacity-40 pointer-events-none" : "opacity-100"
-              }`}>
+            <div className={`transition-opacity duration-300 ${loading.albums ? "opacity-40 pointer-events-none" : "opacity-100"}`}>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
                 {albums.map((album) => (
                   <AlbumCard key={album._id} album={album} onClick={openAlbum} />
@@ -881,19 +746,19 @@ const UserGallery = () => {
             </div>
           )}
 
-          {/* Subtle spinner below faded grid */}
           {loading.albums && (
             <div className="flex justify-center py-8">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-200 border-t-amber-400" />
             </div>
           )}
-
         </div>
       </div>
 
-      {/* Dialogs */}
-      <AlbumDialog open={albumOpen} onClose={() => setAlbumOpen(false)} />
-      <UploadModal open={uploadOpen} onClose={() => setUploadOpen(false)} />
+      {/* Pure portal — zero Radix interference */}
+      <AlbumPanel open={albumOpen} onClose={() => setAlbumOpen(false)} />
+
+      {/* These have no lightbox inside so DialogContent is fine */}
+      <UploadModal     open={uploadOpen}    onClose={() => setUploadOpen(false)} />
       <MyUploadsDialog open={myUploadsOpen} onClose={() => setMyUploadsOpen(false)} />
     </>
   );

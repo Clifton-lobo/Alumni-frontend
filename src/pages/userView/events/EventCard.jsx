@@ -51,7 +51,7 @@ const EventCard = ({ event }) => {
           {/* TITLE */}
           <h2
             onClick={() => setOpen(true)}
-            className="group cursor-pointer text-2xl md:text-[30px] font-bold leading-tight hover:text-blue-950 hover:underline transition-colors break-words"
+            className="group cursor-pointer text-2xl md:text-[30px] font-bold leading-tight hover:text-[#142A5D] hover:underline transition-colors break-words"
           >
             {event.title}
             <MoveUpRight
