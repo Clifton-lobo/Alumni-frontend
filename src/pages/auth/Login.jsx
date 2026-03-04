@@ -58,11 +58,32 @@ const Login = () => {
         <div className="absolute top-0 right-0 w-[3px] h-full" style={{ background: GOLD, opacity: 0.25 }} />
 
         {/* Wordmark */}
-        <div className="flex items-center gap-3">
-          <div className="w-25 h-25 flex items-center justify-center">
-            <img src={vpmLogo} alt="VPM Logo" className="w-full h-full object-contain" />
+        <div className="flex items-center gap-4">
+
+          {/* Logo */}
+          <div className="w-20 h-20 flex items-center justify-center">
+            <img
+              src={vpmLogo}
+              alt="VPM Logo"
+              className="w-full h-full object-contain drop-shadow-lg"
+            />
           </div>
-          <span className="font-serif font-bold text-white text-5xl tracking-wide">Alumni Connect</span>
+
+          {/* Text */}
+          <div className="flex flex-col leading-tight">
+
+            {/* College Name */}
+            <span className="text-sm md:text-base text-amber-300 tracking-widest font-semibold uppercase">
+              VPM's R.Z. Shah College
+            </span>
+
+            {/* App Name */}
+            <span className="font-serif font-bold text-white text-4xl md:text-5xl tracking-wide">
+              Alumni Connect
+            </span>
+
+          </div>
+
         </div>
 
         {/* Center copy */}
@@ -114,13 +135,30 @@ const Login = () => {
             style={{ border: `50px solid ${GOLD}` }} />
           <div className="absolute -top-12 -left-12 w-44 h-44 rounded-full opacity-[0.07]"
             style={{ border: `35px solid ${GOLD}` }} />
-          <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{ background: GOLD, opacity: 0.3 }} />
+          <div className="absolute bottom-0 left- 0 right-0 h-[2px]" style={{ background: GOLD, opacity: 0.3 }} />
 
           <div className="relative z-10 flex items-center gap-3 mb-8">
-            <div className="w-10 h-10">
-              <img src={vpmLogo} alt="VPM Logo" className="w-full h-full object-contain" />
+
+            {/* Logo */}
+            <div className="w-10 h-10 flex items-center justify-center">
+              <img
+                src={vpmLogo}
+                alt="VPM Logo"
+                className="w-full h-full object-contain"
+              />
             </div>
-            <span className="font-serif font-bold text-white text-xl tracking-wide">Alumni Connect</span>
+
+            {/* Text */}
+            <div className="flex flex-col leading-tight">
+              <span className="font-serif font-bold text-white text-xl tracking-wide">
+                Alumni Connect
+              </span>
+
+              <span className="text-[11px] text-amber-300 tracking-wider uppercase">
+                VPM's R.Z. Shah College
+              </span>
+            </div>
+
           </div>
 
           <div className="relative z-10">
@@ -147,7 +185,7 @@ const Login = () => {
 
         {/* Form area */}
         <div className="flex-1 flex flex-col justify-center px-5 sm:px-8 lg:px-16 xl:px-24 py-8 lg:py-12">
-          <div className="max-w-sm w-full mx-auto lg:mx-0">
+          <div className="maxwsm w-full mxauto lg:mx-0">
 
             {/* Desktop heading */}
             <div className="hidden lg:block mb-8">
