@@ -418,7 +418,7 @@ const News = () => {
           window.scrollY -
           headerOffset;
 
-        smoothScrollTo(offsetPosition, 800); // ← controlled duration
+        smoothScrollTo(offsetPosition, 900); // ← controlled duration
       });
     }
   }, [loading.list, pageFromUrl]);
