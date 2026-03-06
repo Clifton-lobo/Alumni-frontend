@@ -78,8 +78,8 @@ const Login = () => {
             </span>
 
             {/* App Name */}
-            <span className="font-serif font-bold text-white text-4xl md:text-5xl tracking-wide">
-              Alumni Connect
+            <span className="font-serif font-bold text-white text-4xl md:text-4xl tracking-wide">
+              Alumni Association
             </span>
 
           </div>
@@ -151,7 +151,7 @@ const Login = () => {
             {/* Text */}
             <div className="flex flex-col leading-tight">
               <span className="font-serif font-bold text-white text-xl tracking-wide">
-                Alumni Connect
+                Alumni Association
               </span>
 
               <span className="text-[11px] text-amber-300 tracking-wider uppercase">
@@ -188,14 +188,14 @@ const Login = () => {
           <div className="maxwsm w-full mxauto lg:mx-0">
 
             {/* Desktop heading */}
-            <div className="hidden lg:block mb-8">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3" style={{ color: GOLD }}>
-                Sign in
-              </p>
-              <h2 className="font-serif text-3xl font-black mb-1" style={{ color: NAVY }}>
-                Welcome back
-              </h2>
-            </div>
+              {/* <div className="hidden lg:block mb-8">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3" style={{ color: GOLD }}>
+                  Sign in
+                </p>
+                <h2 className="font-serif text-3xl font-black mb-1" style={{ color: NAVY }}>
+                  Welcome back
+                </h2>
+              </div> */}
 
             {/* Mobile heading */}
             <div className="lg:hidden mb-5 mt-1">

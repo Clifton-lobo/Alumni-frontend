@@ -102,8 +102,8 @@ const Register = () => {
             </span>
 
             {/* App Name */}
-            <span className="font-serif font-bold text-white text-4xl md:text-5xl tracking-wide">
-              Alumni Connect
+            <span className="font-serif font-bold text-white text-4xl md:text-4xl tracking-wide">
+              Alumni Assocaition
             </span>
 
           </div>
@@ -173,7 +173,7 @@ const Register = () => {
 
             <div className="flex flex-col leading-tight">
               <span className="font-serif font-bold text-white text-xl tracking-wide">
-                Alumni Connect
+                Alumni Association
               </span>
               <span className="text-[11px] text-amber-300 tracking-wider uppercase">
                 VPM's R.Z. Shah College

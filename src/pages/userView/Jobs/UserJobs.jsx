@@ -239,7 +239,7 @@ const UserJobs = () => {
         <div className="mx-auto max-w-7xl px-6 pt-10 pb-16">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-widest text-slate-500">
+              <p className="text-sm font-semibold  uppercase tracking-widest text-slate-500">
                 Alumni & Partner Companies
               </p>
               <h1 className="mt-6 text-[clamp(3rem,5vw,5.5rem)] font-extrabold leading-[1.05] text-slate-900">

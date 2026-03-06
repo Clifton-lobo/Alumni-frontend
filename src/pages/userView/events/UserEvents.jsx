@@ -227,7 +227,7 @@ const UserEvents = () => {
               {activeFilter === "custom" && eventList.length === 0 && !loading ? (
                 <div className="py-20 text-center">
                   <p className="text-lg text-gray-500">
-                    Please select start and end dates, then click "Apply" to see events.
+                   There are no events on the date you selected
                   </p>
                 </div>
               ) : (

@@ -39,7 +39,8 @@ const EventCard = ({ event }) => {
         <p className="font-semibold text-sm md:text-lg tracking-wide text-gray-600">
           {month}
         </p>
-        <p className="text-5xl md:text-7xl font-bold leading-none">
+
+        <p className='text-5xl md:text-7xl font-bold leading-none font-["Source_Serif_4"]'>
           {day}
         </p>
       </div>
@@ -51,7 +52,7 @@ const EventCard = ({ event }) => {
           {/* TITLE */}
           <h2
             onClick={() => setOpen(true)}
-            className="group cursor-pointer text-2xl md:text-[30px] font-bold leading-tight hover:text-[#142A5D] hover:underline transition-colors break-words"
+            className="font-serif group cursor-pointer text-2xl md:text-[37px] font-bold leading-tight hover:text-[#142A5D] hover:underline transition-colors break-words"
           >
             {event.title}
             <MoveUpRight
@@ -60,8 +61,8 @@ const EventCard = ({ event }) => {
           </h2>
 
           {/* DATE & TIME */}
-          <div className="flex items-center gap-2 mt-2 md:mt-3 font-semibold text-sm md:text-xl text-gray-700">
-            <Calendar size={16} className="md:w-[18px] md:h-[18px] shrink-0" />
+          <div className="flex items-center gap-2 mt-2 md:mt-3 font-semibold text-sm md:text-2xl text-gray-700">
+            <Calendar size={16} className="md:w-[22px] md:h-[25px] shrink-0" />
             <span className="truncate">
               {eventDate.toDateString()}
               {event.time && `, ${event.time}`}
@@ -70,8 +71,8 @@ const EventCard = ({ event }) => {
 
           {/* LOCATION */}
           {location && (
-            <div className="flex items-center gap-2 mt-1 md:mt-2 text-sm md:text-xl font-semibold text-gray-700">
-              <MapPin size={16} className="md:w-[18px] md:h-[18px] shrink-0" />
+            <div className="flex items-center gap-2 mt-1 md:mt-2 text-sm md:text-[23px] font-semibold text-gray-700">
+              <MapPin size={16} className="md:w-[22px] md:h-[25px] shrink-0" />
               <span className="truncate">{location}</span>
             </div>
           )}
@@ -79,7 +80,7 @@ const EventCard = ({ event }) => {
           {/* CATEGORY */}
           {event.category && (
             <div className="flex items-center gap-2 mt-1 md:mt-2 text-neutral-600">
-              <Tag size={14} className="md:w-[16px] md:h-[16px] shrink-0" />
+              <Tag size={14} className="md:w-[20px] md:h-[21px] shrink-0" />
               <span className="text-sm md:text-base">{event.category}</span>
             </div>
           )}

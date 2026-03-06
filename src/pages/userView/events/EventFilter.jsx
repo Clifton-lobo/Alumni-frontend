@@ -49,7 +49,7 @@ const FilterSection = ({ title, isOpen, onToggle, children }) => (
     <button
       type="button"
       onClick={onToggle}
-      className="w-full flex items-center justify-between py-4 px-2 text-left hover:bg-gray-50 rounded transition-colors"
+      className="w-full flex items-center hover:underline justify-between py-4 px-2 text-left hover:bg-gray-50 rounded transition-colors"
     >
       <h3 className="font-semibold text-lg text-gray-900">{title}</h3>
 
@@ -149,7 +149,7 @@ const EventFilter = () => {
       <div className="flex justify-between items-center py-2 px-2">
         <button
           onClick={handleReset}
-          className="font-bold text-lg text-blue-950 hover:underline transition"
+          className="font-bold text-2xl cursor-pointer  hover:underline transition"
         >
           Reset Filters
         </button>
@@ -164,16 +164,16 @@ const EventFilter = () => {
         {DATE_FILTERS.map((f) => (
           <label
             key={f.key}
-            className="flex items-center gap-2  rounded cursor-pointer hover:bg-gray-50 transition"
+            className="flex items-center gap-2 rounded cursor-pointer hover:bg-gray-50 transition"
           >
             <input
               type="radio"
               name="date-filter"
               checked={activeFilter === f.key}
               onChange={() => dispatch(setActiveFilter(f.key))}
-              className="w-4 h-4 cursor-pointer accent-blue-950"
+              className="w-5 h-5 cursor-pointer accent-blue-950"
             />
-            <span className="text-sm md:text-base text-gray-700">
+            <span className="text-sm md:text-lg text-gray-700">
               {f.label}
             </span>
           </label>
@@ -290,9 +290,9 @@ const EventFilter = () => {
               name="category"
               checked={category === c}
               onChange={() => dispatch(setCategory(c))}
-              className="w-4 h-4 cursor-pointer accent-blue-950"
+              className="w-5 h-5 cursor-pointer accent-blue-950"
             />
-            <span className="text-sm md:text-base text-gray-700">
+            <span className="text-sm md:text-lg text-gray-700">
               {c}
             </span>
           </label>
@@ -315,9 +315,9 @@ const EventFilter = () => {
               name="mode"
               checked={mode === m}
               onChange={() => dispatch(setMode(m))}
-              className="w-4 h-4 cursor-pointer accent-blue-950"
+              className="w-5 h-5 cursor-pointer accent-blue-950"
             />
-            <span className="text-sm md:text-base text-gray-700 capitalize">
+            <span className="text-sm md:text-lg text-gray-700 capitalize">
               {m}
             </span>
           </label>
@@ -340,9 +340,9 @@ const EventFilter = () => {
               name="status"
               checked={status === s}
               onChange={() => dispatch(setStatus(s))}
-              className="w-4 h-4 cursor-pointer accent-blue-950"
+              className="w-5 h-5 cursor-pointer accent-blue-950"
             />
-            <span className="text-sm md:text-base text-gray-700">
+            <span className="text-sm md:text-lg text-gray-700">
               {s}
             </span>
           </label>
