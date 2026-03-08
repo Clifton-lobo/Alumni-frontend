@@ -3,6 +3,7 @@ import { Clock, Tag, ArrowRight, Users2, Users, Calendar, Award, MapPin, Instagr
 import exploreOnMap from "../../../assets/exploreOnMap.png";
 import { FloatingDockHelper } from "./FloatingDock";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const stats = [
   { icon: Users, value: "50K+", label: "Alumni Worldwide" },
@@ -210,17 +211,17 @@ const Home = () => {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-white/5" />
         </div>
 
-        <div className="container mx-auto px-4 pt-32 pb-20 relative z-10">
+        <div className="container mx-auto px-4 pt-15 pb-20 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <h1
-              className={`font-serif text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight transition-all duration-700 ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+              className={`font-serif text-4xl md:text-7xl lg:text-[75px] font-bold text-white mb-2 leading-tight transition-all duration-700 ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
             >
-              Connect. Inspire.{" "}
-              <span className="text-[#EBAB09]">Succeed Together.</span>
+              Connect. Inspire.{" "} <br/>
+              <span className="text-yellow-400">Succeed Together.</span>
             </h1>
 
             <p
-              className={`text-lg md:text-xl text-white/80 mb-10 max-w-2xl mx-auto transition-all duration-700 delay-100 ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+              className={`text-lg md:text-lg text-white/50 mb-10 max-w-2xl mx-auto transition-all duration-700 delay-100 ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
             >
               Join our thriving community of graduates making an impact worldwide.
             </p>
@@ -228,12 +229,12 @@ const Home = () => {
             <div
               className={`flex flex-col sm:flex-row gap-4 justify-center mb-16 transition-all duration-700 delay-200 ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
             >
-              <button className="px-8 py-4 rounded-xl bg-[#EBAB09] text-white font-semibold flex items-center gap-2 justify-center hover:opacity-90 transition">
+              <Link to="/user/community" className="px-8 py-4 rounded-xl bg-[#EBAB09] text-white font-semibold flex items-center gap-2 justify-center hover:opacity-90 transition">
                 Explore Alumni
                 <ArrowRight className="w-5 h-5" />
-              </button>
-              <button className="px-8 py-4 rounded-xl border border-[#EBAB09] text-[#EBAB09] font-semibold hover:bg-[#EBAB09] hover:text-black transition">
-                Learn More
+              </Link>
+              <button className="px-8 py-4 rounded-xl border border-[#EBAB09] text-[#EBAB09] font-semibold hover:bg-[#EBAB09] hover:text-white transition">
+                Learn more
               </button>
             </div>
 
@@ -241,7 +242,7 @@ const Home = () => {
               {stats.map((stat, index) => (
                 <div
                   key={stat.label}
-                  className={`bg-white/10 backdrop-blur p-6 rounded-2xl transition-all duration-500 ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                  className={`bg-white/10 backdrop-blur p-2 rounded-2xl transition-all duration-500 ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
                   style={{ transitionDelay: `${400 + index * 100}ms` }}
                 >
                   <stat.icon className="w-8 h-8 text-[#EBAB09] mx-auto mb-3" />
@@ -249,7 +250,7 @@ const Home = () => {
                   <div className="text-white/70 text-sm">{stat.label}</div>
                 </div>
               ))}
-            </div>
+            </div> 
           </div>
         </div>
 
@@ -273,10 +274,10 @@ const Home = () => {
               <span className="text-[#EBAB09] font-semibold text-sm uppercase tracking-wider">Upcoming Events</span>
               <h2 className="font-serif text-3xl md:text-5xl font-bold text-[#142A5D] mt-2">Connect in Person</h2>
             </div>
-            <button className="mt-4 md:mt-0 px-6 py-3 rounded-lg border border-[#142A5D] text-[#142A5D] font-medium hover:bg-[#142A5D] hover:text-white transition">
+            <Link to="/user/events" className="mt-4 md:mt-0 px-6 py-3 rounded-lg border border-[#142A5D] text-[#142A5D] font-medium hover:bg-[#142A5D] hover:text-white transition">
               View All Events
               <ArrowRight className="inline w-4 h-4 ml-2" />
-            </button>
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -361,9 +362,9 @@ const Home = () => {
                 Explore job openings, internships, and mentorship resources to help you grow professionally
                 and connect with alumni in top industries.
               </p>
-              <a href="/user/jobs" className="inline-block mt-6 text-red-700 font-semibold text-lg hover:underline">
+              <Link to="/user/jobs" className="inline-block mt-6 text-red-700 font-semibold text-lg hover:underline">
                 Explore job listings →
-              </a>
+              </Link>
             </div>
           </div>
         </div>

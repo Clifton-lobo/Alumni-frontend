@@ -470,7 +470,7 @@ const UserGallery = () => {
         {/* ══════════════════════════════════════════
             HERO — Polaroid stacked cards, cream bg
         ══════════════════════════════════════════ */}
-        <div className="relative overflow-hidden bg-" style={{ minHeight: 640, background: "rgba(245,242,236,0.95)" }}>
+        <div className="relative overflow-hidden bg-" style={{ minHeight: 560, background: "rgba(245,242,236,0.95)" }}>
 
           {/* Dot grid texture */}
           <div className="absolute inset-0 pointer-events-none opacity-[0.055]"
@@ -480,10 +480,8 @@ const UserGallery = () => {
           <div className="absolute pointer-events-none" style={{ top: -120, right: "12%", width: 560, height: 560, borderRadius: "50%", background: `radial-gradient(circle,${GOLD}1A 0%,transparent 65%)` }} />
           <div className="absolute pointer-events-none" style={{ bottom: -100, left: "-5%", width: 420, height: 420, borderRadius: "50%", background: `radial-gradient(circle,${NAVY}0D 0%,transparent 65%)` }} />
 
-          {/* Top gold rule */}
-          <div className="absolute top-0 left-0 right-0 h-[3px]" style={{ background: `linear-gradient(to right,${GOLD},${GOLD}70,transparent)` }} />
 
-          <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-10 flex flex-col lg:flex-row items-center gap-12 py-16 md:py-20" style={{ minHeight: 640 }}>
+          <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-10 flex flex-col lg:flex-row items-center gap-12 py-8 md:py-10" style={{ minHeight: 520 }}>
 
             {/* LEFT — Text block */}
             <div className="flex-1 max-w-xl">
@@ -516,7 +514,7 @@ const UserGallery = () => {
               </p>
 
               {/* CTAs */}
-              <div className="flex items-center gap-3 flex-wrap hero-text-delay2">
+              <div className="flex items-center gap-3 md:mt-10 flex-wrap hero-text-delay2">
                 <button onClick={() => setUploadOpen(true)}
                   className="upload-pulse flex items-center gap-2.5 px-6 py-3.5 rounded-2xl gal-sans text-sm font-bold transition-all hover:opacity-95 hover:-translate-y-0.5 active:scale-95"
                   style={{ background: NAVY, color: "#fff", boxShadow: `0 8px 28px ${NAVY}40` }}>
@@ -657,8 +655,6 @@ const UserGallery = () => {
             </div>
           )}
         </div>
-
-
 
         {/* ══ FOOTER ══ */}
         <footer className="border-t border-gray-200 py-6 text-center" style={{ background: NAVY }}>

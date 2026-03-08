@@ -455,7 +455,7 @@ const News = () => {
   return (
     <div className="min-h-screen font-sans bg-stone-100">
 
-      {/* ══ HEADER ══ */}
+      {/* ══ HEADER ══
       <div style={{ background: NAVY }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-5">
@@ -471,7 +471,6 @@ const News = () => {
               </p>
             </div>
 
-            {/* Search — now debounced on input change */}
             <div className="w-full sm:max-w-md">
               <div className="flex items-center gap-2 bg-white/10 border border-white/15 rounded-xl px-4 py-2.5">
                 <Search className="h-4 w-4 text-white/30 flex-shrink-0" />
@@ -490,7 +489,6 @@ const News = () => {
             </div>
           </div>
 
-          {/* Category Nav */}
           <div className="mt-6 flex items-center gap-2 overflow-x-auto scrollbar-hide">
             {CATS.map((c) => (
               <button
@@ -505,10 +503,10 @@ const News = () => {
             ))}
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* ══ ACTIVE FILTER PILLS ══ */}
-      {isFiltering && (
+      {/* {isFiltering && (
         <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-5">
           <div className="flex flex-wrap items-center gap-2">
             <span className="font-sans text-xs text-gray-400">Showing:</span>
@@ -529,7 +527,7 @@ const News = () => {
             </button>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* ══ MAIN CONTENT ══ */}
       <div

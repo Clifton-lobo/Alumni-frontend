@@ -97,7 +97,7 @@ const Register = () => {
           <div className="flex flex-col leading-tight">
 
             {/* College Name */}
-            <span className="text-sm md:text-base text-amber-300 tracking-widest font-semibold uppercase">
+            <span className="text-sm md:text-xl text-amber-300 tracking-widest font-semibold uppercase">
               VPM's R.Z. Shah College
             </span>
 

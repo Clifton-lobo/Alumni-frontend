@@ -131,7 +131,7 @@ export const UserNavItems = [
   },
   {
     id: "community",
-    label: "Community",
+    label: "Alumni",
     path: "/user/community",
     type: "link",
   },

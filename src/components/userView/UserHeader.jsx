@@ -138,7 +138,7 @@ const Navbar = () => {
         className="fixed top-0 left-0 right-0 z-50"
       >
         <div className={`transition-all duration-300 ${headerBg}`}>
-          <div className="max-w-7xl mx-auto h-[72px] px-4 flex items-center">
+          <div className="max-w-8xl ml-6 mr-5 mx-auto h-[72px] px-4 flex items-center">
 
             {/* LOGO */}
             <div className="flex flex-1 items-center">
@@ -151,10 +151,10 @@ const Navbar = () => {
                   />
                 </div>
                 <div className="flex items-baseline gap-2">
-                  <span className={`text-xl md:text-xl font-serif font-semibold tracking-wide ${isBlue ? "text-white" : "text-[#142A5D]"}`}>
+                  <span className={`text-xl md:text-[22px] font-serif font-bold tracking-wide ${isBlue ? "text-white" : "text-[#142A5D]"}`}>
                     VPM's
                   </span>
-                  <span className={`text-xl md:text-xl font-serif font-semibold tracking-wide ${isBlue ? "text-white/85" : "text-[#142A5D]/85"}`}>
+                  <span className={`text-xl md:text-[22px] font-serif font-bold tracking-wide ${isBlue ? "text-white" : "text-[#142A5D]"}`}>
                     R.Z. Shah College
                   </span>
                 </div>
@@ -168,11 +168,11 @@ const Navbar = () => {
                   <Link
                     key={item.id}
                     to={item.path}
-                    className={`relative font-medium transition-colors ${baseText} hover:text-[#EBAB09]`}
+                    className={`relative fontmedium font-sans transition-colors font-bold text-lg ${baseText} hover:text-[#EBAB09]`}
                   >
                     {item.label}
                     {location.pathname === item.path && (
-                      <span className="absolute -bottom-2 left-0 w-full h-[2px] bg-[#EBAB09]" />
+                      <span className="absolute -bottom-2 border left-0 w-full h-[2px] bg-[#EBAB09]" />
                     )}
                   </Link>
                 ) : (
@@ -182,8 +182,9 @@ const Navbar = () => {
                     onMouseEnter={() => setOpenDropdown(item.id)}
                     onMouseLeave={() => setOpenDropdown(null)}
                   >
-                    <button className={`flex items-center gap-1 font-medium ${baseText} hover:text-[#EBAB09]`}>
-                      {item.label} <ChevronDown className="h-4 w-4" />
+                    <button className={`flex items-center gap-1 fontmedium ${baseText} font-bold text-lg  hover:text-[#EBAB09]`}>
+                      {item.label}
+                      <ChevronDown className="h-4 w-4" />
                     </button>
                     <AnimatePresence>
                       {openDropdown === item.id && (
@@ -192,13 +193,13 @@ const Navbar = () => {
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 6 }}
                           transition={{ duration: 0.15 }}
-                          className="absolute top-full left-0 mt-3 bg-white rounded-md shadow-xl min-w-[190px] overflow-hidden z-50"
+                          className="absolute top-full left-0 mt-3  bg-white rounded-md shadow-xl min-w-[190px] overflow-hidden z-50"
                         >
                           {item.items.map((child, idx) => (
                             <Link
                               key={idx}
                               to={child.path}
-                              className="block px-4 py-3 text-sm hover:bg-[#F2A20A] hover:text-white transition"
+                              className="block px-4 py-3 text-sm  hover:bg-[#F2A20A] hover:text-white transition"
                             >
                               {child.label}
                             </Link>

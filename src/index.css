@@ -45,6 +45,11 @@
   --font-serif: "Source Serif 4", serif;
   --font-family-sans: var(--font-sans);
   --font-family-serif: var(--font-serif);
+  
+}
+
+.cinzel {
+  font-family: "Cinzel", serif;
 }
 
 /* 🌊 Dead Sea Theme - Light Mode */

@@ -73,7 +73,7 @@ const Login = () => {
           <div className="flex flex-col leading-tight">
 
             {/* College Name */}
-            <span className="text-sm md:text-base text-amber-300 tracking-widest font-semibold uppercase">
+            <span className="text-2xl md:text-xl text-amber-300 tracking-widest font-semibold uppercase">
               VPM's R.Z. Shah College
             </span>
 
@@ -88,14 +88,14 @@ const Login = () => {
 
         {/* Center copy */}
         <div className="relative z-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] mb-4" style={{ color: GOLD }}>
+          {/* <p className="text-xs font-semibold uppercase tracking-[0.25em] mb-4" style={{ color: GOLD }}>
             Welcome back
-          </p>
+          </p> */}
           <h1 className="font-serif text-4xl xl:text-5xl font-black text-white leading-[1.1] mb-6">
-            Reconnect with<br />your community.
+            Reconnect with<br />alma mater network.
           </h1>
           <p className="text-white/50 text-base leading-relaxed max-w-sm">
-            Stay connected with fellow alumni, discover opportunities, and celebrate milestones together.
+            Stay connected with fellow alumni.
           </p>
 
           {/* Stats */}
@@ -166,10 +166,10 @@ const Login = () => {
               Welcome back
             </p>
             <h1 className="font-serif text-3xl font-black text-white leading-tight mb-2">
-              Reconnect with<br />your community.
+              Reconnect with<br />Alma mater network
             </h1>
             <p className="text-white/50 text-sm leading-relaxed max-w-xs">
-              Stay connected with fellow alumni and discover new opportunities.
+              Stay connected with fellow alumni .
             </p>
           </div>
 
@@ -188,14 +188,14 @@ const Login = () => {
           <div className="maxwsm w-full mxauto lg:mx-0">
 
             {/* Desktop heading */}
-              {/* <div className="hidden lg:block mb-8">
+              <div className="hidden lg:block mb-8">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-3" style={{ color: GOLD }}>
                   Sign in
                 </p>
                 <h2 className="font-serif text-3xl font-black mb-1" style={{ color: NAVY }}>
                   Welcome back
                 </h2>
-              </div> */}
+              </div>
 
             {/* Mobile heading */}
             <div className="lg:hidden mb-5 mt-1">
