@@ -40,9 +40,9 @@ const EventCard = ({ event }) => {
           {month}
         </p>
 
-        <p className='text-5xl md:text-7xl font-bold leading-none font-["Source_Serif_4"]'>
-          {day}
-        </p>
+       <p className='text-5xl md:text-6xl font-bold leading-none font-["Source_Serif_4"]'>
+  {String(day).padStart(2, "0")}
+</p>
       </div>
 
       {/* RIGHT CONTENT */}
@@ -52,7 +52,7 @@ const EventCard = ({ event }) => {
           {/* TITLE */}
           <h2
             onClick={() => setOpen(true)}
-            className="font-serif group cursor-pointer text-2xl md:text-[37px] font-bold leading-tight hover:text-[#142A5D] hover:underline transition-colors break-words"
+            className="font-serif group cursor-pointer text-2xl md:text-[32px] font-bold leading-tight hover:text-[#142A5D] hover:underline transition-colors break-words"
           >
             {event.title}
             <MoveUpRight

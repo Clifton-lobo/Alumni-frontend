@@ -150,12 +150,18 @@ const Navbar = () => {
                     className="w-full h-full object-contain"
                   />
                 </div>
-                <div className="flex items-baseline gap-2">
-                  <span className={`text-xl md:text-[22px] font-serif font-bold tracking-wide ${isBlue ? "text-white" : "text-[#142A5D]"}`}>
-                    VPM's
-                  </span>
-                  <span className={`text-xl md:text-[22px] font-serif font-bold tracking-wide ${isBlue ? "text-white" : "text-[#142A5D]"}`}>
-                    R.Z. Shah College
+                <div className="flex flex-col">
+                  <div className="flex items-baseline gap-2">
+                    <span className={`text-xl md:text-[15px] font-serif font-bold text-[#EBAB09] tracking-wide`}>
+                      VPM's
+                    </span>
+                    {/*  ${isBlue ? "text-white" : "text-[#142A5D]"} */}
+                    <span className={`text-xl md:text-[15px] font-serif font-bold text-[#EBAB09] tracking-wide`}>
+                      R.Z. Shah College
+                    </span>
+                  </div>
+                  <span className={`text-[20px] font-serif  font-semibold tracking-[0.18em] uppercase ${isBlue ? "text-white" : "text-[#142A5D]"}`}>
+                    Alumni Association
                   </span>
                 </div>
               </Link>

@@ -126,6 +126,7 @@ export const UserNavItems = [
     items: [
       { label: "Donate", path: "/user/donate" },
       { label: "News", path: "/user/news" },
+      { label: "Feedback", path: "/user/feedback" },
     ],
   },
   {
@@ -145,12 +146,6 @@ export const UserNavItems = [
     label: "Jobs ",
     type: "link",
     path: "/user/jobs"     
-  },
-  {
-    id: "feedback",
-    label: "Feedback ",
-    type: "link",
-    path: "/user/feedback"     
   },
    {
     id: "gallery",
