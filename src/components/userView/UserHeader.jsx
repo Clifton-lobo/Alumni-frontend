@@ -143,7 +143,7 @@ const Navbar = () => {
             {/* LOGO */}
             <div className="flex flex-1 items-center">
               <Link to="/user/home" className="flex items-center gap-3">
-                <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center">
+                <div className="w-12 h-12 md:w-12 md:h-12 flex items-center justify-center">
                   <img
                     src={vpmLogo}
                     alt="VPM R.Z. Shah College Logo"
@@ -162,7 +162,7 @@ const Navbar = () => {
             </div>
 
             {/* DESKTOP NAV */}
-            <nav className="hidden md:flex flex-1 items-center justify-center gap-8">
+            <nav className="hidden ml-5 md:flex flex-1 items-center justify-center gap-8">
               {UserNavItems.map((item) =>
                 item.type === "link" ? (
                   <Link

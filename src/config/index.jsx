@@ -124,8 +124,7 @@ export const UserNavItems = [
     label: "Explore",
     type: "dropdown",
     items: [
-      { label: "Events", path: "/user/events" },
-      { label: "Gallery", path: "/user/gallery" },
+      { label: "Donate", path: "/user/donate" },
       { label: "News", path: "/user/news" },
     ],
   },
@@ -136,9 +135,9 @@ export const UserNavItems = [
     type: "link",
   },
   {
-    id: "giving",
-    label: "Donate",
-    path: "/user/donate",
+    id: "events",
+    label: "Events",
+    path: "/user/events",
     type: "link",
   },
   {
@@ -147,4 +146,16 @@ export const UserNavItems = [
     type: "link",
     path: "/user/jobs"     
   },
+  {
+    id: "feedback",
+    label: "Feedback ",
+    type: "link",
+    path: "/user/feedback"     
+  },
+   {
+    id: "gallery",
+    label: "Gallery ",
+    type: "link",
+    path: "/user/gallery"     
+  }
 ];
