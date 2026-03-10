@@ -141,33 +141,46 @@ const Navbar = () => {
           <div className="max-w-8xl ml-6 mr-5 mx-auto h-[72px] px-4 flex items-center">
 
             {/* LOGO */}
-            <div className="flex flex-1 items-center">
-              <Link to="/user/home" className="flex items-center gap-3">
-                <div className="w-12 h-12 md:w-12 md:h-12 flex items-center justify-center">
+            <div className="flex items-center flex-1 min-w-0">
+              <Link to="/user/home" className="flex items-center gap-2 sm:gap-3">
+
+                {/* Logo */}
+                <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center shrink-0">
                   <img
                     src={vpmLogo}
                     alt="VPM R.Z. Shah College Logo"
                     className="w-full h-full object-contain"
                   />
                 </div>
-                <div className="flex flex-col">
-                  <div className="flex items-baseline gap-2">
+
+                {/* Text */}
+                <div className="flex flex-col leading-tight whitespace-nowrap">
+
+                  <div className="flex items-baseline gap-1 sm:gap-2">
                     <span
-                      className={`text-xl md:text-[15px] font-serif font-bold tracking-wide 
-                      ${isBlue ? "text-[#EBAB09]" : "text-yellow-600"}`}
+                      className={`text-[13px] sm:text-[14px] md:text-[16px] font-serif font-bold tracking-wide
+          ${isBlue ? "text-[#EBAB09]" : "text-yellow-600"}`}
                     >
                       VPM's
                     </span>
-                    {/*  ${isBlue ? "text-white" : "text-[#142A5D]"} */}
-                    <span className={`text-xl md:text-[15px] font-serif font-bold text-[#EBAB09] tracking-wide  
-                      ${isBlue ? "text-[#EBAB09]" : "text-yellow-600"}`} >
+
+                    <span
+                      className={`text-[13px] sm:text-[14px] md:text-[16px] font-serif font-bold tracking-wide
+          ${isBlue ? "text-[#EBAB09]" : "text-yellow-600"}`}
+                    >
                       R.Z. Shah College
                     </span>
                   </div>
-                  <span className={`text-[20px] font-serif  font-bold tracking-[0.15em] uppercase ${isBlue ? "text-white" : "text-[#142A5D]"}`}>
+
+                  <span
+                    className={`text-[15px] sm:text-[15px] md:text-[20px] font-serif font-bold tracking-[0.12em] uppercase
+        ${isBlue ? "text-white" : "text-[#142A5D]"}`}
+                  >
                     Alumni Association
                   </span>
+
                 </div>
+
               </Link>
             </div>
 
