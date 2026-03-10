@@ -152,15 +152,19 @@ const Navbar = () => {
                 </div>
                 <div className="flex flex-col">
                   <div className="flex items-baseline gap-2">
-                    <span className={`text-xl md:text-[15px] font-serif font-bold text-[#EBAB09] tracking-wide`}>
+                    <span
+                      className={`text-xl md:text-[15px] font-serif font-bold tracking-wide 
+                      ${isBlue ? "text-[#EBAB09]" : "text-yellow-600"}`}
+                    >
                       VPM's
                     </span>
                     {/*  ${isBlue ? "text-white" : "text-[#142A5D]"} */}
-                    <span className={`text-xl md:text-[15px] font-serif font-bold text-[#EBAB09] tracking-wide`}>
+                    <span className={`text-xl md:text-[15px] font-serif font-bold text-[#EBAB09] tracking-wide  
+                      ${isBlue ? "text-[#EBAB09]" : "text-yellow-600"}`} >
                       R.Z. Shah College
                     </span>
                   </div>
-                  <span className={`text-[20px] font-serif  font-semibold tracking-[0.18em] uppercase ${isBlue ? "text-white" : "text-[#142A5D]"}`}>
+                  <span className={`text-[20px] font-serif  font-bold tracking-[0.15em] uppercase ${isBlue ? "text-white" : "text-[#142A5D]"}`}>
                     Alumni Association
                   </span>
                 </div>

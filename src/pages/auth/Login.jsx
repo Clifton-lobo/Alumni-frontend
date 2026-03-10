@@ -88,9 +88,9 @@ const Login = () => {
 
         {/* Center copy */}
         <div className="relative z-10">
-          {/* <p className="text-xs font-semibold uppercase tracking-[0.25em] mb-4" style={{ color: GOLD }}>
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] mb-4" style={{ color: GOLD }}>
             Welcome back
-          </p> */}
+          </p>
           <h1 className="font-serif text-4xl xl:text-5xl font-black text-white leading-[1.1] mb-6">
             Reconnect with<br />alma mater network.
           </h1>
@@ -101,9 +101,9 @@ const Login = () => {
           {/* Stats */}
           <div className="flex items-center gap-8 mt-10">
             {[
-              { value: "12K+", label: "Alumni" },
-              { value: "400+", label: "Companies" },
-              { value: "80+", label: "Countries" },
+              { value: "10K+", label: "Alumni" },
+              { value: "200+", label: "Companies" },
+              { value: "20+", label: "Countries" },
             ].map(({ value, label }) => (
               <div key={label}>
                 <p className="font-serif font-black text-2xl text-white">{value}</p>
@@ -116,9 +116,9 @@ const Login = () => {
         {/* Bottom quote */}
         <div className="relative z-10 border-l-2 pl-4" style={{ borderColor: GOLD }}>
           <p className="text-white/60 text-sm leading-relaxed italic">
-            "The alumni network opened doors I didn't even know existed."
-          </p>
-          <p className="text-white/30 text-xs mt-2 uppercase tracking-widest">— Class of 2019</p>
+          "College brought us together. Alumni keeps us connected."
+         </p>
+          {/* <p className="text-white/30 text-xs mt-2 uppercase tracking-widest">— Class of 2019</p> */}
         </div>
       </div>
 

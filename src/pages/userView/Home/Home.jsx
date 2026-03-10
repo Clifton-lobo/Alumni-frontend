@@ -234,7 +234,7 @@ const Home = () => {
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <button className="px-8 py-4 rounded-xl border border-[#EBAB09] text-[#EBAB09] font-semibold hover:bg-[#EBAB09] hover:text-white transition">
-                Learn more
+                About Us
               </button>
             </div>
 
