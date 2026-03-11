@@ -242,7 +242,7 @@ const UserJobs = () => {
               <p className="text-sm font-semibold gal-sans  uppercase tracking-widest text-slate-500">
                 Alumni & Partner Companies
               </p>
-              <h1 className="mt-6 text-[clamp(3rem,5vw,3.8rem)] font-serif font-extrabold leading-[1.05] text-slate-900">
+              <h1 className="mt-6 text-7xl font-serif font-extrabold leading-[1.05] text-slate-900">
                 Opportunities shared by
                 <span className="block">people who once sat beside you.</span>
               </h1>

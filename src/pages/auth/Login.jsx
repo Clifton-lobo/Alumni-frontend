@@ -38,7 +38,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex font-sans" style={{ background: "#F5F3EE" }}>
+    <div className="min-h-screen flex font-sans bg-white" >
 
       {/* ── Left panel ── */}
       <div
@@ -88,9 +88,9 @@ const Login = () => {
 
         {/* Center copy */}
         <div className="relative z-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] mb-4" style={{ color: GOLD }}>
+          {/* <p className="text-xs font-semibold uppercase tracking-[0.25em] mb-4" style={{ color: GOLD }}>
             Welcome back
-          </p>
+          </p> */}
           <h1 className="font-serif text-4xl xl:text-5xl font-black text-white leading-[1.1] mb-6">
             Reconnect with<br />alma mater network.
           </h1>
@@ -122,7 +122,6 @@ const Login = () => {
         </div>
       </div>
 
-      {/* ── Right panel ── */}
       {/* ── Right panel ── */}
       <div className="flex-1 flex flex-col min-h-screen lg:justify-center">
 
@@ -219,12 +218,12 @@ const Login = () => {
                   Email address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300 pointer-events-none" />
+                  <Mail className="absolute left-3.5  top-1/2 -translate-y-1/2 h-4 w-4 text-gray-00 pointer-events-none" />
                   <input
                     type="email" name="email" value={loginData.email} onChange={handleChange}
                     placeholder="you@example.com"
-                    className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-gray-200 bg-white text-sm
-                text-gray-800 placeholder-gray-300 outline-none transition
+                    className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-gray-200 bg-gray-200 text-sm
+                text-gray-900 placeholder-gray-500 outline-none transition
                 focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
                   />
                 </div>
@@ -277,7 +276,6 @@ const Login = () => {
 
             <div className="flex items-center gap-3 mt-6 mb-5">
               <div className="h-px flex-1 bg-gray-100" />
-              <div className="w-1.5 h-1.5 rounded-full" style={{ background: GOLD }} />
               <div className="h-px flex-1 bg-gray-100" />
             </div>
 
@@ -297,102 +295,3 @@ const Login = () => {
 export default Login;
 
 
-
-// import React, { useState } from "react";
-// import { Link, useNavigate } from "react-router-dom";
-// import { useDispatch, useSelector } from "react-redux";
-// import { loginUser } from "../../store/authSlice/authSlice.js";
-// import { toast } from "sonner";
-
-// const Login = () => {
-//   const initialState = { email: "", password: "" };
-//   const [loginData, setLoginData] = useState(initialState);
-//   const dispatch = useDispatch();
-//   const navigate = useNavigate();
-//   const { isLoading } = useSelector((s) => s.auth);
-
-//   const handleChange = (e) => {
-//     setLoginData({ ...loginData, [e.target.name]: e.target.value });
-//   };
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-
-//     // ── Client-side validation ──
-//     if (!loginData.email.trim()) {
-//       toast.error("Please enter your email.");
-//       return;
-//     }
-//     if (!loginData.password) {
-//       toast.error("Please enter your password.");
-//       return;
-//     }
-
-//     dispatch(loginUser(loginData))
-//       .unwrap()
-//       .then((data) => {
-//         toast.success(data.message || "Logged in successfully!");
-//         // navigate based on role
-//         if (data.user?.role === "admin") {
-//           navigate("/admin/dashboard");
-//         } else {
-//           navigate("/user/home");
-//         }
-//       })
-//       .catch((err) => {
-//         // err is already the string from rejectWithValue
-//         toast.error(err || "Login failed. Please try again.");
-//       });
-//   };
-
-//   return (
-//     <div>
-//       <h2 className="text-2xl font-semibold text-center text-indigo-700 mb-6">
-//         Login to Your Account
-//       </h2>
-
-//       <form onSubmit={handleSubmit} className="space-y-4">
-//         <div>
-//           <label className="block text-sm font-medium text-gray-600">Email</label>
-//           <input
-//             type="email"
-//             name="email"
-//             value={loginData.email}
-//             onChange={handleChange}
-//             placeholder="Enter your email"
-//             className="w-full mt-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-//           />
-//         </div>
-
-//         <div>
-//           <label className="block text-sm font-medium text-gray-600">Password</label>
-//           <input
-//             type="password"
-//             name="password"
-//             value={loginData.password}
-//             onChange={handleChange}
-//             placeholder="Enter your password"
-//             className="w-full mt-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-//           />
-//         </div>
-
-//         <button
-//           type="submit"
-//           disabled={isLoading}
-//           className="w-full bg-indigo-600 text-white py-3 rounded-lg font-medium hover:bg-indigo-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
-//         >
-//           {isLoading ? "Logging in…" : "Login"}
-//         </button>
-//       </form>
-
-//       <p className="mt-4 text-sm text-center text-gray-600">
-//         Don't have an account?{" "}
-//         <Link to="/auth/register" className="text-indigo-600 hover:underline">
-//           Register
-//         </Link>
-//       </p>
-//     </div>
-//   );
-// };
-
-// export default Login;

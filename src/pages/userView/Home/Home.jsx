@@ -142,53 +142,76 @@ const socials = [
   { icon: Youtube, color: "hover:bg-[#FF0000]" },
 ];
 
-// Lightweight intersection observer hook
-const useIntersection = (threshold = 0.1) => {
+/**
+ * Improved intersection observer hook.
+ *
+ * Key changes vs the original:
+ *  - `rootMargin: "-15% 0px -10% 0px"` — top margin clips the trigger zone so
+ *    elements don't fire while you're still sitting above them; the bottom
+ *    margin gives a small buffer so the animation completes before the element
+ *    leaves view on fast scrolls.
+ *  - `threshold: 0.12` — fire as soon as ~12 % of the element is visible inside
+ *    that adjusted root rectangle. Low enough to feel snappy; high enough to
+ *    avoid premature triggers on large sections.
+ *  - Fires once and then disconnects (same as before, but now reliable because
+ *    of the adjusted root margins).
+ */
+const useIntersection = (threshold = 0.12, rootMargin = "-15% 0px -10% 0px") => {
   const ref = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
+          observer.unobserve(el); // fire once, then stop watching
         }
       },
-      { threshold }
+      { threshold, rootMargin }
     );
 
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current);
-      }
-    };
-  }, [threshold]);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [threshold, rootMargin]);
 
   return [ref, isVisible];
 };
 
 const Home = () => {
-  const [heroRef, heroVisible] = useIntersection(0.1);
-  const [eventsRef, eventsVisible] = useIntersection(0.1);
-  const [newsRef, newsVisible] = useIntersection(0.1);
-  const [donationRef, donationVisible] = useIntersection(0.1);
-  const [careerRef, careerVisible] = useIntersection(0.1);
-  const [socialRef, socialVisible] = useIntersection(0.1);
+  // Hero fires immediately at 10 % with no rootMargin offset — it's always the
+  // first thing visible so we want a quick, unobstructed trigger.
+  const [heroRef, heroVisible] = useIntersection(0.1, "0px");
+
+  // Sections below the fold use the improved rootMargin so they only animate
+  // when the user has scrolled them meaningfully into view.
+  const [eventsRef, eventsVisible] = useIntersection(0.12, "-10% 0px -5% 0px");
+  const [newsRef, newsVisible]     = useIntersection(0.12, "-10% 0px -5% 0px");
+  const [donationRef, donationVisible] = useIntersection(0.12, "-10% 0px -5% 0px");
+  const [careerRef, careerVisible] = useIntersection(0.12, "-10% 0px -5% 0px");
+  const [socialRef, socialVisible] = useIntersection(0.12, "-10% 0px -5% 0px");
 
   const galleryRef = useRef(null);
   const [galleryVisible, setGalleryVisible] = useState(false);
 
   useEffect(() => {
+    const el = galleryRef.current;
+    if (!el) return;
+
     const observer = new IntersectionObserver(
-      ([entry]) => entry.isIntersecting && setGalleryVisible(true),
-      { threshold: 0.2 }
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setGalleryVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.12, rootMargin: "-10% 0px -5% 0px" }
     );
 
-    if (galleryRef.current) observer.observe(galleryRef.current);
+    observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
@@ -216,7 +239,7 @@ const Home = () => {
             <h1
               className={`font-serif text-4xl md:text-7xl lg:text-[75px] font-bold text-white mb-2 leading-tight transition-all duration-700 ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
             >
-              Connect. Inspire.{" "} <br/>
+              Connect. Inspire.{" "} <br />
               <span className="text-yellow-400">Succeed Together.</span>
             </h1>
 
@@ -230,7 +253,7 @@ const Home = () => {
               className={`flex flex-col sm:flex-row gap-4 justify-center mb-16 transition-all duration-700 delay-200 ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
             >
               <Link to="/user/community" className="px-8 py-4 rounded-xl bg-[#EBAB09] text-white font-semibold flex items-center gap-2 justify-center hover:opacity-90 transition">
-                Explore Alumni
+                Explore Alumni Network
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <button className="px-8 py-4 rounded-xl border border-[#EBAB09] text-[#EBAB09] font-semibold hover:bg-[#EBAB09] hover:text-white transition">
@@ -250,7 +273,7 @@ const Home = () => {
                   <div className="text-white/70 text-sm">{stat.label}</div>
                 </div>
               ))}
-            </div> 
+            </div>
           </div>
         </div>
 
@@ -282,7 +305,8 @@ const Home = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div
-              className={`lg:row-span-2 relative rounded-3xl overflow-hidden shadow-xl transition-all duration-700 delay-100 ${eventsVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}
+              className={`lg:row-span-2 relative rounded-3xl overflow-hidden shadow-xl transition-all duration-700 ease-out ${eventsVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}
+              style={{ transitionDelay: '100ms' }}
             >
               <img src={events[0].image} alt={events[0].title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#142A5D]/95 via-[#142A5D]/70 to-transparent" />
@@ -302,7 +326,7 @@ const Home = () => {
               <div
                 key={event.id}
                 className={`bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-700 ${eventsVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}
-                style={{ transitionDelay: `${200 + index * 100}ms` }}
+                style={{ transitionDelay: `${200 + index * 150}ms` }}
               >
                 <div className="flex flex-col sm:flex-row">
                   <div className="sm:w-40 h-40 overflow-hidden">
@@ -323,12 +347,12 @@ const Home = () => {
         </div>
       </section>
 
-      {/* CAREER SECTION — with scroll-triggered transitions */}
+      {/* CAREER SECTION */}
       <section ref={careerRef} className="py-16 mt5 bgwhite">
         <div
           className={`max-w-6xl mx-auto px-6 text-center mb-10 transition-all duration-700 ${careerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
         >
-          <h1 className="text-4xl md:text-5xl font-serif font-bold text-neutral-900">
+          <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#142A5D]">
             Unlock Your Career Potential
           </h1>
           <p className="text-neutral-600 text-lg md:text-xl mt-2 leading-relaxed">
@@ -339,11 +363,13 @@ const Home = () => {
 
         <div className="max-w-6xl mx-auto px-6">
           <div
-            className={`border border-neutral-300 rounded-lg p-8 bg-white grid grid-cols-1 md:grid-cols-2 gap-10 items-center transition-all duration-700 delay-150 ${careerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+            className={`border border-neutral-300 rounded-lg p-8 bg-white grid grid-cols-1 md:grid-cols-2 gap-10 items-center transition-all duration-700 ${careerVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+            style={{ transitionDelay: '150ms' }}
           >
             {/* Left Image */}
             <div
-              className={`w-full h-full transition-all duration-700 delay-200 ${careerVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}
+              className={`w-full h-full transition-all duration-700 ${careerVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}
+              style={{ transitionDelay: '250ms' }}
             >
               <img
                 src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=900&h=650&auto=format"
@@ -355,14 +381,15 @@ const Home = () => {
 
             {/* Right Content */}
             <div
-              className={`transition-all duration-700 delay-300 ${careerVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}
+              className={`transition-all duration-700 ${careerVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}
+              style={{ transitionDelay: '350ms' }}
             >
               <h2 className="text-3xl md:text-4xl font-serif font-bold text-neutral-900">Career Opportunities</h2>
               <p className="text-neutral-600 mt-3 text-lg leading-relaxed">
                 Explore job openings, internships, and mentorship resources to help you grow professionally
                 and connect with alumni in top industries.
               </p>
-              <Link to="/user/jobs" className="inline-block mt-6 text-red-700 font-semibold text-lg hover:underline">
+              <Link to="/user/jobs" className="inline-block mt-6 text-yellow-500 font-semibold text-lg hover:underline">
                 Explore job listings →
               </Link>
             </div>
@@ -371,7 +398,6 @@ const Home = () => {
       </section>
 
       {/* SOCIAL MEDIA SECTION */}
-     {/* SOCIAL MEDIA SECTION — Editorial Magazine Style */}
       <section ref={socialRef} className="py-28 bg-white relative overflow-hidden">
 
         {/* Big decorative background text */}
@@ -386,7 +412,7 @@ const Home = () => {
 
         <div className="max-w-6xl mx-auto px-6 relative z-10">
 
-          {/* Header — centered */}
+          {/* Header */}
           <div className={`text-center mb-16 transition-all duration-700 ${socialVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <span className="text-[#EBAB09] font-semibold text-sm uppercase tracking-widest">Stay Connected</span>
             <h2 className="font-serif text-3xl md:text-5xl font-bold text-[#142A5D] mt-2">
@@ -397,10 +423,12 @@ const Home = () => {
             </p>
           </div>
 
-          {/* Asymmetric magazine grid */}
-          <div className={`grid grid-cols-12 gap-4 transition-all duration-700 delay-200 ${socialVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          {/* Grid */}
+          <div className={`grid grid-cols-12 gap-4 transition-all duration-700 ${socialVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+            style={{ transitionDelay: '200ms' }}
+          >
 
-            {/* INSTAGRAM — big feature card */}
+            {/* INSTAGRAM */}
             <a
               href="https://instagram.com"
               target="_blank"
@@ -441,7 +469,7 @@ const Home = () => {
             {/* Right column */}
             <div className="col-span-12 md:col-span-7 flex flex-col gap-4">
 
-              {/* LINKEDIN — wide horizontal */}
+              {/* LINKEDIN */}
               <a
                 href="https://linkedin.com"
                 target="_blank"
@@ -490,7 +518,7 @@ const Home = () => {
                     <div className="flex items-center justify-between">
                       <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
                         <svg className="w-5 h-5 text-white fill-current" viewBox="0 0 24 24">
-                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.262 5.638L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/>
+                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.262 5.638L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" />
                         </svg>
                       </div>
                       <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-white/60 -rotate-45 transition-colors" />
@@ -524,7 +552,7 @@ const Home = () => {
                     <div className="mt-auto">
                       <div className="w-10 h-10 rounded-full bg-[#FF0000] flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-lg shadow-red-500/30">
                         <svg className="w-4 h-4 text-white fill-current ml-0.5" viewBox="0 0 24 24">
-                          <path d="M8 5v14l11-7z"/>
+                          <path d="M8 5v14l11-7z" />
                         </svg>
                       </div>
                       <div className="text-3xl font-black text-white">9.1K</div>
@@ -538,32 +566,34 @@ const Home = () => {
           </div>
 
           {/* Bottom strip */}
-          <div className={`mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-slate-100 transition-all duration-700 delay-500 ${socialVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+          <div className={`mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-slate-100 transition-all duration-700 ${socialVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+            style={{ transitionDelay: '500ms' }}
+          >
             <p className="text-slate-400 text-sm">
               Tag us with{' '}
               <span className="text-[#142A5D] font-bold">#AlumniConnect</span>
               {' '}to get featured
             </p>
-          <div className="flex items-center gap-2">
-  {socials.map(({ icon: Icon, color }, i) => (
-    <div
-      key={i}
-      className={`w-8 h-8 rounded-full bg-slate-100 ${color} group flex items-center justify-center transition-colors cursor-pointer`}
-    >
-      <Icon className="w-3.5 h-3.5 text-slate-400 group-hover:text-white transition-colors" />
-    </div>
-  ))}
+            <div className="flex items-center gap-2">
+              {socials.map(({ icon: Icon, color }, i) => (
+                <div
+                  key={i}
+                  className={`w-8 h-8 rounded-full bg-slate-100 ${color} group flex items-center justify-center transition-colors cursor-pointer`}
+                >
+                  <Icon className="w-3.5 h-3.5 text-slate-400 group-hover:text-white transition-colors" />
+                </div>
+              ))}
 
-  {/* X / Twitter */}
-  <div className="w-8 h-8 rounded-full bg-slate-100 hover:bg-black group flex items-center justify-center transition-colors cursor-pointer">
-    <svg
-      className="w-3.5 h-3.5 text-slate-400 group-hover:text-white transition-colors fill-current"
-      viewBox="0 0 24 24"
-    >
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.262 5.638L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/>
-    </svg>
-  </div>
-</div>
+              {/* X / Twitter */}
+              <div className="w-8 h-8 rounded-full bg-slate-100 hover:bg-black group flex items-center justify-center transition-colors cursor-pointer">
+                <svg
+                  className="w-3.5 h-3.5 text-slate-400 group-hover:text-white transition-colors fill-current"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.262 5.638L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" />
+                </svg>
+              </div>
+            </div>
           </div>
 
         </div>

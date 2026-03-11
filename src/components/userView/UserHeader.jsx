@@ -141,7 +141,7 @@ const Navbar = () => {
           <div className="max-w-8xl ml-6 mr-5 mx-auto h-[72px] px-4 flex items-center">
 
             {/* LOGO */}
-            <div className="flex items-center flex-1 min-w-0">
+            <div className="flex items-center flex-1 min-w-0 justify-start">
               <Link to="/user/home" className="flex items-center gap-2 sm:gap-3">
 
                 {/* Logo */}
@@ -155,7 +155,6 @@ const Navbar = () => {
 
                 {/* Text */}
                 <div className="flex flex-col leading-tight whitespace-nowrap">
-
                   <div className="flex items-baseline gap-1 sm:gap-2">
                     <span
                       className={`text-[13px] sm:text-[14px] md:text-[16px] font-serif font-bold tracking-wide
@@ -178,7 +177,6 @@ const Navbar = () => {
                   >
                     Alumni Association
                   </span>
-
                 </div>
 
               </Link>

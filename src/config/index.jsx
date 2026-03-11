@@ -127,6 +127,7 @@ export const UserNavItems = [
       { label: "Donate", path: "/user/donate" },
       { label: "News", path: "/user/news" },
       { label: "Feedback", path: "/user/feedback" },
+      { label: "About us", path: "/user/about" },
     ],
   },
   {
