@@ -1,11 +1,13 @@
 import {
-  GraduationCap,
   Facebook,
-  Twitter,
   Linkedin,
   Instagram,
+  Youtube,
   Mail,
 } from "lucide-react";
+
+import vpmLogo from "../../assets/VpmLogo.png";
+import vpmClassroom from "../../assets/vpm_classroom.webp";
 
 const footerLinks = {
   platform: ["About Us", "Features", "Events", "News"],
@@ -15,57 +17,98 @@ const footerLinks = {
 
 const socialIcons = [
   { Icon: Facebook, label: "Facebook" },
-  { Icon: Twitter, label: "Twitter" },
   { Icon: Linkedin, label: "LinkedIn" },
   { Icon: Instagram, label: "Instagram" },
 ];
 
+const socials = [
+  { icon: Instagram, color: "hover:bg-[#E4405F]" },
+  { icon: Linkedin, color: "hover:bg-[#0A66C2]" },
+  { icon: Youtube, color: "hover:bg-[#FF0000]" },
+];
+
+
 const Footer = () => {
   return (
-    <footer className="bg-[#142A5D] text-[#FFF8E6] w-full">
-      <div className="max-w-7xl mx-auto px-6 py-16">
+    <footer className="relative text-[#FFF8E6] overflow-hidden">
 
-        {/* Top section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
+      {/* Background image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `url(${vpmClassroom})` }}
+      />
+
+      {/* Stanford style bottom blur gradient */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 via-100% to-transparent" />
+
+      {/* Content */}
+      <div className="relative max-w-7xl mx-auto px-6 py-16 sm:py-20 min-h-[420px] sm:min-h-[550px] flex flex-col justify-end">
+
+        {/* Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 sm:gap-12">
 
           {/* Brand */}
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-[#EBAB09] flex items-center justify-center">
-                <GraduationCap className="w-6 h-6 text-black" />
+
+            <div className="flex items-center gap-4 mb-6">
+              <img
+                src={vpmLogo}
+                alt="VPM Logo"
+                className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
+              />
+
+              <div>
+                <p className="text-lg font-semibold">
+                  VPM Alumni Association
+                </p>
+                <p className="text-sm text-white/70">
+                  R.Z. Shah College
+                </p>
               </div>
-              <span className="text-xl font-bold">AlumniHub</span>
             </div>
 
-            <p className="text-[#FFF8E6]/80 max-w-sm mb-6">
-              Connecting graduates worldwide. Build meaningful relationships,
-              advance your career, and give back to your alma mater.
+            <p className="text-white/70 max-w-sm mb-6">
+              Connecting graduates of VPM's R.Z. Shah College. Build meaningful
+              relationships, explore opportunities, and stay connected with your
+              alumni community.
             </p>
 
-            <div className="flex gap-4">
-              {socialIcons.map(({ Icon, label }) => (
-                <a
-                  key={label}
-                  aria-label={label}
-                  href="#"
-                  className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#EBAB09] transition"
+            {/* Social icons */}
+            <div className="flex items-center gap-3">
+              {socials.map(({ icon: Icon, color }, i) => (
+                <div
+                  key={i}
+                  className={`w-9 h-9 rounded-full bg-white/10 ${color} group flex items-center justify-center transition-colors cursor-pointer`}
                 >
-                  <Icon className="w-5 h-5 text-[#EBAB09] hover:text-black" />
-                </a>
+                  <Icon className="w-4 h-4 text-gray-500 group-hover:text-white transition-colors" />
+                </div>
               ))}
+
+              {/* X / Twitter */}
+              <div className="w-9 h-9 rounded-full bg-white/10 hover:bg-black group flex items-center justify-center transition-colors cursor-pointer">
+                <svg
+                  className="w-4 h-4 text-gray-500 group-hover:text-white transition-colors fill-current"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.262 5.638L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" />
+                </svg>
+              </div>
             </div>
           </div>
 
           {/* Links */}
           {Object.entries(footerLinks).map(([section, links]) => (
             <div key={section}>
-              <h4 className="font-semibold mb-4 capitalize">{section}</h4>
+              <h4 className="font-semibold mb-4 capitalize">
+                {section}
+              </h4>
+
               <ul className="space-y-3">
                 {links.map((link) => (
                   <li key={link}>
                     <a
                       href="#"
-                      className="text-[#FFF8E6]/70 hover:text-[#EBAB09] transition"
+                      className="text-white/70 hover:text-[#EBAB09] transition"
                     >
                       {link}
                     </a>
@@ -74,39 +117,9 @@ const Footer = () => {
               </ul>
             </div>
           ))}
+
         </div>
 
-        {/* Newsletter */}
-        <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row gap-6 md:items-center md:justify-between">
-          <div>
-            <h4 className="font-semibold mb-1">Stay Updated</h4>
-            <p className="text-sm text-[#FFF8E6]/70">
-              Get the latest news and events delivered to your inbox.
-            </p>
-          </div>
-
-          <form className="flex gap-2 w-full md:w-auto max-w-md">
-            <div className="relative flex-1">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="w-full pl-10 pr-4 py-3 rounded-lg bg-white/10 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#EBAB09]"
-              />
-            </div>
-            <button
-              type="submit"
-              className="px-6 py-3 rounded-lg bg-[#EBAB09] text-black font-semibold hover:opacity-90 transition"
-            >
-              Subscribe
-            </button>
-          </form>
-        </div>
-
-        {/* Copyright */}
-        <div className="mt-8 pt-8 border-t border-white/10 text-center text-sm text-white/60">
-          © 2024 AlumniHub. All rights reserved.
-        </div>
       </div>
     </footer>
   );
