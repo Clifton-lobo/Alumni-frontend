@@ -218,13 +218,13 @@ const Login = () => {
                   Email address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3.5  top-1/2 -translate-y-1/2 h-4 w-4 text-gray-00 pointer-events-none" />
+                  <Mail className="absolute left-3.5  top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                   <input
                     type="email" name="email" value={loginData.email} onChange={handleChange}
                     placeholder="you@example.com"
-                    className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-gray-200 bg-gray-200 text-sm
-                text-gray-900 placeholder-gray-500 outline-none transition
-                focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+                    className="w-full pl-10 pr-4 py-3.5 rounded-xl border border-gray-200 bg-gray-100 text-sm
+                text-gray-900 placeholder-gray-400 outline-none transition
+                focus:border-gray-200 focus:ring-2 focus:ring-gray-400"
                   />
                 </div>
               </div>
@@ -241,14 +241,14 @@ const Login = () => {
                   </Link>
                 </div>
                 <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-300 pointer-events-none" />
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                   <input
                     type={showPassword ? "text" : "password"}
                     name="password" value={loginData.password} onChange={handleChange}
                     placeholder="Enter your password"
-                    className="w-full pl-10 pr-10 py-3.5 rounded-xl border border-gray-200 bg-white text-sm
-                text-gray-800 placeholder-gray-300 outline-none transition
-                focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20"
+                    className="w-full pl-10 pr-10 py-3.5 rounded-xl border border-gray-200 bg-gray-100 text-sm
+                text-gray-800 placeholder-gray-400 outline-none transition
+                focus:border-gray-200 focus:ring-2 focus:ring-gray-400"
                   />
                   <button type="button" onClick={() => setShowPassword((v) => !v)}
                     className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500 transition-colors">

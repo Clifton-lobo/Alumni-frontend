@@ -3,8 +3,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "../../store/authSlice/authSlice.js";
 import { toast } from "sonner";
-import { User, AtSign, GraduationCap, BookOpen, Phone, Mail, Lock, ArrowRight, Eye, EyeOff, ChevronDown } from "lucide-react";
+import { User, AtSign, GraduationCap, BookOpen, Phone, Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 import vpmLogo from "../../assets/VpmLogo.png";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { ChevronDown } from "lucide-react";
 
 
 const NAVY = "#142A5D";
@@ -18,7 +26,7 @@ const Field = ({ label, icon: Icon, children }) => (
     </label>
     <div className="relative">
       {Icon && (
-        <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+        <Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none z-10" />
       )}
       {children}
     </div>
@@ -26,9 +34,9 @@ const Field = ({ label, icon: Icon, children }) => (
 );
 
 const inputCls = (hasIcon = true) =>
-  `w-full ${hasIcon ? "pl-10" : "pl-4"} pr-4 py-3 rounded-xl border border-gray-200 bg-gray-200 text-sm
+  `w-full ${hasIcon ? "pl-10" : "pl-4"} pr-4 py-3 rounded-xl border border-gray-200 bg-gray-100 text-sm
    text-gray-900 placeholder-gray-400 outline-none transition
-   focus:border-gray-400 focus:ring-2 focus:ring-gray-400`;
+   focus:border-gray-200 focus:ring-2 focus:ring-gray-400`;
 
 const Register = () => {
   const initialState = { fullname: "", username: "", batch: "", stream: "", phoneno: "", email: "", password: "" };
@@ -41,6 +49,10 @@ const Register = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setRegisterData({ ...registerData, [name]: value });
+  };
+
+  const handleStreamSelect = (stream) => {
+    setRegisterData((prev) => ({ ...prev, stream }));
   };
 
   const validate = () => {
@@ -228,14 +240,42 @@ const Register = () => {
                     onChange={handleChange} min="1900" max="2100" placeholder="2022"
                     className={inputCls()} />
                 </Field>
-                <Field label="Stream" icon={BookOpen}>
-                  <select name="stream" value={registerData.stream} onChange={handleChange}
-                    className={`${inputCls()} appearance-none pr-9 ${!registerData.stream ? "text-gray-400" : "text-gray-900"}`}>
-                    <option value="" disabled className="text-gray-400">Select stream</option>
-                    {STREAMS.map((s) => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                  <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-                </Field>
+
+                {/* Stream — shadcn DropdownMenu */}
+                <div>
+                  <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5 text-gray-500">
+                    Stream
+                  </label>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="relative w-full justify-between pl-10 pr-4 py-3 h-auto rounded-xl border border-gray-200 bg-gray-100 text-sm font-normal hover:bg-gray-100 g focus-visible:ring-2 focus-visible:ring-gray-400 focus-visible:border-gray-200"
+                      >
+                        {/* BookOpen icon positioned like other fields */}
+                        <BookOpen className="absolute left-3.5 h-4 w-4 text-gray-400 pointer-events-none" />
+                        <span className={registerData.stream ? "text-gray-900" : "text-gray-400 ml-7"}>
+                          {registerData.stream || "Select stream"}
+                        </span>
+                        <ChevronDown className="h-4 w-4 text-gray-400 shrink-0" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      className="w-[250px] bg-white max-h-60 overflow-y-auto"
+                      align="start"
+                    >
+                      {STREAMS.map((s) => (
+                        <DropdownMenuItem
+                          key={s}
+                          onSelect={() => handleStreamSelect(s)}
+                          className={`cursor-pointer text-sm ${registerData.stream === s ? "font-semibold" : ""}`}
+                        >
+                          {s}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
 
               {/* Row 3 — Phone + Email */}
