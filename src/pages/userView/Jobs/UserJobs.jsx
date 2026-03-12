@@ -236,32 +236,40 @@ const UserJobs = () => {
     <div className="bg-white min-h-screen">
       {/* HERO */}
       <section className="relative overflow-hidden bg-white">
-        <div className="mx-auto max-w-7xl px-6 pt-10 pb-16">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <p className="text-sm font-semibold gal-sans  uppercase tracking-widest text-slate-500">
-                Alumni & Partner Companies
-              </p>
-              <h1 className="mt-6 text-7xl font-serif font-extrabold leading-[1.05] text-slate-900">
-                Opportunities shared by
-                <span className="block">people who once sat beside you.</span>
-              </h1>
-              <p className="mt-8 max-w-xl text-lg text-slate-600">
-                Explore career opportunities shared by alumni and trusted partners.
-              </p>
-            </div>
-            <div className="relative">
-              <div className="absolute -inset-6 bg-indigo-200/40 rounded-3xl blur-3xl" />
-              <img
-                src="https://images.unsplash.com/photo-1523240795612-9a054b0db644"
-                alt="Alumni mentoring"
-                className="relative rounded-3xl object-cover shadow-2xl"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
+  <div className="mx-auto max-w-7xl px-6 pt-12 pb-16 sm:pt-16 sm:pb-20">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
+      {/* Text Section */}
+      <div className="text-center lg:text-left">
+        <p className="text-xs sm:text-sm font-semibold gal-sans uppercase tracking-widest text-slate-500">
+          Alumni & Partner Companies
+        </p>
+
+        <h1 className="mt-4 sm:mt-6 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif font-extrabold leadingtight text-slate-900">
+          Opportunities shared by
+          <span className="block">
+            people who once sat beside you.
+          </span>
+        </h1>
+
+        <p className="mt-5 sm:mt-6 max-w-xl mx-auto lg:mx-0 text-base sm:text-lg text-slate-600">
+          Explore career opportunities shared by alumni and trusted partners.
+        </p>
+      </div>
+
+      {/* Image Section */}
+      <div className="relative w-full max-w-md mx-auto lg:max-w-none">
+        <div className="absolute -inset-4 sm:-inset-6 bg-indigo-200/40 rounded-3xl blur-3xl" />
+        <img
+          src="https://images.unsplash.com/photo-1523240795612-9a054b0db644"
+          alt="Alumni mentoring"
+          className="relative w-full h-[260px] sm:h-[340px] lg:h-auto object-cover rounded-3xl shadow-2xl"
+        />
+      </div>
+
+    </div>
+  </div>
+</section>
       {/* SEARCH + CTA */}
       <section>
         <div className="max-w-7xl mx-auto px-6 py-6">
