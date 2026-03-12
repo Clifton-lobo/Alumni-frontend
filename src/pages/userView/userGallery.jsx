@@ -656,11 +656,7 @@ const UserGallery = () => {
             </div>
           )}
         </div>
-
-        {/* ══ FOOTER ══ */}
-        <footer className="border-t border-gray-200 py-6 text-center" style={{ background: NAVY }}>
-          <p className="gal-sans text-xs text-white/30">© {new Date().getFullYear()} Alumni Network · All rights reserved</p>
-        </footer>
+        
       </div>
 
       <AlbumPanel open={albumOpen} onClose={() => setAlbumOpen(false)} />
