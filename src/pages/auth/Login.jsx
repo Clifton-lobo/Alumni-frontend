@@ -73,7 +73,7 @@ const Login = () => {
           <div className="flex flex-col leading-tight">
 
             {/* College Name */}
-            <span className="text-2xl md:text-xl text-amber-300 tracking-widest font-semibold uppercase">
+            <span className="text-2xl md:text-xl font-serif text-amber-300 tracking-widest font-semibold uppercase">
               VPM's R.Z. Shah College
             </span>
 
@@ -149,22 +149,23 @@ const Login = () => {
 
             {/* Text */}
             <div className="flex flex-col leading-tight">
-              <span className="font-serif font-bold text-white text-xl tracking-wide">
+               <span className="text-[14px] font-serif text-amber-300 tracking-wider uppercase">
+                VPM's R.Z. Shah College
+              </span>
+              <span className="font-serif font-bold text-white text-2xl tracking-wide">
                 Alumni Association
               </span>
 
-              <span className="text-[11px] text-amber-300 tracking-wider uppercase">
-                VPM's R.Z. Shah College
-              </span>
+             
             </div>
 
           </div>
 
           <div className="relative z-10">
-            <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-2" style={{ color: GOLD }}>
+            {/* <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-2" style={{ color: GOLD }}>
               Welcome back
-            </p>
-            <h1 className="font-serif text-3xl font-black text-white leading-tight mb-2">
+            </p> */}
+            <h1 className="font-serif text-2xl font-black text-white leading-tight mb-2">
               Reconnect with<br />Alma mater network
             </h1>
             <p className="text-white/50 text-sm leading-relaxed max-w-xs">

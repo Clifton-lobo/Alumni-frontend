@@ -158,12 +158,13 @@ const Register = () => {
               <img src={vpmLogo} alt="VPM Logo" className="w-full h-full object-contain" />
             </div>
             <div className="flex flex-col leading-tight">
-              <span className="font-serif font-bold text-white text-xl tracking-wide">
-                Alumni Association
-              </span>
-              <span className="text-[11px] text-amber-300 tracking-wider uppercase">
+                <span className="text-[14px] font-serif text-amber-300 tracking-wider uppercase">
                 VPM's R.Z. Shah College
               </span>
+              <span className="font-serif font-bold text-white text-2xl tracking-wide">
+                Alumni Association
+              </span>
+            
             </div>
           </div>
 
