@@ -532,7 +532,7 @@ const News = () => {
       {/* ══ MAIN CONTENT ══ */}
       <div
         ref={listRef}
-        className="max-w-7xl mx-auto px-4 sm:px-6 py-7 sm:py-10 relative min-h-[800px]"
+        className="max-w-[1350px] mx-auto px-4 sm:px-6 py-7 sm:py-10 relative min-h-[800px]"
       >
 
         {/* Empty state */}

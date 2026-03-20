@@ -1,10 +1,10 @@
-import eventPageAlumniEvent from "../../../assets/evenPageAlumniEvent2.png";
+import eventPageAlumniEvent from "../../../assets/eventPageAlumniEvent.png";
 import EventFilter from "./EventFilter";
 import PaginationControls from "../../../components/common/Pagination.jsx";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState, useRef } from "react";
 import { fetchFilteredEvents } from "../../../store/user-view/UserEventSlice";
-import EventList from "./EventList";
+import EventList from "./EventList";  
 import { useSearchParams } from "react-router-dom";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 

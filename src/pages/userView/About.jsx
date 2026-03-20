@@ -1,77 +1,68 @@
 import React, { useEffect, useRef, useState } from 'react'
-import AiCOllegeIage from '../../assets/AiGeneratedCollegeImage.png'
+import AiCollegeImage from '../../assets/college_16_9_fixed.png'
+import NBHKulkarniImage from '../../assets/NBH_Kulkarni_resized.png'
 
-
+/* ─── Google Fonts injection (Playfair Display + DM Sans) ─── */
+const FontLoader = () => {
+  useEffect(() => {
+    const link = document.createElement('link')
+    link.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap'
+    link.rel = 'stylesheet'
+    document.head.appendChild(link)
+  }, [])
+  return null
+}
 
 const steps = [
   {
     number: "01",
-    icon: "🏫",
+    label: "Foundation",
     title: "Establishment of the Institution",
-    description:
-      "VPM’s Ramniklal Zaveribhai Shah College of Arts, Science & Commerce was established in 2003 with approval from the Government of Maharashtra to operate on a permanently unaided basis. The institution is managed by the Vidya Prasarak Mandal, a trust dedicated to providing quality education in Mulund and surrounding regions.",
-    tag: "Foundation",
+    description: "VPM's R.Z. Shah College was established in 2003 with Government of Maharashtra approval, operating on a permanently unaided basis under the Vidya Prasarak Mandal.",
+    detail: "Founded with a singular vision — making quality higher education accessible and impactful for the youth of Mulund and beyond. The trust's decades-long legacy of academic stewardship shaped every brick of this institution.",
+    accent: "#C8963E",
+    image: "https://images.pexels.com/photos/207692/pexels-photo-207692.jpeg?auto=compress&cs=tinysrgb&w=800",
     side: "left",
-    image: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1"
   },
   {
     number: "02",
-    icon: "📍",
-    title: "Strategic Location",
-    description:
-      "The college is located on Mithagar Road in Mulund East, Mumbai, within walking distance of Mulund Railway Station on the Central line. Its convenient location makes it easily accessible for students commuting from different parts of Mumbai.",
-    tag: "Location",
+    label: "Location",
+    title: "Strategic Location in Mumbai",
+    description: "Situated on Mithagar Road, Mulund East — minutes from Mulund Railway Station on the Central line, making it one of Mumbai's most accessible colleges.",
+    detail: "The campus sits within a thriving academic neighbourhood, offering students not just connectivity but a community. Easy commute from every corner of the city means more time learning, less time travelling.",
+    accent: "#4A7C9E",
+    image: "https://images.pexels.com/photos/256395/pexels-photo-256395.jpeg?auto=compress&cs=tinysrgb&w=800",
     side: "right",
-    image: "https://images.unsplash.com/photo-1562774053-701939374585"
   },
   {
     number: "03",
-    icon: "🎓",
-    title: "University Affiliation",
-    description:
-      "The college is affiliated with the prestigious University of Mumbai and follows the academic framework and curriculum established by the university, ensuring recognized and high-quality undergraduate education.",
-    tag: "Affiliation",
+    label: "Affiliation",
+    title: "University of Mumbai",
+    description: "Proudly affiliated with the University of Mumbai — one of India's oldest and most prestigious universities — ensuring every degree carries national recognition and academic weight.",
+    detail: "The affiliation guarantees a curriculum built on decades of academic excellence, equipping students with knowledge that stands up to the most rigorous professional and academic standards in the country.",
+    accent: "#7B5EA7",
+    image: "https://images.pexels.com/photos/267885/pexels-photo-267885.jpeg?auto=compress&cs=tinysrgb&w=800",
     side: "left",
-    image: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f"
   },
   {
     number: "04",
-    icon: "📚",
-    title: "Expansion of Academic Programs",
-    description:
-      "Initially offering B.Com and B.Sc. (Information Technology), the college expanded its academic offerings to include B.Sc. (Computer Science), B.Com (Banking & Insurance), B.Com (Accounting & Finance), Bachelor of Management Studies (BMS), and BAMMC (formerly BMM).",
-    tag: "Programs",
+    label: "Programs",
+    title: "Expanding Academic Horizons",
+    description: "From B.Com and B.Sc. IT at inception to a full suite — B.Sc. CS, BAF, BBI, BMS, BAMMC — the college has grown its academic portfolio to meet every career aspiration.",
+    detail: "Each program is designed not just for marks but for mastery. ICT-enabled classrooms, modern laboratories, and an industry-aligned curriculum prepare students for careers that matter.",
+    accent: "#3D8A6E",
+    image: "https://images.pexels.com/photos/1438081/pexels-photo-1438081.jpeg?auto=compress&cs=tinysrgb&w=800",
     side: "right",
-    image: "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc"
   },
-  {
-    number: "05",
-    icon: "🧠",
-    title: "Internal Quality Assurance Cell",
-    description:
-      "The Internal Quality Assurance Cell (IQAC) plays a vital role in maintaining academic standards and continuous improvement. It oversees admissions, academic performance, infrastructure development, student counseling, and institutional development initiatives.",
-    tag: "Quality",
-    side: "left",
-    image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c"
-  },
-  {
-    number: "06",
-    icon: "🌱",
-    title: "Student Development & Activities",
-    description:
-      "The college emphasizes holistic development through cultural programs, sports activities, NSS initiatives, and inter-collegiate competitions. These activities encourage leadership, teamwork, and social responsibility among students.",
-    tag: "Campus Life",
-    side: "right",
-    image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac"
-  }
 ]
 
-function useInView(threshold = 0.2) {
+/* ─── useInView ─── */
+function useInView(threshold = 0.12) {
   const ref = useRef(null)
   const [inView, setInView] = useState(false)
   useEffect(() => {
     const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setInView(true) },
+      ([e]) => { if (e.isIntersecting) setInView(true) },
       { threshold }
     )
     if (ref.current) obs.observe(ref.current)
@@ -80,283 +71,583 @@ function useInView(threshold = 0.2) {
   return [ref, inView]
 }
 
-function TimelineStep({ step, index }) {
-  const [ref, inView] = useInView(0.15)
-  const isLeft = step.side === 'left'
-
-  return (
-    <div
-      ref={ref}
-      className={`flex relative mb-20 ${isLeft ? 'justify-start' : 'justify-end'}`}
-      style={{
-        opacity: inView ? 1 : 0,
-        transform: inView
-          ? 'none'
-          : isLeft
-            ? 'translateX(-130px) rotate(-5deg) scale(0.82)'
-            : 'translateX(130px) rotate(5deg) scale(0.82)',
-        transition: `opacity 0.85s cubic-bezier(0.16,1,0.3,1) ${index * 0.12}s,
-                     transform 0.85s cubic-bezier(0.16,1,0.3,1) ${index * 0.12}s`,
-      }}
-    >
-      {/* Card */}
-      <div className="w-5/12 bg-white border border-slate-200 rounded-2xl p-8 relative overflow-hidden shadow-lg">
-        {/* Corner glow */}
-        <div
-          className="absolute -top-12 w-36 h-36 rounded-full pointer-events-none"
-          style={{
-            [isLeft ? 'right' : 'left']: '-3rem',
-            background: 'radial-gradient(circle, rgba(79,70,229,0.07) 0%, transparent 70%)',
-          }}
-        />
-
-        {/* Step header */}
-        <div className="flex items-center gap-3 mb-4">
-          <span className="bg-indigo-50 border border-indigo-200 rounded-xl p-2.5 text-xl leading-none">
-            {step.icon}
-          </span>
-          <span className="text-indigo-600 font-mono text-xs font-bold tracking-widest uppercase">
-            STEP {step.number}
-          </span>
-        </div>
-
-        <h3 className="text-slate-900 text-2xl font-extrabold mb-3 leading-snug" style={{ fontFamily: "'Georgia', serif" }}>
-          {step.title}
-        </h3>
-
-        <p className="text-slate-500 text-sm leading-relaxed mb-5">
-          {step.description}
-        </p>
-
-        {step.hasImage && (
-          <div className="rounded-xl mb-5 h-36 flex items-center justify-center border border-slate-200 bg-gradient-to-br from-indigo-50 to-rose-50">
-            <span className="text-slate-400 text-xs">[ Campus Photo ]</span>
-          </div>
-        )}
-
-        <span className="inline-block bg-indigo-50 border border-indigo-200 text-indigo-600 rounded-full px-4 py-1 text-xs font-semibold">
-          {step.tag}
-        </span>
-      </div>
-
-      {/* Timeline dot */}
-      <div
-        className="absolute left-1/2 top-10 w-4 h-4 rounded-full bg-indigo-600 z-10"
-        style={{
-          transform: inView ? 'translateX(-50%) scale(1.35)' : 'translateX(-50%) scale(1)',
-          boxShadow: inView
-            ? '0 0 0 6px rgba(79,70,229,0.15), 0 0 20px rgba(79,70,229,0.35)'
-            : '0 0 0 4px rgba(79,70,229,0.1)',
-          transition: `transform 0.6s cubic-bezier(0.16,1,0.3,1) ${index * 0.12 + 0.3}s,
-                       box-shadow 0.6s ease ${index * 0.12 + 0.3}s`,
-        }}
-      />
-    </div>
+/* ─── useIsMobile ─── */
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' ? window.innerWidth < breakpoint : false
   )
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < breakpoint)
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [breakpoint])
+  return isMobile
 }
 
-function CounterStat({ value, label, delay }) {
+/* ─── Animated Counter ─── */
+function CounterStat({ value, suffix = '+', label, icon, delay, accent }) {
   const [ref, inView] = useInView(0.3)
   const [count, setCount] = useState(0)
-
   useEffect(() => {
     if (!inView) return
     const num = parseInt(value)
     let start = 0
-    const stepSize = Math.ceil(num / 50)
-    const timer = setInterval(() => {
-      start += stepSize
-      if (start >= num) { setCount(num); clearInterval(timer) }
+    const step = Math.ceil(num / 60)
+    const t = setInterval(() => {
+      start += step
+      if (start >= num) { setCount(num); clearInterval(t) }
       else setCount(start)
-    }, 28)
-    return () => clearInterval(timer)
+    }, 22)
+    return () => clearInterval(t)
   }, [inView, value])
 
   return (
     <div
       ref={ref}
-      className="text-center"
       style={{
         opacity: inView ? 1 : 0,
-        transform: inView ? 'translateY(0) scale(1)' : 'translateY(40px) scale(0.8)',
-        transition: `all 0.7s cubic-bezier(0.16,1,0.3,1) ${delay}s`,
+        transform: inView ? 'translateY(0)' : 'translateY(24px)',
+        transition: `all 0.7s cubic-bezier(0.22,1,0.36,1) ${delay}s`,
+        textAlign: 'center',
+        padding: '0 0.5rem',
       }}
     >
-      <div
-        className="text-5xl font-black leading-none"
-        style={{
-          fontFamily: "'Georgia', serif",
-          background: 'linear-gradient(135deg, #4f46e5, #e11d48)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-        }}
-      >
-        {count}+
+      <div style={{ fontSize: 28, marginBottom: 2 }}>{icon}</div>
+      <div style={{
+        fontFamily: "'Playfair Display', Georgia, serif",
+        fontWeight: 900,
+        fontSize: 'clamp(24px, 5vw, 52px)',
+        lineHeight: 1,
+        color: accent,
+        letterSpacing: '-1px',
+        marginBottom: 6,
+      }}>
+        {count.toLocaleString()}{suffix}
       </div>
-      <div className="text-slate-500 text-xs tracking-widest uppercase mt-2 font-semibold">
+      <div style={{
+        fontFamily: "'DM Sans', sans-serif",
+        fontWeight: 500,
+        fontSize: 'clamp(8px, 2vw, 11px)',
+        letterSpacing: '0.15em',
+        textTransform: 'uppercase',
+        color: '#8A8070',
+      }}>
         {label}
       </div>
     </div>
   )
 }
 
-const About = () => {
-  const [titleRef, titleInView] = useInView(0.3)
-  const [statsRef] = useInView(0.3)
+/* ─── Timeline Card ─── */
+function TimelineCard({ step, index }) {
+  const [ref, inView] = useInView(0.08)
+  const isMobile = useIsMobile()
+  const [hovered, setHovered] = useState(false)
 
   return (
-    <div className="bg-slate-50 text-slate-900 overflow-x-hidden">
+    <div
+      ref={ref}
+      style={{
+        display: 'flex',
+        justifyContent: isMobile ? 'center' : (step.side === 'left' ? 'flex-start' : 'flex-end'),
+        position: 'relative',
+        marginBottom: isMobile ? 20 : 40,
+        opacity: inView ? 1 : 0,
+        transform: inView
+          ? 'none'
+          : isMobile
+            ? 'translateY(30px) scale(0.97)'
+            : `translateX(${step.side === 'left' ? -60 : 60}px) scale(0.95)`,
+        transition: `opacity 0.75s cubic-bezier(0.22,1,0.36,1) ${index * 0.1}s,
+                     transform 0.75s cubic-bezier(0.22,1,0.36,1) ${index * 0.1}s`,
+      }}
+    >
+      {/* Card — FIX: full width on mobile so cards aren't cramped at 46% */}
+      <div
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{
+          width: isMobile ? '100%' : '46%',
+          background: '#FFFFFF',
+          borderRadius: 20,
+          overflow: 'hidden',
+          border: `1px solid ${hovered ? step.accent + '55' : '#E8E0D5'}`,
+          boxShadow: hovered
+            ? `0 20px 60px rgba(0,0,0,0.12), 0 0 0 2px ${step.accent}22`
+            : '0 4px 24px rgba(0,0,0,0.07)',
+          transition: 'all 0.35s cubic-bezier(0.22,1,0.36,1)',
+        }}
+      >
+        <div style={{ position: 'relative', height: isMobile ? 160 : 200, overflow: 'hidden' }}>
+          <img
+            src={step.image}
+            alt={step.title}
+            style={{
+              width: '100%', height: '100%', objectFit: 'cover',
+              transition: 'transform 0.6s ease',
+              transform: hovered ? 'scale(1.06)' : 'scale(1)',
+            }}
+          />
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: `linear-gradient(to top, ${step.accent}DD 0%, ${step.accent}44 45%, transparent 100%)`,
+          }} />
+          <div style={{
+            position: 'absolute', bottom: 14, left: 18,
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontWeight: 900, fontSize: isMobile ? 40 : 56,
+            lineHeight: 1, color: 'rgba(255,255,255,0.18)',
+            letterSpacing: '-2px', userSelect: 'none',
+          }}>
+            {step.number}
+          </div>
+          <div style={{
+            position: 'absolute', bottom: 16, right: 16,
+            background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255,255,255,0.3)', borderRadius: 100,
+            padding: '4px 12px', fontFamily: "'DM Sans', sans-serif",
+            fontWeight: 600, fontSize: 10, letterSpacing: '0.15em',
+            textTransform: 'uppercase', color: '#fff',
+          }}>
+            {step.label}
+          </div>
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: step.accent }} />
+        </div>
 
-      {/* ── HERO ── */}
-      <section className="relative overflow-hidden flex items-center justify-center" style={{ height: 'calc(100vh - 64px)' }}>
+        <div style={{ padding: isMobile ? '16px 18px 20px' : '22px 24px 24px' }}>
+          <h3 style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontWeight: 700, fontSize: isMobile ? 16 : 18,
+            lineHeight: 1.3, color: '#1A1410', marginBottom: 10, letterSpacing: '-0.3px',
+          }}>
+            {step.title}
+          </h3>
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif", fontWeight: 400,
+            fontSize: 13.5, lineHeight: 1.7, color: '#5A5248', marginBottom: 14,
+          }}>
+            {step.description}
+          </p>
+          <div style={{ height: 1, background: `linear-gradient(to right, ${step.accent}44, transparent)`, marginBottom: 14 }} />
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif", fontWeight: 300,
+            fontSize: 12, lineHeight: 1.75, color: '#8A8070',
+          }}>
+            {step.detail}
+          </p>
+        </div>
+      </div>
 
+      {/* Timeline dot — desktop only */}
+      {!isMobile && (
+        <div style={{
+          position: 'absolute', left: '50%', top: 28,
+          width: 14, height: 14, borderRadius: '50%',
+          background: step.accent,
+          transform: inView ? 'translateX(-50%) scale(1.4)' : 'translateX(-50%) scale(1)',
+          boxShadow: inView ? `0 0 0 5px ${step.accent}25, 0 0 16px ${step.accent}50` : 'none',
+          transition: `all 0.5s ease ${index * 0.1 + 0.3}s`,
+          zIndex: 10,
+        }} />
+      )}
+    </div>
+  )
+}
+
+/* ─── Main Component ─── */
+const About = () => {
+  const [titleRef, titleInView] = useInView(0.2)
+  const [heroRef, heroInView] = useInView(0.05)
+  const [bottomRef, bottomInView] = useInView(0.1)
+  const isMobile = useIsMobile()
+
+  return (
+    <div style={{ background: '#FAF7F2', color: '#1A1410', overflowX: 'hidden' }}>
+      <FontLoader />
+
+      {/* ══════════════════════════════════════
+          HERO
+          FIX: drop aspect-ratio on mobile — use minHeight instead
+          so content is never clipped off-screen
+      ══════════════════════════════════════ */}
+
+      <section
+        className="relative w-screen ml-[calc(-50vw+50%)] bg-[#0D0A06] overflow-hidden"
+        style={{
+          height: isMobile ? '60vh' : '620px', // ✅ mobile logic injected
+          minHeight: isMobile ? 420 : undefined,
+          maxHeight: isMobile ? 620 : undefined,
+        }}
+      >
+
+        {/* IMAGE */}
         <img
-          src={AiCOllegeIage}
-          alt="College Campus"
-          className="absolute inset-0 w-full h-full object-cover object-center"
-          style={{ filter: 'brightness(0.42) saturate(0.85)' }}
+          src={AiCollegeImage}
+          alt="VPM's R.Z. Shah College Campus"
+          className="absolute bottom-0 left-0 w-full h-full z-[2]"
+          style={{
+            objectPosition: 'center',
+            backgroundColor: '#0D0A06',
+          }}
         />
+        {/* OVERLAYS */}
+        <div className="absolute inset-0 z-[3] bg-gradient-to-b from-[#05030133] via-[#0503011A] to-[#050301F0]" />
 
-        {/* Overlays */}
+        {!isMobile && (
+          <div className="absolute inset-0 z-[3] bg-gradient-to-r from-transparent via-transparent to-[#050301CC]" />
+        )}
 
+        <div className="absolute inset-0 z-[3] bg-[radial-gradient(ellipse_120%_90%_at_50%_50%,transparent_50%,rgba(5,3,1,0.45)_100%)]" />
 
-        {/* Content — no scroll transitions */}
-        <div className="relative text-center px-6">
-          <div className="inline-block bg-white/20 border border-white/40 rounded-full px-6 py-2 text-white text-xs font-bold tracking-widest uppercase mb7 backdrop-blur-md">
-            Est. 2003 · Excellence Redefined
+        {/* GOLD LINE */}
+        <div className="absolute bottom-0 left-0 right-0 h-[2px] z-10 bg-gradient-to-r from-transparent via-[#C8963E] to-transparent" />
+
+        {/* CONTENT */}
+        <div
+          ref={heroRef}
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            zIndex: 10,
+
+            ...(isMobile
+              ? {
+                left: 0,
+                right: 0,
+                padding: '0 20px 28px',
+                textAlign: 'center',
+              }
+              : {
+                right: 0,
+                padding: '0 64px 52px',
+                maxWidth: 580,
+                textAlign: 'left',
+              }),
+
+            opacity: heroInView ? 1 : 0,
+            transform: heroInView ? 'translateY(0)' : 'translateY(28px)',
+            transition: 'opacity 1s ease, transform 1s cubic-bezier(0.22,1,0.36,1)',
+          }}
+        >
+          {/* Eyebrow */}
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 8,
+            background: 'rgba(200,150,62,0.15)',
+            border: '1px solid rgba(200,150,62,0.4)',
+            borderRadius: 100,
+            padding: '5px 14px 5px 8px',
+            marginBottom: 18,
+          }}>
+            <span style={{
+              background: '#C8963E',
+              borderRadius: '50%',
+              width: 6,
+              height: 6,
+              display: 'inline-block',
+              animation: 'pulse 2s ease-in-out infinite',
+            }} />
+            <span style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontWeight: 600,
+              fontSize: 10,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: '#E8B96E',
+            }}>
+              Est. 2003 · Mulund, Mumbai
+            </span>
           </div>
 
-          <h1
-            className="font-black leading-tight mb6 text-white"
-            style={{
-              fontSize: 'clamp(44px, 8vw, 75px)',
-              fontFamily: "'Georgia', 'Times New Roman', serif",
-              letterSpacing: '-2px',
-              textShadow: '0 4px 24px rgba(0,0,0,0.35)',
-            }}
-          >
-            VPM's R.Z. Shah
+          {/* TITLE */}
+          <h1 style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontWeight: 900,
+            fontSize: isMobile
+              ? 'clamp(26px, 7vw, 38px)'
+              : 'clamp(30px, 4.2vw, 56px)',
+            lineHeight: 1.06,
+            letterSpacing: '-1.3px',
+            color: '#FFFDF9',
+            marginBottom: 16,
+            textShadow: '0 6px 40px rgba(0,0,0,0.7)',
+          }}>
+            VPM's Ramniklal<br />
+            Zaveribhai Shah<br />
             College
           </h1>
 
-          <p
-            className="text-white/80 max-w-xl mx-auto mb10 leadingrelaxed"
-            style={{
-              fontSize: 'clamp(15px, 1.8vw, 19px)',
-              textShadow: '0 2px 8px rgba(0,0,0,0.25)',
-            }}
-          >
-            A legacy of academic brilliance, groundbreaking research,
-            and leaders who've shaped the world across generations.
+          {/* TAGLINE */}
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontWeight: 300,
+            fontSize: isMobile ? 12.5 : 'clamp(13px, 1.3vw, 15px)',
+            lineHeight: 1.7,
+            color: 'rgba(255,253,249,0.72)',
+            marginBottom: 24,
+            maxWidth: isMobile ? '100%' : 420,
+            textShadow: '0 2px 14px rgba(0,0,0,0.55)',
+          }}>
+            A legacy of academic brilliance, transformative research, and
+            leaders who shape the world — rooted in Mulund, reaching everywhere.
           </p>
 
+          {/* CHIPS */}
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 10,
+            justifyContent: isMobile ? 'center' : 'flex-start',
+          }}>
+            {[
+              { icon: '🏛️', text: 'University of Mumbai' },
+              { icon: '📖', text: '7+ UG Programs' },
+              { icon: '🎓', text: 'Arts · Science · Commerce' },
+            ].map(c => (
+              <span
+                key={c.text}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  background: 'rgba(255,253,249,0.10)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255,253,249,0.18)',
+                  borderRadius: 100,
+                  padding: '6px 14px',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontWeight: 500,
+                  fontSize: isMobile ? 10 : 11,
+                  color: 'rgba(255,253,249,0.9)',
+                  letterSpacing: '0.03em',
+                }}
+              >
+                <span style={{ fontSize: 13 }}>{c.icon}</span>
+                {c.text}
+              </span>
+            ))}
+          </div>
         </div>
 
-        {/* Scroll indicator */}
-        {/* <div className="absolute bottom-9 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
-          <span className="text-white/40 text-xs tracking-widest">SCROLL</span>
-          <div className="w-px h-9" style={{ background: 'linear-gradient(to bottom, rgba(255,255,255,0.6), transparent)' }} />
-        </div> */}
+        {/* SCROLL (desktop only) */}
+        {!isMobile && (
+          <div className="absolute bottom-[24px] left-[48px] z-10 flex flex-col items-center gap-[6px]">
+            <div className="w-[1px] h-[32px] bg-gradient-to-b from-[rgba(200,150,62,0.7)] to-transparent" />
+            <span className="text-[9px] tracking-[0.25em] uppercase text-[rgba(200,150,62,0.6)]">
+              Scroll
+            </span>
+          </div>
+        )}
       </section>
 
-      {/* ── STATS ── */}
-      <section ref={statsRef} className="py-20 px-20  bg-white border-y border-slate-200">
-        <div className="max-w-5xl mx-auto grid grid-cols-3 gap-10">
-          <CounterStat value="20" label="Years of Legacy" delay={0} />
-          <CounterStat value="50000" label="Alumni Worldwide" delay={0.1} />
-          <CounterStat value="60" label="Countries Reached" delay={0.2} />
+      {/* ══════════════════════════════════════
+          STATS BAND
+      ══════════════════════════════════════ */}
+      <section style={{
+        background: '#FFFFFF', borderBottom: '1px solid #EDE5D8',
+        padding: isMobile ? '24px 0' : '36px 0',
+        position: 'relative', overflow: 'hidden',
+      }}>
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: 3,
+          background: 'linear-gradient(90deg, #C8963E22, #C8963E, #7B5EA722, #7B5EA7, #3D8A6E22)',
+        }} />
+        <div style={{
+          maxWidth: 1200, margin: '0 auto',
+          padding: isMobile ? '0 8px' : '0 40px',
+          display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0,
+        }}>
+          <div style={{ borderRight: '1px solid #EDE5D8' }}>
+            <CounterStat value="20" suffix="+" label="Years of Legacy" icon="🏆" delay={0} accent="#C8963E" />
+          </div>
+          <div style={{ borderRight: '1px solid #EDE5D8' }}>
+            <CounterStat value="50000" suffix="+" label="Alumni Worldwide" icon="🌍" delay={0.1} accent="#4A7C9E" />
+          </div>
+          <div>
+            <CounterStat value="60" suffix="+" label="Countries Reached" icon="✈️" delay={0.2} accent="#3D8A6E" />
+          </div>
         </div>
       </section>
 
-      {/* ── SECTION HEADER ── */}
-      <section className="pt-24 pb-14 px-10 text-center bg-slate-50">
+      {/* ══════════════════════════════════════
+          SECTION HEADER
+      ══════════════════════════════════════ */}
+      <section style={{ padding: isMobile ? '48px 20px 28px' : '64px 40px 40px', textAlign: 'center' }}>
         <div
           ref={titleRef}
           style={{
             opacity: titleInView ? 1 : 0,
-            transform: titleInView ? 'translateY(0)' : 'translateY(60px)',
-            transition: 'all 0.9s cubic-bezier(0.16,1,0.3,1)',
+            transform: titleInView ? 'none' : 'translateY(36px)',
+            transition: 'all 0.9s cubic-bezier(0.22,1,0.36,1)',
           }}
         >
-          <p className="text-indigo-600 text-xs tracking-widest uppercase font-bold mb-4">
-            Our Pillars
-          </p>
-          <h2
-            className="font-black text-gray-800 mb-5"
-            style={{
-              fontSize: 'clamp(34px, 5vw, 60px)',
-              fontFamily: "'Georgia', serif",
-              letterSpacing: '-1px',
-            }}
-          >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 16 }}>
+            <div style={{ height: 1, width: 48, background: 'linear-gradient(to right, transparent, #C8963E)' }} />
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#C8963E' }}>About Us</span>
+            <div style={{ height: 1, width: 48, background: 'linear-gradient(to left, transparent, #C8963E)' }} />
+          </div>
+          <h2 style={{
+            fontFamily: "'Playfair Display', Georgia, serif", fontWeight: 900,
+            fontSize: isMobile ? 'clamp(26px, 7vw, 38px)' : 'clamp(30px, 4.5vw, 52px)',
+            lineHeight: 1.1, letterSpacing: '-1px', color: '#1A1410', marginBottom: 16,
+          }}>
             From Campus to Career
           </h2>
-          <p className="text-slate-500 max-w-lg mx-auto text-base leading-relaxed">
+          <p style={{
+            fontFamily: "'DM Sans', sans-serif", fontWeight: 300,
+            fontSize: isMobile ? 14 : 15, lineHeight: 1.8, color: '#7A7060',
+            maxWidth: 520, margin: '0 auto',
+          }}>
             Every element of our institution is crafted to transform students into the world's next generation of leaders and innovators.
           </p>
         </div>
       </section>
 
-      {/* ── TIMELINE ── */}
-      <section className="px-10 pb-28 relative max-w-5xl mx-auto">
-        {/* Center line */}
-        <div
-          className="absolute top-0 bottom-0 left-1/2 w-0.5 -translate-x-1/2"
-          style={{ background: 'linear-gradient(to bottom, transparent, #c7d2fe 10%, #fecdd3 90%, transparent)' }}
-        />
+      {/* ══════════════════════════════════════
+          TIMELINE
+      ══════════════════════════════════════ */}
+      <section style={{
+        position: 'relative', maxWidth: 1200, margin: '0 auto',
+        padding: isMobile ? '0 16px 48px' : '0 40px 72px',
+      }}>
+        {/* Centre spine — desktop only */}
+        {!isMobile && (
+          <div style={{
+            position: 'absolute', top: 0, bottom: 0, left: '50%', width: 1,
+            transform: 'translateX(-50%)',
+            background: 'linear-gradient(to bottom, transparent, #C8963E44 8%, #E8C97E88 50%, #7B5EA744 92%, transparent)',
+          }} />
+        )}
         {steps.map((step, i) => (
-          <TimelineStep key={step.number} step={step} index={i} />
+          <TimelineCard key={step.number} step={step} index={i} />
         ))}
       </section>
 
-      {/* ── CTA ── */}
-      {/* ── ACADEMIC EXCELLENCE SECTION ── */}
-      <section className="bg-white py-24 px-10">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+      {/* ══════════════════════════════════════
+          NBH KULKARNI SECTION
+          FIX 1: cards go full-width, no more 46% cramping
+          FIX 2: on mobile, image appears FIRST (order:1),
+                 text content SECOND (order:2) via CSS grid order
+      ══════════════════════════════════════ */}
+      <section
+        ref={bottomRef}
+        style={{
+          background: '#FFFFFF', borderTop: '1px solid #EDE5D8',
+          padding: isMobile ? '40px 20px 48px' : '64px 40px',
+        }}
+      >
+        <div style={{
+          maxWidth: 1100, margin: '0 auto',
+          display: 'grid',
+          gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+          gap: isMobile ? 32 : 64,
+          alignItems: 'center',
+          opacity: bottomInView ? 1 : 0,
+          transform: bottomInView ? 'translateY(0)' : 'translateY(40px)',
+          transition: 'all 0.9s cubic-bezier(0.22,1,0.36,1)',
+        }}>
 
-          {/* LEFT CONTENT */}
-          <div>
+          {/* TEXT — order:2 on mobile so image shows above it */}
+          <div style={{ order: isMobile ? 2 : 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              <div style={{ width: 36, height: 2, background: '#C8963E', borderRadius: 2 }} />
+              <span style={{
+                fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 10,
+                letterSpacing: '0.22em', textTransform: 'uppercase', color: '#C8963E',
+              }}>Leadership</span>
+            </div>
 
-            <h2 className="text-3xl font-bold text-slate-900 mb-6">
-              Excellence in education across disciplines
+            <h2 style={{
+              fontFamily: "'Playfair Display', Georgia, serif", fontWeight: 700,
+              fontSize: isMobile ? 'clamp(22px, 6vw, 32px)' : 'clamp(24px, 3vw, 38px)',
+              lineHeight: 1.2, letterSpacing: '-0.5px', color: '#1A1410', marginBottom: 16,
+            }}>
+              Visionary Leadership<br />guiding excellence
             </h2>
 
-            <p className="text-slate-600 leading-relaxed mb-6">
-              VPM’s Ramniklal Zaveribhai Shah College of Arts, Science and Commerce
-              provides students with a dynamic learning environment that combines
-              academic knowledge with practical exposure. Established in 2003 and
-              affiliated with the University of Mumbai, the institution offers
-              undergraduate programs in Commerce, Science and Arts.
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif", fontSize: 14,
+              lineHeight: 1.85, color: '#5A5248', marginBottom: 24,
+            }}>
+              Shri N.B.H. Kulkarni played a pivotal role in founding the college, laying its academic foundation and shaping it into a center of excellence through visionary leadership and unwavering commitment to quality education.
             </p>
 
-            <p className="text-slate-600 leading-relaxed mb-8">
-              The college offers programs such as B.Com, BAF, BBI, BMS, BAMMC,
-              B.Sc. IT and B.Sc. Computer Science. With ICT-enabled classrooms,
-              modern laboratories, and a strong academic support system, the
-              institution encourages students to explore ideas, develop skills,
-              and prepare for professional careers.
-            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}>
+              {['Founder', 'Vision', 'Leadership', 'Excellence'].map(p => (
+                <span key={p} style={{
+                  fontSize: 11, fontWeight: 500, fontFamily: "'DM Sans', sans-serif",
+                  color: '#7B5EA7', background: 'rgba(123,94,167,0.06)',
+                  border: '1px solid rgba(123,94,167,0.18)',
+                  borderRadius: 100, padding: '4px 12px', letterSpacing: '0.04em',
+                }}>
+                  {p}
+                </span>
+              ))}
+            </div>
 
-            <button className="bg-indigo-700 hover:bg-indigo-800 text-white font-semibold px-8 py-4 rounded-md transition">
-              Explore Academic Programs
+            <button
+              style={{
+                fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 13,
+                background: '#EBAB09', color: '#FAF7F2', borderRadius: 8,
+                padding: '12px 28px', border: 'none', cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                width: isMobile ? '100%' : 'auto',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#d49a00'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#EBAB09'; e.currentTarget.style.transform = 'translateY(0)' }}
+            >
+              Explore His Legacy →
             </button>
-
           </div>
 
-          {/* RIGHT IMAGE */}
-          <div className="relative">
-
-            <img
-              src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1"
-              alt="Students learning"
-              className="rounded-lg shadow-lg w-full object-cover"
-            />
-
+          {/* IMAGE — order:1 on mobile so it appears above the text */}
+          <div style={{
+            order: isMobile ? 1 : 2,
+            display: 'flex',
+            justifyContent: isMobile ? 'center' : 'flex-end',
+          }}>
+            <div style={{
+              position: 'relative',
+              width: isMobile ? '80%' : '100%',
+              maxWidth: isMobile ? 300 : 460,
+              borderRadius: 18, overflow: 'hidden',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
+            }}>
+              <img
+                src={NBHKulkarniImage}
+                alt="Shri N.B.H. Kulkarni"
+                style={{
+                  width: '100%',
+                  height: isMobile ? 260 : 330,
+                  objectFit: 'cover', objectPosition: 'top', display: 'block',
+                }}
+              />
+              <div style={{
+                position: 'absolute', bottom: 0, left: 0, right: 0,
+                padding: '12px 16px',
+                background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
+              }}>
+                <div style={{ color: '#fff', fontSize: 13, fontWeight: 500, fontFamily: "'DM Sans', sans-serif" }}>N.B.H. Kulkarni</div>
+                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 10, letterSpacing: '0.1em', fontFamily: "'DM Sans', sans-serif" }}>Founder & Visionary</div>
+              </div>
+              <div style={{
+                position: 'absolute', top: 0, left: 0, right: 0, height: 3,
+                background: 'linear-gradient(to right, #C8963E, #7B5EA7)',
+              }} />
+            </div>
           </div>
 
         </div>
       </section>
 
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50%       { opacity: 0.6; transform: scale(0.8); }
+        }
+        * { box-sizing: border-box; }
+      `}</style>
     </div>
   )
 }

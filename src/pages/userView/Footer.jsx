@@ -54,20 +54,20 @@ const Footer = () => {
               <img
                 src={vpmLogo}
                 alt="VPM Logo"
-                className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
+                className="w-12 h-12 sm:w-12 sm:h-12 object-contain"
               />
 
               <div>
-                <p className="text-lg font-semibold">
-                  VPM Alumni Association
+                <p className="textlg text-2xl font-serif font-semibold">
+                  VPM's Alumni Association
                 </p>
-                <p className="text-sm text-white/70">
+                <p className="text-lg font-serif text-white/70">
                   R.Z. Shah College
                 </p>
               </div>
             </div>
 
-            <p className="text-white/70 max-w-sm mb-6">
+            <p className="text-white/70 font-meduim max-w-sm mb-6">
               Connecting graduates of VPM's R.Z. Shah College. Build meaningful
               relationships, explore opportunities, and stay connected with your
               alumni community.
@@ -99,7 +99,7 @@ const Footer = () => {
           {/* Links */}
           {Object.entries(footerLinks).map(([section, links]) => (
             <div key={section}>
-              <h4 className="font-semibold mb-4 capitalize">
+              <h4 className="font-semibold mb-4 text-xl capitalize">
                 {section}
               </h4>
 
@@ -108,7 +108,7 @@ const Footer = () => {
                   <li key={link}>
                     <a
                       href="#"
-                      className="text-white/70 hover:text-[#EBAB09] transition"
+                      className="text-white/70 text-lg hover:text-[#EBAB09] transition"
                     >
                       {link}
                     </a>
