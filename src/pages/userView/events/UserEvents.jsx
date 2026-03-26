@@ -4,9 +4,10 @@ import PaginationControls from "../../../components/common/Pagination.jsx";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState, useRef } from "react";
 import { fetchFilteredEvents } from "../../../store/user-view/UserEventSlice";
-import EventList from "./EventList";  
+import EventList from "./EventList";
 import { useSearchParams } from "react-router-dom";
 import { Search, SlidersHorizontal, X } from "lucide-react";
+import axiosInstance from "../../../api/axiosInstance.js";
 
 const DEBOUNCE_DELAY = 500;
 const MIN_SEARCH_LENGTH = 2;
@@ -29,15 +30,24 @@ const UserEvents = () => {
 
   const [searchText, setSearchText] = useState("");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [scrollToEventId, setScrollToEventId] = useState(null);
 
   const isFirstRender = useRef(true);
-  const didMountRef = useRef(false);
   const prevPageRef = useRef(pageFromUrl);
   const listContainerRef = useRef(null);
+  const isEventNavigationRef = useRef(false);
 
-  /* -----------------------------------
-     Helper: build isVirtual param
-  ----------------------------------- */
+  // ✅ detect event navigation ONCE
+  useEffect(() => {
+    const eventId = searchParams.get("eventId");
+    if (eventId) {
+      isEventNavigationRef.current = true;
+    }
+  }, []);
+
+  const hasCalledFindRef = useRef(false);
+  const navigatedToPageRef = useRef(false);
+
   const getIsVirtual = () => {
     if (mode === "virtual") return true;
     if (mode === "physical") return false;
@@ -45,12 +55,90 @@ const UserEvents = () => {
   };
 
   /* -----------------------------------
-     MAIN FETCH — URL + searchText driven
-     Re-runs whenever page, filters, OR
-     search text changes.
+     FIND WHICH PAGE THE EVENT IS ON
+  ----------------------------------- */
+  const findEventPage = async (eventId) => {
+    try {
+      const { data } = await axiosInstance.get(
+        `/api/user/events/${eventId}/page`,
+        { params: { limit: 10 } }
+      );
+
+      if (!data.success) return;
+
+      const targetPage = data.page;
+
+      if (targetPage === pageFromUrl) {
+        setScrollToEventId(eventId);
+        return;
+      }
+      navigatedToPageRef.current = true;
+
+      setSearchParams((prev) => {
+        const params = new URLSearchParams(prev);
+        params.set("page", String(targetPage));
+        return params;
+      });
+    } catch (e) {
+      console.error("Failed to find event page", e);
+      hasCalledFindRef.current = false;
+    }
+  };
+
+  /* -----------------------------------
+     SCROLL TO EVENT
+  ----------------------------------- */
+  // ─── SCROLL TO EVENT ─────────────────────────────────────────────────────────
+  useEffect(() => {
+    const eventId = searchParams.get("eventId");
+
+    if (!eventId) {
+      hasCalledFindRef.current = false;
+      navigatedToPageRef.current = false;
+      return;
+    }
+
+    // ✅ Wait for the main fetch to finish before doing anything
+    if (loading) return;
+
+    const found = eventList.find((e) => e._id === eventId);
+
+
+    if (found) {
+      setScrollToEventId(eventId);
+
+      // ✅ Wait for highlight to finish BEFORE cleaning URL
+      setTimeout(() => {
+        setSearchParams((prev) => {
+          const params = new URLSearchParams(prev);
+          params.delete("eventId");
+          return params;
+        });
+        isEventNavigationRef.current = false;
+        setScrollToEventId(null);
+      }, 2500); // same as your highlight duration
+
+      hasCalledFindRef.current = false;
+      navigatedToPageRef.current = false;
+      return;
+    }
+
+    // Event not on this page yet — find which page it's on
+    if (navigatedToPageRef.current && loading) return;
+
+    if (!hasCalledFindRef.current) {
+      hasCalledFindRef.current = true;
+      findEventPage(eventId);
+    }
+  }, [eventList, loading, searchParams]);
+
+  /* -----------------------------------
+     MAIN FETCH
   ----------------------------------- */
   useEffect(() => {
     if (activeFilter === "custom") return;
+    if (searchParams.get("eventId")) return; // ✅ skip fetch while eventId is in URL
+
 
     dispatch(
       fetchFilteredEvents({
@@ -65,30 +153,7 @@ const UserEvents = () => {
   }, [activeFilter, category, mode, status, pageFromUrl, searchText, dispatch]);
 
   /* -----------------------------------
-     RESET PAGE WHEN FILTERS CHANGE
-     (skip on first mount so the URL
-      page param is respected on load)
-  ----------------------------------- */
-  useEffect(() => {
-    if (!didMountRef.current) {
-      didMountRef.current = true;
-      return;
-    }
-
-    setSearchParams((prev) => {
-      const params = new URLSearchParams(prev);
-      params.set("page", "1");
-      return params;
-    });
-  }, [activeFilter, category, mode, status]);
-
-  /* -----------------------------------
-     DEBOUNCED SEARCH
-     — resets page to 1 via URL
-     — also dispatches directly so that
-       if the user is already on page 1
-       (URL doesn't change) the fetch
-       still fires.
+     SINGLE SOURCE: SEARCH + FILTER RESET
   ----------------------------------- */
   useEffect(() => {
     if (isFirstRender.current) {
@@ -96,19 +161,20 @@ const UserEvents = () => {
       return;
     }
 
+    // ✅ KEEP this guard here — this is the only place it's needed.
+    // Prevents filters resetting to page 1 while we're navigating to an event.
+    if (isEventNavigationRef.current) return;
+
     const trimmed = searchText.trim();
     if (trimmed !== "" && trimmed.length < MIN_SEARCH_LENGTH) return;
 
     const timer = setTimeout(() => {
-      // Reset to page 1 in the URL
       setSearchParams((prev) => {
         const params = new URLSearchParams(prev);
         params.set("page", "1");
         return params;
       });
 
-      // Dispatch directly in case the user is already on page 1
-      // (URL change wouldn't trigger the main useEffect above)
       dispatch(
         fetchFilteredEvents({
           filter: activeFilter === "custom" ? "all" : activeFilter,
@@ -125,10 +191,11 @@ const UserEvents = () => {
   }, [searchText, activeFilter, category, mode, status, dispatch]);
 
   /* -----------------------------------
-     SCROLL TO LIST AFTER PAGE CHANGE
+     SCROLL TO TOP ON PAGE CHANGE
   ----------------------------------- */
   useEffect(() => {
     if (loading) return;
+    if (searchParams.get("eventId")) return;
 
     if (prevPageRef.current !== pageFromUrl) {
       prevPageRef.current = pageFromUrl;
@@ -147,7 +214,7 @@ const UserEvents = () => {
   }, [loading, pageFromUrl]);
 
   /* -----------------------------------
-     PAGE CHANGE HANDLER
+     PAGE CHANGE
   ----------------------------------- */
   const onPageChange = (page) => {
     setSearchParams((prev) => {
@@ -159,8 +226,7 @@ const UserEvents = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* HERO SECTION - Hidden on mobile */}
-      <div className="relative  md:h-[450px] w-full overflow-hidden roundedxl shadow-lg md:block">
+      <div className="relative md:h-[450px] w-full overflow-hidden shadow-lg md:block">
         <img
           src={eventPageAlumniEvent}
           alt="Events Banner"
@@ -169,8 +235,6 @@ const UserEvents = () => {
         <div className="absolute inset-0 bg-black/40" />
       </div>
 
-
-      {/* SEARCH BAR + MOBILE FILTER BUTTON */}
       <div className="mx-auto max-w-4xl px-4 mt-6 md:mt-15 md:px-6">
         <div className="flex items-center gap-3">
           <div className="flex flex-1 gap-3">
@@ -190,7 +254,6 @@ const UserEvents = () => {
             </button>
           </div>
 
-          {/* Mobile Filter Toggle Button */}
           <button
             type="button"
             onClick={() => setShowMobileFilters(true)}
@@ -202,24 +265,18 @@ const UserEvents = () => {
         </div>
       </div>
 
-      {/* MAIN CONTENT AREA */}
       <div
         ref={listContainerRef}
         className="mx-auto max-w-6xl px-4 py-8 md:px-6"
       >
         <div className="grid grid-cols-[0px_1fr] gap-6 mt-10 md:grid-cols-[minmax(280px,320px)_1fr] md:gap-10">
-          {/* DESKTOP FILTER SIDEBAR */}
           <div className="hidden md:block">
             <div className="top-8">
               <EventFilter />
             </div>
           </div>
 
-          {/* EVENT LIST AREA */}
           <div className="relative min-h-[600px]">
-            {/* Loading overlay */}
-
-            {/* Content with fade transition */}
             <div
               className={`transition-opacity duration-300 ease-in-out ${loading ? "opacity-40" : "opacity-100"
                 }`}
@@ -227,30 +284,25 @@ const UserEvents = () => {
               {activeFilter === "custom" && eventList.length === 0 && !loading ? (
                 <div className="py-20 text-center">
                   <p className="text-lg text-gray-500">
-                   There are no events on the date you selected
+                    There are no events on the date you selected
                   </p>
                 </div>
               ) : (
-                <EventList events={eventList || []} />
+                <EventList events={eventList || []} scrollToEventId={scrollToEventId} />
               )}
             </div>
           </div>
         </div>
       </div>
 
-      {/* MOBILE FILTER DRAWER */}
       {showMobileFilters && (
         <>
-          {/* Backdrop */}
           <div
             className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity duration-300 md:hidden"
             onClick={() => setShowMobileFilters(false)}
             aria-hidden="true"
           />
-
-          {/* Drawer Panel */}
           <div className="fixed inset-y-0 right-0 z-50 w-[85%] max-w-sm overflow-y-auto bg-white shadow-2xl transition-transform duration-300 ease-in-out md:hidden">
-            {/* Drawer Header */}
             <div className="sticky top-0 z-10 flex items-center justify-between border-b bg-white px-4 py-4">
               <h2 className="text-xl font-bold text-gray-900">Filters</h2>
               <button
@@ -262,8 +314,6 @@ const UserEvents = () => {
                 <X size={24} />
               </button>
             </div>
-
-            {/* Drawer Content */}
             <div className="p-4">
               <EventFilter onFilterChange={() => setShowMobileFilters(false)} />
             </div>
@@ -271,7 +321,6 @@ const UserEvents = () => {
         </>
       )}
 
-      {/* PAGINATION CONTROLS */}
       {totalPages > 1 && (
         <div className="mx-auto my-10 max-w-6xl px-4 md:px-6">
           <PaginationControls

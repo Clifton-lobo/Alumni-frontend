@@ -15,6 +15,10 @@ import GalleryReducer from "./user-view/GallerySlice.js"
 import AdminGalleryReducer from "./admin/AdminGallerySlice.js"
 import AdminNewsReducer from "./admin/AdminNewsSlice.js"
 import adminApplicationsReducer from "./admin/AdminJobApplicationSlice.js"
+import AdminFeedbackReducer from "./admin/AdminFeedbackSlice.js"
+import UserFeedbackReducer from "./user-view/UserFeedbackSlice.js"
+
+
 
 export const store = configureStore({
   reducer: {
@@ -33,8 +37,9 @@ export const store = configureStore({
     gallery:GalleryReducer,
     Admingallery: AdminGalleryReducer,
     Adminnews : AdminNewsReducer,
-    adminApplications : adminApplicationsReducer
-    
+    adminApplications : adminApplicationsReducer,
+    adminFeedback:AdminFeedbackReducer,
+    userFeedback:UserFeedbackReducer,    
   },
 });
 

@@ -92,7 +92,7 @@ const Login = () => {
             Welcome back
           </p> */}
           <h1 className="font-serif text-4xl xl:text-5xl font-black text-white leading-[1.1] mb-6">
-            Reconnect with<br />alma mater network.
+            Reconnect with your<br />alma mater network.
           </h1>
           <p className="text-white/50 text-base leading-relaxed max-w-sm">
             Stay connected with fellow alumni.
@@ -166,7 +166,7 @@ const Login = () => {
               Welcome back
             </p> */}
             <h1 className="font-serif text-2xl font-black text-white leading-tight mb-2">
-              Reconnect with<br />Alma mater network
+              Reconnect with your <br/>Alma mater network
             </h1>
             <p className="text-white/50 text-sm leading-relaxed max-w-xs">
               Stay connected with fellow alumni .

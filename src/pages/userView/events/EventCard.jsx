@@ -1,66 +1,71 @@
-import React, { useState } from "react";
-import {
-  Calendar,
-  MapPin,
-  Tag,
-  MoveUpRight,
-} from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Calendar, MapPin, Tag, MoveUpRight } from "lucide-react";
 import UserEventDetails from "./UserEventDetails";
 import { getLocationSummary } from "../../../config/Location";
 
 const months = [
-  "JAN",
-  "FEB",
-  "MAR",
-  "APR",
-  "MAY",
-  "JUN",
-  "JUL",
-  "AUG",
-  "SEP",
-  "OCT",
-  "NOV",
-  "DEC",
+  "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+  "JUL", "AUG", "SEP", "OCT", "NOV", "DEC",
 ];
 
-const EventCard = ({ event }) => {
+const EventCard = ({ event, scrollToMe = false }) => {
   const eventDate = new Date(event.date);
   const month = months[eventDate.getMonth()];
   const day = eventDate.getDate();
 
   const [open, setOpen] = useState(false);
+  const [highlight, setHighlight] = useState(false);
+  const cardRef = useRef(null);
+
+  useEffect(() => {
+    if (!scrollToMe || !cardRef.current) return;
+
+    requestAnimationFrame(() => {
+      cardRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+      setHighlight(true);
+    });
+  }, [scrollToMe]); // only fires when scrollToMe becomes true
+
+  useEffect(() => {
+    if (!highlight) return;
+    const timer = setTimeout(() => setHighlight(false), 2000);
+    return () => clearTimeout(timer);
+  }, [highlight]);
 
   const location = getLocationSummary(event.address);
 
   return (
-    <div className="flex gap-4 md:gap-8 border-b pb-6 md:pb-10">
+    <div
+      ref={cardRef}
+      id={`event-${event._id}`}
+      className={`flex gap-4 md:gap-8 border-b pb-6 md:pb-10 rounded-lg transition-all duration-700 
+        ${highlight ? " bg-[#eceff3]" : ""
+        }`}
+    >
       {/* LEFT DATE */}
       <div className="text-center w-16 md:w-20 shrink-0">
         <p className="font-semibold text-sm md:text-lg tracking-wide text-gray-600">
           {month}
         </p>
-
-       <p className='text-5xl md:text-6xl font-bold leading-none font-["Source_Serif_4"]'>
-  {String(day).padStart(2, "0")}
-</p>
+        <p className='text-5xl md:text-6xl font-bold leading-none font-["Source_Serif_4"]'>
+          {String(day).padStart(2, "0")}
+        </p>
       </div>
 
       {/* RIGHT CONTENT */}
       <div className="flex-1 flex justify-between items-start md:items-center gap-4">
-        {/* TEXT */}
         <div className="flex flex-col flex-1 min-w-0">
-          {/* TITLE */}
           <h2
             onClick={() => setOpen(true)}
             className="font-serif group cursor-pointer text-2xl md:text-[32px] font-bold leading-tight hover:text-[#142A5D] hover:underline transition-colors break-words"
           >
             {event.title}
-            <MoveUpRight
-              className="inline-block ml-1 h-4 w-4 md:h-5 md:w-5 align-baseline transition-transform duration-200 group-hover:-translate-y-1"
-            />
+            <MoveUpRight className="inline-block ml-1 h-4 w-4 md:h-5 md:w-5 align-baseline transition-transform duration-200 group-hover:-translate-y-1" />
           </h2>
 
-          {/* DATE & TIME */}
           <div className="flex items-center gap-2 mt-2 md:mt-3 font-semibold text-sm md:text-2xl text-gray-700">
             <Calendar size={16} className="md:w-[22px] md:h-[25px] shrink-0" />
             <span className="truncate">
@@ -69,7 +74,6 @@ const EventCard = ({ event }) => {
             </span>
           </div>
 
-          {/* LOCATION */}
           {location && (
             <div className="flex items-center gap-2 mt-1 md:mt-2 text-sm md:text-[23px] font-semibold text-gray-700">
               <MapPin size={16} className="md:w-[22px] md:h-[25px] shrink-0" />
@@ -77,7 +81,6 @@ const EventCard = ({ event }) => {
             </div>
           )}
 
-          {/* CATEGORY */}
           {event.category && (
             <div className="flex items-center gap-2 mt-1 md:mt-2 text-neutral-600">
               <Tag size={14} className="md:w-[20px] md:h-[21px] shrink-0" />
@@ -86,7 +89,6 @@ const EventCard = ({ event }) => {
           )}
         </div>
 
-        {/* IMAGE - Hidden on mobile */}
         {event.image && (
           <div className="hidden md:block w-40 h-40 shrink-0">
             <img
@@ -98,13 +100,8 @@ const EventCard = ({ event }) => {
         )}
       </div>
 
-      {/* DETAILS MODAL */}
       {event && (
-        <UserEventDetails
-          event={event}
-          open={open}
-          onOpenChange={setOpen}
-        />
+        <UserEventDetails event={event} open={open} onOpenChange={setOpen} />
       )}
     </div>
   );

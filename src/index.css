@@ -198,3 +198,24 @@
   opacity: 0;
   animation: fadeIn 0.35s ease-in-out forwards;
 }
+
+.highlight-event {
+  animation: highlightPulse 2s ease-in-out;
+}
+
+@keyframes highlightPulse {
+  0%   { background-color: transparent; }
+  30%  { background-color: #EBAB09/10; }
+  100% { background-color: transparent; }
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

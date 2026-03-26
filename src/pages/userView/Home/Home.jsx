@@ -4,6 +4,9 @@ import exploreOnMap from "../../../assets/exploreOnMap.png";
 import { FloatingDockHelper } from "./FloatingDock";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchFilteredEvents } from "../../../store/user-view/UserEventSlice";
+
 
 const stats = [
   { icon: Users, value: "50K+", label: "Alumni Worldwide" },
@@ -142,20 +145,7 @@ const socials = [
   { icon: Youtube, color: "hover:bg-[#FF0000]" },
 ];
 
-/**
- * Improved intersection observer hook.
- *
- * Key changes vs the original:
- *  - `rootMargin: "-15% 0px -10% 0px"` — top margin clips the trigger zone so
- *    elements don't fire while you're still sitting above them; the bottom
- *    margin gives a small buffer so the animation completes before the element
- *    leaves view on fast scrolls.
- *  - `threshold: 0.12` — fire as soon as ~12 % of the element is visible inside
- *    that adjusted root rectangle. Low enough to feel snappy; high enough to
- *    avoid premature triggers on large sections.
- *  - Fires once and then disconnects (same as before, but now reliable because
- *    of the adjusted root margins).
- */
+
 const useIntersection = (threshold = 0.12, rootMargin = "-15% 0px -10% 0px") => {
   const ref = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -186,13 +176,23 @@ const Home = () => {
   // first thing visible so we want a quick, unobstructed trigger.
   const [heroRef, heroVisible] = useIntersection(0.1, "0px");
 
-  // Sections below the fold use the improved rootMargin so they only animate
   // when the user has scrolled them meaningfully into view.
   const [eventsRef, eventsVisible] = useIntersection(0.12, "-10% 0px -5% 0px");
-  const [newsRef, newsVisible]     = useIntersection(0.12, "-10% 0px -5% 0px");
+  const [newsRef, newsVisible] = useIntersection(0.12, "-10% 0px -5% 0px");
   const [donationRef, donationVisible] = useIntersection(0.12, "-10% 0px -5% 0px");
   const [careerRef, careerVisible] = useIntersection(0.12, "-10% 0px -5% 0px");
   const [socialRef, socialVisible] = useIntersection(0.12, "-10% 0px -5% 0px");
+  const dispatch = useDispatch();
+
+  const { eventList, loading } = useSelector((state) => state.events);
+
+  useEffect(() => {
+    dispatch(fetchFilteredEvents({ filter: "upcoming", page: 1, limit: 3 }));
+  }, [dispatch]);
+
+  const featuredEvent = eventList[0] || null;
+  const sideEvents = eventList.slice(1, 3);
+
 
   const galleryRef = useRef(null);
   const [galleryVisible, setGalleryVisible] = useState(false);
@@ -218,6 +218,7 @@ const Home = () => {
   return (
     <div>
       {/* HERO SECTION */}
+      {/* HERO SECTION */}
       <section
         id="home"
         ref={heroRef}
@@ -225,51 +226,72 @@ const Home = () => {
       >
         {/* Background decorations */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-[#EBAB09]/10 blur-3xl animate-pulse" />
+          <div className="absolute -top-32 sm:-top-40 -right-32 sm:-right-40 w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-[#EBAB09]/10 blur-3xl animate-pulse" />
+
           <div
-            className="absolute bottom-20 -left-20 w-72 h-72 rounded-full bg-white/5 blur-2xl animate-pulse"
+            className="absolute bottom-10 sm:bottom-20 -left-16 sm:-left-20 w-60 h-60 sm:w-72 sm:h-72 rounded-full bg-white/5 blur-2xl animate-pulse"
             style={{ animationDelay: "2s" }}
           />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full border border-white/10" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full border border-white/5" />
+
+          {/* Keep original sizes for md+, reduce only mobile */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] h-[380px] md:w-[800px] md:h-[800px] rounded-full border border-white/10" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] h-[260px] md:w-[600px] md:h-[600px] rounded-full border border-white/5" />
         </div>
 
-        <div className="container mx-auto px-4 pt-15 pb-20 relative z-10">
+        <div className="container mx-auto px-4 pt-24 md:pt-15 pb-16 md:pb-20 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
+
+            {/* Heading (ONLY mobile changed) */}
             <h1
-              className={`font-serif text-4xl md:text-7xl lg:text-[75px] font-bold text-white mb-2 leading-tight transition-all duration-700 ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+              className={`font-serif text-3xl sm:text-4xl md:text-7xl lg:text-[75px] font-bold text-white mb-2 leading-tight transition-all duration-700 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
+                }`}
             >
-              Connect. Inspire.{" "} <br />
+              Connect. Inspire. <br />
               <span className="text-yellow-400">Succeed Together.</span>
             </h1>
 
+            {/* Paragraph */}
             <p
-              className={`text-lg md:text-lg text-white/50 mb-10 max-w-2xl mx-auto transition-all duration-700 delay-100 ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+              className={`text-sm sm:text-base md:text-lg text-white/50 mb-8 md:mb-10 max-w-2xl mx-auto px-2 md:px-0 transition-all duration-700 delay-100 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
+                }`}
             >
               Join our thriving community of graduates making an impact worldwide.
             </p>
 
+            {/* Buttons */}
             <div
-              className={`flex flex-col sm:flex-row gap-4 justify-center mb-16 transition-all duration-700 delay-200 ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+              className={`flex flex-col sm:flex-row gap-3 md:gap-4 justify-center mb-12 md:mb-16 px-2 md:px-0 transition-all duration-700 delay-200 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
+                }`}
             >
-              <Link to="/user/community" className="px-8 py-4 rounded-xl bg-[#EBAB09] text-white font-semibold flex items-center gap-2 justify-center hover:opacity-90 transition">
+              <Link
+                to="/user/community"
+                className="w-full sm:w-auto px-6 py-3 md:px-8 md:py-4 rounded-xl bg-[#EBAB09] text-white font-semibold flex items-center gap-2 justify-center hover:opacity-90 transition"
+              >
                 Explore Alumni Network
                 <ArrowRight className="w-5 h-5" />
               </Link>
-              <button className="px-8 py-4 rounded-xl border border-[#EBAB09] text-[#EBAB09] font-semibold hover:bg-[#EBAB09] hover:text-white transition">
+
+              <Link
+                to="/user/about"
+                className="w-full sm:w-auto px-6 py-3 md:px-8 md:py-4 rounded-xl border border-[#EBAB09] text-[#EBAB09] font-semibold hover:bg-[#EBAB09] hover:text-white transition"
+              >
                 About Us
-              </button>
+              </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 px-2 md:px-0">
               {stats.map((stat, index) => (
                 <div
                   key={stat.label}
-                  className={`bg-white/10 backdrop-blur p-2 rounded-2xl transition-all duration-500 ${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                  className={`bg-white/10 backdrop-blur p-4 md:p-2 rounded-2xl transition-all duration-500 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
+                    }`}
                   style={{ transitionDelay: `${400 + index * 100}ms` }}
                 >
-                  <stat.icon className="w-8 h-8 text-[#EBAB09] mx-auto mb-3" />
-                  <div className="text-3xl font-bold text-white mb-1">{stat.value}</div>
+                  <stat.icon className="w-7 h-7 md:w-8 md:h-8 text-[#EBAB09] mx-auto mb-3" />
+                  <div className="text-2xl md:text-3xl font-bold text-white mb-1">
+                    {stat.value}
+                  </div>
                   <div className="text-white/70 text-sm">{stat.label}</div>
                 </div>
               ))}
@@ -277,10 +299,15 @@ const Home = () => {
           </div>
         </div>
 
+        {/* Bottom wave (only mobile height reduced) */}
         <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 120" xmlns="http://www.w3.org/2000/svg" className="w-full">
+          <svg
+            viewBox="0 0 1440 80"
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-full h-16 md:h-auto"
+          >
             <path
-              d="M0 120L60 110C120 100 240 80 360 70C480 60 600 60 720 65C840 70 960 80 1080 85C1200 90 1320 90 1380 90L1440 90V120H0Z"
+              d="M0 80L60 70C120 60 240 50 360 45C480 40 600 40 720 45C840 50 960 60 1080 65C1200 70 1320 70 1380 70L1440 70V80H0Z"
               fill="#FFFFFF"
             />
           </svg>
@@ -303,49 +330,122 @@ const Home = () => {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div
-              className={`lg:row-span-2 relative rounded-3xl overflow-hidden shadow-xl transition-all duration-700 ease-out ${eventsVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}
-              style={{ transitionDelay: '100ms' }}
-            >
-              <img src={events[0].image} alt={events[0].title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#142A5D]/95 via-[#142A5D]/70 to-transparent" />
-              <div className="relative min-h-[520px] p-10 flex flex-col justify-end">
-                <span className="inline-block px-4 py-1 rounded-full bg-[#EBAB09] text-white text-sm font-semibold w-fit mb-4">Featured Event</span>
-                <h3 className="font-serif text-3xl font-bold text-white mb-4">{events[0].title}</h3>
-                <div className="flex flex-wrap gap-5 text-white/80 mb-6 text-sm">
-                  <span className="flex items-center gap-2"><Calendar className="w-4 h-4" />{events[0].date}</span>
-                  <span className="flex items-center gap-2"><MapPin className="w-4 h-4" />{events[0].location}</span>
-                  <span className="flex items-center gap-2"><Users className="w-4 h-4" />{events[0].attendees} attending</span>
-                </div>
-                <button className="w-fit px-8 py-4 rounded-xl bg-[#EBAB09] text-white font-semibold hover:opacity-90 transition">Register Now</button>
-              </div>
+          {loading ? (
+            <div className="flex items-center justify-center py-24 text-slate-400 text-lg">
+              Loading events...
             </div>
+          ) : eventList.length === 0 ? (
+            <div className="flex items-center justify-center py-24 text-slate-400 text-lg">
+              No upcoming events yet.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-            {events.slice(1).map((event, index) => (
-              <div
-                key={event.id}
-                className={`bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-700 ${eventsVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}
-                style={{ transitionDelay: `${200 + index * 150}ms` }}
-              >
-                <div className="flex flex-col sm:flex-row">
-                  <div className="sm:w-40 h-40 overflow-hidden">
-                    <img src={event.image} alt={event.title} className="w-full h-full object-cover" loading="lazy" />
-                  </div>
-                  <div className="flex-1 p-6">
-                    <h3 className="font-serif text-lg font-bold text-[#142A5D] mb-3">{event.title}</h3>
-                    <div className="space-y-2 text-slate-600 text-sm mb-4">
-                      <span className="flex items-center gap-2"><Calendar className="w-4 h-4 text-[#EBAB09]" />{event.date}</span>
-                      <span className="flex items-center gap-2"><MapPin className="w-4 h-4 text-[#EBAB09]" />{event.location}</span>
+              {/* FEATURED EVENT */}
+              {featuredEvent && (
+                <div
+                  className={`lg:row-span-2 relative rounded-3xl overflow-hidden shadow-xl transition-all duration-700 ease-out ${eventsVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}
+                  style={{ transitionDelay: '100ms' }}
+                >
+                  <img
+                    src={featuredEvent.image}
+                    alt={featuredEvent.title}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#142A5D]/95 via-[#142A5D]/70 to-transparent" />
+                  <div className="relative min-h-[520px] p-10 flex flex-col justify-end">
+                    <span className="inline-block px-4 py-1 rounded-full bg-[#EBAB09] text-white text-sm font-semibold w-fit mb-4">
+                      Featured Event
+                    </span>
+                    <h3 className="font-serif text-3xl font-bold text-white mb-4">
+                      {featuredEvent.title}
+                    </h3>
+                    <div className="flex flex-wrap gap-5 text-white/80 mb-6 text-sm">
+                      <span className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        {new Date(featuredEvent.date).toDateString()}
+                        {featuredEvent.time && `, ${featuredEvent.time}`}
+                      </span>
+                      {featuredEvent.category && (
+                        <span className="flex items-center gap-2">
+                          <Tag className="w-4 h-4" />
+                          {featuredEvent.category}
+                        </span>
+                      )}
+                      {featuredEvent.isVirtual !== undefined && (
+                        <span className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4" />
+                          {featuredEvent.isVirtual ? "Virtual Event" : "In Person"}
+                        </span>
+                      )}
                     </div>
-                    <button className="px-4 py-2 rounded-lg border border-[#142A5D] text-[#142A5D] text-sm font-medium hover:bg-[#142A5D] hover:text-white transition">Learn More</button>
+                    <Link
+                      to={`/user/events?eventId=${featuredEvent._id}`}
+                      className="w-fit px-8 py-4 rounded-xl bg-[#EBAB09] text-white font-semibold hover:opacity-90 transition"
+                    >
+                      Register Now
+                    </Link>
+
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              )}
+
+              {/* SIDE EVENTS */}
+              {sideEvents.map((event, index) => (
+                <div
+                  key={event._id || event.id}
+                  className={`bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-700 ${eventsVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}
+                  style={{ transitionDelay: `${200 + index * 150}ms` }}
+                >
+                  <div className="flex flex-col sm:flex-row">
+                    <div className="sm:w-40 h-40 overflow-hidden shrink-0">
+                      <img
+                        src={event.image}
+                        alt={event.title}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="flex-1 p-6">
+                      <h3 className="font-serif text-lg font-bold text-[#142A5D] mb-3">
+                        {event.title}
+                      </h3>
+                      <div className="space-y-2 text-slate-600 text-sm mb-4">
+                        <span className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4 text-[#EBAB09]" />
+                          {new Date(event.date).toDateString()}
+                          {event.time && `, ${event.time}`}
+                        </span>
+                        {event.category && (
+                          <span className="flex items-center gap-2">
+                            <Tag className="w-4 h-4 text-[#EBAB09]" />
+                            {event.category}
+                          </span>
+                        )}
+                        {event.isVirtual !== undefined && (
+                          <span className="flex items-center gap-2">
+                            <MapPin className="w-4 h-4 text-[#EBAB09]" />
+                            {event.isVirtual ? "Virtual Event" : "In Person"}
+                          </span>
+                        )}
+                      </div>
+                      <Link
+                        to={`/user/events?eventId=${event._id}`}
+                        className="inline-block px-4 py-2 rounded-lg border border-[#142A5D] text-[#142A5D] text-sm font-medium hover:bg-[#142A5D] hover:text-white transition"
+                      >
+                        Learn More
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+            </div>
+          )}
         </div>
       </section>
+
 
       {/* CAREER SECTION */}
       <section ref={careerRef} className="py-16 mt5 bgwhite">

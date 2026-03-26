@@ -4,7 +4,8 @@ import {
   BriefcaseBusiness, 
   Newspaper, 
   ImageIcon,
-  UserSquare
+  UserSquare,
+  Frown
 } from 'lucide-react';
 
 export const AdminSidebarMenuItems = [
@@ -43,6 +44,12 @@ export const AdminSidebarMenuItems = [
     label: "Alumi directory",
     path: "/admin/directory",
     icon: UserSquare,
+  },
+   {
+    id: "feedback",
+    label: "Feedback",
+    path: "/admin/feedback",
+    icon: Frown ,
   }
 ];
 

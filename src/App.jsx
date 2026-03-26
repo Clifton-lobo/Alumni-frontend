@@ -31,6 +31,7 @@ import SocketInitializer from "../SocketInitializer.jsx";
 import MessagingPage from './pages/userView/Directory/MessagingPage.jsx'
 import { fetchConversations } from './store/user-view/MessageSlice.js'
 import Feedback from './pages/userView/Feedback.jsx'
+import AdminFeedback from './pages/adminView/AdminFeedback.jsx'
 
 function App() {
 
@@ -97,6 +98,7 @@ function App() {
           <Route path="jobs" element={<Jobs />} />
           <Route path="events" element={<Events />} />
           <Route path="news" element={<NewsLetter />} />
+          <Route path="feedback" element={<AdminFeedback />} />
         </Route>
 
         {/* user */}
