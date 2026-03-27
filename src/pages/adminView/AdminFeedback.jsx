@@ -221,7 +221,7 @@ export default function AdminFeedback() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900">Feedback Manager</h1>
@@ -238,7 +238,8 @@ export default function AdminFeedback() {
 
         {/* Filters */}
         <div className="bg-white rounded-xl border border-gray-200 p-4 mb-5">
-          <div className="flex flex-wrap gap-3 items-end">
+          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end">
+
             {/* Search */}
             <form onSubmit={handleSearch} className="flex gap-2 flex-1 min-w-[200px]">
               <input
@@ -256,48 +257,49 @@ export default function AdminFeedback() {
               </button>
             </form>
 
-            {/* Status filter */}
-            <select
-              value={filters.status}
-              onChange={(e) => handleFilterChange("status", e.target.value)}
-              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="">All Status</option>
-              <option value="open">Open</option>
-              <option value="in_progress">In Progress</option>
-              <option value="resolved">Resolved</option>
-            </select>
+            {/* Selects + Clear — always on one line */}
+            <div className="flex gap-2 items-center flex-wrap sm:flex-nowrap">
+              <select
+                value={filters.status}
+                onChange={(e) => handleFilterChange("status", e.target.value)}
+                className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="">All Status</option>
+                <option value="open">Open</option>
+                <option value="in_progress">In Progress</option>
+                <option value="resolved">Resolved</option>
+              </select>
 
-            {/* Type filter */}
-            <select
-              value={filters.type}
-              onChange={(e) => handleFilterChange("type", e.target.value)}
-              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="">All Types</option>
-              <option value="feature_request">Feature Request</option>
-              <option value="bug_report">Bug Report</option>
-              <option value="other">Other</option>
-            </select>
+              <select
+                value={filters.type}
+                onChange={(e) => handleFilterChange("type", e.target.value)}
+                className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="">All Types</option>
+                <option value="feature_request">Feature Request</option>
+                <option value="bug_report">Bug Report</option>
+                <option value="other">Other</option>
+              </select>
 
-            {/* Priority filter */}
-            <select
-              value={filters.priority}
-              onChange={(e) => handleFilterChange("priority", e.target.value)}
-              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="">All Priority</option>
-              <option value="high">High</option>
-              <option value="medium">Medium</option>
-              <option value="low">Low</option>
-            </select>
+              <select
+                value={filters.priority}
+                onChange={(e) => handleFilterChange("priority", e.target.value)}
+                className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="">All Priority</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
 
-            <button
-              onClick={() => { dispatch(clearFilters()); setSearchInput(""); }}
-              className="text-sm text-gray-500 hover:text-gray-700 underline"
-            >
-              Clear
-            </button>
+              <button
+                onClick={() => { dispatch(clearFilters()); setSearchInput(""); }}
+                className="text-sm text-gray-500 hover:text-gray-700 underline whitespace-nowrap"
+              >
+                Clear
+              </button>
+            </div>
+
           </div>
         </div>
 

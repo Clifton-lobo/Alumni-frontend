@@ -76,11 +76,11 @@ const Skel = ({ className = "" }) => (
 const HeroCard = ({ article, onClick }) => (
   <div
     onClick={() => onClick(article._id)}
-    className="relative w-full cursor-pointer overflow-hidden rounded-2xl min-h-[460px]
-      transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-2xl"
+    className="relative w-full cursor-pointer overflow-hidden rounded-2xl border border-gray-200 bg-white
+      transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl flex flex-col md:flex-row min-h-[380px]"
   >
-    {/* BG image */}
-    <div className="absolute inset-0 overflow-hidden">
+    {/* LEFT — Cover image */}
+    <div className="w-full md:w-[50%] shrink-0 overflow-hidden bg-slate-100 min-h-[300px] md:min-h-110">
       {article.coverImage?.url ? (
         <img
           src={article.coverImage.url}
@@ -88,50 +88,61 @@ const HeroCard = ({ article, onClick }) => (
           className="w-full h-full object-cover transition-transform duration-700 ease-out hover:scale-105"
         />
       ) : (
-        <div className="w-full h-full bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900" />
+        <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-300" />
       )}
     </div>
 
-    {/* Gradient overlay */}
-    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/50 to-slate-950/10" />
+    {/* RIGHT — Content */}
+    <div className="flex flex-col justify-center gap-4 px-8 py-10 bg-white flex-1">
+   
+      {/* Category + date */}
+      <div className="flex items-center gap-2 text-sm font-medium flex-wrap">
+        <span
+          className="inline-block text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest"
+          style={{ background: `${NAVY}15`, color: NAVY }}
+        >
+          {catLabel(article.category)}
+        </span>
+        <span className="text-gray-300">•</span>
+        <span className="flex items-center gap-1.5 text-gray-400 font-normal text-xs">
+          <Calendar className="h-3.5 w-3.5" />
+          {new Date(article.publishedAt).toLocaleDateString("en-US", {
+            month: "long", day: "numeric", year: "numeric",
+          })}
+        </span>
+      </div>
 
-    {/* Left gold bar */}
-    <div className="absolute top-0 left-0 w-1 h-full bg-amber-400" />
+      {/* Title */}
+      <h2
+        className="text-2xl sm:text-4xl font-extrabold leading-tight tracking-tight"
+        style={{ color: NAVY }}
+      >
+        {article.title}
+      </h2>
 
-    {/* Content */}
-    <div className="relative z-10 flex items-end h-full min-h-[460px] p-6 sm:p-8 md:p-10">
-      <div className="w-full flex items-end justify-between gap-6">
+      {/* Excerpt */}
+      <p className="text-gray-500 text-sm sm:text-base leading-relaxed line-clamp-3">
+        {article.excerpt}
+      </p>
 
-        {/* LEFT SIDE */}
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-3 animate-[fadeUp_0.5s_ease_both]">
-            <CatPill cat={article.category} />
-            <span className="text-xs text-white/40 flex items-center gap-1 font-sans">
-              <Clock className="h-3 w-3" /> {timeAgo(article.publishedAt)}
-            </span>
-          </div>
-
-          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-[2.8rem] font-black text-white leading-[1.1] mb-3
-        [text-shadow:0_2px_24px_rgba(0,0,0,0.6)] animate-[fadeUp_0.5s_0.08s_ease_both]">
-            {article.title}
-          </h1>
-
-          <p className="font-sans text-sm sm:text-base text-white/60 leading-relaxed max-w-2xl line-clamp-2
-        animate-[fadeUp_0.5s_0.16s_ease_both]">
-            {article.excerpt}
-          </p>
-        </div>
-
-        {/* RIGHT SIDE BUTTON */}
-        <div className="flex-shrink-0 animate-[fadeUp_0.5s_0.16s_ease_both]">
-          <button className="flex items-center gap-2 font-sans text-sm font-semibold px-5 py-2.5 rounded-xl
-        bg-amber-400 text-slate-900 transition-all hover:scale-105 active:scale-95">
-            Read Story <ArrowUpRight className="h-4 w-4" />
-          </button>
-        </div>
-
+      {/* CTA */}
+      <div>
+        <button
+          onClick={(e) => { e.stopPropagation(); onClick(article._id); }}
+          className="inline-flex items-center gap-2 text-sm font-semibold mt-10 px-5 py-2.5 rounded-xl
+            transition-all duration-200 active:scale-95 hover:opacity-90"
+          style={{ background: NAVY, color: "#fff" }}
+        >
+          Read More <ArrowRight className="h-4 w-4" />
+        </button>
       </div>
     </div>
+
+    {/* Gold left accent bar */}
+    <div
+      className="absolute left-0 top-0 w-1 h-full hidden md:block"
+      style={{ background: GOLD }}
+    />
   </div>
 );
 

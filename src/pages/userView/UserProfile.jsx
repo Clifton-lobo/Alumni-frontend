@@ -368,98 +368,8 @@ const UserProfile = () => {
       <div className="max-w-6xl mx-auto px-6 -mt-16 pb-16 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* LEFT SIDEBAR */}
-          <div className="space-y-6">
-            <Card className="rounded-xl  border-none bg-white shadow-xl">
-              <CardHeader className="items-center">
-                <CardTitle>Contact Info</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 text-sm">
-                <div className="flex items-center gap-3">
-                  <Mail className="h-4 w-4 text-[#D4A437]" />
-                  <span>{user.email || "No email"}</span>
-                </div>
 
-                <div className="flex items-center gap-3">
-                  <Linkedin className="h-4 w-4 text-[#D4A437]" />
-                  {profile.linkedin ? (
-                    <a
-                      href={profile.linkedin.startsWith("http")
-                        ? profile.linkedin
-                        : `https://${profile.linkedin}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline break-all"
-                    >
-                      {profile.linkedin}
-                    </a>
-                  ) : (
-                    <span className="text-gray-400 italic">
-                      Not posted yet
-                    </span>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
-              <CardContent className="p-0">
-                <button
-                  type="button"
-                  onClick={() => setShowConnections(true)}
-                  className="group w-full flex items-center justify-between px-6 py-5 cursor-pointer"
-                >
-
-                  {/* Left Section */}
-                  <div className="flex items-center gap-4">
-
-                    {/* Icon */}
-                    <div className="w-11 h-11 rounded-xl bg-amber-50 group-hover:bg-amber-100 transition-colors flex items-center justify-center shrink-0">
-                      <Users className="h-5 w-5 text-[#EBAB09]" />
-                    </div>
-
-                    {/* Text */}
-                    <div className="flex flex-col text-left">
-                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                        Connections
-                      </span>
-
-                      <div className="flex items-end gap-2">
-                        <span className="text-2xl font-bold text-slate-900 leading-none">
-                          {acceptedConnections.length}
-                        </span>
-                        <span className="text-sm text-slate-500 mb-0.5">
-                          total
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Arrow */}
-                  <div className="flex items-center gap-2 text-sm font-semibold text-amber-600">
-                    <span className="opacity-80 group-hover:opacity-100">
-                      View
-                    </span>
-
-                    <svg
-                      className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1"
-                      viewBox="0 0 14 14"
-                      fill="none"
-                    >
-                      <path
-                        d="M2.5 7h9M8 3.5L11.5 7 8 10.5"
-                        stroke="currentColor"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </div>
-
-                </button>
-              </CardContent>
-            </Card>
-          </div>
-
+          
           {/* RIGHT CONTENT */}
           <div className="lg:col-span-2">
             <Tabs defaultValue="info" onValueChange={setActiveTab}>
@@ -584,6 +494,99 @@ const UserProfile = () => {
               </TabsContent>
             </Tabs>
           </div>
+          
+          <div className="space-y-6">
+            <Card className="rounded-xl  border-none bg-white shadow-xl">
+              <CardHeader className="items-center">
+                <CardTitle>Contact Info</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 text-sm">
+                <div className="flex items-center gap-3">
+                  <Mail className="h-4 w-4 text-[#D4A437]" />
+                  <span>{user.email || "No email"}</span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Linkedin className="h-4 w-4 text-[#D4A437]" />
+                  {profile.linkedin ? (
+                    <a
+                      href={profile.linkedin.startsWith("http")
+                        ? profile.linkedin
+                        : `https://${profile.linkedin}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline break-all"
+                    >
+                      {profile.linkedin}
+                    </a>
+                  ) : (
+                    <span className="text-gray-400 italic">
+                      Not posted yet
+                    </span>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-2xl bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+              <CardContent className="p-0">
+                <button
+                  type="button"
+                  onClick={() => setShowConnections(true)}
+                  className="group w-full flex items-center justify-between px-6 py-5 cursor-pointer"
+                >
+
+                  {/* Left Section */}
+                  <div className="flex items-center gap-4">
+
+                    {/* Icon */}
+                    <div className="w-11 h-11 rounded-xl bg-amber-50 group-hover:bg-amber-100 transition-colors flex items-center justify-center shrink-0">
+                      <Users className="h-5 w-5 text-[#EBAB09]" />
+                    </div>
+
+                    {/* Text */}
+                    <div className="flex flex-col text-left">
+                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                        Connections
+                      </span>
+
+                      <div className="flex items-end gap-2">
+                        <span className="text-2xl font-bold text-slate-900 leading-none">
+                          {acceptedConnections.length}
+                        </span>
+                        <span className="text-sm text-slate-500 mb-0.5">
+                          total
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Arrow */}
+                  <div className="flex items-center gap-2 text-sm font-semibold text-amber-600">
+                    <span className="opacity-80 group-hover:opacity-100">
+                      View
+                    </span>
+
+                    <svg
+                      className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1"
+                      viewBox="0 0 14 14"
+                      fill="none"
+                    >
+                      <path
+                        d="M2.5 7h9M8 3.5L11.5 7 8 10.5"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+
+                </button>
+              </CardContent>
+            </Card>
+          </div>
+
         </div>
       </div>
 
