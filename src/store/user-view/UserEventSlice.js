@@ -92,8 +92,8 @@ const eventSlice = createSlice({
     eventList: [],
     loading: false,
     error: null,
-
-    activeFilter: "all",
+    source: "eventsPage", // or "home"
+    activeFilter: "allcd ",
     category: "all",
     mode: "all",
     status: "all",
@@ -166,6 +166,8 @@ const eventSlice = createSlice({
       .addCase(fetchEventDetails.fulfilled, (state, action) => {
         state.detailsLoading = false;
         state.selectedEvent = action.payload;
+          state.source = "eventsPage"; // 👈 mark fresh data
+
       })
 
       .addCase(fetchEventDetails.rejected, (state, action) => {

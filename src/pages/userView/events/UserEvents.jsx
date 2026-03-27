@@ -83,8 +83,8 @@ const UserEvents = () => {
       console.error("Failed to find event page", e);
       hasCalledFindRef.current = false;
     }
-  };
-
+  }; 
+                
   /* -----------------------------------
      SCROLL TO EVENT
   ----------------------------------- */
@@ -137,8 +137,7 @@ const UserEvents = () => {
   ----------------------------------- */
   useEffect(() => {
     if (activeFilter === "custom") return;
-    if (searchParams.get("eventId")) return; // ✅ skip fetch while eventId is in URL
-
+    if (searchParams.get("eventId")) return; 
 
     dispatch(
       fetchFilteredEvents({

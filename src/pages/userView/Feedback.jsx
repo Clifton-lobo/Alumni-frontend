@@ -15,44 +15,40 @@ import feedbackIllustration from "../../assets/feedback.svg";
 import feedbackIllustrationNavbar from "../../assets/Customer_feedback.svg";
 
 const TABS = [
-  { value: "feature_request", label: "✦ Feature Request", icon: "💡" },
-  { value: "bug_report", label: "🐞 Bug Report", icon: "🐞" },
-  { value: "user_experience", label: "✦ UX Feedback", icon: "🎨" },
-  { value: "other", label: "✦ Other", icon: "💬" },
+  { value: "feature_request", label: "✦ Feature Request" },
+  { value: "bug_report", label: "🐞 Bug Report" },
+  { value: "user_experience", label: "✦ UX Feedback" },
+  { value: "other", label: "✦ Other" },
 ];
 
 const TYPE_COLORS = {
-  feature_request: "#142A5D",
-  bug_report: "#c0392b",
-  user_experience: "#1a6b5a",
-  other: "#6c4fa0",
+  feature_request: { bg: "bg-[#142A5D]", border: "border-[#142A5D]", text: "text-[#142A5D]", badge: "bg-[#142A5D1A] text-[#142A5D]", left: "border-l-[#142A5D]" },
+  bug_report:      { bg: "bg-[#c0392b]", border: "border-[#c0392b]", text: "text-[#c0392b]", badge: "bg-[#c0392b1A] text-[#c0392b]", left: "border-l-[#c0392b]" },
+  user_experience: { bg: "bg-[#1a6b5a]", border: "border-[#1a6b5a]", text: "text-[#1a6b5a]", badge: "bg-[#1a6b5a1A] text-[#1a6b5a]", left: "border-l-[#1a6b5a]" },
+  other:           { bg: "bg-[#6c4fa0]", border: "border-[#6c4fa0]", text: "text-[#6c4fa0]", badge: "bg-[#6c4fa01A] text-[#6c4fa0]", left: "border-l-[#6c4fa0]" },
 };
 
 export default function Feedback() {
   const dispatch = useDispatch();
 
-  const feedbacks = useSelector(selectMyFeedbacks);
-  const submitting = useSelector(selectSubmitting);
+  const feedbacks    = useSelector(selectMyFeedbacks);
+  const submitting   = useSelector(selectSubmitting);
   const submitSuccess = useSelector(selectSubmitSuccess);
-  const loading = useSelector(selectFeedbackLoading);
-  const error = useSelector(selectFeedbackError);
+  const loading      = useSelector(selectFeedbackLoading);
+  const error        = useSelector(selectFeedbackError);
 
-  const [activeTab, setActiveTab] = useState("feature_request");
-  const [title, setTitle] = useState("");
+  const [activeTab, setActiveTab]   = useState("feature_request");
+  const [title, setTitle]           = useState("");
   const [description, setDescription] = useState("");
-  const [view, setView] = useState("form");
-  const [formError, setFormError] = useState("");
+  const [view, setView]             = useState("form");
+  const [formError, setFormError]   = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
 
-  useEffect(() => {
-    dispatch(fetchMyFeedback());
-  }, [dispatch]);
+  useEffect(() => { dispatch(fetchMyFeedback()); }, [dispatch]);
 
   useEffect(() => {
     if (submitSuccess) {
-      setTitle("");
-      setDescription("");
-      setShowSuccess(true);
+      setTitle(""); setDescription(""); setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 4000);
       dispatch(resetSubmitSuccess());
     }
@@ -60,354 +56,158 @@ export default function Feedback() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!title.trim()) return setFormError("Please add a title to continue.");
+    if (!title.trim())       return setFormError("Please add a title to continue.");
     if (!description.trim()) return setFormError("Please describe your feedback.");
     setFormError("");
     dispatch(submitFeedback({ type: activeTab, title, description }));
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "linear-gradient(135deg, #EEF2FF 0%, #F5F8FF 50%, #EBF4FF 100%)",
-        fontFamily: "'Sora', 'DM Sans', sans-serif",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-[#F5F8FF] to-blue-50 font-[Sora,DM_Sans,sans-serif] relative overflow-hidden">
+
       {/* Google Fonts */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
-
-        .tab-pill {
-          transition: all 0.2s ease;
-          cursor: pointer;
-          border: none;
-          outline: none;
-        }
-        .tab-pill:hover:not(.tab-active) {
-          background: #dde5f5 !important;
-          color: #142A5D !important;
-        }
-        .view-toggle:hover:not(.view-active) {
-          color: #142A5D !important;
-          background: #eef2ff !important;
-        }
-        .submit-btn:hover {
-          opacity: 0.9;
-          transform: translateY(-1px);
-          box-shadow: 0 8px 24px rgba(20,42,93,0.35) !important;
-        }
+        body { font-family: 'Sora', 'DM Sans', sans-serif; }
+        .tab-pill:hover:not(.tab-active) { background: #dde5f5 !important; color: #142A5D !important; }
+        .submit-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(20,42,93,0.35) !important; }
         .submit-btn:active { transform: translateY(0); }
-        .feedback-card {
-          transition: box-shadow 0.2s ease, transform 0.2s ease;
-        }
-        .feedback-card:hover {
-          box-shadow: 0 8px 28px rgba(20,42,93,0.1) !important;
-          transform: translateY(-2px);
-        }
-        .input-field:focus {
-          border-color: #142A5D !important;
-          background: #f7f9ff !important;
-        }
-        .success-toast {
-          animation: slideDown 0.4s ease forwards;
-        }
-        @keyframes slideDown {
-          from { opacity: 0; transform: translateY(-12px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .dot-pulse::after {
-          content: '';
-          animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.3; }
-        }
+        .feedback-card:hover { box-shadow: 0 8px 28px rgba(20,42,93,0.1) !important; transform: translateY(-2px); }
+        .input-field:focus { border-color: #142A5D !important; background: #f7f9ff !important; }
+        .success-toast { animation: slideDown 0.4s ease forwards; }
+        @keyframes slideDown { from { opacity:0; transform:translateY(-12px); } to { opacity:1; transform:translateY(0); } }
       `}</style>
 
       {/* BG Orbs */}
-      <div style={{
-        position: "absolute", top: -180, left: -180,
-        width: 500, height: 500,
-        background: "radial-gradient(circle, rgba(20,42,93,0.08), transparent 70%)",
-        borderRadius: "50%", pointerEvents: "none",
-      }} />
-      <div style={{
-        position: "absolute", bottom: -180, right: -180,
-        width: 480, height: 480,
-        background: "radial-gradient(circle, rgba(66,109,200,0.09), transparent 70%)",
-        borderRadius: "50%", pointerEvents: "none",
-      }} />
+      <div className="absolute -top-44 -left-44 w-[500px] h-[500px] rounded-full pointer-events-none"
+           style={{ background: "radial-gradient(circle, rgba(20,42,93,0.08), transparent 70%)" }} />
+      <div className="absolute -bottom-44 -right-44 w-[480px] h-[480px] rounded-full pointer-events-none"
+           style={{ background: "radial-gradient(circle, rgba(66,109,200,0.09), transparent 70%)" }} />
 
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "48px 24px 64px" }}>
+      <div className="max-w-[1100px] mx-auto px-6 pt-12 pb-16">
 
-        {/* ── HERO BANNER (replaces the awkward top text) ── */}
-        <div style={{
-          background: "linear-gradient(120deg, #142A5D 0%, #1e3e8f 60%, #2f5ac7 100%)",
-          borderRadius: 24,
-          padding: "40px 48px",
-          marginBottom: 40,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 24,
-          boxShadow: "0 12px 48px rgba(20,42,93,0.25)",
-          flexWrap: "wrap",
-          position: "relative",
-          overflow: "hidden",
-        }}>
-          {/* decorative circle inside banner */}
-          <div style={{
-            position: "absolute", right: -60, top: -60,
-            width: 260, height: 260,
-            background: "rgba(255,255,255,0.05)",
-            borderRadius: "50%",
-          }} />
-          <div style={{
-            position: "absolute", right: 80, bottom: -80,
-            width: 200, height: 200,
-            background: "rgba(255,255,255,0.04)",
-            borderRadius: "50%",
-          }} />
+        {/* ── HERO BANNER ── */}
+        <div className="relative overflow-hidden rounded-3xl mb-10 px-8 py-10 md:px-12 flex items-center justify-between gap-6 flex-wrap"
+             style={{ background: "linear-gradient(120deg, #142A5D 0%, #1e3e8f 60%, #2f5ac7 100%)", boxShadow: "0 12px 48px rgba(20,42,93,0.25)" }}>
 
-          <div style={{ position: "relative", zIndex: 1 }}>
-            <div style={{
-              display: "inline-flex", alignItems: "center", gap: 8,
-              background: "rgba(255,255,255,0.12)",
-              borderRadius: 100, padding: "4px 14px",
-              marginBottom: 14,
-            }}>
-              <span style={{ color: "#93c5fd", fontSize: 11, fontWeight: 600, letterSpacing: 1.2, textTransform: "uppercase" }}>
-                Your Voice Matters
-              </span>
+          {/* decorative circles */}
+          <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-white/5 pointer-events-none" />
+          <div className="absolute right-20 -bottom-20 w-48 h-48 rounded-full bg-white/[0.04] pointer-events-none" />
+
+          {/* Text */}
+          <div className="relative z-10">
+            <div className="inline-flex items-center gap-2 bg-white/[0.12] rounded-full px-4 py-1 mb-4">
+              <span className="text-blue-300 text-[11px] font-semibold tracking-widest uppercase">Your Voice Matters</span>
             </div>
-            <h1 style={{
-              fontSize: "clamp(22px, 4vw, 34px)",
-              fontWeight: 800,
-              color: "#fff",
-              lineHeight: 1.25,
-              margin: 0,
-              letterSpacing: "-0.5px",
-            }}>
+            <h1 className="text-[clamp(22px,4vw,34px)] font-extrabold text-white leading-tight tracking-tight m-0">
               Share your feedback<br />
-              <span style={{ color: "#93c5fd", fontWeight: 500 }}>and help us improve.</span>
+              <span className="text-blue-300 font-medium">and help us improve.</span>
             </h1>
-            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, marginTop: 10, margin: "10px 0 0" }}>
+            <p className="text-white/60 text-sm mt-2.5 mb-0">
               Every suggestion shapes the product you use every day.
             </p>
           </div>
 
+          {/* Hero image — hidden on mobile */}
           <img
             src={feedbackIllustrationNavbar}
             alt="feedback"
-            style={{
-              width: "clamp(80px, 18vw, 160px)",
-              filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.3))",
-              position: "relative", zIndex: 1,
-            }}
+            className="hidden md:block relative z-10 w-[clamp(80px,18vw,160px)]"
+            style={{ filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.3))" }}
           />
         </div>
 
-        {/* ── MAIN CONTENT ── */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 460px), 1fr))",
-          gap: 28,
-          alignItems: "start",
-        }}>
+        {/* ── MAIN GRID ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-7 items-start">
 
           {/* LEFT — Form card */}
-          <div style={{
-            background: "#fff",
-            borderRadius: 24,
-            padding: "28px 28px 32px",
-            boxShadow: "0 4px 32px rgba(20,42,93,0.09)",
-            border: "1px solid rgba(20,42,93,0.07)",
-          }}>
+          <div className="bg-white rounded-3xl p-7 shadow-[0_4px_32px_rgba(20,42,93,0.09)] border border-[rgba(20,42,93,0.07)]">
 
             {/* View toggle */}
-            <div style={{
-              display: "flex",
-              background: "#f0f4ff",
-              borderRadius: 14,
-              padding: 4,
-              marginBottom: 24,
-              gap: 4,
-            }}>
+            <div className="flex bg-indigo-50 rounded-2xl p-1 mb-6 gap-1">
               {["form", "history"].map((v) => (
                 <button
                   key={v}
                   onClick={() => setView(v)}
-                  className={`view-toggle ${view === v ? "view-active" : ""}`}
-                  style={{
-                    flex: 1,
-                    padding: "9px 0",
-                    borderRadius: 10,
-                    fontSize: 13,
-                    fontWeight: 600,
-                    border: "none",
-                    cursor: "pointer",
-                    transition: "all 0.2s",
-                    background: view === v ? "#142A5D" : "transparent",
-                    color: view === v ? "#fff" : "#6b7a99",
-                    fontFamily: "inherit",
-                  }}
+                  className={`flex-1 py-2.5 rounded-xl text-[13px] font-semibold border-none cursor-pointer transition-all duration-200 font-[inherit]
+                    ${view === v ? "bg-[#142A5D] text-white" : "bg-transparent text-[#6b7a99] hover:text-[#142A5D] hover:bg-indigo-100"}`}
                 >
                   {v === "form" ? "Submit Feedback" : `My History (${feedbacks.length})`}
                 </button>
               ))}
             </div>
 
-            {/* FORM VIEW */}
+            {/* ── FORM VIEW ── */}
             {view === "form" && (
               <div>
-                {/* Category tabs */}
-                <p style={{ fontSize: 11, fontWeight: 700, color: "#9ba8c5", letterSpacing: 1.1, textTransform: "uppercase", marginBottom: 10 }}>
-                  Category
-                </p>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 24 }}>
-                  {TABS.map((tab) => (
-                    <button
-                      key={tab.value}
-                      onClick={() => setActiveTab(tab.value)}
-                      className={`tab-pill ${activeTab === tab.value ? "tab-active" : ""}`}
-                      style={{
-                        padding: "7px 16px",
-                        borderRadius: 100,
-                        fontSize: 12,
-                        fontWeight: 600,
-                        border: activeTab === tab.value
-                          ? `2px solid ${TYPE_COLORS[tab.value]}`
-                          : "2px solid #e8edf7",
-                        background: activeTab === tab.value
-                          ? TYPE_COLORS[tab.value]
-                          : "#f5f7ff",
-                        color: activeTab === tab.value ? "#fff" : "#6b7a99",
-                        fontFamily: "inherit",
-                      }}
-                    >
-                      {tab.label}
-                    </button>
-                  ))}
+                {/* Category label */}
+                <p className="text-[11px] font-bold text-[#9ba8c5] tracking-[1.1px] uppercase mb-2.5">Category</p>
+
+                {/* Tabs */}
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {TABS.map((tab) => {
+                    const c = TYPE_COLORS[tab.value];
+                    const active = activeTab === tab.value;
+                    return (
+                      <button
+                        key={tab.value}
+                        onClick={() => setActiveTab(tab.value)}
+                        className={`tab-pill px-4 py-1.5 rounded-full text-[12px] font-semibold border-2 transition-all duration-200 font-[inherit] cursor-pointer
+                          ${active ? `${c.bg} ${c.border} text-white` : "border-[#e8edf7] bg-[#f5f7ff] text-[#6b7a99]"}`}
+                      >
+                        {tab.label}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 {/* Success toast */}
                 {showSuccess && (
-                  <div className="success-toast" style={{
-                    background: "linear-gradient(135deg, #d1fae5, #ecfdf5)",
-                    border: "1px solid #6ee7b7",
-                    borderRadius: 12,
-                    padding: "12px 16px",
-                    marginBottom: 16,
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 10,
-                  }}>
-                    <span style={{ fontSize: 16 }}>✅</span>
-                    <p style={{ fontSize: 13, color: "#065f46", fontWeight: 600, margin: 0 }}>
-                      Feedback submitted — thank you!
-                    </p>
+                  <div className="success-toast flex items-center gap-2.5 bg-gradient-to-r from-emerald-100 to-green-50 border border-emerald-300 rounded-xl px-4 py-3 mb-4">
+                    <span className="text-base">✅</span>
+                    <p className="text-[13px] text-emerald-800 font-semibold m-0">Feedback submitted — thank you!</p>
                   </div>
                 )}
 
                 <form onSubmit={handleSubmit}>
                   {/* Title */}
-                  <div style={{ marginBottom: 16 }}>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "#9ba8c5", letterSpacing: 1.1, textTransform: "uppercase", display: "block", marginBottom: 8 }}>
-                      Title
-                    </label>
+                  <div className="mb-4">
+                    <label className="block text-[11px] font-bold text-[#9ba8c5] tracking-[1.1px] uppercase mb-2">Title</label>
                     <input
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       placeholder="Give your feedback a short title..."
-                      className="input-field"
-                      style={{
-                        width: "100%",
-                        padding: "12px 16px",
-                        borderRadius: 12,
-                        border: "1.5px solid #e8edf7",
-                        fontSize: 14,
-                        color: "#1a2540",
-                        background: "#fafbff",
-                        outline: "none",
-                        fontFamily: "inherit",
-                        boxSizing: "border-box",
-                        transition: "border-color 0.2s, background 0.2s",
-                      }}
+                      className="input-field w-full px-4 py-3 rounded-xl border-[1.5px] border-[#e8edf7] text-[14px] text-[#1a2540] bg-[#fafbff] outline-none font-[inherit] box-border transition-all duration-200"
                     />
                   </div>
 
                   {/* Description */}
-                  <div style={{ marginBottom: 20 }}>
-                    <label style={{ fontSize: 11, fontWeight: 700, color: "#9ba8c5", letterSpacing: 1.1, textTransform: "uppercase", display: "block", marginBottom: 8 }}>
-                      Description
-                    </label>
+                  <div className="mb-5">
+                    <label className="block text-[11px] font-bold text-[#9ba8c5] tracking-[1.1px] uppercase mb-2">Description</label>
                     <textarea
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       rows={5}
                       placeholder="Describe your feedback in detail..."
-                      className="input-field"
-                      style={{
-                        width: "100%",
-                        padding: "12px 16px",
-                        borderRadius: 12,
-                        border: "1.5px solid #e8edf7",
-                        fontSize: 14,
-                        color: "#1a2540",
-                        background: "#fafbff",
-                        outline: "none",
-                        resize: "none",
-                        fontFamily: "inherit",
-                        boxSizing: "border-box",
-                        transition: "border-color 0.2s, background 0.2s",
-                        lineHeight: 1.6,
-                      }}
+                      className="input-field w-full px-4 py-3 rounded-xl border-[1.5px] border-[#e8edf7] text-[14px] text-[#1a2540] bg-[#fafbff] outline-none resize-none font-[inherit] box-border transition-all duration-200 leading-relaxed"
                     />
                   </div>
 
                   {/* Error */}
                   {(formError || error) && (
-                    <div style={{
-                      background: "#fff1f0",
-                      border: "1px solid #fca5a5",
-                      borderRadius: 10,
-                      padding: "10px 14px",
-                      marginBottom: 16,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                    }}>
-                      <span style={{ fontSize: 14 }}>⚠️</span>
-                      <p style={{ fontSize: 13, color: "#b91c1c", fontWeight: 500, margin: 0 }}>
-                        {formError || error}
-                      </p>
+                    <div className="flex items-center gap-2 bg-red-50 border border-red-300 rounded-xl px-3.5 py-2.5 mb-4">
+                      <span className="text-sm">⚠️</span>
+                      <p className="text-[13px] text-red-700 font-medium m-0">{formError || error}</p>
                     </div>
                   )}
 
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="submit-btn"
+                    className="submit-btn w-full py-3.5 rounded-2xl text-white text-[15px] font-bold border-none font-[inherit] tracking-wide transition-all duration-200 cursor-pointer disabled:cursor-not-allowed"
                     style={{
-                      width: "100%",
-                      padding: "14px",
-                      borderRadius: 14,
-                      background: submitting
-                        ? "#8fa3cc"
-                        : "linear-gradient(135deg, #142A5D, #1e4baa)",
-                      color: "#fff",
-                      fontSize: 15,
-                      fontWeight: 700,
-                      border: "none",
-                      cursor: submitting ? "not-allowed" : "pointer",
-                      fontFamily: "inherit",
-                      letterSpacing: 0.3,
+                      background: submitting ? "#8fa3cc" : "linear-gradient(135deg, #142A5D, #1e4baa)",
                       boxShadow: "0 4px 16px rgba(20,42,93,0.25)",
-                      transition: "all 0.2s ease",
                     }}
                   >
                     {submitting ? "Submitting…" : "Submit Feedback →"}
@@ -416,58 +216,35 @@ export default function Feedback() {
               </div>
             )}
 
-            {/* HISTORY VIEW */}
+            {/* ── HISTORY VIEW ── */}
             {view === "history" && (
               <div>
                 {loading ? (
-                  <div style={{ textAlign: "center", padding: "32px 0" }}>
-                    <div style={{ fontSize: 13, color: "#9ba8c5" }}>Loading your feedback…</div>
+                  <div className="text-center py-8">
+                    <p className="text-[13px] text-[#9ba8c5]">Loading your feedback…</p>
                   </div>
                 ) : feedbacks.length === 0 ? (
-                  <div style={{
-                    textAlign: "center", padding: "40px 0",
-                    background: "#f5f7ff", borderRadius: 16,
-                  }}>
-                    <div style={{ fontSize: 32, marginBottom: 10 }}>📭</div>
-                    <p style={{ fontSize: 14, color: "#9ba8c5", fontWeight: 500 }}>
-                      No feedback submitted yet.
-                    </p>
+                  <div className="text-center py-10 bg-[#f5f7ff] rounded-2xl">
+                    <div className="text-4xl mb-2.5">📭</div>
+                    <p className="text-[14px] text-[#9ba8c5] font-medium">No feedback submitted yet.</p>
                   </div>
                 ) : (
-                  <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <div className="flex flex-col gap-3">
                     {feedbacks.map((fb) => {
-                      const color = TYPE_COLORS[fb.type] || "#142A5D";
+                      const c = TYPE_COLORS[fb.type] || TYPE_COLORS.feature_request;
                       return (
                         <div
                           key={fb._id}
-                          className="feedback-card"
-                          style={{
-                            background: "#fafbff",
-                            border: "1.5px solid #e8edf7",
-                            borderLeft: `4px solid ${color}`,
-                            borderRadius: 14,
-                            padding: "16px 18px",
-                            boxShadow: "0 2px 10px rgba(20,42,93,0.05)",
-                          }}
+                          className={`feedback-card bg-[#fafbff] border-[1.5px] border-[#e8edf7] border-l-4 ${c.left} rounded-2xl p-4 shadow-[0_2px_10px_rgba(20,42,93,0.05)] transition-all duration-200`}
                         >
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
-                            <p style={{ fontSize: 14, fontWeight: 700, color: "#1a2540", margin: 0 }}>
-                              {fb.title}
-                            </p>
-                            <span style={{
-                              fontSize: 10, fontWeight: 700,
-                              textTransform: "uppercase", letterSpacing: 1,
-                              color, background: `${color}15`,
-                              padding: "3px 10px", borderRadius: 100,
-                              whiteSpace: "nowrap",
-                            }}>
+                          <div className="flex justify-between items-start gap-3">
+                            <p className="text-[14px] font-bold text-[#1a2540] m-0">{fb.title}</p>
+                            <span className={`text-[10px] font-bold uppercase tracking-wider ${c.badge} px-2.5 py-0.5 rounded-full whitespace-nowrap`}>
                               {fb.type?.replace("_", " ")}
                             </span>
                           </div>
-                          <p style={{ fontSize: 13, color: "#6b7a99", margin: "8px 0 0", lineHeight: 1.6 }}>
-                            {fb.description}
-                          </p>
-                          <p style={{ fontSize: 11, color: "#b8c2d9", margin: "8px 0 0", fontWeight: 500 }}>
+                          <p className="text-[13px] text-[#6b7a99] mt-2 mb-0 leading-relaxed">{fb.description}</p>
+                          <p className="text-[11px] text-[#b8c2d9] mt-2 mb-0 font-medium">
                             {new Date(fb.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
                           </p>
                         </div>
@@ -479,46 +256,26 @@ export default function Feedback() {
             )}
           </div>
 
-          {/* RIGHT — Stats / Illustration card */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          {/* RIGHT — hidden on mobile, visible on lg+ */}
+          <div className="hidden lg:flex flex-col gap-5">
 
             {/* Illustration card */}
-            <div style={{
-              background: "linear-gradient(135deg, #f0f5ff, #e8efff)",
-              borderRadius: 24,
-              padding: "32px 28px",
-              textAlign: "center",
-              border: "1px solid rgba(20,42,93,0.08)",
-              boxShadow: "0 4px 24px rgba(20,42,93,0.07)",
-            }}>
+            <div className="bg-gradient-to-br from-[#f0f5ff] to-[#e8efff] rounded-3xl p-8 text-center border border-[rgba(20,42,93,0.08)] shadow-[0_4px_24px_rgba(20,42,93,0.07)]">
               <img
                 src={feedbackIllustration}
                 alt="feedback"
-                style={{
-                  width: "clamp(140px, 30vw, 240px)",
-                  filter: "drop-shadow(0 12px 28px rgba(20,42,93,0.15))",
-                  marginBottom: 16,
-                }}
+                className="w-[clamp(140px,30vw,240px)] mb-4 mx-auto"
+                style={{ filter: "drop-shadow(0 12px 28px rgba(20,42,93,0.15))" }}
               />
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: "#142A5D", margin: "0 0 6px" }}>
-                We read everything.
-              </h3>
-              <p style={{ fontSize: 13, color: "#6b7a99", margin: 0, lineHeight: 1.6 }}>
+              <h3 className="text-[16px] font-bold text-[#142A5D] m-0 mb-1.5">We read everything.</h3>
+              <p className="text-[13px] text-[#6b7a99] m-0 leading-relaxed">
                 Our team reviews each submission and uses your input to prioritise what gets built next.
               </p>
             </div>
 
-            
-
             {/* Tips card */}
-            <div style={{
-              background: "#fff",
-              borderRadius: 20,
-              padding: "20px 22px",
-              border: "1.5px solid #e8edf7",
-              boxShadow: "0 2px 12px rgba(20,42,93,0.06)",
-            }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: "#9ba8c5", letterSpacing: 1.1, textTransform: "uppercase", margin: "0 0 12px" }}>
+            <div className="bg-white rounded-2xl p-5 border-[1.5px] border-[#e8edf7] shadow-[0_2px_12px_rgba(20,42,93,0.06)]">
+              <p className="text-[11px] font-bold text-[#9ba8c5] tracking-[1.1px] uppercase m-0 mb-3">
                 Tips for great feedback
               </p>
               {[
@@ -526,22 +283,17 @@ export default function Feedback() {
                 "Describe the expected vs actual outcome",
                 "Include steps to reproduce bugs",
               ].map((tip, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: i < 2 ? 10 : 0 }}>
-                  <div style={{
-                    width: 20, height: 20, borderRadius: "50%",
-                    background: "linear-gradient(135deg, #142A5D, #1e4baa)",
-                    color: "#fff", fontSize: 10, fontWeight: 700,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    flexShrink: 0, marginTop: 1,
-                  }}>
+                <div key={i} className={`flex items-start gap-2.5 ${i < 2 ? "mb-2.5" : ""}`}>
+                  <div className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0 mt-0.5"
+                       style={{ background: "linear-gradient(135deg, #142A5D, #1e4baa)" }}>
                     {i + 1}
                   </div>
-                  <p style={{ fontSize: 13, color: "#4a5578", margin: 0, lineHeight: 1.5 }}>{tip}</p>
+                  <p className="text-[13px] text-[#4a5578] m-0 leading-snug">{tip}</p>
                 </div>
               ))}
             </div>
-
           </div>
+
         </div>
       </div>
     </div>

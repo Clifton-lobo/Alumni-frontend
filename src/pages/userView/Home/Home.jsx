@@ -172,7 +172,6 @@ const useIntersection = (threshold = 0.12, rootMargin = "-15% 0px -10% 0px") => 
 };
 
 const Home = () => {
-  // Hero fires immediately at 10 % with no rootMargin offset — it's always the
   // first thing visible so we want a quick, unobstructed trigger.
   const [heroRef, heroVisible] = useIntersection(0.1, "0px");
 
@@ -187,7 +186,7 @@ const Home = () => {
   const { eventList, loading } = useSelector((state) => state.events);
 
   useEffect(() => {
-    dispatch(fetchFilteredEvents({ filter: "upcoming", page: 1, limit: 3 }));
+    dispatch(fetchFilteredEvents({ filter: "upcoming", page: 1, limit: 10 }));
   }, [dispatch]);
 
   const featuredEvent = eventList[0] || null;
