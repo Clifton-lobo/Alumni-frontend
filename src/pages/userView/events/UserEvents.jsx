@@ -124,6 +124,8 @@ const UserEvents = () => {
           params.delete("eventId");
           return params;
         });
+        isEventNavigationRef.current = false; // ✅ reset it here
+
       }, 0);
 
       return;
