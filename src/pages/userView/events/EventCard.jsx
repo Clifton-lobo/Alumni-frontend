@@ -66,7 +66,7 @@ const EventCard = ({ event, scrollToMe = false }) => {
       </div>
 
       {/* RIGHT CONTENT */}
-      <div className="flex-1 flex  justify-between items-start md:items-center gap-4">
+      <div className="flex-1 flex  border justify-between items-start md:items-center gap-4">
         <div className="flex flex-col flex-1 min-w-0">
           <div
             onClick={() => setOpen(true)}
