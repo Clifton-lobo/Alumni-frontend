@@ -430,7 +430,7 @@ const Home = () => {
                         )}
                       </div>
                       <Link
-                        to={`/user/events?page=${event.page}&eventId=${event._id}`}
+                        to={`/user/events?eventId=${event._id}`}
                         hasCalledFindRef
                         className="inline-block px-4 py-2 rounded-lg border border-[#142A5D] text-[#142A5D] text-sm font-medium hover:bg-[#142A5D] hover:text-white transition"
                       >
