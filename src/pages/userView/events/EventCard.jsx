@@ -17,22 +17,28 @@ const EventCard = ({ event, scrollToMe = false }) => {
   const [highlight, setHighlight] = useState(false);
   const cardRef = useRef(null);
 
- 
- const hasScrolledRef = useRef(false);
 
-useEffect(() => {
-  if (!scrollToMe || !cardRef.current || hasScrolledRef.current) return;
+  const hasScrolledRef = useRef(false);
 
-  hasScrolledRef.current = true;
+  useEffect(() => {
+    if (!scrollToMe || !cardRef.current || hasScrolledRef.current) return;
 
-  requestAnimationFrame(() => {
-    cardRef.current.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
+    hasScrolledRef.current = true;
+
+    const el = cardRef.current;
+
+    requestAnimationFrame(() => {
+      el.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+
+      // ✅ FORCE highlight AFTER scroll completes
+      setTimeout(() => {
+        setHighlight(true);
+      }, 300); // key fix for mobile
     });
-    setHighlight(true);
-  });
-}, [scrollToMe]); // only fires when scrollToMe becomes true
+  }, [scrollToMe]);
 
   useEffect(() => {
     if (!highlight) return;
@@ -47,8 +53,7 @@ useEffect(() => {
       ref={cardRef}
       id={`event-${event._id}`}
       className={`flex gap-4 md:gap-8 border-b pb-6 md:pb-10 rounded-lg transition-all duration-700 
-        ${highlight ? " bg-[#eceff3]" : ""
-        }`}
+        ${highlight ? "bg-[#eceff3] border-2 border-blue-400 shadow-md" : ""}`}
     >
       {/* LEFT DATE */}
       <div className="text-center w-16 md:w-20 shrink-0">
@@ -61,15 +66,15 @@ useEffect(() => {
       </div>
 
       {/* RIGHT CONTENT */}
-      <div className="flex-1 flex justify-between items-start md:items-center gap-4">
+      <div className="flex-1 flex  justify-between items-start md:items-center gap-4">
         <div className="flex flex-col flex-1 min-w-0">
-          <h2
+          <div
             onClick={() => setOpen(true)}
-            className="font-serif group cursor-pointer text-2xl md:text-[32px] font-bold leading-tight hover:text-[#142A5D] hover:underline transition-colors break-words"
+            className="font-serif group w-full cursor-pointer text-2xl md:text-[32px] font-bold leading-tight hover:text-[#142A5D]  hover:underline transition-colors break-normal"
           >
-            {event.title}
+              {event.title}
             <MoveUpRight className="inline-block ml-1 h-4 w-4 md:h-5 md:w-5 align-baseline transition-transform duration-200 group-hover:-translate-y-1" />
-          </h2>
+          </div>
 
           <div className="flex items-center gap-2 mt-2 md:mt-3 font-semibold text-sm md:text-2xl text-gray-700">
             <Calendar size={16} className="md:w-[22px] md:h-[25px] shrink-0" />
