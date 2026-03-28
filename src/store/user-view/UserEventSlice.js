@@ -20,29 +20,22 @@ export const fetchFilteredEvents = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const sanitizedFilter = filter?.trim() || "all";
+      const params = { filter, page, limit };
 
-      const params = {
-        filter: sanitizedFilter,
-        page,
-        limit,
-      };
-
-
-      if (sanitizedFilter === "custom") {
+      if (filter === "custom") {
         params.startDate = startDate;
         params.endDate = endDate;
       }
 
-      const sanitizedSearch = search?.trim();
-      if (sanitizedSearch) params.search = sanitizedSearch;
-       if (category && category !== "all") params.category = category;
-
+      if (search) params.search = search;
+      if (category && category !== "all") params.category = category;
+      
       // ✅ FIXED: Properly handle isVirtual parameter
       if (isVirtual !== undefined && isVirtual !== null && isVirtual !== "all") {
+        // Convert to string "true" or "false" for API
         params.isVirtual = isVirtual.toString();
       }
-
+      
       if (status && status !== "all") params.status = status;
 
       console.log("📤 API Request params:", params);
@@ -100,7 +93,7 @@ const eventSlice = createSlice({
     loading: false,
     error: null,
     source: "eventsPage", // or "home"
-    activeFilter: "all",
+    activeFilter: "all ",
     category: "all",
     mode: "all",
     status: "all",
@@ -173,7 +166,7 @@ const eventSlice = createSlice({
       .addCase(fetchEventDetails.fulfilled, (state, action) => {
         state.detailsLoading = false;
         state.selectedEvent = action.payload;
-        state.source = "eventsPage"; // 👈 mark fresh data
+          state.source = "eventsPage"; // 👈 mark fresh data
 
       })
 
