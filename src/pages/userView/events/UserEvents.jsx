@@ -37,7 +37,7 @@ const UserEvents = () => {
   const listContainerRef = useRef(null);
   const isEventNavigationRef = useRef(false);
 
-  // ✅ detect event navigation ONCE
+  // detect event navigation ONCE
   useEffect(() => {
     const eventId = searchParams.get("eventId");
     if (eventId) {
@@ -98,7 +98,6 @@ const UserEvents = () => {
   /* -----------------------------------
      SCROLL TO EVENT
   ----------------------------------- */
-  // ─── SCROLL TO EVENT ─────────────────────────────────────────────────────────
   useEffect(() => {
     const eventId = searchParams.get("eventId");
 
@@ -108,24 +107,22 @@ const UserEvents = () => {
       return;
     }
 
-    // ✅ Wait for the main fetch to finish before doing anything
+    // Wait for the main fetch to finish before doing anything
     if (loading) return;
 
     const found = eventList.find((e) => e._id === eventId);
 
-
     if (found) {
       setScrollToEventId(eventId);
 
-      // ✅ REMOVE eventId AFTER scroll trigger
+      // Remove eventId AFTER scroll trigger
       setTimeout(() => {
         setSearchParams((prev) => {
           const params = new URLSearchParams(prev);
           params.delete("eventId");
           return params;
         });
-        isEventNavigationRef.current = false; // ✅ reset it here
-
+        isEventNavigationRef.current = false;
       }, 0);
 
       return;
@@ -145,7 +142,6 @@ const UserEvents = () => {
   ----------------------------------- */
   useEffect(() => {
     if (activeFilter === "custom") return;
-    // if (searchParams.get("eventId")) return; 
 
     dispatch(
       fetchFilteredEvents({
@@ -168,7 +164,7 @@ const UserEvents = () => {
       return;
     }
 
-    // ✅ KEEP this guard here — this is the only place it's needed.
+    // KEEP this guard here — this is the only place it's needed.
     if (isEventNavigationRef.current) return;
 
     const trimmed = searchText.trim();
@@ -180,12 +176,6 @@ const UserEvents = () => {
         params.set("page", "1");
         return params;
       });
-
-      console.log("Current page:", pageFromUrl);
-      console.log("Target event:", eventId);
-      console.log("Events on page:", eventList.map(e => e._id));
-
-
 
       dispatch(
         fetchFilteredEvents({
