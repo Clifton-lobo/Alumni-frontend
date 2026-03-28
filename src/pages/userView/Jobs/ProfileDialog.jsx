@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { createPortal } from "react-dom";  {/* ← NEW LINE */}
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
@@ -23,9 +24,6 @@ import {
     Shield,
 } from "lucide-react";
 
-/* ─────────────────────────────────────────────
-  Helper — identical to AlumniDirectory
-───────────────────────────────────────────── */
 const getConnectionStatus = (
     targetUserId,
     currentUserId,
@@ -56,19 +54,10 @@ const getConnectionStatus = (
         })
     )
         return "PENDING_RECEIVED";
-    console.log("user ids in connections:", acceptedConnections.map(c => ({
-        connectionId: c._id,
-        userId: c.user?._id,
-        userIdString: c.user?._id?.toString(),
-        fullUser: c.user
-    })));
 
     return "NONE";
 };
 
-/* ─────────────────────────────────────────────
-  Connect Button — identical to AlumniDirectory
-───────────────────────────────────────────── */
 const ConnectButton = ({ status, onConnect, onRespond, loading }) => {
     if (status === "ACCEPTED") {
         return (
@@ -118,9 +107,6 @@ const ConnectButton = ({ status, onConnect, onRespond, loading }) => {
     );
 };
 
-/* ─────────────────────────────────────────────
-  ProfileDialog
-───────────────────────────────────────────── */
 const ProfileDialog = ({ open, onClose, poster }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -133,16 +119,8 @@ const ProfileDialog = ({ open, onClose, poster }) => {
         sendingRequests,
     } = useSelector((s) => s.connections);
 
-    // ── KEY FIX: fetch connection data when dialog opens ──
-    // The Jobs page never calls fetchAcceptedConnections, so the Redux store
-    // is empty and getConnectionStatus always returns "NONE".
-    // Fetching here ensures we always have fresh data regardless of which
-    // page the dialog is opened from.
     useEffect(() => {
         if (!open) return;
-        console.log("acceptedConnections:", acceptedConnections);
-        console.log("posterId:", posterId);
-        console.log("connectionStatus:", connectionStatus);
         dispatch(fetchAcceptedConnections());
         dispatch(fetchIncomingRequests());
         dispatch(fetchOutgoingRequests());
@@ -155,7 +133,6 @@ const ProfileDialog = ({ open, onClose, poster }) => {
     const posterId = (poster._id ?? poster.userId)?.toString();
     const isAdmin = poster.role === "admin";
 
-    // Same logic as AlumniDirectory
     const isCurrentUser = !!(posterId && currentUserId && posterId === currentUserId);
 
     const connectionStatus = getConnectionStatus(
@@ -166,7 +143,6 @@ const ProfileDialog = ({ open, onClose, poster }) => {
         incomingRequests
     );
 
-    // Show action buttons for non-admin, non-self — same as AlumniDirectory's showActions
     const showActions = !isAdmin && !isCurrentUser;
 
     const handleConnect = () => {
@@ -188,7 +164,8 @@ const ProfileDialog = ({ open, onClose, poster }) => {
         });
     };
 
-    return (
+    // ↓ CHANGED: wrapped everything in createPortal
+    return createPortal(
         <div
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
             style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}
@@ -198,10 +175,8 @@ const ProfileDialog = ({ open, onClose, poster }) => {
                 className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Top accent bar */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-[#142A5D] via-[#EBAB09] to-[#142A5D]" />
 
-                {/* Close button */}
                 <button
                     onClick={onClose}
                     className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition z-10"
@@ -209,10 +184,7 @@ const ProfileDialog = ({ open, onClose, poster }) => {
                     <X className="w-4 h-4" />
                 </button>
 
-                {/* Body */}
                 <div className="px-6 pt-6 pb-4 flex flex-col items-center text-center">
-
-                    {/* Avatar */}
                     <div className="relative">
                         <div className="w-24 h-24 rounded-full overflow-hidden bg-[#142A5D] flex items-center justify-center text-white text-2xl font-bold shadow-md ring-4 ring-white">
                             {poster.profilePicture ? (
@@ -234,7 +206,6 @@ const ProfileDialog = ({ open, onClose, poster }) => {
                         )}
                     </div>
 
-                    {/* Name + badges */}
                     <div className="mt-3 flex items-center gap-2 justify-center flex-wrap">
                         <h2 className="text-lg font-bold text-slate-900">
                             {poster.fullname || poster.username || "Anonymous"}
@@ -251,17 +222,13 @@ const ProfileDialog = ({ open, onClose, poster }) => {
                         )}
                     </div>
 
-                    {/* Username */}
                     {poster.username && poster.fullname && (
                         <p className="text-xs text-slate-400 mt-0.5">@{poster.username}</p>
                     )}
 
-                    {/* Divider */}
                     <div className="w-12 h-0.5 bg-gradient-to-r from-transparent via-[#EBAB09] to-transparent rounded-full mt-3 mb-4" />
 
-                    {/* Info rows */}
                     <div className="w-full space-y-2.5 text-sm text-left">
-
                         <div className="flex items-center gap-2.5 text-slate-600">
                             <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
                                 <Mail className="w-3.5 h-3.5 text-slate-500" />
@@ -322,7 +289,6 @@ const ProfileDialog = ({ open, onClose, poster }) => {
                     </div>
                 </div>
 
-                {/* ── ACTION BUTTONS — same logic as AlumniDirectory ── */}
                 {showActions && (
                     <div className="px-6 pb-6 pt-2 flex gap-3">
                         <ConnectButton
@@ -334,7 +300,6 @@ const ProfileDialog = ({ open, onClose, poster }) => {
                             }}
                             loading={!!sendingRequests?.[posterId]}
                         />
-                        {/* Message: enabled only when ACCEPTED, disabled otherwise */}
                         <button
                             onClick={connectionStatus === "ACCEPTED" ? handleMessage : undefined}
                             disabled={connectionStatus !== "ACCEPTED"}
@@ -350,7 +315,6 @@ const ProfileDialog = ({ open, onClose, poster }) => {
                     </div>
                 )}
 
-                {/* ── Admin notice ── */}
                 {isAdmin && (
                     <div className="px-6 pb-5 pt-1">
                         <div className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm font-medium">
@@ -360,7 +324,6 @@ const ProfileDialog = ({ open, onClose, poster }) => {
                     </div>
                 )}
 
-                {/* ── Viewing own profile ── */}
                 {isCurrentUser && (
                     <div className="px-6 pb-5 pt-1">
                         <div className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#142A5D]/5 border border-[#142A5D]/15 text-[#142A5D] text-sm font-medium">
@@ -369,7 +332,8 @@ const ProfileDialog = ({ open, onClose, poster }) => {
                     </div>
                 )}
             </div>
-        </div>
+        </div>,
+        document.body  // ← THIS is what fixes it. Renders outside all parents.
     );
 };
 

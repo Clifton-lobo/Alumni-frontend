@@ -20,6 +20,8 @@ import {
     UserMinus, MessageSquare, Users, ArrowLeft,
     UserCheck, UserX, Clock, Send, Link2, Globe2, Sparkles,
 } from "lucide-react";
+import { setActiveConversation } from "../../store/user-view/MessageSlice"; // adjust path
+import { useNavigate } from "react-router-dom";
 
 const BLUE = "#142A5D";
 const GOLD = "#F2A20A";
@@ -155,6 +157,26 @@ const RightPanel = ({ acceptedCount, incomingCount }) => (
 ══════════════════════════════════════════════════ */
 const ConnectedTab = ({ onMessage, onRemove }) => {
     const { acceptedConnections, loading } = useSelector((s) => s.connections);
+    const navigate = useNavigate();   // ← add this
+
+    // ← replace onMessage?.(conn) with this function
+    const handleMessage = (conn) => {
+        const user = conn.user || conn;
+        const userId = user._id || user.id;
+
+        navigate("/user/messages", {
+            state: {
+                recipientId: userId,
+                recipientUser: {
+                    _id: userId,
+                    fullname: user.fullname || user.name,
+                    username: user.username,
+                    profileImage: user.profilePicture || user.profileImage,
+                },
+            },
+        });
+    };
+
     if (loading) return <Skeleton />;
     if (!acceptedConnections.length)
         return <EmptyState icon={Users} title="No connections yet" subtitle="Start connecting with alumni and peers to grow your network." />;
@@ -181,7 +203,9 @@ const ConnectedTab = ({ onMessage, onRemove }) => {
                             )}
                         </div>
                         <div className="flex items-center gap-2">
-                            <button title="Message" onClick={() => onMessage?.(conn)}
+                            <button
+                                title="Message"
+                                onClick={() => handleMessage(conn)} 
                                 className="p-2.5 rounded-xl text-slate-400 hover:text-blue-500 hover:bg-blue-50 transition-colors">
                                 <MessageSquare className="h-[18px] w-[18px]" />
                             </button>

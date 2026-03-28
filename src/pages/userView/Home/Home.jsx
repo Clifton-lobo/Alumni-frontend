@@ -161,26 +161,23 @@ const Home = () => {
           <div className="max-w-4xl mx-auto text-center">
 
             <h1
-              className={`font-serif text-3xl sm:text-4xl md:text-7xl lg:text-[75px] font-bold text-white mb-2 leading-tight transition-all duration-700 ${
-                heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
-              }`}
+              className={`font-serif text-3xl sm:text-4xl md:text-7xl lg:text-[75px] font-bold text-white mb-2 leading-tight transition-all duration-700 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
+                }`}
             >
               Connect. Inspire. <br />
               <span className="text-yellow-400">Succeed Together.</span>
             </h1>
 
             <p
-              className={`text-sm sm:text-base md:text-lg text-white/50 mb-8 md:mb-10 max-w-2xl mx-auto px-2 md:px-0 transition-all duration-700 delay-100 ${
-                heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
-              }`}
+              className={`text-sm sm:text-base md:text-lg text-white/50 mb-8 md:mb-10 max-w-2xl mx-auto px-2 md:px-0 transition-all duration-700 delay-100 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
+                }`}
             >
               Join our thriving community of graduates making an impact worldwide.
             </p>
 
             <div
-              className={`flex flex-col sm:flex-row gap-3 md:gap-4 justify-center mb-12 md:mb-16 px-2 md:px-0 transition-all duration-700 delay-200 ${
-                heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
-              }`}
+              className={`flex flex-col sm:flex-row gap-3 md:gap-4 justify-center mb-12 md:mb-16 px-2 md:px-0 transition-all duration-700 delay-200 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
+                }`}
             >
               <Link
                 to="/user/community"
@@ -202,9 +199,8 @@ const Home = () => {
               {stats.map((stat, index) => (
                 <div
                   key={stat.label}
-                  className={`bg-white/10 backdrop-blur p-4 md:p-2 rounded-2xl transition-all duration-500 ${
-                    heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
-                  }`}
+                  className={`bg-white/10 backdrop-blur p-4 md:p-2 rounded-2xl transition-all duration-500 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
+                    }`}
                   style={{ transitionDelay: `${400 + index * 100}ms` }}
                 >
                   <stat.icon className="w-7 h-7 md:w-8 md:h-8 text-[#EBAB09] mx-auto mb-3" />
@@ -231,9 +227,8 @@ const Home = () => {
       <section id="events" ref={eventsRef} className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <div
-            className={`flex flex-col md:flex-row md:items-end md:justify-between mb-14 transition-all duration-700 ${
-              eventsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}
+            className={`flex flex-col md:flex-row md:items-end md:justify-between mb-14 transition-all duration-700 ${eventsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              }`}
           >
             <div>
               <span className="text-[#EBAB09] font-semibold text-sm uppercase tracking-wider">Upcoming Events</span>
@@ -262,9 +257,8 @@ const Home = () => {
               {/* FEATURED EVENT */}
               {featuredEvent && featuredEvent._id && (
                 <div
-                  className={`lg:row-span-2 relative rounded-3xl overflow-hidden shadow-xl transition-all duration-700 ease-out ${
-                    eventsVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"
-                  }`}
+                  className={`lg:row-span-2 relative rounded-3xl overflow-hidden shadow-xl transition-all duration-700 ease-out ${eventsVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"
+                    }`}
                   style={{ transitionDelay: "100ms" }}
                 >
                   <img
@@ -315,9 +309,8 @@ const Home = () => {
                 event._id && (
                   <div
                     key={event._id}
-                    className={`bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-700 ${
-                      eventsVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"
-                    }`}
+                    className={`bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-700 ${eventsVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"
+                      }`}
                     style={{ transitionDelay: `${200 + index * 150}ms` }}
                   >
                     <div className="flex flex-col sm:flex-row">
@@ -371,9 +364,8 @@ const Home = () => {
       {/* CAREER SECTION */}
       <section ref={careerRef} className="py-16 mt5 bgwhite">
         <div
-          className={`max-w-6xl mx-auto px-6 text-center mb-10 transition-all duration-700 ${
-            careerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+          className={`max-w-6xl mx-auto px-6 text-center mb-10 transition-all duration-700 ${careerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            }`}
         >
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#142A5D]">
             Unlock Your Career Potential
@@ -386,15 +378,13 @@ const Home = () => {
 
         <div className="max-w-6xl mx-auto px-6">
           <div
-            className={`border border-neutral-300 rounded-lg p-8 bg-white grid grid-cols-1 md:grid-cols-2 gap-10 items-center transition-all duration-700 ${
-              careerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-            }`}
+            className={`border border-neutral-300 rounded-lg p-8 bg-white grid grid-cols-1 md:grid-cols-2 gap-10 items-center transition-all duration-700 ${careerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+              }`}
             style={{ transitionDelay: "150ms" }}
           >
             <div
-              className={`w-full h-full transition-all duration-700 ${
-                careerVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
-              }`}
+              className={`w-full h-full transition-all duration-700 ${careerVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
+                }`}
               style={{ transitionDelay: "250ms" }}
             >
               <img
@@ -406,9 +396,8 @@ const Home = () => {
             </div>
 
             <div
-              className={`transition-all duration-700 ${
-                careerVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"
-              }`}
+              className={`transition-all duration-700 ${careerVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"
+                }`}
               style={{ transitionDelay: "350ms" }}
             >
               <h2 className="text-3xl md:text-4xl font-serif font-bold text-neutral-900">Career Opportunities</h2>
@@ -439,9 +428,8 @@ const Home = () => {
         <div className="max-w-6xl mx-auto px-6 relative z-10">
 
           <div
-            className={`text-center mb-16 transition-all duration-700 ${
-              socialVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}
+            className={`text-center mb-16 transition-all duration-700 ${socialVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              }`}
           >
             <span className="text-[#EBAB09] font-semibold text-sm uppercase tracking-widest">Stay Connected</span>
             <h2 className="font-serif text-3xl md:text-5xl font-bold text-[#142A5D] mt-2">
@@ -453,9 +441,8 @@ const Home = () => {
           </div>
 
           <div
-            className={`grid grid-cols-12 gap-4 transition-all duration-700 ${
-              socialVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-            }`}
+            className={`grid grid-cols-12 gap-4 transition-all duration-700 ${socialVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+              }`}
             style={{ transitionDelay: "200ms" }}
           >
             {/* INSTAGRAM */}
@@ -597,9 +584,8 @@ const Home = () => {
 
           {/* Bottom strip */}
           <div
-            className={`mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-slate-100 transition-all duration-700 ${
-              socialVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-            }`}
+            className={`mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-slate-100 transition-all duration-700 ${socialVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+              }`}
             style={{ transitionDelay: "500ms" }}
           >
             <p className="text-slate-400 text-sm">
