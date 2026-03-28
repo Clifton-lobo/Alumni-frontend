@@ -36,17 +36,16 @@ const UserEvents = () => {
   const prevPageRef = useRef(pageFromUrl);
   const listContainerRef = useRef(null);
   const isEventNavigationRef = useRef(false);
+  const hasCalledFindRef = useRef(false);
+  const navigatedToPageRef = useRef(false);
 
-  // detect event navigation ONCE
+  // detect event navigation ONCE on mount
   useEffect(() => {
     const eventId = searchParams.get("eventId");
     if (eventId) {
       isEventNavigationRef.current = true;
     }
   }, []);
-
-  const hasCalledFindRef = useRef(false);
-  const navigatedToPageRef = useRef(false);
 
   const getIsVirtual = () => {
     if (mode === "virtual") return true;
@@ -67,21 +66,6 @@ const UserEvents = () => {
       if (!data.success) return;
 
       const targetPage = data.page;
-      if (targetPage !== pageFromUrl) {
-        navigatedToPageRef.current = true;
-
-        setSearchParams((prev) => {
-          const params = new URLSearchParams(prev);
-          params.set("page", String(targetPage));
-          return params;
-        });
-
-        return;
-      }
-
-      // already on correct page
-      setScrollToEventId(eventId);
-
       navigatedToPageRef.current = true;
 
       setSearchParams((prev) => {
@@ -97,6 +81,17 @@ const UserEvents = () => {
 
   /* -----------------------------------
      SCROLL TO EVENT
+
+     Guards in order:
+     1. No eventId in URL → reset refs, bail
+     2. Currently loading → wait
+     3. eventList is still empty → the first fetch hasn't populated it yet,
+        wait. This is the key fix: on Render the page lands with ?eventId=X
+        and loading starts as false + eventList=[] simultaneously (Redux
+        initial state), so we must wait for the list to actually have data
+        before deciding the event "isn't here".
+     4. Event found → scroll to it
+     5. Event not found → call findEventPage (once)
   ----------------------------------- */
   useEffect(() => {
     const eventId = searchParams.get("eventId");
@@ -107,15 +102,19 @@ const UserEvents = () => {
       return;
     }
 
-    // Wait for the main fetch to finish before doing anything
     if (loading) return;
+
+    // Wait until the list is actually populated before checking it.
+    // Without this, on first render (loading=false, eventList=[]) we'd
+    // immediately conclude the event isn't here and call findEventPage,
+    // which returns page 1, but the list is still empty so the scroll
+    // never fires and hasCalledFindRef blocks any retry.
+    if (eventList.length === 0) return;
 
     const found = eventList.find((e) => e._id === eventId);
 
     if (found) {
       setScrollToEventId(eventId);
-
-      // Remove eventId AFTER scroll trigger
       setTimeout(() => {
         setSearchParams((prev) => {
           const params = new URLSearchParams(prev);
@@ -124,13 +123,10 @@ const UserEvents = () => {
         });
         isEventNavigationRef.current = false;
       }, 0);
-
       return;
     }
 
-    // Event not on this page yet — find which page it's on
-    if (navigatedToPageRef.current && loading) return;
-
+    // Event not on this page — find which page it's on
     if (!hasCalledFindRef.current) {
       hasCalledFindRef.current = true;
       findEventPage(eventId);
@@ -164,7 +160,6 @@ const UserEvents = () => {
       return;
     }
 
-    // KEEP this guard here — this is the only place it's needed.
     if (isEventNavigationRef.current) return;
 
     const trimmed = searchText.trim();
@@ -280,8 +275,9 @@ const UserEvents = () => {
 
           <div className="relative min-h-[600px]">
             <div
-              className={`transition-opacity duration-300 ease-in-out ${loading ? "opacity-40" : "opacity-100"
-                }`}
+              className={`transition-opacity duration-300 ease-in-out ${
+                loading ? "opacity-40" : "opacity-100"
+              }`}
             >
               {activeFilter === "custom" && eventList.length === 0 && !loading ? (
                 <div className="py-20 text-center">
@@ -290,7 +286,10 @@ const UserEvents = () => {
                   </p>
                 </div>
               ) : (
-                <EventList events={eventList || []} scrollToEventId={scrollToEventId} />
+                <EventList
+                  events={eventList || []}
+                  scrollToEventId={scrollToEventId}
+                />
               )}
             </div>
           </div>
