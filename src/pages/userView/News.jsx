@@ -76,11 +76,11 @@ const Skel = ({ className = "" }) => (
 const HeroCard = ({ article, onClick }) => (
   <div
     onClick={() => onClick(article._id)}
-    className="relative w-full cursor-pointer overflow-hidden rounded-2xl border border-gray-200 bg-white
+    className="relative w-full cursor-pointer overflow-hidden shadow-md rounded-2xl border border-gray-200 bg-white
       transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl flex flex-col md:flex-row min-h-[380px]"
   >
     {/* LEFT — Cover image */}
-    <div className="w-full md:w-[50%] shrink-0 overflow-hidden bg-slate-100 min-h-[300px] md:min-h-110">
+    <div className="w-full md:w-[45%] shrink-0 overflow-hidden bg-slate-100 min-h-[300px] md:min-h-110">
       {article.coverImage?.url ? (
         <img
           src={article.coverImage.url}

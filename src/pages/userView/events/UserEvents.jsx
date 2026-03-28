@@ -67,11 +67,21 @@ const UserEvents = () => {
       if (!data.success) return;
 
       const targetPage = data.page;
+      if (targetPage !== pageFromUrl) {
+        navigatedToPageRef.current = true;
 
-      if (targetPage === pageFromUrl) {
-        setScrollToEventId(eventId);
+        setSearchParams((prev) => {
+          const params = new URLSearchParams(prev);
+          params.set("page", String(targetPage));
+          return params;
+        });
+
         return;
       }
+
+      // already on correct page
+      setScrollToEventId(eventId);
+
       navigatedToPageRef.current = true;
 
       setSearchParams((prev) => {
@@ -83,8 +93,8 @@ const UserEvents = () => {
       console.error("Failed to find event page", e);
       hasCalledFindRef.current = false;
     }
-  }; 
-                
+  };
+
   /* -----------------------------------
      SCROLL TO EVENT
   ----------------------------------- */
@@ -107,19 +117,15 @@ const UserEvents = () => {
     if (found) {
       setScrollToEventId(eventId);
 
-      // ✅ Wait for highlight to finish BEFORE cleaning URL
+      // ✅ REMOVE eventId AFTER scroll trigger
       setTimeout(() => {
         setSearchParams((prev) => {
           const params = new URLSearchParams(prev);
           params.delete("eventId");
           return params;
         });
-        isEventNavigationRef.current = false;
-        setScrollToEventId(null);
-      }, 2500); // same as your highlight duration
+      }, 0);
 
-      hasCalledFindRef.current = false;
-      navigatedToPageRef.current = false;
       return;
     }
 
@@ -137,7 +143,7 @@ const UserEvents = () => {
   ----------------------------------- */
   useEffect(() => {
     if (activeFilter === "custom") return;
-    if (searchParams.get("eventId")) return; 
+    // if (searchParams.get("eventId")) return; 
 
     dispatch(
       fetchFilteredEvents({
@@ -161,7 +167,6 @@ const UserEvents = () => {
     }
 
     // ✅ KEEP this guard here — this is the only place it's needed.
-    // Prevents filters resetting to page 1 while we're navigating to an event.
     if (isEventNavigationRef.current) return;
 
     const trimmed = searchText.trim();
@@ -173,6 +178,12 @@ const UserEvents = () => {
         params.set("page", "1");
         return params;
       });
+
+      console.log("Current page:", pageFromUrl);
+      console.log("Target event:", eventId);
+      console.log("Events on page:", eventList.map(e => e._id));
+
+
 
       dispatch(
         fetchFilteredEvents({

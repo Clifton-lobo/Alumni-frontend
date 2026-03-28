@@ -17,17 +17,22 @@ const EventCard = ({ event, scrollToMe = false }) => {
   const [highlight, setHighlight] = useState(false);
   const cardRef = useRef(null);
 
-  useEffect(() => {
-    if (!scrollToMe || !cardRef.current) return;
+ 
+ const hasScrolledRef = useRef(false);
 
-    requestAnimationFrame(() => {
-      cardRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-      setHighlight(true);
+useEffect(() => {
+  if (!scrollToMe || !cardRef.current || hasScrolledRef.current) return;
+
+  hasScrolledRef.current = true;
+
+  requestAnimationFrame(() => {
+    cardRef.current.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
     });
-  }, [scrollToMe]); // only fires when scrollToMe becomes true
+    setHighlight(true);
+  });
+}, [scrollToMe]); // only fires when scrollToMe becomes true
 
   useEffect(() => {
     if (!highlight) return;

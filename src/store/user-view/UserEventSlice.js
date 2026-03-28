@@ -93,7 +93,7 @@ const eventSlice = createSlice({
     loading: false,
     error: null,
     source: "eventsPage", // or "home"
-    activeFilter: "allcd ",
+    activeFilter: "all ",
     category: "all",
     mode: "all",
     status: "all",

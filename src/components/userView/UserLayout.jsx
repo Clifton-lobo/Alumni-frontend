@@ -7,23 +7,23 @@ const UserLayout = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const location = useLocation();
+  const isMessagesPage = location.pathname.startsWith("/user/messages");
 
   return (
     <div className="flex flex-col min-h-screen">
-
       {!isFullscreen && <UserHeader />}
 
       <main
         className={`flex flex-col flex-1 w-full ${!isFullscreen ? "pt-[72px]" : ""}`}
         key={location.pathname}
         style={{
-          animation: "pageEnter 0.4s ease forwards",
+          animation: isMessagesPage ? "none" : "pageEnter 0.4s ease forwards",
         }}
       >
         <Outlet context={{ isFullscreen, setIsFullscreen }} />
       </main>
 
-      {!isFullscreen && <Footer />}
+      {!isFullscreen && !isMessagesPage && <Footer />}
     </div>
   );
 };
