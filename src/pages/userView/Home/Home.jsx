@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { Clock, Tag, ArrowRight, Users2, Users, Calendar, Award, MapPin, Instagram, Twitter, Linkedin, Youtube, ExternalLink } from "lucide-react";
+import { Tag, ArrowRight, Users, Calendar, Award, MapPin, Instagram, Twitter, Linkedin, Youtube } from "lucide-react";
+import exploreOnMap from "../../../assets/exploreOnMap.png";
+import { FloatingDockHelper } from "./FloatingDock";
+import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import axiosInstance from "../../../api/axiosInstance.js";
 
@@ -7,6 +10,42 @@ const stats = [
   { icon: Users, value: "50K+", label: "Alumni Worldwide" },
   { icon: Calendar, value: "200+", label: "Events Yearly" },
   { icon: Award, value: "95%", label: "Career Success" },
+];
+
+const news = [
+  {
+    id: 1,
+    title: "Alumni Association Launches New Mentorship Program",
+    excerpt: "Connect with industry leaders for personalized career guidance and professional development.",
+    category: "Programs",
+    date: "Jan 15, 2024",
+    image: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=600&auto=format&fit=crop",
+  },
+  {
+    id: 2,
+    title: "Record-Breaking Fundraiser Raises $5M for Scholarships",
+    excerpt: "Thanks to generous alumni contributions, more students than ever will receive financial support.",
+    category: "Giving",
+    date: "Jan 10, 2024",
+    image: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=600&auto=format&fit=crop",
+  },
+  {
+    id: 3,
+    title: "Class of 2013 Celebrates 10-Year Reunion",
+    excerpt: "Over 300 alumni returned to campus for a memorable weekend of reconnection and celebration.",
+    category: "Reunions",
+    date: "Jan 5, 2024",
+    image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&auto=format&fit=crop",
+  },
+];
+
+const galleryImages = [
+  { id: 1, src: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800", title: "Alumni Meetup" },
+  { id: 2, src: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800", title: "Campus Event" },
+  { id: 3, src: "https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?w=800", title: "Networking Night" },
+  { id: 4, src: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800", title: "Guest Lecture" },
+  { id: 5, src: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800", title: "Annual Gathering" },
+  { id: 6, src: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=600&auto=format&fit=crop", title: "Workshop" },
 ];
 
 const socials = [
@@ -43,15 +82,15 @@ const useIntersection = (threshold = 0.12, rootMargin = "-15% 0px -10% 0px") => 
 const Home = () => {
   const [heroRef, heroVisible] = useIntersection(0.1, "0px");
   const [eventsRef, eventsVisible] = useIntersection(0.12, "-10% 0px -5% 0px");
+  const [newsRef, newsVisible] = useIntersection(0.12, "-10% 0px -5% 0px");
+  const [donationRef, donationVisible] = useIntersection(0.12, "-10% 0px -5% 0px");
   const [careerRef, careerVisible] = useIntersection(0.12, "-10% 0px -5% 0px");
   const [socialRef, socialVisible] = useIntersection(0.12, "-10% 0px -5% 0px");
 
   // ─── LOCAL state for home-page events ───────────────────────────────────
-  // We deliberately do NOT use the shared Redux eventList here.
-  // UserEvents also writes to that same slice (with filter=all), so if we
-  // shared it the two pages would clobber each other and featuredEvent._id
-  // could be undefined when the Link renders, producing ?eventId=undefined
-  // which React Router silently drops — breaking the scroll-to-event feature.
+  // Deliberately NOT using shared Redux eventList — UserEvents writes to the
+  // same slice (filter=all), which would clobber this and make _id undefined,
+  // breaking the ?eventId= link and the scroll-to-event feature.
   const [homeEvents, setHomeEvents] = useState([]);
   const [homeEventsLoading, setHomeEventsLoading] = useState(true);
 
@@ -107,6 +146,7 @@ const Home = () => {
         ref={heroRef}
         className="relative min-h-screen overflow-hidden bg-[#142A5D]"
       >
+        {/* Background decorations */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-32 sm:-top-40 -right-32 sm:-right-40 w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-[#EBAB09]/10 blur-3xl animate-pulse" />
           <div
@@ -119,6 +159,7 @@ const Home = () => {
 
         <div className="container mx-auto px-4 pt-24 md:pt-15 pb-16 md:pb-20 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
+
             <h1
               className={`font-serif text-3xl sm:text-4xl md:text-7xl lg:text-[75px] font-bold text-white mb-2 leading-tight transition-all duration-700 ${
                 heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
@@ -175,6 +216,7 @@ const Home = () => {
           </div>
         </div>
 
+        {/* Bottom wave */}
         <div className="absolute bottom-0 left-0 right-0">
           <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg" className="w-full h-16 md:h-auto">
             <path
@@ -236,7 +278,9 @@ const Home = () => {
                     <span className="inline-block px-4 py-1 rounded-full bg-[#EBAB09] text-white text-sm font-semibold w-fit mb-4">
                       Featured Event
                     </span>
-                    <h3 className="font-serif text-3xl font-bold text-white mb-4">{featuredEvent.title}</h3>
+                    <h3 className="font-serif text-3xl font-bold text-white mb-4">
+                      {featuredEvent.title}
+                    </h3>
                     <div className="flex flex-wrap gap-5 text-white/80 mb-6 text-sm">
                       <span className="flex items-center gap-2">
                         <Calendar className="w-4 h-4" />
@@ -286,7 +330,9 @@ const Home = () => {
                         />
                       </div>
                       <div className="flex-1 p-6">
-                        <h3 className="font-serif text-lg font-bold text-[#142A5D] mb-3">{event.title}</h3>
+                        <h3 className="font-serif text-lg font-bold text-[#142A5D] mb-3">
+                          {event.title}
+                        </h3>
                         <div className="space-y-2 text-slate-600 text-sm mb-4">
                           <span className="flex items-center gap-2">
                             <Calendar className="w-4 h-4 text-[#EBAB09]" />
@@ -323,7 +369,7 @@ const Home = () => {
       </section>
 
       {/* CAREER SECTION */}
-      <section ref={careerRef} className="py-16 bg-white">
+      <section ref={careerRef} className="py-16 mt5 bgwhite">
         <div
           className={`max-w-6xl mx-auto px-6 text-center mb-10 transition-all duration-700 ${
             careerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
@@ -380,6 +426,7 @@ const Home = () => {
 
       {/* SOCIAL MEDIA SECTION */}
       <section ref={socialRef} className="py-28 bg-white relative overflow-hidden">
+
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
           <span
             className="text-[20vw] font-black text-slate-100 leading-none tracking-tighter whitespace-nowrap"
@@ -390,6 +437,7 @@ const Home = () => {
         </div>
 
         <div className="max-w-6xl mx-auto px-6 relative z-10">
+
           <div
             className={`text-center mb-16 transition-all duration-700 ${
               socialVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
@@ -448,6 +496,7 @@ const Home = () => {
 
             {/* Right column */}
             <div className="col-span-12 md:col-span-7 flex flex-col gap-4">
+
               {/* LINKEDIN */}
               <a
                 href="https://linkedin.com"
@@ -481,6 +530,7 @@ const Home = () => {
 
               {/* X and YouTube */}
               <div className="grid grid-cols-2 gap-4 flex-1">
+
                 {/* X / TWITTER */}
                 <a
                   href="https://twitter.com"
@@ -553,7 +603,9 @@ const Home = () => {
             style={{ transitionDelay: "500ms" }}
           >
             <p className="text-slate-400 text-sm">
-              Tag us with <span className="text-[#142A5D] font-bold">#AlumniConnect</span> to get featured
+              Tag us with{" "}
+              <span className="text-[#142A5D] font-bold">#AlumniConnect</span>
+              {" "}to get featured
             </p>
             <div className="flex items-center gap-2">
               {socials.map(({ icon: Icon, color }, i) => (
@@ -565,7 +617,10 @@ const Home = () => {
                 </div>
               ))}
               <div className="w-8 h-8 rounded-full bg-slate-100 hover:bg-black group flex items-center justify-center transition-colors cursor-pointer">
-                <svg className="w-3.5 h-3.5 text-slate-400 group-hover:text-white transition-colors fill-current" viewBox="0 0 24 24">
+                <svg
+                  className="w-3.5 h-3.5 text-slate-400 group-hover:text-white transition-colors fill-current"
+                  viewBox="0 0 24 24"
+                >
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.262 5.638L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" />
                 </svg>
               </div>

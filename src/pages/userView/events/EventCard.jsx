@@ -53,7 +53,8 @@ const EventCard = ({ event, scrollToMe = false }) => {
       ref={cardRef}
       id={`event-${event._id}`}
       className={`flex gap-4 md:gap-8 border-b pb-6 md:pb-10 rounded-lg transition-all duration-700 
-        ${highlight ? "bg-[#eceff3] border-2 border-blue-400 shadow-md" : ""}`}
+        ${highlight ? "bg-[#eceff3] border-2 border-blue-400 shadow-md" : ""}
+        `}
     >
       {/* LEFT DATE */}
       <div className="text-center w-16 md:w-20 shrink-0">
