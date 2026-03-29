@@ -54,6 +54,16 @@ const UserEvents = () => {
   };
 
   /* -----------------------------------
+     CLEAR HIGHLIGHT ON FILTER/SEARCH CHANGE
+     When the user changes filters or search, clear scrollToEventId so the
+     previously highlighted card stops being highlighted.
+  ----------------------------------- */
+  useEffect(() => {
+    if (isFirstRender.current) return;
+    setScrollToEventId(null);
+  }, [activeFilter, category, mode, status, searchText]);
+
+  /* -----------------------------------
      FIND WHICH PAGE THE EVENT IS ON
   ----------------------------------- */
   const findEventPage = async (eventId) => {
@@ -81,39 +91,28 @@ const UserEvents = () => {
 
   /* -----------------------------------
      SCROLL TO EVENT
-
-     Guards in order:
-     1. No eventId in URL → reset refs, bail
-     2. Currently loading → wait
-     3. eventList is still empty → the first fetch hasn't populated it yet,
-        wait. This is the key fix: on Render the page lands with ?eventId=X
-        and loading starts as false + eventList=[] simultaneously (Redux
-        initial state), so we must wait for the list to actually have data
-        before deciding the event "isn't here".
-     4. Event found → scroll to it
-     5. Event not found → call findEventPage (once)
   ----------------------------------- */
   useEffect(() => {
     const eventId = searchParams.get("eventId");
 
     if (!eventId) {
+      // No eventId in URL — reset all navigation refs and clear highlight
       hasCalledFindRef.current = false;
       navigatedToPageRef.current = false;
+      setScrollToEventId(null);
       return;
     }
 
     if (loading) return;
 
     // Wait until the list is actually populated before checking it.
-    // Without this, on first render (loading=false, eventList=[]) we'd
-    // immediately conclude the event isn't here and call findEventPage,
-    // which returns page 1, but the list is still empty so the scroll
-    // never fires and hasCalledFindRef blocks any retry.
     if (eventList.length === 0) return;
 
     const found = eventList.find((e) => e._id === eventId);
 
     if (found) {
+      // Always set scrollToEventId fresh — this also resets EventCard's
+      // hasScrolledRef indirectly because EventCard gets a new scrollToMe=true
       setScrollToEventId(eventId);
       setTimeout(() => {
         setSearchParams((prev) => {

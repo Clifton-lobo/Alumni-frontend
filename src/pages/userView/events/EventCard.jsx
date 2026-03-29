@@ -16,12 +16,19 @@ const EventCard = ({ event, scrollToMe = false }) => {
   const [open, setOpen] = useState(false);
   const [highlight, setHighlight] = useState(false);
   const cardRef = useRef(null);
-
-
   const hasScrolledRef = useRef(false);
 
   useEffect(() => {
-    if (!scrollToMe || !cardRef.current || hasScrolledRef.current) return;
+    // Reset hasScrolledRef whenever scrollToMe flips back to false.
+    // Without this, navigating to the same card a second time (e.g. going
+    // Home → Learn More → back to Home → Learn More again) does nothing
+    // because hasScrolledRef is still true from the first visit.
+    if (!scrollToMe) {
+      hasScrolledRef.current = false;
+      return;
+    }
+
+    if (!cardRef.current || hasScrolledRef.current) return;
 
     hasScrolledRef.current = true;
 
@@ -33,10 +40,9 @@ const EventCard = ({ event, scrollToMe = false }) => {
         block: "center",
       });
 
-      // ✅ FORCE highlight AFTER scroll completes
       setTimeout(() => {
         setHighlight(true);
-      }, 300); // key fix for mobile
+      }, 300);
     });
   }, [scrollToMe]);
 
@@ -67,13 +73,13 @@ const EventCard = ({ event, scrollToMe = false }) => {
       </div>
 
       {/* RIGHT CONTENT */}
-      <div className="flex-1 flex  justify-between items-start md:items-center gap-4">
+      <div className="flex-1 flex justify-between items-start md:items-center gap-4">
         <div className="flex flex-col flex-1 min-w-0">
           <div
             onClick={() => setOpen(true)}
-            className="font-serif group w-full cursor-pointer text-2xl md:text-[32px] font-bold leading-tight hover:text-[#142A5D]  hover:underline transition-colors break-normal"
+            className="font-serif group w-full cursor-pointer text-2xl md:text-[32px] font-bold leading-tight hover:text-[#142A5D] hover:underline transition-colors break-normal"
           >
-              {event.title}
+            {event.title}
             <MoveUpRight className="inline-block ml-1 h-4 w-4 md:h-5 md:w-5 align-baseline transition-transform duration-200 group-hover:-translate-y-1" />
           </div>
 
