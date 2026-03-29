@@ -39,13 +39,9 @@ const UserEvents = () => {
   const hasCalledFindRef = useRef(false);
   const navigatedToPageRef = useRef(false);
 
-  // detect event navigation ONCE on mount
-  useEffect(() => {
-    const eventId = searchParams.get("eventId");
-    if (eventId) {
-      isEventNavigationRef.current = true;
-    }
-  }, []);
+  // Track the last eventId we processed so we can detect when a NEW
+  // eventId arrives — even if the component never unmounted.
+  const lastEventIdRef = useRef(null);
 
   const getIsVirtual = () => {
     if (mode === "virtual") return true;
@@ -55,8 +51,6 @@ const UserEvents = () => {
 
   /* -----------------------------------
      CLEAR HIGHLIGHT ON FILTER/SEARCH CHANGE
-     When the user changes filters or search, clear scrollToEventId so the
-     previously highlighted card stops being highlighted.
   ----------------------------------- */
   useEffect(() => {
     if (isFirstRender.current) return;
@@ -96,23 +90,33 @@ const UserEvents = () => {
     const eventId = searchParams.get("eventId");
 
     if (!eventId) {
-      // No eventId in URL — reset all navigation refs and clear highlight
+      // No eventId — reset everything and clear highlight
       hasCalledFindRef.current = false;
       navigatedToPageRef.current = false;
+      lastEventIdRef.current = null;
       setScrollToEventId(null);
       return;
     }
 
+    // NEW eventId arrived (different from last time, e.g. user clicked a
+    // different card from Home without the component unmounting).
+    // Reset all navigation refs so the new eventId is processed fresh.
+    if (eventId !== lastEventIdRef.current) {
+      hasCalledFindRef.current = false;
+      navigatedToPageRef.current = false;
+      isEventNavigationRef.current = true;
+      lastEventIdRef.current = eventId;
+      setScrollToEventId(null); // clear any previous highlight immediately
+    }
+
     if (loading) return;
 
-    // Wait until the list is actually populated before checking it.
+    // Wait until list is populated
     if (eventList.length === 0) return;
 
     const found = eventList.find((e) => e._id === eventId);
 
     if (found) {
-      // Always set scrollToEventId fresh — this also resets EventCard's
-      // hasScrolledRef indirectly because EventCard gets a new scrollToMe=true
       setScrollToEventId(eventId);
       setTimeout(() => {
         setSearchParams((prev) => {
