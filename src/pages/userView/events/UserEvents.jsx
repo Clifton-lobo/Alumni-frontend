@@ -32,17 +32,18 @@ const UserEvents = () => {
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [scrollToEventId, setScrollToEventId] = useState(null);
 
-  // pendingEventId: the eventId we're navigating to.
-  // Kept as state (not a ref) so STEP 2 re-runs when it changes.
+  // ── NEW: tracks which eventId we still need to locate on a page ──────────
+  // When this is set, the "resolve" effect will either scroll to the event
+  // (if it's already in eventList) or call findEventPage.
+  // Using state (not a ref) so the effect re-runs whenever it changes.
   const [pendingEventId, setPendingEventId] = useState(null);
+  // ─────────────────────────────────────────────────────────────────────────
 
   const isFirstRender = useRef(true);
   const prevPageRef = useRef(pageFromUrl);
   const listContainerRef = useRef(null);
-
-  // True while an eventId navigation is in progress.
-  // Suppresses the main fetch so only ONE fetch fires (for the correct page).
   const isEventNavigationRef = useRef(false);
+  const isFindingPageRef = useRef(false); // replaces hasCalledFindRef
 
   const getIsVirtual = () => {
     if (mode === "virtual") return true;
@@ -60,8 +61,6 @@ const UserEvents = () => {
 
   /* -----------------------------------
      FIND WHICH PAGE THE EVENT IS ON
-     Called immediately when a new eventId arrives — no list check needed.
-     Updates the page param → the main fetch fires ONCE for the right page.
   ----------------------------------- */
   const findEventPage = async (eventId) => {
     try {
@@ -71,57 +70,59 @@ const UserEvents = () => {
       );
 
       if (!data.success) {
-        isEventNavigationRef.current = false; // unblock on failure
+        isFindingPageRef.current = false;
         return;
       }
 
-      // isEventNavigationRef stays true here — it gets cleared in STEP 2
-      // only after the card is confirmed to be in the list.
+      const targetPage = data.page;
+
       setSearchParams((prev) => {
         const params = new URLSearchParams(prev);
-        params.set("page", String(data.page));
+        params.set("page", String(targetPage));
         return params;
       });
+      // pendingEventId stays set — the "resolve" effect will scroll once
+      // eventList refreshes with the new page's data.
     } catch (e) {
       console.error("Failed to find event page", e);
-      isEventNavigationRef.current = false;
+      isFindingPageRef.current = false;
     }
   };
 
   /* -----------------------------------
      STEP 1 — DETECT NEW eventId IN URL
-     Calls findEventPage immediately — no wasted fetch, no first opacity flash.
-     Previously the code waited for eventList to load before calling
-     findEventPage, causing: fetch → flash → findEventPage → fetch → flash.
-     Now it's: findEventPage → fetch (correct page) → scroll. One flash only.
+     Runs whenever searchParams changes.
+     Translates the URL param into pendingEventId state.
   ----------------------------------- */
   useEffect(() => {
     const eventId = searchParams.get("eventId");
 
     if (!eventId) {
+      // No eventId — clear everything
       setPendingEventId(null);
       setScrollToEventId(null);
+      isFindingPageRef.current = false;
       isEventNavigationRef.current = false;
       return;
     }
 
+    // Always update pendingEventId when the URL's eventId changes.
+    // Using the functional updater lets us detect same-vs-different.
     setPendingEventId((prev) => {
-      if (prev === eventId) return prev; // same id — already being handled
+      if (prev === eventId) return prev; // same id, no-op
 
-      // Brand new eventId: engage nav mode, clear old highlight, find page now
+      // New eventId — reset guards so STEP 2 processes it fresh
+      isFindingPageRef.current = false;
       isEventNavigationRef.current = true;
       setScrollToEventId(null);
-      findEventPage(eventId);
-
       return eventId;
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   /* -----------------------------------
-     STEP 2 — SCROLL once the correct page's events are loaded
-     findEventPage set the page param → main fetch ran → eventList now has
-     the target event. Scroll to it and clean up.
+     STEP 2 — RESOLVE pendingEventId
+     Runs whenever pendingEventId or eventList/loading change.
+     Either scrolls to the card (if on this page) or navigates to its page.
   ----------------------------------- */
   useEffect(() => {
     if (!pendingEventId) return;
@@ -129,29 +130,38 @@ const UserEvents = () => {
     if (eventList.length === 0) return;
 
     const found = eventList.find((e) => e._id === pendingEventId);
-    if (!found) return; // page not loaded yet — wait
 
-    setScrollToEventId(pendingEventId);
+    if (found) {
+      // Event is on the current page — scroll & highlight it
+      setScrollToEventId(pendingEventId);
 
-    setTimeout(() => {
-      setSearchParams((prev) => {
-        const params = new URLSearchParams(prev);
-        params.delete("eventId");
-        return params;
-      });
-      setPendingEventId(null);
-      isEventNavigationRef.current = false;
-    }, 0);
+      // Clean up URL and state
+      setTimeout(() => {
+        setSearchParams((prev) => {
+          const params = new URLSearchParams(prev);
+          params.delete("eventId");
+          return params;
+        });
+        setPendingEventId(null);
+        isFindingPageRef.current = false;
+        isEventNavigationRef.current = false;
+      }, 0);
+      return;
+    }
+
+    // Event is NOT on the current page — find which page it's on.
+    // Guard against calling this multiple times for the same pendingEventId.
+    if (!isFindingPageRef.current) {
+      isFindingPageRef.current = true;
+      findEventPage(pendingEventId);
+    }
   }, [pendingEventId, eventList, loading]);
 
   /* -----------------------------------
      MAIN FETCH
-     Suppressed while isEventNavigationRef is true so only ONE fetch fires —
-     the one triggered after findEventPage sets the correct page param.
   ----------------------------------- */
   useEffect(() => {
     if (activeFilter === "custom") return;
-    if (isEventNavigationRef.current) return;
 
     dispatch(
       fetchFilteredEvents({
@@ -203,11 +213,9 @@ const UserEvents = () => {
 
   /* -----------------------------------
      SCROLL TO TOP ON PAGE CHANGE
-     Skipped during eventId nav — we scroll to the card instead.
   ----------------------------------- */
   useEffect(() => {
     if (loading) return;
-    if (isEventNavigationRef.current) return;
     if (searchParams.get("eventId")) return;
 
     if (prevPageRef.current !== pageFromUrl) {
