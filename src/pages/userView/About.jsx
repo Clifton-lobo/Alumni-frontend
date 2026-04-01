@@ -7,48 +7,43 @@ const FontLoader = () => {
   useEffect(() => {
     const link = document.createElement('link')
     link.href =
-      'https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=Cormorant+Garamond:wght@300;400;600;700&family=Oswald:wght@300;400;500&display=swap'
+      'https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap'
     link.rel = 'stylesheet'
     document.head.appendChild(link)
+    return () => document.head.removeChild(link)
   }, [])
   return null
 }
 
 /* ─── SVG Icons ─── */
 const IconUniversity = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
   </svg>
 )
 const IconBook = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
   </svg>
 )
 const IconGraduate = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     <path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
   </svg>
 )
 const IconClock = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
   </svg>
 )
 const IconUsers = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
   </svg>
 )
 const IconGlobe = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-  </svg>
-)
-const IconQuote = () => (
-  <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z" opacity="0.3"/>
-    <path d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 0 1-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179zm10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 0 1-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179z"/>
   </svg>
 )
 
@@ -80,12 +75,15 @@ function useIsMobile(breakpoint = 768) {
   return isMobile
 }
 
-/* ─── Timeline accent color — single unified gold ─── */
-const ACCENT = '#B8882E'
-const ACCENT_LIGHT = '#C8963E'
-const ACCENT_PALE = '#F5ECD7'
+/* ─── Tokens ─── */
+const NAVY  = '#142A5D'
+const NAVY2 = '#1e3e8f'
+const NAVY3 = '#2f5ac7'
+const MUTED = '#6b7a99'
+const BORDER = 'rgba(20,42,93,0.10)'
+const BG = '#F5F8FF'
 
-/* ─── Animated Counter — numeric Oswald font ─── */
+/* ─── Animated Counter ─── */
 function CounterStat({ value, suffix = '+', label, delay, icon: Icon }) {
   const [ref, inView] = useInView(0.3)
   const [count, setCount] = useState(0)
@@ -103,53 +101,28 @@ function CounterStat({ value, suffix = '+', label, delay, icon: Icon }) {
   }, [inView, value])
 
   return (
-    <div
-      ref={ref}
-      style={{
-        opacity: inView ? 1 : 0,
-        transform: inView ? 'translateY(0)' : 'translateY(20px)',
-        transition: `all 0.7s cubic-bezier(0.22,1,0.36,1) ${delay}s`,
-        textAlign: 'center',
-        padding: '0 1.5rem',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 8,
-      }}
-    >
-      {/* Icon circle */}
+    <div ref={ref} style={{
+      opacity: inView ? 1 : 0,
+      transform: inView ? 'translateY(0)' : 'translateY(16px)',
+      transition: `all 0.6s ease ${delay}s`,
+      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: '0 1rem',
+    }}>
       <div style={{
-        width: 40,
-        height: 40,
-        borderRadius: '50%',
-        background: ACCENT_PALE,
-        border: `1.5px solid ${ACCENT}44`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: ACCENT,
-        marginBottom: 4,
+        width: 44, height: 44, borderRadius: '50%',
+        background: `${NAVY}12`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', color: NAVY,
       }}>
         <Icon />
       </div>
-      {/* Number — Oswald for crisp numeric feel */}
       <div style={{
-        fontFamily: "'Playfair Display', Georgia, serif",
-        fontWeight: 900,
-        fontSize: 'clamp(30px, 4vw, 50px)',
-        lineHeight: 1,
-        color: '#1A1410',
-        letterSpacing: '-1.5px',
+        fontFamily: "'Sora', sans-serif", fontWeight: 800,
+        fontSize: 'clamp(28px, 3.5vw, 44px)', lineHeight: 1, color: NAVY, letterSpacing: '-1px',
       }}>
-        {count.toLocaleString()}<span style={{ color: ACCENT_LIGHT, fontSize: '0.7em' }}>{suffix}</span>
+        {count.toLocaleString()}<span style={{ color: NAVY3, fontSize: '0.65em' }}>{suffix}</span>
       </div>
       <div style={{
-        fontFamily: "'DM Sans', sans-serif",
-        fontWeight: 400,
-        fontSize: 10.5,
-        letterSpacing: '0.18em',
-        textTransform: 'uppercase',
-        color: '#9A9080',
+        fontFamily: "'DM Sans', sans-serif", fontWeight: 500,
+        fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: MUTED,
       }}>
         {label}
       </div>
@@ -157,402 +130,372 @@ function CounterStat({ value, suffix = '+', label, delay, icon: Icon }) {
   )
 }
 
-/* ═══════════════════════════════════════════════════════════
-   TIMELINE ENTRY — unified gold accent, alternating layout
-═══════════════════════════════════════════════════════════ */
-function TimelineEntry({ item, index }) {
-  const [ref, inView] = useInView(0.08)
-  const isMobile = useIsMobile()
-  const isLeft = index % 2 === 0
-
-  const imgBlock = (
-    <div style={{
-      flex: '0 0 42%',
-      maxWidth: '42%',
-      position: 'relative',
-      borderRadius: 6,
-      overflow: 'hidden',
-      background: '#E8E0D5',
-      aspectRatio: '16/10',
-      boxShadow: `0 8px 40px rgba(0,0,0,0.14), 0 0 0 1px ${ACCENT}22`,
-    }}>
-      <img
-        src={item.image}
-        alt={item.title}
-        style={{
-          width: '100%', height: '100%',
-          objectFit: 'cover', objectPosition: item.imgPosition || 'center',
-          display: 'block',
-          transition: 'transform 0.7s ease',
-        }}
-        onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.04)'}
-        onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-      />
-      {/* Top accent bar — always gold */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: ACCENT_LIGHT }} />
-      {/* Year badge on image */}
-      <div style={{
-        position: 'absolute',
-        bottom: 12, left: 12,
-        background: 'rgba(18,12,4,0.72)',
-        backdropFilter: 'blur(8px)',
-        border: `1px solid ${ACCENT}55`,
-        borderRadius: 4,
-        padding: '4px 10px',
-        fontFamily: "'Oswald', sans-serif",
-        fontWeight: 300,
-        fontSize: 11,
-        letterSpacing: '0.22em',
-        textTransform: 'uppercase',
-        color: '#E8C97E',
-      }}>
-        {item.year}
-      </div>
-    </div>
-  )
-
-  const textBlock = (
-    <div style={{
-      flex: '0 0 42%',
-      maxWidth: '42%',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      textAlign: isLeft ? 'left' : 'right',
-    }}>
-      {/* Category label */}
-      <div style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 6,
-        justifyContent: isLeft ? 'flex-start' : 'flex-end',
-        marginBottom: 10,
-      }}>
-        <div style={{ width: 16, height: 1, background: ACCENT, opacity: 0.6 }} />
-        <span style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontWeight: 500,
-          fontSize: 9.5,
-          letterSpacing: '0.25em',
-          textTransform: 'uppercase',
-          color: ACCENT,
-        }}>
-          {item.label}
-        </span>
-        <div style={{ width: 16, height: 1, background: ACCENT, opacity: 0.6 }} />
-      </div>
-
-      {/* Title — Cormorant for elegance */}
-      <h3 style={{
-        fontFamily: "'Cormorant Garamond', Georgia, serif",
-        fontWeight: 600,
-        fontSize: 'clamp(18px, 2.2vw, 26px)',
-        lineHeight: 1.2,
-        color: '#1A1410',
-        letterSpacing: '-0.2px',
-        marginBottom: 14,
-      }}>
-        {item.title}
-      </h3>
-
-      {/* Rule */}
-      <div style={{
-        height: 1, width: 36, background: ACCENT,
-        marginBottom: 14,
-        alignSelf: isLeft ? 'flex-start' : 'flex-end',
-        opacity: 0.5,
-      }} />
-
-      {/* Description */}
-      <p style={{
-        fontFamily: "'DM Sans', sans-serif",
-        fontWeight: 300,
-        fontSize: 13.5,
-        lineHeight: 1.85,
-        color: '#6A6258',
-        margin: 0,
-      }}>
-        {item.description}
-      </p>
-    </div>
-  )
-
-  if (isMobile) {
-    return (
-      <div ref={ref} style={{
-        display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 48,
-        opacity: inView ? 1 : 0,
-        transform: inView ? 'none' : 'translateY(28px)',
-        transition: `opacity 0.7s ease ${index * 0.1}s, transform 0.7s ease ${index * 0.1}s`,
-      }}>
-        <div style={{ width: '100%', borderRadius: 6, overflow: 'hidden', aspectRatio: '16/9', position: 'relative', boxShadow: '0 4px 20px rgba(0,0,0,0.12)' }}>
-          <img src={item.image} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: ACCENT_LIGHT }} />
-        </div>
-        <div>
-          <div style={{ fontSize: 9.5, letterSpacing: '0.22em', textTransform: 'uppercase', color: ACCENT, marginBottom: 6, fontFamily: "'DM Sans', sans-serif", fontWeight: 500 }}>{item.year} · {item.label}</div>
-          <h3 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 600, fontSize: 20, color: '#1A1410', marginBottom: 10 }}>{item.title}</h3>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13.5, lineHeight: 1.85, color: '#6A6258', fontWeight: 300 }}>{item.description}</p>
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div ref={ref} style={{
-      display: 'flex', alignItems: 'center', gap: 0, marginBottom: 72,
-      opacity: inView ? 1 : 0,
-      transform: inView ? 'none' : 'translateY(30px)',
-      transition: `opacity 0.75s ease ${index * 0.1}s, transform 0.75s ease ${index * 0.1}s`,
-    }}>
-      {isLeft ? imgBlock : textBlock}
-
-      {/* Center spine column */}
-      <div style={{ flex: '0 0 16%', display: 'flex', flexDirection: 'column', alignItems: 'center', alignSelf: 'stretch', position: 'relative' }}>
-        {/* Connector line */}
-        <div style={{
-          position: 'absolute', top: '50%',
-          left: isLeft ? 0 : '50%', right: isLeft ? '50%' : 0, height: 1,
-          background: `linear-gradient(${isLeft ? 'to right' : 'to left'}, transparent, ${ACCENT}55)`,
-          transform: 'translateY(-50%)',
-        }} />
-        {/* Dot */}
-        <div style={{
-          position: 'absolute', top: '50%', left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: 10, height: 10, borderRadius: '50%',
-          background: ACCENT_LIGHT,
-          boxShadow: inView ? `0 0 0 4px ${ACCENT}22, 0 0 14px ${ACCENT}55` : 'none',
-          transition: `box-shadow 0.5s ease ${index * 0.1 + 0.3}s`,
-          zIndex: 2,
-        }} />
-      </div>
-
-      {isLeft ? textBlock : imgBlock}
-    </div>
-  )
-}
-
-/* ─── Timeline items ─── */
-const timelineItems = [
-  {
-    year: 'Est. 2003',
-    label: 'Foundation',
-    title: 'Establishment of the Institution',
-    description:
-      "VPM's R.Z. Shah College was established in 2003 with Government of Maharashtra approval, operating on a permanently unaided basis under the Vidya Prasarak Mandal — a trust committed to spreading education across Maharashtra.",
-    image: 'https://images.pexels.com/photos/207692/pexels-photo-207692.jpeg?auto=compress&cs=tinysrgb&w=800',
-  },
-  {
-    year: 'Mulund East',
-    label: 'Location',
-    title: 'Strategic Location in Mumbai',
-    description:
-      "Situated on Mithagar Road, Mulund East — minutes from Mulund Railway Station on the Central line, making it one of Mumbai's most accessible colleges for students commuting from across the city.",
-    image: 'https://images.pexels.com/photos/256395/pexels-photo-256395.jpeg?auto=compress&cs=tinysrgb&w=800',
-  },
-  {
-    year: 'Affiliated',
-    label: 'Affiliation',
-    title: 'University of Mumbai',
-    description:
-      "Proudly affiliated with the University of Mumbai — one of India's oldest and most prestigious universities — ensuring every degree carries national recognition, academic weight, and lifelong credibility.",
-    image: 'https://images.pexels.com/photos/267885/pexels-photo-267885.jpeg?auto=compress&cs=tinysrgb&w=800',
-  },
-  {
-    year: 'Programs',
-    label: 'Academics',
-    title: 'Expanding Academic Horizons',
-    description:
-      'From B.Com and B.Sc. IT at inception to a full suite — B.Sc. CS, BAF, BBI, BMS, BAMMC — the college has grown its academic portfolio to meet every career aspiration across commerce, science, and media.',
-    image: 'https://images.pexels.com/photos/1438081/pexels-photo-1438081.jpeg?auto=compress&cs=tinysrgb&w=800',
-  },
-]
-
-/* ═══════════════════════════════════════════════════════════
-   FEATURED ENTRY — NBH Kulkarni
-   Visually distinct card that anchors the top of the timeline
-═══════════════════════════════════════════════════════════ */
-function FeaturedEntry({ isMobile }) {
+/* ═══════════════════════════════════════════════
+   NBH KULKARNI — Creative dark feature card
+═══════════════════════════════════════════════ */
+function FoundingPrincipalCard({ isMobile }) {
   const [ref, inView] = useInView(0.05)
 
   return (
     <div
       ref={ref}
       style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        marginBottom: isMobile ? 56 : 72,
         opacity: inView ? 1 : 0,
-        transform: inView ? 'none' : 'translateY(32px)',
-        transition: 'opacity 0.9s ease, transform 0.9s ease',
-      }}
-    >
-      {/* ── Card ── */}
-      <div style={{
-        width: '100%',
-        background: '#16110A',
-        borderRadius: 10,
+        transform: inView ? 'translateY(0)' : 'translateY(28px)',
+        transition: 'opacity 0.85s ease, transform 0.85s cubic-bezier(0.22,1,0.36,1)',
+        borderRadius: 20,
         overflow: 'hidden',
-        boxShadow: `0 24px 80px rgba(0,0,0,0.28), 0 0 0 1px ${ACCENT}33`,
+        background: '#0f1e45',
+        position: 'relative',
+        marginBottom: 80,
         display: 'flex',
         flexDirection: isMobile ? 'column' : 'row',
-        minHeight: isMobile ? 'auto' : 340,
-        position: 'relative',
+        minHeight: isMobile ? 'auto' : 320,
+        boxShadow: '0 20px 64px rgba(20,42,93,0.30)',
+      }}
+    >
+      {/* Decorative orbs */}
+      <div style={{ position: 'absolute', top: -80, right: 200, width: 300, height: 300, borderRadius: '50%', background: 'rgba(47,90,199,0.14)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: -60, left: 320, width: 220, height: 220, borderRadius: '50%', background: 'rgba(47,90,199,0.08)', pointerEvents: 'none' }} />
+
+      {/* Top glow bar */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'linear-gradient(90deg, transparent 0%, #3b82f6 30%, #93c5fd 55%, transparent 100%)' }} />
+
+      {/* ── LEFT: Text ── */}
+      <div style={{
+        flex: isMobile ? 'none' : '0 0 55%',
+        padding: isMobile ? '44px 28px 36px' : '48px 56px',
+        display: 'flex', flexDirection: 'column', justifyContent: 'center',
+        position: 'relative', zIndex: 2,
       }}>
-
-        {/* Gold top bar */}
+        {/* Giant decorative quote */}
         <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: 3,
-          background: `linear-gradient(90deg, ${ACCENT}00 0%, ${ACCENT_LIGHT} 30%, #E8C97E 60%, ${ACCENT}00 100%)`,
-        }} />
+          fontSize: 112, lineHeight: 0.65,
+          color: 'rgba(59,130,246,0.12)',
+          fontFamily: 'Georgia, serif', fontWeight: 900,
+          marginBottom: 20, userSelect: 'none', letterSpacing: '-6px',
+        }}>"</div>
 
-        {/* LEFT — Text panel */}
+        {/* Pill badge */}
         <div style={{
-          flex: isMobile ? 'none' : '0 0 52%',
-          padding: isMobile ? '36px 28px 32px' : '48px 52px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          position: 'relative',
-          zIndex: 2,
+          display: 'inline-flex', alignItems: 'center', gap: 8,
+          background: 'rgba(59,130,246,0.14)', border: '1px solid rgba(59,130,246,0.28)',
+          borderRadius: 100, padding: '5px 14px', marginBottom: 22, width: 'fit-content',
         }}>
-
-          {/* Section label */}
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
-            background: `${ACCENT}18`, border: `1px solid ${ACCENT}44`,
-            borderRadius: 100, padding: '5px 14px', marginBottom: 24,
-            width: 'fit-content',
-          }}>
-            <div style={{ width: 5, height: 5, borderRadius: '50%', background: ACCENT_LIGHT }} />
-            <span style={{
-              fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: 9.5,
-              letterSpacing: '0.22em', textTransform: 'uppercase', color: '#C8A85E',
-            }}>
-              Founding Principal
-            </span>
-          </div>
-
-          {/* Quote mark */}
-          <div style={{ color: ACCENT, opacity: 0.25, marginBottom: 8 }}>
-            <IconQuote />
-          </div>
-
-          {/* Name — elegant serif */}
-          <h2 style={{
-            fontFamily: "'Cormorant Garamond', Georgia, serif",
-            fontWeight: 600,
-            fontSize: isMobile ? 28 : 'clamp(28px, 3.2vw, 40px)',
-            lineHeight: 1.1,
-            color: '#F5ECD7',
-            letterSpacing: '-0.5px',
-            marginBottom: 6,
-          }}>
-            Shri N.B.H. Kulkarni
-          </h2>
-
-          {/* Thin ornamental rule */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20,
-          }}>
-            <div style={{ height: 1, width: 32, background: ACCENT_LIGHT, opacity: 0.7 }} />
-            <span style={{
-              fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: 11,
-              color: '#9A8060', letterSpacing: '0.1em',
-            }}>
-              Visionary Architect of Excellence
-            </span>
-          </div>
-
-          {/* Description */}
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontWeight: 300,
-            fontSize: isMobile ? 13.5 : 14,
-            lineHeight: 1.85,
-            color: 'rgba(245,236,215,0.62)',
-            marginBottom: 28,
-            maxWidth: 400,
-          }}>
-            Shri N.B.H. Kulkarni was the guiding force behind the institution's founding — a visionary educator whose unwavering belief in accessible, quality higher education gave birth to VPM's R.Z. Shah College in 2003. His principles continue to define the college's ethos today.
-          </p>
-
-          {/* Stat chips */}
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-            {['Est. 2003', 'VPM Trust', 'Mumbai University'].map(tag => (
-              <span key={tag} style={{
-                fontFamily: "'DM Sans', sans-serif", fontWeight: 400, fontSize: 10.5,
-                color: '#B89A62', letterSpacing: '0.08em',
-                border: `1px solid ${ACCENT}33`,
-                borderRadius: 100, padding: '5px 12px',
-                background: 'rgba(200,150,62,0.07)',
-              }}>
-                {tag}
-              </span>
-            ))}
-          </div>
+          <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#93c5fd' }} />
+          <span style={{ fontFamily: "'Sora', sans-serif", fontWeight: 600, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#93c5fd' }}>
+            Founding Principal · Est. 2003
+          </span>
         </div>
 
-        {/* RIGHT — Image panel */}
-        <div style={{
-          flex: isMobile ? 'none' : '1',
-          position: 'relative',
-          minHeight: isMobile ? 260 : 'auto',
-          overflow: 'hidden',
+        <h2 style={{
+          fontFamily: "'Sora', sans-serif", fontWeight: 800,
+          fontSize: isMobile ? 26 : 'clamp(24px, 2.8vw, 36px)',
+          lineHeight: 1.1, color: '#fff', letterSpacing: '-0.6px', marginBottom: 6,
         }}>
-          {/* Dark overlay on left edge to blend into text panel */}
-          <div style={{
-            position: 'absolute', inset: 0,
-            background: isMobile
-              ? 'linear-gradient(to bottom, rgba(22,17,10,0.5) 0%, transparent 40%)'
-              : 'linear-gradient(to right, rgba(22,17,10,0.7) 0%, rgba(22,17,10,0.2) 35%, transparent 65%)',
-            zIndex: 1,
-          }} />
-          {/* Subtle gold vignette bottom */}
-          <div style={{
-            position: 'absolute', bottom: 0, left: 0, right: 0, height: '40%',
-            background: 'linear-gradient(to top, rgba(22,17,10,0.5) 0%, transparent 100%)',
-            zIndex: 1,
-          }} />
-          <img
-            src={NBHKulkarniImage}
-            alt="Shri N.B.H. Kulkarni"
-            style={{
-              width: '100%', height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'top center',
-              display: 'block',
-              minHeight: isMobile ? 260 : 340,
-            }}
-          />
-          {/* Year watermark */}
-          <div style={{
-            position: 'absolute', bottom: 20, right: 20, zIndex: 2,
-            fontFamily: "'Oswald', sans-serif",
-            fontWeight: 300,
-            fontSize: 11,
-            letterSpacing: '0.3em',
-            textTransform: 'uppercase',
-            color: 'rgba(232,197,126,0.55)',
-          }}>
-            Est. 2003
-          </div>
+          Shri N.B.H. Kulkarni
+        </h2>
+
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 400, fontSize: 12, color: '#60a5fa', letterSpacing: '0.09em', marginBottom: 20 }}>
+          Visionary Architect of Excellence
+        </p>
+
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: isMobile ? 13.5 : 14, lineHeight: 1.82, color: 'rgba(255,255,255,0.58)', maxWidth: 390, marginBottom: 32 }}>
+          The guiding force behind the institution's founding — a visionary educator whose unwavering belief in accessible, quality higher education gave birth to VPM's R.Z. Shah College. His principles continue to define the college's ethos today.
+        </p>
+
+        {/* Inline stats */}
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          {[
+            { v: '20', s: '+', l: 'Years Legacy' },
+            { v: '7', s: '+', l: 'Programs' },
+            { v: 'MU', s: '', l: 'Affiliated' },
+          ].map((stat, i) => (
+            <React.Fragment key={stat.l}>
+              <div style={{ textAlign: 'center', padding: '0 22px 0 0' }}>
+                <div style={{ fontFamily: "'Sora', sans-serif", fontWeight: 800, fontSize: i === 2 ? 16 : 22, color: '#fff', lineHeight: 1, marginBottom: 4 }}>
+                  {stat.v}{stat.s && <span style={{ color: '#3b82f6', fontSize: '0.62em' }}>{stat.s}</span>}
+                </div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9.5, fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)' }}>
+                  {stat.l}
+                </div>
+              </div>
+              {i < 2 && <div style={{ width: 1, height: 30, background: 'rgba(255,255,255,0.1)', marginRight: 22 }} />}
+            </React.Fragment>
+          ))}
         </div>
       </div>
 
-      {/* Spine connector dot below the card */}
-      {!isMobile && (
+      {/* ── RIGHT: Image ── */}
+      <div style={{ flex: isMobile ? 'none' : '1', position: 'relative', minHeight: isMobile ? 260 : 'auto', overflow: 'hidden' }}>
         <div style={{
-          width: 10, height: 10, borderRadius: '50%',
-          background: ACCENT_LIGHT,
-          boxShadow: inView ? `0 0 0 5px ${ACCENT}22, 0 0 14px ${ACCENT}55` : 'none',
-          margin: '24px 0 0',
-          transition: 'box-shadow 0.6s ease 0.4s',
-          zIndex: 2, position: 'relative',
+          position: 'absolute', inset: 0, zIndex: 1,
+          background: isMobile
+            ? 'linear-gradient(to bottom, rgba(15,30,69,0.65) 0%, transparent 45%)'
+            : 'linear-gradient(to right, rgba(15,30,69,0.90) 0%, rgba(15,30,69,0.30) 42%, transparent 72%)',
         }} />
-      )}
+        <div style={{ position: 'absolute', bottom: 16, right: 16, zIndex: 2, fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'rgba(147,197,253,0.28)' }}>
+          Est. 2003
+        </div>
+        <img
+          src={NBHKulkarniImage}
+          alt="Shri N.B.H. Kulkarni"
+          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center', display: 'block', minHeight: isMobile ? 260 : 320 }}
+        />
+      </div>
+    </div>
+  )
+}
+
+/* ─── Timeline data ─── */
+const timelineItems = [
+  {
+    year: 'Est. 2003',
+    label: 'Foundation',
+    title: 'Establishment of the Institution',
+    description: "VPM's R.Z. Shah College was established in 2003 with Government of Maharashtra approval, operating on a permanently unaided basis under the Vidya Prasarak Mandal — a trust committed to spreading education across Maharashtra.",
+    image: 'https://images.pexels.com/photos/207692/pexels-photo-207692.jpeg?auto=compress&cs=tinysrgb&w=900',
+    accent: NAVY,
+    accentAlpha: 'rgba(20,42,93,',
+  },
+  {
+    year: 'Mulund East',
+    label: 'Location',
+    title: 'Strategic Location in Mumbai',
+    description: "Situated on Mithagar Road, Mulund East — minutes from Mulund Railway Station on the Central line, making it one of Mumbai's most accessible colleges for students commuting from across the city.",
+    image: 'https://images.pexels.com/photos/256395/pexels-photo-256395.jpeg?auto=compress&cs=tinysrgb&w=900',
+    accent: '#1a6b5a',
+    accentAlpha: 'rgba(26,107,90,',
+  },
+  {
+    year: 'Affiliated',
+    label: 'University',
+    title: 'University of Mumbai',
+    description: "Proudly affiliated with the University of Mumbai — one of India's oldest and most prestigious universities — ensuring every degree carries national recognition, academic weight, and lifelong credibility.",
+    image: 'https://images.pexels.com/photos/267885/pexels-photo-267885.jpeg?auto=compress&cs=tinysrgb&w=900',
+    accent: '#6c4fa0',
+    accentAlpha: 'rgba(108,79,160,',
+  },
+  {
+    year: '7+ Programs',
+    label: 'Academics',
+    title: 'Expanding Academic Horizons',
+    description: "From B.Com and B.Sc. IT at inception to a full suite — B.Sc. CS, BAF, BBI, BMS, BAMMC — the college has grown its academic portfolio to meet every career aspiration across commerce, science, and media.",
+    image: 'https://images.pexels.com/photos/1438081/pexels-photo-1438081.jpeg?auto=compress&cs=tinysrgb&w=900',
+    accent: '#b5451b',
+    accentAlpha: 'rgba(181,69,27,',
+  },
+]
+
+/* ═══════════════════════════════════════════════
+   TIMELINE ENTRY — enhanced alternating left/right
+═══════════════════════════════════════════════ */
+function TimelineEntry({ item, index }) {
+  const [ref, inView] = useInView(0.08)
+  const isMobile = useIsMobile()
+  const isLeft = index % 2 === 0   // even = image left, text right
+
+  /* slide direction: image comes from its side, text from the other */
+  const imgSlide  = isLeft  ? 'translateX(-28px)' : 'translateX(28px)'
+  const textSlide = isLeft  ? 'translateX(28px)'  : 'translateX(-28px)'
+
+  /* ── IMAGE BLOCK ── */
+  const imgBlock = (
+    <div style={{
+      flex: '0 0 46%', maxWidth: '46%',
+      position: 'relative',
+      borderRadius: 16,
+      overflow: 'hidden',
+      aspectRatio: '16/10',
+      boxShadow: `0 12px 48px rgba(0,0,0,0.16), 0 0 0 1px ${item.accentAlpha}0.18)`,
+      opacity: inView ? 1 : 0,
+      transform: inView ? 'none' : imgSlide,
+      transition: `opacity 0.75s ease ${index * 0.08}s, transform 0.75s cubic-bezier(0.22,1,0.36,1) ${index * 0.08}s`,
+    }}>
+      <img
+        src={item.image}
+        alt={item.title}
+        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+      />
+
+      {/* Subtle color overlay on image matching accent */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: `linear-gradient(135deg, ${item.accentAlpha}0.22) 0%, transparent 60%)`,
+      }} />
+
+      {/* Top accent bar */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: item.accent }} />
+
+      {/* Year / label chip */}
+      <div style={{
+        position: 'absolute', bottom: 14, left: 14,
+        background: 'rgba(10,10,20,0.68)',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
+        borderRadius: 100,
+        padding: '5px 13px',
+        display: 'flex', alignItems: 'center', gap: 7,
+        border: `1px solid ${item.accentAlpha}0.35)`,
+      }}>
+        <div style={{ width: 5, height: 5, borderRadius: '50%', background: item.accent, flexShrink: 0 }} />
+        <span style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 500, fontSize: 10.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.85)' }}>
+          {item.year}
+        </span>
+      </div>
+    </div>
+  )
+
+  /* ── TEXT BLOCK ── */
+  const textBlock = (
+    <div style={{
+      flex: '0 0 46%', maxWidth: '46%',
+      display: 'flex', flexDirection: 'column', justifyContent: 'center',
+      textAlign: isLeft ? 'left' : 'right',
+      opacity: inView ? 1 : 0,
+      transform: inView ? 'none' : textSlide,
+      transition: `opacity 0.75s ease ${index * 0.08 + 0.1}s, transform 0.75s cubic-bezier(0.22,1,0.36,1) ${index * 0.08 + 0.1}s`,
+    }}>
+
+      {/* Category label row */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        justifyContent: isLeft ? 'flex-start' : 'flex-end',
+        marginBottom: 14,
+      }}>
+        {!isLeft && <div style={{ height: 1, width: 28, background: item.accent, opacity: 0.5 }} />}
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          background: `${item.accentAlpha}0.08)`,
+          border: `1px solid ${item.accentAlpha}0.22)`,
+          borderRadius: 100, padding: '4px 12px',
+        }}>
+          <div style={{ width: 5, height: 5, borderRadius: '50%', background: item.accent, flexShrink: 0 }} />
+          <span style={{ fontFamily: "'Sora', sans-serif", fontWeight: 600, fontSize: 9.5, letterSpacing: '0.18em', textTransform: 'uppercase', color: item.accent }}>
+            {item.label}
+          </span>
+        </div>
+        {isLeft && <div style={{ height: 1, width: 28, background: item.accent, opacity: 0.5 }} />}
+      </div>
+
+      {/* Title */}
+      <h3 style={{
+        fontFamily: "'Sora', sans-serif", fontWeight: 700,
+        fontSize: 'clamp(17px, 1.9vw, 22px)',
+        lineHeight: 1.22, color: '#1a2540',
+        letterSpacing: '-0.3px', marginBottom: 16,
+      }}>
+        {item.title}
+      </h3>
+
+      {/* Short accent rule */}
+      <div style={{
+        height: 2, width: 32, borderRadius: 2,
+        background: item.accent, opacity: 0.4,
+        marginBottom: 16,
+        alignSelf: isLeft ? 'flex-start' : 'flex-end',
+      }} />
+
+      {/* Description */}
+      <p style={{
+        fontFamily: "'DM Sans', sans-serif", fontWeight: 300,
+        fontSize: 14, lineHeight: 1.85, color: MUTED, margin: 0,
+      }}>
+        {item.description}
+      </p>
+    </div>
+  )
+
+  /* ── CENTER DOT + CONNECTORS ── */
+  const centerSpine = (
+    <div style={{
+      flex: '0 0 8%', maxWidth: '8%',
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+      position: 'relative', alignSelf: 'stretch',
+    }}>
+      {/* Horizontal connector line from image side */}
+      <div style={{
+        position: 'absolute', top: '50%',
+        left: isLeft ? 0 : '50%',
+        right: isLeft ? '50%' : 0,
+        height: 1,
+        background: `linear-gradient(${isLeft ? 'to right' : 'to left'}, transparent, ${item.accentAlpha}0.35))`,
+        transform: 'translateY(-50%)',
+      }} />
+      {/* Horizontal connector from text side */}
+      <div style={{
+        position: 'absolute', top: '50%',
+        left: isLeft ? '50%' : 0,
+        right: isLeft ? 0 : '50%',
+        height: 1,
+        background: `linear-gradient(${isLeft ? 'to left' : 'to right'}, transparent, ${item.accentAlpha}0.20))`,
+        transform: 'translateY(-50%)',
+      }} />
+      {/* Central dot */}
+      <div style={{
+        width: 12, height: 12, borderRadius: '50%',
+        background: '#fff',
+        border: `2.5px solid ${item.accent}`,
+        boxShadow: inView ? `0 0 0 4px ${item.accentAlpha}0.15), 0 0 16px ${item.accentAlpha}0.25)` : 'none',
+        transition: `box-shadow 0.5s ease ${index * 0.08 + 0.35}s`,
+        position: 'relative', zIndex: 2,
+        flexShrink: 0,
+      }} />
+    </div>
+  )
+
+  /* ── MOBILE ── */
+  if (isMobile) {
+    return (
+      <div ref={ref} style={{
+        marginBottom: 52,
+        opacity: inView ? 1 : 0,
+        transform: inView ? 'none' : 'translateY(24px)',
+        transition: `opacity 0.65s ease ${index * 0.08}s, transform 0.65s ease ${index * 0.08}s`,
+      }}>
+        <div style={{ borderRadius: 14, overflow: 'hidden', aspectRatio: '16/9', position: 'relative', marginBottom: 18, boxShadow: '0 6px 24px rgba(0,0,0,0.12)' }}>
+          <img src={item.image} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: item.accent }} />
+          <div style={{
+            position: 'absolute', bottom: 12, left: 12,
+            background: 'rgba(10,10,20,0.65)', backdropFilter: 'blur(8px)',
+            borderRadius: 100, padding: '4px 12px',
+            display: 'flex', alignItems: 'center', gap: 6,
+            border: `1px solid ${item.accentAlpha}0.3)`,
+          }}>
+            <div style={{ width: 4, height: 4, borderRadius: '50%', background: item.accent }} />
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 500, letterSpacing: '0.13em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.85)' }}>{item.year}</span>
+          </div>
+        </div>
+        <div style={{
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          background: `${item.accentAlpha}0.08)`, border: `1px solid ${item.accentAlpha}0.2)`,
+          borderRadius: 100, padding: '4px 12px', marginBottom: 10,
+        }}>
+          <div style={{ width: 4, height: 4, borderRadius: '50%', background: item.accent }} />
+          <span style={{ fontFamily: "'Sora', sans-serif", fontWeight: 600, fontSize: 9.5, letterSpacing: '0.16em', textTransform: 'uppercase', color: item.accent }}>{item.label}</span>
+        </div>
+        <h3 style={{ fontFamily: "'Sora', sans-serif", fontWeight: 700, fontSize: 18, lineHeight: 1.25, color: '#1a2540', marginBottom: 10 }}>{item.title}</h3>
+        <div style={{ height: 2, width: 28, borderRadius: 2, background: item.accent, opacity: 0.35, marginBottom: 12 }} />
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 300, fontSize: 14, lineHeight: 1.82, color: MUTED, margin: 0 }}>{item.description}</p>
+      </div>
+    )
+  }
+
+  /* ── DESKTOP: alternating ── */
+  return (
+    <div ref={ref} style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 0,
+      marginBottom: 72,
+    }}>
+      {isLeft ? imgBlock  : textBlock}
+      {centerSpine}
+      {isLeft ? textBlock : imgBlock}
     </div>
   )
 }
@@ -560,17 +503,25 @@ function FeaturedEntry({ isMobile }) {
 /* ─── Main Component ─── */
 const About = () => {
   const [titleRef, titleInView] = useInView(0.2)
-  const [heroRef, heroInView] = useInView(0.05)
+  const [heroRef, heroInView]   = useInView(0.05)
   const isMobile = useIsMobile()
 
   return (
-    <div style={{ background: '#FAF7F2', color: '#1A1410', overflowX: 'hidden' }}>
+    <div style={{ background: BG, color: '#1a2540', overflowX: 'hidden', fontFamily: "'Sora', 'DM Sans', sans-serif" }}>
       <FontLoader />
 
-      {/* ══════════════════════════════════════
-          HERO
-      ══════════════════════════════════════ */}
-      <section
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50%       { opacity: 0.6; transform: scale(0.8); }
+        }
+        * { box-sizing: border-box; }
+      `}</style>
+
+      {/* ══════════════════════
+          HERO — dimensions unchanged
+      ══════════════════════ */}
+       <section
         className="relative w-screen ml-[calc(-50vw+50%)] bg-[#0D0A06] overflow-hidden"
         style={{
           height: isMobile ? '60vh' : '620px',
@@ -597,33 +548,28 @@ const About = () => {
             position: 'absolute', bottom: 0, zIndex: 10,
             ...(isMobile
               ? { left: 0, right: 0, padding: '0 20px 28px', textAlign: 'center' }
-              : { right: 0, padding: '0 64px 52px', maxWidth: 580, textAlign: 'left' }),
+              : { right: 0, padding: '0 64px 52px', maxWidth: 720, textAlign: 'left' }),
             opacity: heroInView ? 1 : 0,
             transform: heroInView ? 'translateY(0)' : 'translateY(28px)',
             transition: 'opacity 1s ease, transform 1s cubic-bezier(0.22,1,0.36,1)',
           }}
         >
-          <div style={{
+          {/* <div style={{
             display: 'inline-flex', alignItems: 'center', gap: 8,
-            background: 'rgba(200,150,62,0.15)', border: '1px solid rgba(200,150,62,0.4)',
-            borderRadius: 100, padding: '5px 14px 5px 8px', marginBottom: 18,
+            background: 'rgba(47,90,199,0.22)', border: '1px solid rgba(47,90,199,0.45)',
+            borderRadius: 100, padding: '5px 14px 5px 8px', marginBottom: 16,
           }}>
-            <span style={{
-              background: '#C8963E', borderRadius: '50%', width: 6, height: 6,
-              display: 'inline-block', animation: 'pulse 2s ease-in-out infinite',
-            }} />
-            <span style={{
-              fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 10,
-              letterSpacing: '0.2em', textTransform: 'uppercase', color: '#E8B96E',
-            }}>
+            <span style={{ background: '#3b82f6', borderRadius: '50%', width: 6, height: 6, display: 'inline-block', animation: 'pulse 2s ease-in-out infinite' }} />
+            <span style={{ fontFamily: "'Sora', sans-serif", fontWeight: 600, fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#93c5fd' }}>
               Est. 2003 · Mulund, Mumbai
             </span>
-          </div>
+          </div> */}
+
 
           <h1 style={{
             fontFamily: "'Playfair Display', Georgia, serif", fontWeight: 900,
             fontSize: isMobile ? 'clamp(26px, 7vw, 38px)' : 'clamp(30px, 4.2vw, 56px)',
-            lineHeight: 1.06, letterSpacing: '-1.3px', color: '#FFFDF9',
+            lineHeight: 1.12, letterSpacing: '-1.3px', color: '#FFFDF9',
             marginBottom: 16, textShadow: '0 6px 40px rgba(0,0,0,0.7)',
           }}>
             VPM's Ramniklal<br />Zaveribhai Shah<br />College
@@ -668,115 +614,89 @@ const About = () => {
         )}
       </section>
 
-      {/* ══════════════════════════════════════
-          STATS BAND — Oswald numeric font + SVG icons
-      ══════════════════════════════════════ */}
-      <section style={{
-        background: '#FFFFFF',
-        borderBottom: '1px solid #EDE5D8',
-        padding: isMobile ? '36px 20px' : '48px 0',
-        position: 'relative',
-      }}>
-        <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: 2,
-          background: `linear-gradient(90deg, transparent 0%, ${ACCENT_LIGHT} 30%, #C8963E 70%, transparent 100%)`,
-        }} />
 
-        <div style={{
-          maxWidth: 900, margin: '0 auto',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: 0,
-        }}>
+      {/* ══════════════════════
+          STATS BAND
+      ══════════════════════ */}
+      <section style={{ background: '#fff', borderBottom: `1px solid ${BORDER}`, padding: isMobile ? '36px 20px' : '52px 0', position: 'relative' }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right:40, height: 2, background: `linear-gradient(90deg, transparent, ${NAVY2} 30%, ${NAVY3} 70%, transparent)` }} />
+        <div style={{ maxWidth: 860, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0 }}>
           {[
             { value: '20', suffix: '+', label: 'Years of Legacy', icon: IconClock, delay: 0 },
             { value: '50000', suffix: '+', label: 'Alumni Worldwide', icon: IconUsers, delay: 0.1 },
             { value: '60', suffix: '+', label: 'Countries Reached', icon: IconGlobe, delay: 0.2 },
           ].map((s, i) => (
-            <div key={s.label} style={{
-              borderRight: i < 2 ? '1px solid #EDE5D8' : 'none',
-              padding: '0 20px',
-            }}>
+            <div key={s.label} style={{ borderRight: i < 2 ? `1px solid ${BORDER}` : 'none', padding: '0 16px' }}>
               <CounterStat {...s} />
             </div>
           ))}
         </div>
       </section>
 
-      {/* ══════════════════════════════════════
+      {/* ══════════════════════
           SECTION HEADER
-      ══════════════════════════════════════ */}
-      <section style={{ padding: isMobile ? '48px 20px 32px' : '72px 40px 48px', textAlign: 'center' }}>
-        <div
-          ref={titleRef}
-          style={{
-            opacity: titleInView ? 1 : 0,
-            transform: titleInView ? 'none' : 'translateY(28px)',
-            transition: 'all 0.9s cubic-bezier(0.22,1,0.36,1)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 20 }}>
-            <div style={{ height: 1, width: 60, background: `linear-gradient(to right, transparent, ${ACCENT})` }} />
-            <h2 style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
-              fontWeight: 900,
-              fontSize: isMobile ? 'clamp(26px, 7vw, 36px)' : 'clamp(30px, 3.5vw, 48px)',
-              lineHeight: 1.1, letterSpacing: '-1px', color: '#1A1410',
-              margin: 0, whiteSpace: 'nowrap',
-            }}>
-              Legacy & Foundation
-            </h2>
-            <div style={{ height: 1, width: 60, background: `linear-gradient(to left, transparent, ${ACCENT})` }} />
-          </div>
-          <p style={{
-            fontFamily: "'DM Sans', sans-serif", fontWeight: 300,
-            fontSize: isMobile ? 14 : 15, lineHeight: 1.8, color: '#7A7060',
-            maxWidth: 480, margin: '0 auto',
+      ══════════════════════ */}
+      <section style={{ padding: isMobile ? '48px 20px 28px' : '72px 40px 52px', textAlign: 'center' }}>
+        <div ref={titleRef} style={{
+          opacity: titleInView ? 1 : 0,
+          transform: titleInView ? 'none' : 'translateY(20px)',
+          transition: 'all 0.8s cubic-bezier(0.22,1,0.36,1)',
+        }}>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 8,
+            background: `${NAVY}0D`, border: `1px solid ${NAVY}1E`,
+            borderRadius: 100, padding: '5px 16px', marginBottom: 18,
           }}>
+            <span style={{ fontFamily: "'Sora', sans-serif", fontWeight: 600, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: NAVY2 }}>Our Story</span>
+          </div>
+          <h2 style={{
+            fontFamily: "'Sora', sans-serif", fontWeight: 800,
+            fontSize: isMobile ? 'clamp(24px, 7vw, 32px)' : 'clamp(28px, 3vw, 42px)',
+            lineHeight: 1.1, letterSpacing: '-0.8px', color: NAVY, margin: '0 0 14px',
+          }}>
+            Legacy & Foundation
+          </h2>
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 400, fontSize: isMobile ? 14 : 15, lineHeight: 1.75, color: MUTED, maxWidth: 460, margin: '0 auto' }}>
             Every element of our institution is crafted to transform students into the world's
             next generation of leaders and innovators.
           </p>
         </div>
       </section>
 
-      {/* ══════════════════════════════════════
-          TIMELINE
-      ══════════════════════════════════════ */}
-      <section style={{
-        position: 'relative',
-        maxWidth: 1100,
-        margin: '0 auto',
-        padding: isMobile ? '0 20px 60px' : '0 40px 80px',
-      }}>
+      {/* ══════════════════════
+          NBH + TIMELINE
+      ══════════════════════ */}
+      <section style={{ maxWidth: 1100, margin: '0 auto', padding: isMobile ? '0 18px 64px' : '0 40px 96px' }}>
 
-        {/* ── Featured: NBH Kulkarni ── */}
-        <FeaturedEntry isMobile={isMobile} />
+        <FoundingPrincipalCard isMobile={isMobile} />
 
-        {/* ── Spine ── */}
-        {!isMobile && (
-          <div style={{
-            position: 'absolute',
-            top: 380, bottom: 0, left: '50%', width: 1,
-            transform: 'translateX(-50%)',
-            background: `linear-gradient(to bottom, ${ACCENT}55, ${ACCENT_LIGHT}88 40%, ${ACCENT}44 80%, transparent)`,
-          }} />
-        )}
+        {/* Divider label */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: isMobile ? 36 : 64 }}>
+          <div style={{ height: 1, flex: 1, background: `${NAVY}16` }} />
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: '0.22em', textTransform: 'uppercase', color: `${NAVY}50` }}>
+            Our Journey
+          </span>
+          <div style={{ height: 1, flex: 1, background: `${NAVY}16` }} />
+        </div>
 
-        {/* ── Alternating cards ── */}
-        <div style={{ marginTop: 0 }}>
+        {/* Alternating timeline */}
+        <div style={{ position: 'relative' }}>
+          {/* Center spine line — desktop only */}
+          {!isMobile && (
+            <div style={{
+              position: 'absolute',
+              left: '50%', top: 20, bottom: 20,
+              width: 1,
+              transform: 'translateX(-50%)',
+              background: `linear-gradient(to bottom, ${NAVY}44, ${NAVY3}66 50%, ${NAVY}22)`,
+            }} />
+          )}
+
           {timelineItems.map((item, i) => (
             <TimelineEntry key={item.title} item={item} index={i} />
           ))}
         </div>
       </section>
-
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50%       { opacity: 0.6; transform: scale(0.8); }
-        }
-        * { box-sizing: border-box; }
-      `}</style>
     </div>
   )
 }
