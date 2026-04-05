@@ -23,25 +23,25 @@ const TABS = [
 
 const TYPE_COLORS = {
   feature_request: { bg: "bg-[#142A5D]", border: "border-[#142A5D]", text: "text-[#142A5D]", badge: "bg-[#142A5D1A] text-[#142A5D]", left: "border-l-[#142A5D]" },
-  bug_report:      { bg: "bg-[#c0392b]", border: "border-[#c0392b]", text: "text-[#c0392b]", badge: "bg-[#c0392b1A] text-[#c0392b]", left: "border-l-[#c0392b]" },
+  bug_report: { bg: "bg-[#c0392b]", border: "border-[#c0392b]", text: "text-[#c0392b]", badge: "bg-[#c0392b1A] text-[#c0392b]", left: "border-l-[#c0392b]" },
   user_experience: { bg: "bg-[#1a6b5a]", border: "border-[#1a6b5a]", text: "text-[#1a6b5a]", badge: "bg-[#1a6b5a1A] text-[#1a6b5a]", left: "border-l-[#1a6b5a]" },
-  other:           { bg: "bg-[#6c4fa0]", border: "border-[#6c4fa0]", text: "text-[#6c4fa0]", badge: "bg-[#6c4fa01A] text-[#6c4fa0]", left: "border-l-[#6c4fa0]" },
+  other: { bg: "bg-[#6c4fa0]", border: "border-[#6c4fa0]", text: "text-[#6c4fa0]", badge: "bg-[#6c4fa01A] text-[#6c4fa0]", left: "border-l-[#6c4fa0]" },
 };
 
 export default function Feedback() {
   const dispatch = useDispatch();
 
-  const feedbacks    = useSelector(selectMyFeedbacks);
-  const submitting   = useSelector(selectSubmitting);
+  const feedbacks = useSelector(selectMyFeedbacks);
+  const submitting = useSelector(selectSubmitting);
   const submitSuccess = useSelector(selectSubmitSuccess);
-  const loading      = useSelector(selectFeedbackLoading);
-  const error        = useSelector(selectFeedbackError);
+  const loading = useSelector(selectFeedbackLoading);
+  const error = useSelector(selectFeedbackError);
 
-  const [activeTab, setActiveTab]   = useState("feature_request");
-  const [title, setTitle]           = useState("");
+  const [activeTab, setActiveTab] = useState("feature_request");
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [view, setView]             = useState("form");
-  const [formError, setFormError]   = useState("");
+  const [view, setView] = useState("form");
+  const [formError, setFormError] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => { dispatch(fetchMyFeedback()); }, [dispatch]);
@@ -56,39 +56,40 @@ export default function Feedback() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!title.trim())       return setFormError("Please add a title to continue.");
+    if (!title.trim()) return setFormError("Please add a title to continue.");
     if (!description.trim()) return setFormError("Please describe your feedback.");
     setFormError("");
     dispatch(submitFeedback({ type: activeTab, title, description }));
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-[#F5F8FF] to-blue-50 font-[Sora,DM_Sans,sans-serif] relative overflow-hidden">
+    <div className=" feedback-page min-h-screen bg-gradient-to-br from-indigo-50 via-[#F5F8FF] to-blue-50 font-[Sora,DM_Sans,sans-serif] relative overflow-hidden">
 
       {/* Google Fonts */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
-        body { font-family: 'Sora', 'DM Sans', sans-serif; }
-        .tab-pill:hover:not(.tab-active) { background: #dde5f5 !important; color: #142A5D !important; }
-        .submit-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(20,42,93,0.35) !important; }
-        .submit-btn:active { transform: translateY(0); }
-        .feedback-card:hover { box-shadow: 0 8px 28px rgba(20,42,93,0.1) !important; transform: translateY(-2px); }
-        .input-field:focus { border-color: #142A5D !important; background: #f7f9ff !important; }
-        .success-toast { animation: slideDown 0.4s ease forwards; }
-        @keyframes slideDown { from { opacity:0; transform:translateY(-12px); } to { opacity:1; transform:translateY(0); } }
-      `}</style>
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+  .feedback-page { font-family: 'Sora', 'DM Sans', sans-serif; }
+  .feedback-page .tab-pill:hover:not(.tab-active) { background: #dde5f5 !important; color: #142A5D !important; }
+  .feedback-page .submit-btn:hover:not(:disabled) { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(20,42,93,0.35) !important; }
+  .feedback-page .submit-btn:active { transform: translateY(0); }
+  .feedback-page .feedback-card:hover { box-shadow: 0 8px 28px rgba(20,42,93,0.1) !important; transform: translateY(-2px); }
+  .feedback-page .input-field:focus { border-color: #142A5D !important; background: #f7f9ff !important; }
+  .feedback-page .success-toast { animation: slideDown 0.4s ease forwards; }
+  @keyframes slideDown { from { opacity:0; transform:translateY(-12px); } to { opacity:1; transform:translateY(0); } }
+`}</style>
+
 
       {/* BG Orbs */}
       <div className="absolute -top-44 -left-44 w-[500px] h-[500px] rounded-full pointer-events-none"
-           style={{ background: "radial-gradient(circle, rgba(20,42,93,0.08), transparent 70%)" }} />
+        style={{ background: "radial-gradient(circle, rgba(20,42,93,0.08), transparent 70%)" }} />
       <div className="absolute -bottom-44 -right-44 w-[480px] h-[480px] rounded-full pointer-events-none"
-           style={{ background: "radial-gradient(circle, rgba(66,109,200,0.09), transparent 70%)" }} />
+        style={{ background: "radial-gradient(circle, rgba(66,109,200,0.09), transparent 70%)" }} />
 
       <div className="max-w-[1100px] mx-auto px-6 pt-12 pb-16">
 
         {/* ── HERO BANNER ── */}
         <div className="relative overflow-hidden rounded-3xl mb-10 px-8 py-10 md:px-12 flex items-center justify-between gap-6 flex-wrap"
-             style={{ background: "linear-gradient(120deg, #142A5D 0%, #1e3e8f 60%, #2f5ac7 100%)", boxShadow: "0 12px 48px rgba(20,42,93,0.25)" }}>
+          style={{ background: "linear-gradient(120deg, #142A5D 0%, #1e3e8f 60%, #2f5ac7 100%)", boxShadow: "0 12px 48px rgba(20,42,93,0.25)" }}>
 
           {/* decorative circles */}
           <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-white/5 pointer-events-none" />
@@ -285,7 +286,7 @@ export default function Feedback() {
               ].map((tip, i) => (
                 <div key={i} className={`flex items-start gap-2.5 ${i < 2 ? "mb-2.5" : ""}`}>
                   <div className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0 mt-0.5"
-                       style={{ background: "linear-gradient(135deg, #142A5D, #1e4baa)" }}>
+                    style={{ background: "linear-gradient(135deg, #142A5D, #1e4baa)" }}>
                     {i + 1}
                   </div>
                   <p className="text-[13px] text-[#4a5578] m-0 leading-snug">{tip}</p>
