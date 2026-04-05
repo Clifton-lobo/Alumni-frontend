@@ -535,7 +535,7 @@ const AlumniDirectory = () => {
                       </div>
 
                       {/* Job */}
-                      <div className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-gray-500">
+                      <div className="flex items-center gap-2.5 bg-gray-50  rounded-lg px-3 py-2 text-sm text-gray-500">
                         <Briefcase className="w-3.5 h-3.5 flex-shrink-0" />
                         <span className="truncate">
                           {user.jobTitle
