@@ -35,8 +35,8 @@ const NAVY = "#142A5D";
 const GOLD = "#EBAB09";
 
 const STATUS = {
-  all:      { label: "All",      color: "" },
-  pending:  { label: "Pending",  color: "bg-amber-100 text-amber-700" },
+  all: { label: "All", color: "" },
+  pending: { label: "Pending", color: "bg-amber-100 text-amber-700" },
   approved: { label: "Approved", color: "bg-green-100 text-green-700" },
   rejected: { label: "Rejected", color: "bg-red-100 text-red-600" },
 };
@@ -44,8 +44,8 @@ const STATUS = {
 const fmtDate = (d) =>
   d
     ? new Date(d).toLocaleDateString("en-GB", {
-        day: "2-digit", month: "short", year: "numeric",
-      })
+      day: "2-digit", month: "short", year: "numeric",
+    })
     : "—";
 
 /* ══════════════════════════════════════════════
@@ -78,7 +78,7 @@ const Lightbox = ({ photos, startIndex, onClose }) => {
     const fn = (e) => {
       if (e.key === "Escape") onClose();
       if (e.key === "ArrowRight") setIdx((i) => Math.min(i + 1, photos.length - 1));
-      if (e.key === "ArrowLeft")  setIdx((i) => Math.max(i - 1, 0));
+      if (e.key === "ArrowLeft") setIdx((i) => Math.max(i - 1, 0));
     };
     window.addEventListener("keydown", fn);
     return () => window.removeEventListener("keydown", fn);
@@ -137,6 +137,7 @@ const Lightbox = ({ photos, startIndex, onClose }) => {
 const AlbumPhotosDialog = ({ album, open, onClose }) => {
   const dispatch = useDispatch();
   const { albumPhotos, photosLoading, addingPhotos } = useSelector((s) => s.Admingallery);
+  const safePhotos = Array.isArray(albumPhotos) ? albumPhotos : [];
 
   const [lightboxIdx, setLightboxIdx] = useState(null);
   const fileRef = useRef(null);
@@ -194,7 +195,7 @@ const AlbumPhotosDialog = ({ album, open, onClose }) => {
             <div className="flex items-center justify-between pr-8">
               <div>
                 <DialogTitle className="text-lg font-bold text-gray-900">{album?.title}</DialogTitle>
-                <p className="text-sm text-gray-400 mt-0.5">{albumPhotos.length} photos</p>
+                <p className="text-sm text-gray-400 mt-0.5">{safePhotos.length} photos</p>
               </div>
               <button
                 onClick={() => fileRef.current?.click()}
@@ -225,7 +226,7 @@ const AlbumPhotosDialog = ({ album, open, onClose }) => {
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                {albumPhotos.map((photo, i) => (
+                {safePhotos.map((photo, i) => (
                   <div
                     key={photo._id}
                     className="group relative aspect-square rounded-xl overflow-hidden bg-gray-100 cursor-pointer"
@@ -258,7 +259,7 @@ const AlbumPhotosDialog = ({ album, open, onClose }) => {
 
       {lightboxIdx !== null && (
         <Lightbox
-          photos={albumPhotos}
+          photos={safePhotos}
           startIndex={lightboxIdx}
           onClose={() => setLightboxIdx(null)}
         />
@@ -412,12 +413,12 @@ const UploadSheet = ({ open, onClose, onCreated }) => {
   const dispatch = useDispatch();
   const { creating } = useSelector((s) => s.Admingallery);
 
-  const [title, setTitle]           = useState("");
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [eventDate, setEventDate]   = useState("");
-  const [files, setFiles]           = useState([]);
-  const [previews, setPreviews]     = useState([]);
-  const [dragging, setDragging]     = useState(false);
+  const [eventDate, setEventDate] = useState("");
+  const [files, setFiles] = useState([]);
+  const [previews, setPreviews] = useState([]);
+  const [dragging, setDragging] = useState(false);
   const fileRef = useRef(null);
 
   const reset = () => {
@@ -432,7 +433,7 @@ const UploadSheet = ({ open, onClose, onCreated }) => {
 
   const handle = async () => {
     if (!title.trim()) return toast.error("Title is required");
-    if (!files.length)  return toast.error("Upload at least one photo");
+    if (!files.length) return toast.error("Upload at least one photo");
 
     const fd = new FormData();
     fd.append("title", title.trim());
@@ -602,11 +603,11 @@ const Gallery = () => {
 
   // Local UI state — not worth putting in Redux
   const [searchInput, setSearchInput] = useState("");
-  const [selected, setSelected]       = useState([]);
-  const [uploadOpen, setUploadOpen]   = useState(false);
-  const [mergeOpen, setMergeOpen]     = useState(false);
+  const [selected, setSelected] = useState([]);
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [mergeOpen, setMergeOpen] = useState(false);
   const [rejectTarget, setRejectTarget] = useState(null);
-  const [viewAlbum, setViewAlbum]     = useState(null);
+  const [viewAlbum, setViewAlbum] = useState(null);
 
   /* ── Initial load + re-fetch on filter change ── */
   useEffect(() => {
@@ -650,7 +651,7 @@ const Gallery = () => {
 
   /* ── Search: commit on Enter or clear ── */
   const commitSearch = () => dispatch(setSearch(searchInput.trim()));
-  const clearSearch  = () => { setSearchInput(""); dispatch(setSearch("")); };
+  const clearSearch = () => { setSearchInput(""); dispatch(setSearch("")); };
 
   return (
     <div
@@ -706,9 +707,8 @@ const Gallery = () => {
               <button
                 key={key}
                 onClick={() => dispatch(setStatusFilter(key))}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  statusFilter === key ? "text-white shadow-sm" : "text-gray-500 hover:text-gray-700"
-                }`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${statusFilter === key ? "text-white shadow-sm" : "text-gray-500 hover:text-gray-700"
+                  }`}
                 style={statusFilter === key ? { background: NAVY } : {}}
               >
                 {val.label}
@@ -740,9 +740,9 @@ const Gallery = () => {
 
           {/* Selection info */}
           {selected.length > 0 && (
-            <div 
-            onClick={() => setSelected([])}
-            className="flex items-center gap-2 px-3 py-2 cursor-pointer bg-amber-50 border border-amber-200 rounded-xl text-xs font-medium text-amber-700">
+            <div
+              onClick={() => setSelected([])}
+              className="flex items-center gap-2 px-3 py-2 cursor-pointer bg-amber-50 border border-amber-200 rounded-xl text-xs font-medium text-amber-700">
               <CheckCircle className="h-3.5 w-3.5" />
               {selected.length} selected
               <button >
@@ -786,21 +786,19 @@ const Gallery = () => {
                   <div
                     key={album._id}
                     onDoubleClick={() => toggleSelect(album._id)}
-                    className={`group relative bg-white rounded-2xl border overflow-hidden transition-all cursor-pointer ${
-                      isSelected
+                    className={`group relative bg-white rounded-2xl border overflow-hidden transition-all cursor-pointer ${isSelected
                         ? "border-[#EBAB09] ring-2 ring-[#EBAB09]/30"
                         : "border-gray-100 hover:border-gray-200"
-                    }`}
+                      }`}
                   >
                     {/* Select checkbox */}
                     <div className="absolute top-3 left-3 z-10">
                       <button
                         onClick={() => toggleSelect(album._id)}
-                        className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
-                          isSelected
+                        className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${isSelected
                             ? "border-[#EBAB09] bg-[#EBAB09]"
                             : "border-white/60 bg-black/20 opacity-0 group-hover:opacity-100"
-                        }`}
+                          }`}
                       >
                         {isSelected && <CheckCircle className="h-3.5 w-3.5 text-white" />}
                       </button>

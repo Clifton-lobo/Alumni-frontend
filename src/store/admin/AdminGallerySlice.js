@@ -28,12 +28,24 @@ export const fetchAlbumPhotos = createAsyncThunk(
   async (albumId, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.get(`/api/admin/gallery/albums/${albumId}/photos`);
-      return res.data.data; // array of photos
+      console.log("fetchAlbumPhotos raw response:", res.data); // ← add this
+      
+      // Handle whatever shape the backend returns
+      const photos = Array.isArray(res.data)
+        ? res.data
+        : Array.isArray(res.data.data)
+        ? res.data.data
+        : Array.isArray(res.data.photos)
+        ? res.data.photos
+        : [];
+        
+      return photos;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || "Failed to load photos");
     }
   }
 );
+
 
 // Create a new album (admin — auto-approved)
 export const createAlbum = createAsyncThunk(
