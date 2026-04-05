@@ -3,15 +3,18 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../../api/axiosInstance";
 
+
 export const fetchAdminJobApplications = createAsyncThunk(
   "adminApplications/fetch",
-  async (params = {}, { rejectWithValue }) => {
+  async ({ page = 1, limit = 10 }, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.get("/api/admin/jobs/applications", { params });
+      const res = await axiosInstance.get("/api/admin/jobs/applications", {
+        params: { page, limit },
+      });
       return res.data;
     } catch (err) {
       return rejectWithValue(
-        err.response?.data?.message || "Failed to fetch admin job applications"
+        err.response?.data?.message || "Failed to fetch applications"
       );
     }
   }

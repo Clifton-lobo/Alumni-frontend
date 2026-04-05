@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";  // ✅ removed useRef
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAdminJobApplications } from "../../store/admin/AdminJobApplicationSlice";
 import {
@@ -25,63 +25,42 @@ import {
   Users,
   ClipboardList,
   Download,
-  X,
   Loader2,
   AlertCircle,
+  ZoomIn,
+  ZoomOut,
 } from "lucide-react";
 
-/* ── Inline PDF Viewer Modal ────────────────────────────────── */
+/* ── Cloudinary PDF → image URL (same as user view) ─────────── */
+const getPdfImageUrl = (url) => {
+  if (!url) return null;
+  return url.replace(/\.pdf(\.pdf)?$/, ".jpg");
+};
+
+/* ── Resume Viewer Modal (fixed — no proxy, uses img like user view) ── */
 const ResumeViewerModal = ({ resume, open, onClose }) => {
-  const [blobUrl, setBlobUrl] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState(null);
-  const blobRef               = useRef(null);
+  const [imgError, setImgError] = useState(false);
+  const [loading, setLoading]   = useState(true);
+  const [zoom, setZoom]         = useState(1);
 
   useEffect(() => {
-    if (!open || !resume?.url) return;
-
-    let cancelled = false;
-    setLoading(true);
-    setError(null);
-    setBlobUrl(null);
-
-    // Route through backend proxy — Cloudinary requires signed URLs regardless of resource type
-    fetch(`/api/admin/proxy/file?url=${encodeURIComponent(resume.url)}`, { credentials: "include" })
-      .then((res) => {
-        if (!res.ok) throw new Error(String(res.status));
-        return res.blob();
-      })
-      .then((blob) => {
-        if (cancelled) return;
-        const url = URL.createObjectURL(blob);
-        blobRef.current = url;
-        setBlobUrl(url);
-      })
-      .catch((err) => {
-        if (!cancelled) setError(`Could not load resume (${err.message})`);
-      })
-      .finally(() => { if (!cancelled) setLoading(false); });
-
-    return () => { cancelled = true; };
-  }, [open, resume?.url]);
-
-  useEffect(() => {
-    if (!open && blobRef.current) {
-      URL.revokeObjectURL(blobRef.current);
-      blobRef.current = null;
-      setBlobUrl(null);
+    if (open) {
+      setImgError(false);
+      setLoading(true);
+      setZoom(1);
     }
   }, [open]);
 
   if (!resume?.url) return null;
 
-  const downloadUrl = resume.url.includes("/image/upload/")
-    ? resume.url.replace("/image/upload/", "/image/upload/fl_attachment/")
-    : resume.url.replace("/upload/", "/upload/fl_attachment/");
+  const previewUrl  = getPdfImageUrl(resume.url);
+  const downloadUrl = resume.url.replace("/upload/", "/upload/fl_attachment/");
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl w-full h-[90vh] rounded-2xl p-0 gap-0 overflow-hidden bg-white flex flex-col">
+
+        {/* Header */}
         <div className="px-5 py-3.5 border-b border-gray-100 flex-shrink-0 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-lg bg-[#EBAB09]/15">
@@ -94,36 +73,48 @@ const ResumeViewerModal = ({ resume, open, onClose }) => {
               <p className="text-xs text-gray-400 mt-0.5">Resume Preview</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+            <button
+              onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.25).toFixed(2)))}
+              className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
+              title="Zoom out"
+            >
+              <ZoomOut className="h-4 w-4" />
+            </button>
+            <span className="text-xs text-gray-500 w-10 text-center tabular-nums select-none">
+              {Math.round(zoom * 100)}%
+            </span>
+            <button
+              onClick={() => setZoom((z) => Math.min(3, +(z + 0.25).toFixed(2)))}
+              className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
+              title="Zoom in"
+            >
+              <ZoomIn className="h-4 w-4" />
+            </button>
+
+            <div className="w-px h-5 bg-gray-200 mx-1.5" />
+
             <a
               href={downloadUrl}
               download={resume.originalName || "resume.pdf"}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#152A5D] text-white text-xs font-medium hover:bg-[#1e3a6e] transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 mr-5 rounded-lg bg-[#152A5D] text-white text-xs font-medium hover:bg-[#1e3a6e] transition-colors"
             >
               <Download className="h-3.5 w-3.5" />
               Download
             </a>
-            <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
-              <X className="h-4 w-4 text-gray-500" />
-            </button>
           </div>
         </div>
 
-        <div className="flex-1 bg-gray-100 overflow-hidden relative">
-          {loading && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gray-50">
-              <Loader2 className="h-8 w-8 text-[#EBAB09] animate-spin" />
-              <p className="text-sm text-gray-500">Loading resume…</p>
-            </div>
-          )}
-
-          {error && !loading && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gray-50 px-8 text-center">
+        {/* Preview body */}
+        <div className="flex-1 bg-gray-100 overflow-auto flex items-start justify-center p-6">
+          {imgError ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center gap-3 w-full">
               <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center">
                 <AlertCircle className="h-6 w-6 text-red-400" />
               </div>
               <p className="text-sm font-medium text-gray-700">Could not preview resume</p>
-              <p className="text-xs text-gray-400">{error}</p>
+              <p className="text-xs text-gray-400">Try downloading it instead.</p>
               <a
                 href={downloadUrl}
                 download={resume.originalName || "resume.pdf"}
@@ -133,17 +124,30 @@ const ResumeViewerModal = ({ resume, open, onClose }) => {
                 Download instead
               </a>
             </div>
-          )}
-
-          {blobUrl && !loading && (
-            <iframe
-              src={blobUrl}
-              title="Resume Preview"
-              className="w-full h-full border-0"
-              style={{ minHeight: 0 }}
-            />
+          ) : (
+            <div
+              style={{ transform: `scale(${zoom})`, transformOrigin: "top center" }}
+              className="transition-transform duration-200 w-full"
+            >
+              {loading && (
+                <div className="flex items-center justify-center w-full h-[600px] bg-white rounded-lg">
+                  <div className="flex flex-col items-center gap-3">
+                    <Loader2 className="h-8 w-8 text-[#EBAB09] animate-spin" />
+                    <p className="text-sm text-gray-500">Loading resume…</p>
+                  </div>
+                </div>
+              )}
+              <img
+                src={previewUrl}
+                alt="Resume preview"
+                onLoad={() => setLoading(false)}
+                onError={() => { setImgError(true); setLoading(false); }}
+                className={`w-full rounded-lg shadow-md bg-white ${loading ? "hidden" : "block"}`}
+              />
+            </div>
           )}
         </div>
+
       </DialogContent>
     </Dialog>
   );
@@ -153,7 +157,12 @@ const ResumeViewerModal = ({ resume, open, onClose }) => {
 const ApplicationDetailDialog = ({ app, open, onClose }) => {
   const [showResume, setShowResume] = useState(false);
 
+  useEffect(() => {
+    if (!open) setShowResume(false);
+  }, [open]);
+
   if (!app) return null;
+
   const applicant   = app.applicant || {};
   const resume      = app.resume    || {};
   const appliedDate = app.createdAt
@@ -162,14 +171,9 @@ const ApplicationDetailDialog = ({ app, open, onClose }) => {
       })
     : "—";
 
-  const handleClose = () => {
-    setShowResume(false);
-    onClose();
-  };
-
   return (
     <>
-      <Dialog open={open && !showResume} onOpenChange={handleClose}>
+      <Dialog open={open && !showResume} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-[480px] rounded-2xl p-0 gap-0 overflow-hidden bg-white max-h-[90vh] flex flex-col">
           <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100 flex-shrink-0">
             <DialogTitle className="text-lg font-bold text-gray-900">
@@ -242,7 +246,7 @@ const ApplicationDetailDialog = ({ app, open, onClose }) => {
           </div>
 
           <DialogFooter className="px-6 py-4 border-t border-gray-100 flex-shrink-0">
-            <Button onClick={handleClose} variant="outline" className="rounded-xl border-gray-200 text-gray-700 hover:bg-gray-50">
+            <Button onClick={onClose} variant="outline" className="rounded-xl border-gray-200 text-gray-700 hover:bg-gray-50">
               Close
             </Button>
           </DialogFooter>
@@ -283,7 +287,9 @@ const JobRow = ({ jobData }) => {
             </span>
           </p>
         </div>
-        {expanded ? <ChevronUp className="h-5 w-5 text-gray-400 flex-shrink-0" /> : <ChevronDown className="h-5 w-5 text-gray-400 flex-shrink-0" />}
+        {expanded
+          ? <ChevronUp className="h-5 w-5 text-gray-400 flex-shrink-0" />
+          : <ChevronDown className="h-5 w-5 text-gray-400 flex-shrink-0" />}
       </button>
 
       {expanded && (
@@ -293,7 +299,9 @@ const JobRow = ({ jobData }) => {
           ) : (
             applicants.map((app, idx) => {
               const applicant   = app.applicant || {};
-              const appliedDate = app.createdAt ? new Date(app.createdAt).toLocaleDateString("en-GB") : "—";
+              const appliedDate = app.createdAt
+                ? new Date(app.createdAt).toLocaleDateString("en-GB")
+                : "—";
               return (
                 <div
                   key={app._id || idx}
@@ -322,7 +330,11 @@ const JobRow = ({ jobData }) => {
         </div>
       )}
 
-      <ApplicationDetailDialog app={selectedApp} open={!!selectedApp} onClose={() => setSelectedApp(null)} />
+      <ApplicationDetailDialog
+        app={selectedApp}
+        open={!!selectedApp}
+        onClose={() => setSelectedApp(null)}
+      />
     </div>
   );
 };
@@ -388,14 +400,21 @@ const Pagination = ({ pagination, onPageChange }) => {
 /* ── Dashboard ──────────────────────────────────────────────── */
 const Dashboard = () => {
   const dispatch = useDispatch();
-  const { jobApplications, pagination, loading } = useSelector((state) => state.adminApplications);
+  const {
+    jobApplications = [],
+    pagination = {},
+    loading,
+  } = useSelector((state) => state.adminApplications);
+
   const [page, setPage] = useState(1);
 
   useEffect(() => {
     dispatch(fetchAdminJobApplications({ page, limit: 10 }));
   }, [page, dispatch]);
 
-  const totalApplications = jobApplications.reduce((sum, job) => sum + job.totalApplications, 0);
+  const totalApplications = jobApplications.reduce(
+    (sum, job) => sum + (job.totalApplications || 0), 0
+  );
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
@@ -415,9 +434,9 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <StatCard icon={Briefcase}     label="Jobs Posted by You"       value={pagination.total}                                accent="#152A5D" />
-        <StatCard icon={ClipboardList} label="Applications (this page)" value={totalApplications}                              accent="#EBAB09" />
-        <StatCard icon={Users}         label="Showing Page"             value={`${pagination.page} / ${pagination.pages || 1}`} accent="#10b981" />
+        <StatCard icon={Briefcase}     label="Jobs Posted by You"       value={pagination.total ?? "—"}                          accent="#152A5D" />
+        <StatCard icon={ClipboardList} label="Applications (this page)" value={totalApplications}                                accent="#EBAB09" />
+        <StatCard icon={Users}         label="Showing Page"             value={`${pagination.page ?? 1} / ${pagination.pages ?? 1}`} accent="#10b981" />
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">

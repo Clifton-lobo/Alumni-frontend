@@ -238,11 +238,11 @@ const ApplyJobDialog = ({ open, onOpenChange, job }) => {
             {/* Message */}
             <div className="space-y-2">
               <Label className="text-sm font-semibold text-gray-800">
-                Message to Recruiter *
+                Message to Alumni *
               </Label>
               <Textarea
                 rows={4}
-                placeholder="Tell the recruiter why you're a great fit for this role..."
+                placeholder="Tell the Alumni why you're a great fit for this role..."
                 value={message}
                 onChange={(e) => {
                   setMessage(e.target.value);
