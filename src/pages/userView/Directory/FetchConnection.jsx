@@ -1,13 +1,14 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, UserCheck, UserX, Users, Clock, Send } from "lucide-react";
+import { X, UserCheck, UserX, Users, Clock, Send, UserMinus } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   fetchIncomingRequests,
   fetchOutgoingRequests,
   acceptConnectionRequest,
   rejectConnectionRequest,
+  withdrawConnectionRequest
 } from "../../../store/user-view/ConnectionSlice";
 
 /* =========================
@@ -44,7 +45,7 @@ const IncomingCard = ({ request, onAccept, onReject, accepting, rejecting }) => 
         <button
           onClick={() => onAccept(request._id)}
           disabled={accepting || rejecting}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#142A5D] text-white text-xs font-semibold hover:bg-[#0f2149] transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-1.5 px-3 cursor-pointer py-1.5 rounded-lg bg-[#142A5D] text-white text-xs font-semibold hover:bg-[#0f2149] transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <UserCheck className="w-3.5 h-3.5" />
           Accept
@@ -52,7 +53,7 @@ const IncomingCard = ({ request, onAccept, onReject, accepting, rejecting }) => 
         <button
           onClick={() => onReject(request._id)}
           disabled={accepting || rejecting}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-1.5 px-3 py-1.5 cursor-pointer rounded-lg border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <UserX className="w-3.5 h-3.5" />
           Ignore
@@ -65,10 +66,14 @@ const IncomingCard = ({ request, onAccept, onReject, accepting, rejecting }) => 
 /* =========================
    SENT REQUEST CARD
 ========================= */
-const SentCard = ({ request }) => {
+
+const SentCard = ({ request, onWithdraw, withdrawing }) => {
   const recipient = request.recipient;
   const sentAt = request.createdAt
-    ? new Date(request.createdAt).toLocaleDateString([], { month: "short", day: "numeric" })
+    ? new Date(request.createdAt).toLocaleDateString([], {
+        month: "short",
+        day: "numeric",
+      })
     : null;
 
   return (
@@ -78,19 +83,35 @@ const SentCard = ({ request }) => {
         <p className="font-semibold text-slate-900 text-sm truncate">
           {recipient?.fullname || "Unknown User"}
         </p>
-        <p className="text-xs text-slate-400 truncate">@{recipient?.username || "—"}</p>
+        <p className="text-xs text-slate-400 truncate">
+          @{recipient?.username || "—"}
+        </p>
+       
       </div>
-      <div className="flex flex-col items-end gap-1 flex-shrink-0">
-        <span className="flex items-center gap-1 text-[10px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+      <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+        {/* <span className="flex items-center gap-1 text-[10px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
           <Clock className="w-3 h-3" />
           Pending
-        </span>
-        {sentAt && <span className="text-[10px] text-slate-400">{sentAt}</span>}
+        </span> */}
+        <button
+          onClick={() => onWithdraw(request._id)}
+          disabled={withdrawing}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border cursor-pointer border-red-200 text-red-500 text-xs font-semibold hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <UserMinus className="w-3.5 h-3.5" />
+          {withdrawing ? "Withdrawing…" : "Withdraw"}
+          
+        </button>
+         {sentAt && (
+          <p className="flex items-center gap-1 text-[11px] text-slate-400 mt-0.5">
+            <Send className="w-2.5 h-2.5" />
+            Sent {sentAt}
+          </p>
+        )}
       </div>
     </div>
   );
 };
-
 /* =========================
    EMPTY STATE
 ========================= */
@@ -115,7 +136,11 @@ const FetchConnection = ({ open, onClose }) => {
     loading,
     acceptingRequest,
     rejectingRequest,
+    withdrawingRequests
   } = useSelector((state) => state.connections);
+
+  const handleWithdraw = (connectionId) =>
+    dispatch(withdrawConnectionRequest(connectionId));
 
   useEffect(() => {
     if (open) {
@@ -246,7 +271,12 @@ const FetchConnection = ({ open, onClose }) => {
                     />
                   ) : (
                     outgoingRequests.map((req) => (
-                      <SentCard key={req._id} request={req} />
+                      <SentCard
+                        key={req._id}
+                        request={req}
+                        onWithdraw={handleWithdraw}
+                        withdrawing={!!withdrawingRequests?.[req._id]} 
+                        />
                     ))
                   )}
                 </div>

@@ -84,6 +84,11 @@ function SocketInitializer() {
         if (connectionId) dispatch(removeAcceptedConnection(connectionId));
       });
 
+      // Recipient's side: someone withdrew their request to you
+      socket.on("connection:withdrawn", ({ connectionId }) => {
+        if (connectionId) dispatch(removeIncomingRequest(connectionId));
+      });
+
       // ── Messages (unchanged) ─────────────────────────────────────────────
       socket.on("new_message", (data) => {
         console.log("🔴 SOCKET new_message received:", data);
@@ -96,9 +101,9 @@ function SocketInitializer() {
         }
       });
 
-      socket.on("message_edited",  (data) => dispatch(receiveEditedMessage(data)));
+      socket.on("message_edited", (data) => dispatch(receiveEditedMessage(data)));
       socket.on("message_deleted", (data) => dispatch(receiveDeletedMessage(data)));
-      socket.on("messages_read",   (data) => dispatch(receiveReadReceipt(data)));
+      socket.on("messages_read", (data) => dispatch(receiveReadReceipt(data)));
     };
 
     if (socket.connected) {
@@ -108,7 +113,7 @@ function SocketInitializer() {
     }
 
     return () => {
-      socket.off("connect",            registerListeners);
+      socket.off("connect", registerListeners);
       socket.off("connection:request");
       socket.off("connection:accepted");
       socket.off("connection:rejected");
@@ -117,6 +122,7 @@ function SocketInitializer() {
       socket.off("message_edited");
       socket.off("message_deleted");
       socket.off("messages_read");
+      socket.off("connection:withdrawn");
     };
   }, [isAuthenticated, dispatch, currentUserId]);
 

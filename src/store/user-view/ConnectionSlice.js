@@ -22,6 +22,23 @@ export const sendConnectionRequest = createAsyncThunk(
   }
 );
 
+export const withdrawConnectionRequest = createAsyncThunk(
+  "connections/withdraw",
+  async (connectionId, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.delete(
+        `/api/user/connect/${connectionId}/withdraw`
+      );
+      return { connectionId, ...response.data };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to withdraw request"
+      );
+    }
+  }
+);
+
+
 export const acceptConnectionRequest = createAsyncThunk(
   "connections/accept",
   async (connectionId, { rejectWithValue }) => {
@@ -336,6 +353,27 @@ const connectionSlice = createSlice({
         state.error = action.payload;
       })
 
+      // ─── Withdraw connection request ─────────────────────────────────────────
+      .addCase(withdrawConnectionRequest.pending, (state, action) => {
+        state.withdrawingRequests = state.withdrawingRequests ?? {};
+        state.withdrawingRequests[action.meta.arg] = true;
+        state.error = null;
+      })
+      .addCase(withdrawConnectionRequest.fulfilled, (state, action) => {
+        state.withdrawingRequests = state.withdrawingRequests ?? {};
+        delete state.withdrawingRequests[action.meta.arg];
+        const connectionId = action.payload.connectionId?.toString();
+        if (!connectionId) return;
+        state.outgoingRequests = state.outgoingRequests.filter(
+          (req) => req._id?.toString() !== connectionId
+        );
+      })
+      .addCase(withdrawConnectionRequest.rejected, (state, action) => {
+        state.withdrawingRequests = state.withdrawingRequests ?? {};
+        delete state.withdrawingRequests[action.meta.arg];
+        state.error = action.payload;
+      })
+      
       // ─── Remove connection ───────────────────────────────────────────────
       .addCase(removeConnection.pending, (state) => {
         state.removingConnection = true;

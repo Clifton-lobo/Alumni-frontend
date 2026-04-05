@@ -7,6 +7,7 @@ import {
     removeConnection,
     acceptConnectionRequest,
     rejectConnectionRequest,
+    withdrawConnectionRequest
 } from "../../store/user-view/ConnectionSlice";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -85,28 +86,28 @@ const RightPanel = ({ acceptedCount, incomingCount }) => (
                 {/* SVG illustration */}
                 <svg viewBox="0 0 200 160" className="w-full max-w-[210px]" fill="none">
                     {/* dashed lines */}
-                    <line x1="100" y1="80" x2="40"  y2="38"  stroke="rgba(242,162,10,0.45)" strokeWidth="1.5" strokeDasharray="4 3"/>
-                    <line x1="100" y1="80" x2="162" y2="38"  stroke="rgba(242,162,10,0.45)" strokeWidth="1.5" strokeDasharray="4 3"/>
-                    <line x1="100" y1="80" x2="28"  y2="122" stroke="rgba(242,162,10,0.45)" strokeWidth="1.5" strokeDasharray="4 3"/>
-                    <line x1="100" y1="80" x2="172" y2="122" stroke="rgba(242,162,10,0.45)" strokeWidth="1.5" strokeDasharray="4 3"/>
-                    <line x1="100" y1="80" x2="100" y2="16"  stroke="rgba(242,162,10,0.45)" strokeWidth="1.5" strokeDasharray="4 3"/>
+                    <line x1="100" y1="80" x2="40" y2="38" stroke="rgba(242,162,10,0.45)" strokeWidth="1.5" strokeDasharray="4 3" />
+                    <line x1="100" y1="80" x2="162" y2="38" stroke="rgba(242,162,10,0.45)" strokeWidth="1.5" strokeDasharray="4 3" />
+                    <line x1="100" y1="80" x2="28" y2="122" stroke="rgba(242,162,10,0.45)" strokeWidth="1.5" strokeDasharray="4 3" />
+                    <line x1="100" y1="80" x2="172" y2="122" stroke="rgba(242,162,10,0.45)" strokeWidth="1.5" strokeDasharray="4 3" />
+                    <line x1="100" y1="80" x2="100" y2="16" stroke="rgba(242,162,10,0.45)" strokeWidth="1.5" strokeDasharray="4 3" />
                     {/* faint cross lines */}
-                    <line x1="40"  y1="38"  x2="28"  y2="122" stroke="rgba(255,255,255,0.08)" strokeWidth="1"/>
-                    <line x1="162" y1="38"  x2="172" y2="122" stroke="rgba(255,255,255,0.08)" strokeWidth="1"/>
+                    <line x1="40" y1="38" x2="28" y2="122" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+                    <line x1="162" y1="38" x2="172" y2="122" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
                     {/* outer nodes */}
-                    <circle cx="40"  cy="38"  r="14" fill="rgba(255,255,255,0.1)"  stroke="rgba(242,162,10,0.7)" strokeWidth="1.5"/>
-                    <circle cx="40"  cy="38"  r="8"  fill={GOLD} opacity="0.9"/>
-                    <circle cx="162" cy="38"  r="14" fill="rgba(255,255,255,0.1)"  stroke="rgba(242,162,10,0.7)" strokeWidth="1.5"/>
-                    <circle cx="162" cy="38"  r="8"  fill={GOLD} opacity="0.9"/>
-                    <circle cx="28"  cy="122" r="13" fill="rgba(255,255,255,0.1)"  stroke="rgba(255,255,255,0.3)" strokeWidth="1.5"/>
-                    <circle cx="28"  cy="122" r="7"  fill="rgba(255,255,255,0.75)"/>
-                    <circle cx="172" cy="122" r="13" fill="rgba(255,255,255,0.1)"  stroke="rgba(255,255,255,0.3)" strokeWidth="1.5"/>
-                    <circle cx="172" cy="122" r="7"  fill="rgba(255,255,255,0.75)"/>
-                    <circle cx="100" cy="16"  r="12" fill="rgba(255,255,255,0.1)"  stroke="rgba(255,255,255,0.3)" strokeWidth="1.5"/>
-                    <circle cx="100" cy="16"  r="6"  fill="rgba(255,255,255,0.75)"/>
+                    <circle cx="40" cy="38" r="14" fill="rgba(255,255,255,0.1)" stroke="rgba(242,162,10,0.7)" strokeWidth="1.5" />
+                    <circle cx="40" cy="38" r="8" fill={GOLD} opacity="0.9" />
+                    <circle cx="162" cy="38" r="14" fill="rgba(255,255,255,0.1)" stroke="rgba(242,162,10,0.7)" strokeWidth="1.5" />
+                    <circle cx="162" cy="38" r="8" fill={GOLD} opacity="0.9" />
+                    <circle cx="28" cy="122" r="13" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
+                    <circle cx="28" cy="122" r="7" fill="rgba(255,255,255,0.75)" />
+                    <circle cx="172" cy="122" r="13" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
+                    <circle cx="172" cy="122" r="7" fill="rgba(255,255,255,0.75)" />
+                    <circle cx="100" cy="16" r="12" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.3)" strokeWidth="1.5" />
+                    <circle cx="100" cy="16" r="6" fill="rgba(255,255,255,0.75)" />
                     {/* centre YOU */}
-                    <circle cx="100" cy="80" r="24" fill="rgba(255,255,255,0.12)" stroke={GOLD} strokeWidth="2"/>
-                    <circle cx="100" cy="80" r="16" fill={GOLD}/>
+                    <circle cx="100" cy="80" r="24" fill="rgba(255,255,255,0.12)" stroke={GOLD} strokeWidth="2" />
+                    <circle cx="100" cy="80" r="16" fill={GOLD} />
                     <text x="100" y="85" textAnchor="middle" fill={BLUE} fontSize="9" fontWeight="bold">YOU</text>
                 </svg>
 
@@ -134,9 +135,9 @@ const RightPanel = ({ acceptedCount, incomingCount }) => (
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Network tips</p>
 
             {[
-                { Icon: Globe2,      color: BLUE,         bg: `${BLUE}12`,  title: "Grow your reach",       desc: "Connect with alumni from different batches and streams." },
-                { Icon: MessageSquare, color: GOLD,       bg: `${GOLD}20`,  title: "Start conversations",   desc: "Message connections to share ideas and opportunities." },
-                { Icon: Sparkles,    color: "#22c55e",    bg: "#f0fdf4",    title: "Accept requests",       desc: "Review pending requests — someone may be waiting." },
+                { Icon: Globe2, color: BLUE, bg: `${BLUE}12`, title: "Grow your reach", desc: "Connect with alumni from different batches and streams." },
+                { Icon: MessageSquare, color: GOLD, bg: `${GOLD}20`, title: "Start conversations", desc: "Message connections to share ideas and opportunities." },
+                { Icon: Sparkles, color: "#22c55e", bg: "#f0fdf4", title: "Accept requests", desc: "Review pending requests — someone may be waiting." },
             ].map(({ Icon, color, bg, title, desc }) => (
                 <div key={title} className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: bg }}>
@@ -184,11 +185,11 @@ const ConnectedTab = ({ onMessage, onRemove }) => {
     return (
         <ul className="space-y-3">
             {acceptedConnections.map((conn) => {
-                const user   = conn.user || conn;
+                const user = conn.user || conn;
                 const connId = conn._id || conn.id;
-                const name   = user.fullname || user.name || "Unknown";
+                const name = user.fullname || user.name || "Unknown";
                 const jobTitle = user.jobTitle || conn.jobTitle || "";
-                const company  = user.company  || conn.company  || "";
+                const company = user.company || conn.company || "";
                 return (
                     <li key={connId}
                         className="bg-white rounded-2xl px-5 py-4 flex items-center gap-4 shadow-sm hover:shadow-md transition-all border border-slate-100 hover:border-amber-200">
@@ -205,12 +206,12 @@ const ConnectedTab = ({ onMessage, onRemove }) => {
                         <div className="flex items-center gap-2">
                             <button
                                 title="Message"
-                                onClick={() => handleMessage(conn)} 
-                                className="p-2.5 rounded-xl text-slate-400 hover:text-blue-500 hover:bg-blue-50 transition-colors">
+                                onClick={() => handleMessage(conn)}
+                                className="p-2.5 rounded-xl cursor-pointer text-slate-400 hover:text-blue-500 hover:bg-blue-50 transition-colors">
                                 <MessageSquare className="h-[18px] w-[18px]" />
                             </button>
                             <button title="Remove connection" onClick={() => onRemove(connId)}
-                                className="p-2.5 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors">
+                                className="p-2.5 rounded-xl text-slate-400 cursor-pointer hover:text-blue-500 hover:bg-red-50 transition-colors">
                                 <UserMinus className="h-[18px] w-[18px]" />
                             </button>
                         </div>
@@ -229,11 +230,11 @@ const ReceivedTab = () => {
     const { incomingRequests, loading, acceptingRequest, rejectingRequest } = useSelector((s) => s.connections);
 
     const handleAccept = async (id) => {
-        try   { await dispatch(acceptConnectionRequest(id)).unwrap(); toast.success("Connection accepted!"); }
+        try { await dispatch(acceptConnectionRequest(id)).unwrap(); toast.success("Connection accepted!"); }
         catch (err) { toast.error(err || "Failed to accept request."); }
     };
     const handleReject = async (id) => {
-        try   { await dispatch(rejectConnectionRequest(id)).unwrap(); toast.success("Request ignored."); }
+        try { await dispatch(rejectConnectionRequest(id)).unwrap(); toast.success("Request ignored."); }
         catch (err) { toast.error(err || "Failed to ignore request."); }
     };
 
@@ -256,12 +257,12 @@ const ReceivedTab = () => {
                         </div>
                         <div className="flex gap-2 flex-shrink-0">
                             <button onClick={() => handleAccept(req._id)} disabled={acceptingRequest || rejectingRequest}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white text-xs font-semibold transition disabled:opacity-50"
+                                className="flex items-center gap-1.5 cursor-pointer px-3 py-1.5 rounded-lg text-white text-xs font-semibold transition disabled:opacity-50"
                                 style={{ background: BLUE }}>
                                 <UserCheck className="w-3.5 h-3.5" /> Accept
                             </button>
                             <button onClick={() => handleReject(req._id)} disabled={acceptingRequest || rejectingRequest}
-                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-100 transition disabled:opacity-50">
+                                className="flex items-center gap-1.5 cursor-pointer px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-100 transition disabled:opacity-50">
                                 <UserX className="w-3.5 h-3.5" /> Ignore
                             </button>
                         </div>
@@ -276,7 +277,9 @@ const ReceivedTab = () => {
    SENT TAB
 ══════════════════════════════════════════════════ */
 const SentTab = () => {
-    const { outgoingRequests, loading } = useSelector((s) => s.connections);
+    const dispatch = useDispatch();
+    const { outgoingRequests, loading, withdrawingRequests } = useSelector((s) => s.connections);
+
     if (loading) return <Skeleton />;
     if (!outgoingRequests.length)
         return <EmptyState icon={Send} title="No sent requests" subtitle="People you've requested to connect with will appear here." />;
@@ -285,6 +288,13 @@ const SentTab = () => {
         <ul className="space-y-3">
             {outgoingRequests.map((req) => {
                 const recipient = req.recipient;
+                const isWithdrawing = !!withdrawingRequests?.[req._id];
+                const sentAt = req.createdAt
+                    ? new Date(req.createdAt).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                    })
+                    : null;
                 return (
                     <li key={req._id}
                         className="bg-white rounded-2xl px-5 py-4 flex items-center gap-4 shadow-sm border border-slate-100 hover:border-amber-200 transition-all">
@@ -292,11 +302,27 @@ const SentTab = () => {
                         <div className="flex-1 min-w-0">
                             <p className="font-semibold text-slate-800 truncate">{recipient?.fullname || "Unknown"}</p>
                             <p className="text-sm text-slate-400 truncate">@{recipient?.username || "—"}</p>
-                            {req.createdAt && <p className="text-xs text-slate-300 mt-1">Sent {formatDate(req.createdAt)}</p>}
+
                         </div>
-                        <span className="flex items-center gap-1.5 text-[11px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full flex-shrink-0">
-                            <Clock className="w-3 h-3" /> Pending
-                        </span>
+                        <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                            {/* <span className="flex items-center gap-1.5 text-[11px] font-semibold text-amber-600 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-full">
+                                <Clock className="w-3 h-3" /> Pending
+                            </span> */}
+                            <button
+                                onClick={() => dispatch(withdrawConnectionRequest(req._id))}
+                                disabled={isWithdrawing}
+                                className="flex items-center cursor-pointer gap-1.5 px-3 py-1.5 rounded-lg border border-red-200 text-red-500 text-xs font-semibold hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                                <UserMinus className="w-3.5 h-3.5" />
+                                {isWithdrawing ? "Withdrawing…" : "Withdraw"}
+                            </button>
+                            {req.createdAt && (
+                                <p className="flex items-center gap-1 text-xs text-slate-400 mt-1">
+                                    <Send className="w-2.5 h-2.5" />
+                                    Sent {sentAt}
+                                </p>
+                            )}
+                        </div>
                     </li>
                 );
             })}
@@ -322,7 +348,7 @@ const ConnectionsList = ({ onClose, onMessage }) => {
 
     const handleConfirmRemove = async () => {
         if (!pendingRemoveId) return;
-        try   { await dispatch(removeConnection(pendingRemoveId)).unwrap(); toast.success("Connection removed."); }
+        try { await dispatch(removeConnection(pendingRemoveId)).unwrap(); toast.success("Connection removed."); }
         catch (err) { toast.error(err || "Failed to remove connection."); }
         finally { setPendingRemoveId(null); }
     };

@@ -221,94 +221,106 @@ const ArticleModal = ({ open, onClose }) => {
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-      <DialogContent className=" md:!w-[1000px]
-    md:!max-w-[1000px] p-0 gap-0 overflow-hidden rounded-3xl border-0
-        [&>button]:p-1  [&>button]:rounded-full  [&>button]:cursor-pointer 
-        max-h-[90vh] overflow-y-auto">
-
-        {loading.article ? (
-          <div className="flex flex-col items-center justify-center py-32 gap-4 font-sans">
-            <div className="w-10 h-10 rounded-full border-2 border-gray-200 border-t-amber-400 animate-spin" />
-            <p className="text-sm text-gray-400">Loading article…</p>
-          </div>
-
-        ) : !article ? (
-          <div className="flex flex-col items-center justify-center py-32 gap-3 px-8 text-center font-sans">
-            <AlertCircle className="h-8 w-8 text-red-300" />
-            <p className="text-sm text-gray-400">Article could not be loaded.</p>
-          </div>
-
-        ) : (
-          <>
-            {/* Hero image */}
-            <div className="relative flex-shrink-0">
-              {article.coverImage?.url ? (
-                <div className="aspect-[21/9] overflow-hidden">
-                  <img src={article.coverImage.url} alt={article.title} className="w-full h-full object-cover" />
-                </div>
-              ) : (
-                <div className="aspect-[21/9] flex items-center justify-center bg-gradient-to-br from-slate-900 to-blue-900">
-                  <Newspaper className="h-16 w-16 text-white/10" />
-                </div>
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 to-transparent" />
-              <div className="absolute bottom-4 left-6">
-                <CatPill cat={article.category} />
-              </div>
+      <DialogContent
+        style={{
+          maxWidth: 1000,
+          width: "95vw",
+          maxHeight: "92vh",
+          padding: 0,
+          borderRadius: 24,
+          border: "none",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",        // ✅ outer clips, NO scroll here
+          background: "#ffffff",
+        }}
+      >
+        {/* ✅ Inner div scrolls — same pattern as UserEventDetails */}
+<div className="ued-scroll" style={{ flex: 1, overflowY: "auto" }}>
+          {loading.article ? (
+            <div className="flex flex-col items-center justify-center py-32 gap-4 font-sans">
+              <div className="w-10 h-10 rounded-full border-2 border-gray-200 border-t-amber-400 animate-spin" />
+              <p className="text-sm text-gray-400">Loading article…</p>
             </div>
 
-            {/* Content */}
-            <div className="px-6 sm:px-8 pt-7 pb-8 font-sans">
-              {/* Meta */}
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-400 mb-5">
-                <span className="flex items-center gap-1.5">
-                  <Calendar className="h-3.5 w-3.5 text-amber-400" />
-                  {fmtDate(article.publishedAt)}
-                </span>
-
-              </div>
-
-              {/* Title */}
-              <h1 className="font-serif text-2xl sm:text-3xl font-black text-gray-900 leading-tight mb-5">
-                {article.title}
-              </h1>
-
-              {/* Pull-quote */}
-              {article.excerpt && (
-                <div className="relative pl-5 mb-7 border-l-[3px] border-amber-400 rounded-full">
-                  <p className="text-base text-gray-500 leading-relaxed italic">{article.excerpt}</p>
-                </div>
-              )}
-
-              {/* Ornament */}
-              <div className="flex items-center gap-3 mb-7">
-                <div className="h-px flex-1 bg-gray-100" />
-                <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                <div className="w-1 h-1 rounded-full bg-gray-200" />
-                <div className="h-px flex-1 bg-gray-100" />
-              </div>
-
-              {/* Body */}
-              <div className="text-[15px] text-gray-700 leading-[1.9] whitespace-pre-line">
-                {article.content}
-              </div>
-
-              {/* Tags */}
-              {article.tags?.length > 0 && (
-                <div className="flex flex-wrap items-center gap-2 mt-8 pt-6 border-t border-gray-100">
-                  <Tag className="h-3.5 w-3.5 text-gray-300" />
-                  {article.tags.map((t) => (
-                    <span key={t}
-                      className="px-3 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-500
-                        hover:bg-slate-900 hover:text-white transition-colors cursor-default">
-                      #{t}
-                    </span>
-                  ))}
-                </div>
-              )}
+          ) : !article ? (
+            <div className="flex flex-col items-center justify-center py-32 gap-3 px-8 text-center font-sans">
+              <AlertCircle className="h-8 w-8 text-red-300" />
+              <p className="text-sm text-gray-400">Article could not be loaded.</p>
             </div>
-          </>
-        )}
+
+          ) : (
+            <>
+              {/* Hero image */}
+              <div className="relative flex-shrink-0">
+                {article.coverImage?.url ? (
+                  <div className="aspect-[21/9] overflow-hidden">
+                    <img src={article.coverImage.url} alt={article.title} className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <div className="aspect-[21/9] flex items-center justify-center bg-gradient-to-br from-slate-900 to-blue-900">
+                    <Newspaper className="h-16 w-16 text-white/10" />
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 to-transparent" />
+                <div className="absolute bottom-4 left-6">
+                  <CatPill cat={article.category} />
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="px-6 sm:px-8 pt-7 pb-8 font-sans">
+                {/* Meta */}
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-400 mb-5">
+                  <span className="flex items-center gap-1.5">
+                    <Calendar className="h-3.5 w-3.5 text-amber-400" />
+                    {fmtDate(article.publishedAt)}
+                  </span>
+                </div>
+
+                {/* Title */}
+                <h1 className="font-serif text-2xl sm:text-3xl font-black text-gray-900 leading-tight mb-5">
+                  {article.title}
+                </h1>
+
+                {/* Pull-quote */}
+                {article.excerpt && (
+                  <div className="relative pl-5 mb-7 border-l-[3px] border-amber-400 rounded-full">
+                    <p className="text-base text-gray-500 leading-relaxed italic">{article.excerpt}</p>
+                  </div>
+                )}
+
+                {/* Ornament */}
+                <div className="flex items-center gap-3 mb-7">
+                  <div className="h-px flex-1 bg-gray-100" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                  <div className="w-1 h-1 rounded-full bg-gray-200" />
+                  <div className="h-px flex-1 bg-gray-100" />
+                </div>
+
+                {/* Body */}
+                <div className="text-[15px] text-gray-700 leading-[1.9] whitespace-pre-line">
+                  {article.content}
+                </div>
+
+                {/* Tags */}
+                {article.tags?.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-2 mt-8 pt-6 border-t border-gray-100">
+                    <Tag className="h-3.5 w-3.5 text-gray-300" />
+                    {article.tags.map((t) => (
+                      <span key={t}
+                        className="px-3 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-500
+                          hover:bg-slate-900 hover:text-white transition-colors cursor-default">
+                        #{t}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+        </div>{/* end scrollable inner */}
       </DialogContent>
     </Dialog>
   );

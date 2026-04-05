@@ -217,7 +217,7 @@ const UserProfile = () => {
 
             {/* LEFT SIDEBAR */}
 
-             <div className="lg:col-span-2 space-y-8">
+            <div className="lg:col-span-2 space-y-8">
 
               {/* Tabs Skeleton */}
               <div className="bg-white rounded-xl shadow-xl p-4">
@@ -260,10 +260,10 @@ const UserProfile = () => {
               </div>
 
             </div>
-            
+
 
             {/* RIGHT CONTENT */}
-           <div className="space-y-6">
+            <div className="space-y-6">
               <div className="bg-white rounded-xl shadow-xl p-6 space-y-4">
                 <div className="h-6 w-32 bg-gray-200 rounded-lg mx-auto" />
                 <div className="h-4 w-full bg-gray-200 rounded-md" />
@@ -370,35 +370,39 @@ const UserProfile = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* LEFT SIDEBAR */}
 
-          
+
           {/* RIGHT CONTENT */}
           <div className="lg:col-span-2">
             <Tabs defaultValue="info" onValueChange={setActiveTab}>
-              <TabsList className="bg-white w-full  rounded-md p-1 h-14">
+              <TabsList className="bg-white w-full rounded-md p-1 h-14 flex overflow-x-auto sm:overflow-visible">
+
                 <TabsTrigger
                   value="info"
-                  className="rounded-md cursor-pointer px-6 data-[state=active]:bg-[#152A5D] data-[state=active]:text-white"
+                  className="rounded-md cursor-pointer px-3 sm:px-6 text-xs sm:text-sm whitespace-nowrap data-[state=active]:bg-[#152A5D] data-[state=active]:text-white"
                 >
                   Info
                 </TabsTrigger>
+
                 <TabsTrigger
                   value="events"
-                  className="rounded-md px-6 cursor-pointer data-[state=active]:bg-[#152A5D] data-[state=active]:text-white"
+                  className="rounded-md cursor-pointer px-3 sm:px-6 text-xs sm:text-sm whitespace-nowrap data-[state=active]:bg-[#152A5D] data-[state=active]:text-white"
                 >
                   Registered Events
                 </TabsTrigger>
+
                 <TabsTrigger
                   value="applications"
-                  className="rounded-md px-6 cursor-pointer data-[state=active]:bg-[#152A5D] data-[state=active]:text-white relative"
+                  className="rounded-md cursor-pointer px-3 sm:px-6 text-xs sm:text-sm whitespace-nowrap relative data-[state=active]:bg-[#152A5D] data-[state=active]:text-white"
                 >
                   Applications
-                  {/* Badge — total applications count */}
+
                   {applicationsTotal > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#EBAB09] text-black text-[10px] font-bold flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] sm:min-w-[18px] sm:h-[18px] px-1 rounded-full bg-[#EBAB09] text-black text-[9px] sm:text-[10px] font-bold flex items-center justify-center">
                       {applicationsTotal}
                     </span>
                   )}
                 </TabsTrigger>
+
               </TabsList>
 
               <TabsContent value="info" className="mt-10 space-y-6">
@@ -495,14 +499,14 @@ const UserProfile = () => {
               </TabsContent>
             </Tabs>
           </div>
-          
+
           <div className="space-y-6">
             <Card className="rounded-xl  border-none bg-white shadow-xl">
               <CardHeader className="items-center">
                 <CardTitle>Contact Info</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4 text-sm">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center text-md gap-3">
                   <Mail className="h-4 w-4 text-[#D4A437]" />
                   <span>{user.email || "No email"}</span>
                 </div>
@@ -516,7 +520,7 @@ const UserProfile = () => {
                         : `https://${profile.linkedin}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline break-all"
+                      className="text-gray-700  hover:underline break-all"
                     >
                       {profile.linkedin}
                     </a>
