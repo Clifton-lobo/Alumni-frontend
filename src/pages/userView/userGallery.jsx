@@ -206,16 +206,64 @@ const Lightbox = ({ photos, startIndex, onClose }) => {
     window.addEventListener("keydown", onKey, true);
     return () => window.removeEventListener("keydown", onKey, true);
   }, [photos.length, onClose]);
+
   const photo = photos[idx];
+
   return ReactDOM.createPortal(
     <div className="lb-overlay" onClick={onClose}>
-      <button className="lb-close" onClick={(e) => { e.stopPropagation(); onClose(); }}><X size={18} /></button>
-      <div className="gal-sans" style={{ position: "absolute", bottom: 20, left: "50%", transform: "translateX(-50%)", color: "rgba(255,255,255,0.45)", fontSize: 13, pointerEvents: "none" }}>{idx + 1} / {photos.length}</div>
-      <button className="lb-btn" style={{ left: 16 }} disabled={idx === 0} onClick={(e) => { e.stopPropagation(); setIdx(i => Math.max(i - 1, 0)); }}><ChevronLeft size={26} /></button>
-      <div onClick={(e) => e.stopPropagation()} style={{ maxWidth: "calc(100vw - 160px)", maxHeight: "calc(100vh - 80px)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <img key={idx} src={photo.url} alt={photo.caption || ""} style={{ maxWidth: "100%", maxHeight: "calc(100vh - 80px)", width: "auto", height: "auto", objectFit: "contain", borderRadius: 10, display: "block", userSelect: "none" }} />
+      <button className="lb-close" onClick={(e) => { e.stopPropagation(); onClose(); }}>
+        <X size={18} />
+      </button>
+
+      {/* Counter */}
+      <div style={{
+        position: "absolute", bottom: 20, left: "50%", transform: "translateX(-50%)",
+        color: "rgba(255,255,255,0.55)", fontSize: 13, fontFamily: "Outfit, sans-serif",
+        pointerEvents: "none", zIndex: 2,
+      }}>
+        {idx + 1} / {photos.length}
       </div>
-      <button className="lb-btn" style={{ right: 16 }} disabled={idx === photos.length - 1} onClick={(e) => { e.stopPropagation(); setIdx(i => Math.min(i + 1, photos.length - 1)); }}><ChevronRight size={26} /></button>
+
+      {/* Prev button */}
+      <button className="lb-btn" style={{ left: 16 }} disabled={idx === 0}
+        onClick={(e) => { e.stopPropagation(); setIdx(i => Math.max(i - 1, 0)); }}>
+        <ChevronLeft size={26} />
+      </button>
+
+      {/* ── Image wrapper — fills the space between the two nav buttons ── */}
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "48px 80px",   // was 60px 90px
+          boxSizing: "border-box",
+        }}
+      >
+        <img
+          key={idx}
+          src={photo.url}
+          alt={photo.caption || ""}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+            borderRadius: 10,
+            display: "block",
+            userSelect: "none",
+            boxShadow: "0 8px 40px rgba(0,0,0,0.6)",
+          }}
+        />
+      </div>
+
+      {/* Next button */}
+      <button className="lb-btn" style={{ right: 16 }} disabled={idx === photos.length - 1}
+        onClick={(e) => { e.stopPropagation(); setIdx(i => Math.min(i + 1, photos.length - 1)); }}>
+        <ChevronRight size={26} />
+      </button>
     </div>,
     document.body
   );
@@ -470,7 +518,7 @@ const UserGallery = () => {
         {/* ══════════════════════════════════════════
             HERO — Polaroid stacked cards, cream bg
         ══════════════════════════════════════════ */}
-        <div className="relative overflow-hidden bg-gray-200" style={{ minHeight: 560,}}>
+        <div className="relative overflow-hidden bg-gray-200" style={{ minHeight: 560, }}>
           {/*  background: "rgba(245,242,236,0.95)"  */}
 
           {/* Dot grid texture */}
@@ -656,7 +704,7 @@ const UserGallery = () => {
             </div>
           )}
         </div>
-        
+
       </div>
 
       <AlbumPanel open={albumOpen} onClose={() => setAlbumOpen(false)} />
