@@ -40,9 +40,7 @@ const EventCard = ({ event, scrollToMe = false }) => {
         block: "center",
       });
 
-      setTimeout(() => {
         setHighlight(true);
-      }, 300);
     });
   }, [scrollToMe]);
 
