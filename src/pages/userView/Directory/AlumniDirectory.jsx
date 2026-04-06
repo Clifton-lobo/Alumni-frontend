@@ -128,7 +128,7 @@ const PrimaryActionButton = ({ status, onConnect, onRespond, onMessage, loading 
       {status === "PENDING_SENT" && (
         <button
           disabled
-          className="flex-1 px-4 py-2.5 rounded-xl bg-amber-50 text-amber-700 text-sm font-semibold flex items-center justify-center gap-2 border border-amber-200 cursor-default"
+          className="flex-1 px-4 py-2.5 rounded-xl  bg-blue-50 text-blue-700 text-sm font-semibold flex items-center justify-center gap-2 border border-blue-200 cursor-default"
         >
           <Clock className="w-4 h-4" />
           Request Sent

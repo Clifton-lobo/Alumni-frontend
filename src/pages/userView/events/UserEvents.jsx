@@ -152,9 +152,10 @@ const UserEvents = () => {
     // Event is NOT on the current page — find which page it's on.
     // Guard against calling this multiple times for the same pendingEventId.
     if (!isFindingPageRef.current) {
-      isFindingPageRef.current = true;
-      findEventPage(pendingEventId);
-    }
+  isFindingPageRef.current = true;
+  findEventPage(pendingEventId);
+}
+
   }, [pendingEventId, eventList, loading]);
 
   /* -----------------------------------
@@ -298,11 +299,8 @@ const UserEvents = () => {
           </div>
 
           <div className="relative min-h-[600px]">
-            <div
-              className={`transition-opacity duration-300 ease-in-out ${
-                loading ? "opacity-40" : "opacity-100"
-              }`}
-            >
+            <div className={`transition-opacity duration-300 ease-in-out ${loading && !isEventNavigationRef.current ? "opacity-40" : "opacity-100"}`}>
+
               {activeFilter === "custom" && eventList.length === 0 && !loading ? (
                 <div className="py-20 text-center">
                   <p className="text-lg text-gray-500">
