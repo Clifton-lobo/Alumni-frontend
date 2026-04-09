@@ -141,92 +141,92 @@ const Home = () => {
   return (
     <div>
       {/* HERO SECTION */}
-     <section
-        id="home"
-        ref={heroRef}
-        className="relative min-h-screen overflow-hidden bg-[#142A5D]"
-      >
-        {/* Background decorations */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-32 sm:-top-40 -right-32 sm:-right-40 w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-[#EBAB09]/10 blur-3xl animate-pulse" />
-          <div
-            className="absolute bottom-10 sm:bottom-20 -left-16 sm:-left-20 w-60 h-60 sm:w-72 sm:h-72 rounded-full bg-white/5 blur-2xl animate-pulse"
-            style={{ animationDelay: "2s" }}
-          />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] h-[380px] md:w-[800px] md:h-[800px] rounded-full border border-white/10" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] h-[260px] md:w-[600px] md:h-[600px] rounded-full border border-white/5" />
-        </div>
-
-        <div className="container mx-auto px-4 pt-24 md:pt-15 pb-16 md:pb-20 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-
-            <h1
-              className={`font-serif text-3xl sm:text-4xl md:text-7xl lg:text-[75px] font-bold text-white mb-2 leading-tight transition-all duration-700 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
-                }`}
-            >
-              Connect. Inspire. <br />
-              <span className="text-yellow-400">Succeed Together.</span>
-            </h1>
-
-            <p
-              className={`text-sm sm:text-base md:text-lg text-white/50 mb-8 md:mb-10 max-w-2xl mx-auto px-2 md:px-0 transition-all duration-700 delay-100 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
-                }`}
-            >
-              Join our thriving community of graduates making an impact worldwide.
-            </p>
-
+      <section
+          id="home"
+          ref={heroRef}
+          className="relative min-h-screen overflow-hidden bg-[#142A5D]"
+        >
+          {/* Background decorations */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-32 sm:-top-40 -right-32 sm:-right-40 w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-[#EBAB09]/10 blur-3xl animate-pulse" />
             <div
-              className={`flex flex-col sm:flex-row gap-3 md:gap-4 justify-center mb-12 md:mb-16 px-2 md:px-0 transition-all duration-700 delay-200 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
-                }`}
-            >
-              <Link
-                to="/user/community"
-                className="w-full sm:w-auto px-6 py-3 md:px-8 md:py-4 rounded-xl bg-[#EBAB09] text-white font-semibold flex items-center gap-2 justify-center hover:opacity-90 transition"
-              >
-                Explore Alumni Network
-                <ArrowRight className="w-5 h-5" />
-              </Link>
+              className="absolute bottom-10 sm:bottom-20 -left-16 sm:-left-20 w-60 h-60 sm:w-72 sm:h-72 rounded-full bg-white/5 blur-2xl animate-pulse"
+              style={{ animationDelay: "2s" }}
+            />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] h-[380px] md:w-[800px] md:h-[800px] rounded-full border border-white/10" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] h-[260px] md:w-[600px] md:h-[600px] rounded-full border border-white/5" />
+          </div>
 
-              <Link
-                to="/user/about"
-                className="w-full sm:w-auto px-6 py-3 md:px-8 md:py-4 rounded-xl border border-[#EBAB09] text-[#EBAB09] font-semibold hover:bg-[#EBAB09] hover:text-white transition"
-              >
-                About Us
-              </Link>
-            </div>
+          <div className="container mx-auto px-4 pt-24 md:pt-15 pb-16 md:pb-20 relative z-10">
+            <div className="max-w-4xl mx-auto text-center">
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 px-2 md:px-0">
-              {stats.map((stat, index) => (
-                <div
-                  key={stat.label}
-                  className={`bg-white/10 backdrop-blur p-4 md:p-2 rounded-2xl transition-all duration-500 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
-                    }`}
-                  style={{ transitionDelay: `${400 + index * 100}ms` }}
+              <h1
+                className={`font-serif text-3xl sm:text-4xl md:text-7xl lg:text-[75px] font-bold text-white mb-2 leading-tight transition-all duration-700 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
+                  }`}
+              >
+                Connect. Inspire. <br />
+                <span className="text-yellow-400">Succeed Together.</span>
+              </h1>
+
+              <p
+                className={`text-sm sm:text-base md:text-lg text-white/50 mb-8 md:mb-10 max-w-2xl mx-auto px-2 md:px-0 transition-all duration-700 delay-100 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
+                  }`}
+              >
+                Join our thriving community of graduates making an impact worldwide.
+              </p>
+
+              <div
+                className={`flex flex-col sm:flex-row gap-3 md:gap-4 justify-center mb-12 md:mb-16 px-2 md:px-0 transition-all duration-700 delay-200 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
+                  }`}
+              >
+                <Link
+                  to="/user/community"
+                  className="w-full sm:w-auto px-6 py-3 md:px-8 md:py-4 rounded-xl bg-[#EBAB09] text-white font-semibold flex items-center gap-2 justify-center hover:opacity-90 transition"
                 >
-                  <stat.icon className="w-7 h-7 md:w-8 md:h-8 text-[#EBAB09] mx-auto mb-3" />
-                  <div className="text-2xl md:text-3xl font-bold text-white mb-1">{stat.value}</div>
-                  <div className="text-white/70 text-sm">{stat.label}</div>
-                </div>
-              ))}
+                  Explore Alumni Network
+                  <ArrowRight className="w-5 h-5" />
+                </Link>
+
+                <Link
+                  to="/user/about"
+                  className="w-full sm:w-auto px-6 py-3 md:px-8 md:py-4 rounded-xl border border-[#EBAB09] text-[#EBAB09] font-semibold hover:bg-[#EBAB09] hover:text-white transition"
+                >
+                  About Us
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 px-2 md:px-0">
+                {stats.map((stat, index) => (
+                  <div
+                    key={stat.label}
+                    className={`bg-white/10 backdrop-blur p-4 md:p-2 rounded-2xl transition-all duration-500 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
+                      }`}
+                    style={{ transitionDelay: `${400 + index * 100}ms` }}
+                  >
+                    <stat.icon className="w-7 h-7 md:w-8 md:h-8 text-[#EBAB09] mx-auto mb-3" />
+                    <div className="text-2xl md:text-3xl font-bold text-white mb-1">{stat.value}</div>
+                    <div className="text-white/70 text-sm">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Bottom wave */}
-        <div className="absolute bottom-0  left-0 right-0 leading-none">
-          <svg
-            viewBox="0 0 1440 80"
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-full block"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M0 80L60 70C120 60 240 50 360 45C480 40 600 40 720 45C840 50 960 60 1080 65C1200 70 1320 70 1380 70L1440 70V80H0Z"
-              fill="#FFFFFF"
-            />
-          </svg>
-        </div>
-      </section>
+          {/* Bottom wave */}
+          <div className="absolute bottom-0  left-0 right-0 leading-none">
+            <svg
+              viewBox="0 0 1440 80"
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-full block"
+              preserveAspectRatio="none"
+            >
+              <path
+                d="M0 80L60 70C120 60 240 50 360 45C480 40 600 40 720 45C840 50 960 60 1080 65C1200 70 1320 70 1380 70L1440 70V80H0Z"
+                fill="#FFFFFF"
+              />
+            </svg>
+          </div>
+        </section>
 
 
 

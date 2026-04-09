@@ -19,12 +19,12 @@ const footerLinks = {
     { label: "Events", to: "/user/events" },
     { label: "News", to: "/user/news" },
   ],
-  community: [
-    { label: "Alumni Directory", to: "/user/community" },
-    { label: "Job Board", to: "/user/jobs" },
-    { label: "Mentorship", to: "/mentorship" },
-    { label: "Giving", to: "/user/donate" },
-  ],
+  // community: [
+  //   { label: "Alumni Directory", to: "/user/community" },
+  //   { label: "Job Board", to: "/user/jobs" },
+  //   { label: "Mentorship", to: "/mentorship" },
+  //   { label: "Giving", to: "/user/donate" }, 
+  // ],
   support: [
     { label: "Help Center", to: "/user/help" },
     { label: "Contact Us", to: "/contact" },
@@ -130,26 +130,29 @@ const Footer = () => {
           </div>
 
           {/* Link Sections */}
-          {Object.entries(footerLinks).map(([section, links]) => (
-            <div key={section}>
-              <h4 className="font-semibold mb-4 text-xl capitalize">
-                {section}
-              </h4>
+         {/* Link Sections */}
+{Object.entries(footerLinks).map(([section, links]) => (
+  <div key={section} className="min-w-[180px] snap-start">
 
-              <ul className="space-y-3">
-                {links.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      to={link.to}
-                      className="text-white/70 text-lg hover:text-[#EBAB09] transition"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+    <h4 className="font-semibold mb-4 text-xl capitalize">
+      {section}
+    </h4>
+
+    <ul className="grid grid-cols-2 sm:grid-cols-1 lg:grid-cols-1 gap-y-3">
+      {links.map((link) => (
+        <li key={link.label}>
+          <Link
+            to={link.to}
+            className="text-white/70 text-lg hover:text-[#EBAB09] transition"
+          >
+            {link.label}
+          </Link>
+        </li>
+      ))}
+    </ul>
+
+  </div>
+))}
 
         </div>
       </div>

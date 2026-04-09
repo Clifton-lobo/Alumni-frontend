@@ -40,7 +40,7 @@ const Pagination = ({ pagination, onPageChange }) => {
   const getPages = () => {
     const range = [];
     const delta = 2;
-    const left  = Math.max(2, page - delta);
+    const left = Math.max(2, page - delta);
     const right = Math.min(pages - 1, page + delta);
     range.push(1);
     if (left > 2) range.push("...");
@@ -67,7 +67,9 @@ const Pagination = ({ pagination, onPageChange }) => {
         </button>
         {getPages().map((p, i) =>
           p === "..." ? (
-            <span key={`dots-${i}`} className="px-2 text-gray-400 text-sm">…</span>
+            <span key={`dots-${i}`} className="px-2 text-gray-400 text-sm">
+              …
+            </span>
           ) : (
             <button
               key={p}
@@ -80,7 +82,7 @@ const Pagination = ({ pagination, onPageChange }) => {
             >
               {p}
             </button>
-          )
+          ),
         )}
         <button
           onClick={() => onPageChange(page + 1)}
@@ -94,21 +96,47 @@ const Pagination = ({ pagination, onPageChange }) => {
   );
 };
 
-
-
 /* ── PDF Preview Dialog ─────────────────────────────────────── */
 const ResumePreviewDialog = ({ open, onClose, resumeUrl, resumeName }) => {
-  const [imgError, setImgError] = useState(false);
   const [zoom, setZoom]         = useState(1);
+  const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
   const [loading, setLoading]   = useState(true);
-
-  const imageUrl = getPdfImageUrl(resumeUrl);
+  const [error, setError]       = useState(false);
 
   useEffect(() => {
-    if (open) {
-      setImgError(false);
+    if (!open || !resumeUrl) return;
+
+    setLoading(true);
+    setError(false);
+    setPdfBlobUrl(null);
+
+    const proxyUrl = `/api/proxy/file?url=${encodeURIComponent(resumeUrl)}&filename=${encodeURIComponent(resumeName || "resume.pdf")}`;
+
+    fetch(proxyUrl, { credentials: "include" })
+      .then((res) => {
+        if (!res.ok) throw new Error(`Failed: ${res.status}`);
+        return res.blob();
+      })
+      .then((blob) => {
+        // Force blob type to PDF so browser renders it
+        const pdfBlob = new Blob([blob], { type: "application/pdf" });
+        setPdfBlobUrl(URL.createObjectURL(pdfBlob));
+      })
+      .catch(() => setError(true))
+      .finally(() => setLoading(false));
+
+    return () => {
+      if (pdfBlobUrl) URL.revokeObjectURL(pdfBlobUrl);
+    };
+  }, [open, resumeUrl]);
+
+  useEffect(() => {
+    if (!open) {
       setZoom(1);
-      setLoading(true);
+      if (pdfBlobUrl) {
+        URL.revokeObjectURL(pdfBlobUrl);
+        setPdfBlobUrl(null);
+      }
     }
   }, [open]);
 
@@ -116,18 +144,15 @@ const ResumePreviewDialog = ({ open, onClose, resumeUrl, resumeName }) => {
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="w-[95vw] sm:max-w-[740px] rounded-2xl p-0 gap-0 overflow-hidden bg-white max-h-[92vh] flex flex-col">
 
-        {/* Custom header — single flex row, no DialogHeader wrapper */}
+        {/* Header */}
         <div className="flex items-center border-b border-gray-100 flex-shrink-0 px-4 h-12">
-          {/* Left: icon + filename */}
           <div className="flex items-center gap-2 flex-1 min-w-0 mr-3">
             <FileText className="h-4 w-4 text-[#EBAB09] flex-shrink-0" />
             <span className="text-sm font-semibold text-gray-800 truncate">
               {resumeName || "Resume.pdf"}
             </span>
           </div>
-
-          {/* Right: zoom controls + divider + download — never shrinks or wraps */}
-          <div className="flex items-center gap-0.5 flex-shrink-0">
+          <div className="flex items-center gap-0.5 mr-8 flex-shrink-0">
             <button
               onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.25).toFixed(2)))}
               className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
@@ -135,11 +160,9 @@ const ResumePreviewDialog = ({ open, onClose, resumeUrl, resumeName }) => {
             >
               <ZoomOut className="h-4 w-4" />
             </button>
-
             <span className="text-xs text-gray-500 w-10 text-center tabular-nums select-none">
               {Math.round(zoom * 100)}%
             </span>
-
             <button
               onClick={() => setZoom((z) => Math.min(3, +(z + 0.25).toFixed(2)))}
               className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
@@ -147,60 +170,45 @@ const ResumePreviewDialog = ({ open, onClose, resumeUrl, resumeName }) => {
             >
               <ZoomIn className="h-4 w-4" />
             </button>
-
-            <div className="w-px h-5 bg-gray-200 mx-1.5" />
-
-            <a
-              href={resumeUrl?.replace("/upload/", "/upload/fl_attachment/")}
-              download={resumeName || "resume.pdf"}
-              className="p-1.5 rounded-lg hover:bg-gray-100 mr-10 text-gray-500 transition-colors"
-              title="Download PDF"
-            >
-              <Download className="h-4 w-4" />
-            </a>
           </div>
         </div>
 
         {/* Preview body */}
-        <div className="flex-1 overflow-auto bg-gray-100 flex items-start justify-center p-4 sm:p-6 min-h-[300px]">
-          {imgError ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center gap-3 w-full">
-              <FileText className="h-12 w-12 text-gray-300" />
-              <p className="text-sm text-gray-500 font-medium">Preview unavailable</p>
-              <p className="text-xs text-gray-400 max-w-[240px]">
-                This PDF could not be rendered. Try downloading it instead.
-              </p>
-              <a
-                href={resumeUrl?.replace("/upload/", "/upload/fl_attachment/")}
-                download={resumeName || "resume.pdf"}
-                className="mt-2 px-4 py-2 rounded-xl bg-[#EBAB09] text-black text-xs font-semibold hover:bg-[#d49a08] transition-colors"
-              >
-                Download PDF
-              </a>
-            </div>
-          ) : (
-            <div
-              style={{ transform: `scale(${zoom})`, transformOrigin: "top center" }}
-              className="transition-transform duration-200 w-full"
-            >
-              {loading && (
-                <div className="flex items-center justify-center w-full h-[400px] sm:h-[680px] bg-white rounded-lg">
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-8 h-8 border-2 border-[#EBAB09] border-t-transparent rounded-full animate-spin" />
-                    <p className="text-xs text-gray-400">Loading preview…</p>
-                  </div>
-                </div>
-              )}
-              <img
-                src={imageUrl}
-                alt="Resume preview"
-                onLoad={() => setLoading(false)}
-                onError={() => { setImgError(true); setLoading(false); }}
-                className={`w-full rounded-lg shadow-md bg-white ${loading ? "hidden" : "block"}`}
-                style={{ minWidth: "280px" }}
-              />
+        <div className="flex-1 bg-gray-100 min-w-[500px] min-h-[700px]" style={{ height: "70vh" }}>
+          {loading && (
+            <div className="flex items-center justify-center w-full h-full">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-8 h-8 border-2 border-[#EBAB09] border-t-transparent rounded-full animate-spin" />
+                <p className="text-xs text-gray-400">Loading preview…</p>
+              </div>
             </div>
           )}
+
+          {error && !loading && (
+            <div className="flex flex-col items-center justify-center h-full gap-3">
+              <FileText className="h-12 w-12 text-gray-300" />
+              <p className="text-sm text-gray-500 font-medium">Preview unavailable</p>
+              <p className="text-xs text-gray-400">Try downloading the file instead.</p>
+            </div>
+          )}
+{pdfBlobUrl && !loading && (
+  <div className="w-full h-full overflow-auto">
+    <div
+      style={{
+        transform: `scale(${zoom})`,
+        transformOrigin: "top left",
+        width: "100%",
+        height: "100%",
+      }}
+    >
+      <iframe
+        src={pdfBlobUrl}
+        title="Resume Preview"
+        className="w-full h-[100vh] border-0"
+      />
+    </div>
+  </div>
+)}
         </div>
 
         <DialogFooter className="px-4 py-3 border-t border-gray-100 flex-shrink-0">
@@ -220,36 +228,48 @@ const ResumePreviewDialog = ({ open, onClose, resumeUrl, resumeName }) => {
 /* ── Application Detail Dialog ──────────────────────────────── */
 const ApplicationDetailDialog = ({ app, open, onClose }) => {
   const [previewOpen, setPreviewOpen] = useState(false);
-
+const [downloading, setDownloading] = useState(false);
   useEffect(() => {
     if (!open) setPreviewOpen(false);
   }, [open]);
 
   if (!app) return null;
 
-  const applicant   = app.applicant || {};
-  const resume      = app.resume    || {};
+  const applicant = app.applicant || {};
+  const resume = app.resume || {};
   const appliedDate = app.createdAt
     ? new Date(app.createdAt).toLocaleDateString("en-GB", {
-        day: "2-digit", month: "2-digit", year: "numeric",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
       })
     : "—";
 
-    const triggerDownload = async (url, filename) => {
-  if (!url || downloading) return;
-  setDownloading(true);
-  try {
-    const proxyUrl = `/api/proxy-download?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(filename || "resume.pdf")}`;
-    const a = document.createElement("a");
-    a.href = proxyUrl;
-    a.download = filename || "resume.pdf";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  } finally {
-    setDownloading(false);
-  }
-};
+  const triggerDownload = async (url, filename) => {
+    if (!url || downloading) return;
+    setDownloading(true);
+    try {
+      const proxyUrl = `/api/proxy/file?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(filename || "resume.pdf")}&download=true`;
+      console.log("Fetching:", proxyUrl);
+
+      const res = await fetch(proxyUrl, { credentials: "include" });
+      if (!res.ok) throw new Error(`Server returned ${res.status}`);
+
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = filename || "resume.pdf";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error("Download failed:", err);
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <>
@@ -276,7 +296,9 @@ const ApplicationDetailDialog = ({ app, open, onClose }) => {
                 </p>
                 <p className="text-xs text-gray-500 flex items-center gap-1 mt-0.5 truncate">
                   <Mail className="h-3 w-3 flex-shrink-0" />
-                  <span className="truncate">{applicant.email || "No email"}</span>
+                  <span className="truncate">
+                    {applicant.email || "No email"}
+                  </span>
                 </p>
               </div>
             </div>
@@ -290,7 +312,7 @@ const ApplicationDetailDialog = ({ app, open, onClose }) => {
                 <GraduationCap className="h-4 w-4 text-[#EBAB09] flex-shrink-0" />
                 <span>
                   {applicant.stream || "Stream N/A"},{" "}
-                  {applicant.batch   || "Batch N/A"}
+                  {applicant.batch || "Batch N/A"}
                 </span>
               </div>
             </div>
@@ -317,21 +339,33 @@ const ApplicationDetailDialog = ({ app, open, onClose }) => {
                     <Eye className="h-4 w-4 text-[#EBAB09]" />
                   </button>
 
-                  <a
-                    href={resume.url.replace("/upload/", "/upload/fl_attachment/")}
-                    download={resume.originalName || "resume.pdf"}
+                  <button
+                    onClick={() =>
+                      triggerDownload(resume.url, resume.originalName)
+                    }
                     className="p-3 rounded-xl bg-gray-50 border border-gray-200 hover:border-[#EBAB09] hover:bg-amber-50 transition-all flex-shrink-0"
                     title="Download resume"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[#EBAB09]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                      <polyline points="7 10 12 15 17 10"/>
-                      <line x1="12" y1="15" x2="12" y2="3"/>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 text-[#EBAB09]"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
                     </svg>
-                  </a>
+                  </button>
                 </div>
               ) : (
-                <p className="text-sm italic text-gray-400">No resume uploaded</p>
+                <p className="text-sm italic text-gray-400">
+                  No resume uploaded
+                </p>
               )}
             </div>
 
@@ -372,7 +406,7 @@ const ApplicationDetailDialog = ({ app, open, onClose }) => {
 
 /* ── Single Job Row (accordion) ─────────────────────────────── */
 const JobRow = ({ jobData }) => {
-  const [expanded, setExpanded]       = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [selectedApp, setSelectedApp] = useState(null);
 
   const applicants = jobData.applications || [];
@@ -387,7 +421,9 @@ const JobRow = ({ jobData }) => {
           <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 text-[#EBAB09]" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-semibold text-gray-900 text-sm truncate">{jobData.title}</p>
+          <p className="font-semibold text-gray-900 text-sm truncate">
+            {jobData.title}
+          </p>
           <p className="text-xs text-gray-500 mt-0.5">
             {jobData.totalApplications}{" "}
             {jobData.totalApplications === 1 ? "application" : "applications"}
@@ -408,7 +444,7 @@ const JobRow = ({ jobData }) => {
             </p>
           ) : (
             applicants.map((app, idx) => {
-              const applicant   = app.applicant || {};
+              const applicant = app.applicant || {};
               const appliedDate = app.createdAt
                 ? new Date(app.createdAt).toLocaleDateString("en-GB")
                 : "—";
@@ -417,7 +453,9 @@ const JobRow = ({ jobData }) => {
                 <div
                   key={app._id || idx}
                   className={`flex items-center gap-3 px-4 py-3.5 ${
-                    idx < applicants.length - 1 ? "border-b border-gray-100" : ""
+                    idx < applicants.length - 1
+                      ? "border-b border-gray-100"
+                      : ""
                   }`}
                 >
                   <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#EBAB09]/15 flex items-center justify-center flex-shrink-0">
@@ -470,10 +508,10 @@ const JobRow = ({ jobData }) => {
 const MyJobApplications = ({ isActive }) => {
   const dispatch = useDispatch();
   const { jobApplications, pagination, loading } = useSelector(
-    (state) => state.applications
+    (state) => state.applications,
   );
 
-  const [page, setPage]             = useState(1);
+  const [page, setPage] = useState(1);
   const [hasFetched, setHasFetched] = useState(false);
 
   useEffect(() => {
@@ -486,8 +524,6 @@ const MyJobApplications = ({ isActive }) => {
     setPage(newPage);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-
-  
 
   if (loading.fetchForJobs || (isActive && !hasFetched)) {
     return (
