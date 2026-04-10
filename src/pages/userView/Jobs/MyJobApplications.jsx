@@ -99,8 +99,9 @@ const Pagination = ({ pagination, onPageChange }) => {
 /* ── PDF Preview Dialog ─────────────────────────────────────── */
 const ResumePreviewDialog = ({ open, onClose, resumeUrl, resumeName }) => {
   const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
-  const [loading, setLoading]       = useState(false);
-  const [error, setError]           = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [zoom, setZoom] = useState(1);
 
   useEffect(() => {
     if (!open || !resumeUrl) return;
@@ -108,6 +109,7 @@ const ResumePreviewDialog = ({ open, onClose, resumeUrl, resumeName }) => {
     setLoading(true);
     setError(false);
     setPdfBlobUrl(null);
+    setZoom(1);
 
     const API_BASE = import.meta.env.VITE_API_URL || "";
     const proxyUrl = `${API_BASE}/api/proxy/file?url=${encodeURIComponent(resumeUrl)}&filename=${encodeURIComponent(resumeName || "resume.pdf")}`;
@@ -128,7 +130,6 @@ const ResumePreviewDialog = ({ open, onClose, resumeUrl, resumeName }) => {
       .finally(() => setLoading(false));
   }, [open, resumeUrl]);
 
-  // Cleanup blob URL on close
   useEffect(() => {
     if (!open && pdfBlobUrl) {
       URL.revokeObjectURL(pdfBlobUrl);
@@ -137,23 +138,75 @@ const ResumePreviewDialog = ({ open, onClose, resumeUrl, resumeName }) => {
     }
   }, [open]);
 
+  const downloadBlob = () => {
+    if (!pdfBlobUrl) return;
+    const a = document.createElement("a");
+    a.href = pdfBlobUrl;
+    a.download = resumeName || "resume.pdf";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="w-[95vw] sm:max-w-[740px] rounded-2xl p-0 gap-0 overflow-hidden bg-white max-h-[92vh] flex flex-col">
-
+      <DialogContent className="w-[95vw] sm:max-w-[780px] rounded-2xl p-0 gap-0 overflow-hidden bg-white max-h-[96vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center border-b border-gray-100 flex-shrink-0 px-4 h-12">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
+          {/* Left: icon + filename */}
+          <div className="flex items-center gap-2 flex-1 min-w-0 mr-3">
             <FileText className="h-4 w-4 text-[#EBAB09] flex-shrink-0" />
             <span className="text-sm font-semibold text-gray-800 truncate">
               {resumeName || "Resume.pdf"}
             </span>
           </div>
+
+          {/* Right: zoom + download */}
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+            {/* <button
+              onClick={() =>
+                setZoom((z) => Math.max(0.5, +(z - 0.25).toFixed(2)))
+              }
+              className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
+              title="Zoom out"
+            >
+              <ZoomOut className="h-4 w-4" />
+            </button>
+
+            <span className="text-xs text-gray-500 w-10 text-center tabular-nums select-none">
+              {Math.round(zoom * 100)}%
+            </span>
+
+            <button
+              onClick={() =>
+                setZoom((z) => Math.min(3, +(z + 0.25).toFixed(2)))
+              }
+              className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
+              title="Zoom in"
+            >
+              <ZoomIn className="h-4 w-4" />
+            </button> */}
+
+
+            <button
+              onClick={downloadBlob}
+              disabled={!pdfBlobUrl}
+              className="p-1.5 rounded-lg hover:bg-gray-100 mr-8 text-gray-500 transition-colors disabled:opacity-30"
+              title="Download PDF"
+            >
+              <Download className="h-4 w-4" />
+            </button>
+
+                        <div className="w-px h-5 bg-gray-200 mx-1.5" />
+
+          </div>
         </div>
 
         {/* Body */}
-        <div className="flex-1 bg-gray-100" style={{ height: "75vh" }}>
-
+        <div
+          className="flex-1 bg-gray-100 overflow-hidden"
+          style={{ height: "82vh" }}
+        >
           {loading && (
             <div className="flex items-center justify-center w-full h-full">
               <div className="flex flex-col items-center gap-3">
@@ -166,32 +219,44 @@ const ResumePreviewDialog = ({ open, onClose, resumeUrl, resumeName }) => {
           {error && !loading && (
             <div className="flex flex-col items-center justify-center h-full gap-3 px-4 text-center">
               <FileText className="h-12 w-12 text-gray-300" />
-              <p className="text-sm text-gray-500 font-medium">Preview unavailable</p>
-              <p className="text-xs text-gray-400">Download the file to view it.</p>
+              <p className="text-sm text-gray-500 font-medium">
+                Preview unavailable
+              </p>
+              <p className="text-xs text-gray-400">
+                Download the file to view it.
+              </p>
             </div>
           )}
 
           {pdfBlobUrl && !loading && !error && (
-            <object
-              data={pdfBlobUrl}
-              type="application/pdf"
-              className="w-full h-full"
+            <div
+              style={{
+                transform: `scale(${zoom})`,
+                transformOrigin: "top center",
+                width: `${100 / zoom}%`,
+                height: `${100 / zoom}%`,
+              }}
             >
-              {/* Fallback if object tag fails */}
-              <div className="flex flex-col items-center justify-center h-full gap-3">
-                <FileText className="h-12 w-12 text-gray-300" />
-                <p className="text-sm text-gray-500">
-                  Your browser cannot display PDFs inline.
-                </p>
-                <a
-                  href={pdfBlobUrl}
-                  download={resumeName || "resume.pdf"}
-                  className="px-4 py-2 rounded-xl bg-[#EBAB09] text-black text-xs font-semibold hover:bg-[#d49a08]"
-                >
-                  Download Instead
-                </a>
-              </div>
-            </object>
+              <object
+                data={pdfBlobUrl}
+                type="application/pdf"
+                className="w-full"
+                style={{ height: "82vh" }}
+              >
+                <div className="flex flex-col items-center justify-center h-full gap-3 py-16">
+                  <FileText className="h-12 w-12 text-gray-300" />
+                  <p className="text-sm text-gray-500">
+                    Your browser cannot display PDFs inline.
+                  </p>
+                  <button
+                    onClick={downloadBlob}
+                    className="px-4 py-2 rounded-xl bg-[#EBAB09] text-black text-xs font-semibold hover:bg-[#d49a08]"
+                  >
+                    Download Instead
+                  </button>
+                </div>
+              </object>
+            </div>
           )}
         </div>
 
@@ -212,7 +277,7 @@ const ResumePreviewDialog = ({ open, onClose, resumeUrl, resumeName }) => {
 /* ── Application Detail Dialog ──────────────────────────────── */
 const ApplicationDetailDialog = ({ app, open, onClose }) => {
   const [previewOpen, setPreviewOpen] = useState(false);
-const [downloading, setDownloading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   useEffect(() => {
     if (!open) setPreviewOpen(false);
   }, [open]);
