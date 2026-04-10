@@ -530,7 +530,7 @@ const AlumniDirectory = () => {
 
                       {/* Email */}
                       <div className="flex items-center gap-2.5 bg-gray-50 rounded-lg px-3 py-2 text-sm text-gray-500">
-                        <Mail className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                        <Mail className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
                         <span className="truncate">{user.email || "Email not provided"}</span>
                       </div>
 
@@ -546,7 +546,7 @@ const AlumniDirectory = () => {
 
                       {/* Stream + Batch */}
                       <div className="flex items-center gap-2.5 bg-gray-50 rounded-lg px-3 py-2 text-sm text-gray-500">
-                        <GraduationCap className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                        <GraduationCap className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
                         <span>
                           {user.stream || "Stream not provided"} ·{" "}
                           {user.batch ? `Class of ${user.batch}` : "Batch not provided"}

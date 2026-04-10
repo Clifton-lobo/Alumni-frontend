@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { createPortal } from "react-dom";  {/* ← NEW LINE */}
+import { createPortal } from "react-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
@@ -12,7 +12,6 @@ import {
 import {
     Briefcase,
     GraduationCap,
-    Calendar,
     Linkedin,
     MessageCircle,
     UserPlus,
@@ -24,6 +23,9 @@ import {
     Shield,
 } from "lucide-react";
 
+/* ─────────────────────────────────────────────
+  Helper: derive connection status for a user
+───────────────────────────────────────────── */
 const getConnectionStatus = (
     targetUserId,
     currentUserId,
@@ -33,12 +35,9 @@ const getConnectionStatus = (
 ) => {
     if (targetUserId && currentUserId && targetUserId === currentUserId)
         return "SELF";
-
     if (!targetUserId) return "NONE";
-
     if (acceptedConnections.some((c) => c.user?._id?.toString() === targetUserId))
         return "ACCEPTED";
-
     if (
         outgoingRequests.some((r) => {
             const id = r.recipient?._id?.toString() ?? r.recipient?.toString();
@@ -46,7 +45,6 @@ const getConnectionStatus = (
         })
     )
         return "PENDING_SENT";
-
     if (
         incomingRequests.some((r) => {
             const id = r.requester?._id?.toString() ?? r.requester?.toString();
@@ -54,59 +52,134 @@ const getConnectionStatus = (
         })
     )
         return "PENDING_RECEIVED";
-
     return "NONE";
 };
 
-const ConnectButton = ({ status, onConnect, onRespond, loading }) => {
-    if (status === "ACCEPTED") {
-        return (
-            <button
-                disabled
-                className="flex-1 px-4 py-2.5 rounded-xl bg-green-100 text-green-700 text-sm font-semibold flex items-center justify-center gap-2 border border-green-200"
-            >
-                <CheckCircle className="w-4 h-4" />
-                Connected
-            </button>
-        );
-    }
+/* ─────────────────────────────────────────────
+  Avatar gradient per first letter (same as AlumniDirectory)
+───────────────────────────────────────────── */
+const avatarColors = [
+    "from-[#142A5D] to-[#1E3A7A]",
+    "from-[#2A7A4B] to-[#16A34A]",
+    "from-[#7B5EA7] to-[#9333EA]",
+    "from-[#B45309] to-[#EBAB09]",
+    "from-[#0369A1] to-[#0EA5E9]",
+    "from-[#374151] to-[#6B7280]",
+];
+const getAvatarColor = (name = "") =>
+    avatarColors[name.charCodeAt(0) % avatarColors.length];
 
-    if (status === "PENDING_SENT") {
-        return (
-            <button
-                disabled
-                className="flex-1 px-4 py-2.5 rounded-xl bg-amber-50 text-amber-700 text-sm font-semibold flex items-center justify-center gap-2 border border-amber-200"
-            >
-                <Clock className="w-4 h-4" />
-                Request Sent
-            </button>
-        );
-    }
-
-    if (status === "PENDING_RECEIVED") {
-        return (
-            <button
-                onClick={onRespond}
-                className="flex-1 px-4 py-2.5 rounded-xl bg-blue-100 text-blue-700 text-sm font-semibold hover:bg-blue-200 flex items-center justify-center gap-2 border border-blue-200 transition"
-            >
-                <UserCheck className="w-4 h-4" />
-                Respond
-            </button>
-        );
-    }
-
+/* ─────────────────────────────────────────────
+  Primary action button — matches AlumniDirectory
+───────────────────────────────────────────── */
+const PrimaryActionButton = ({ status, onConnect, onRespond, onMessage, loading }) => {
     return (
-        <button
-            onClick={onConnect}
-            disabled={loading}
-            className="flex-1 px-4 py-2.5 rounded-xl bg-[#EBAB09] text-black text-sm font-semibold hover:bg-[#d49a00] flex items-center justify-center gap-2 transition disabled:opacity-50 cursor-pointer"
-        >
-            <UserPlus className="w-4 h-4" />
-            {loading ? "Sending…" : "Connect"}
-        </button>
+        <>
+            <style>{`
+                .pd-primary-btn {
+                    background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8e 100%);
+                    position: relative;
+                    overflow: hidden;
+                    transition: transform .2s, box-shadow .2s;
+                }
+                .pd-primary-btn::before {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient(90deg,
+                        transparent 0%,
+                        rgba(255,255,255,.12) 50%,
+                        transparent 100%);
+                    background-size: 200% 100%;
+                    opacity: 0;
+                    transition: opacity .2s;
+                }
+                .pd-primary-btn:hover:not(:disabled)::before {
+                    opacity: 1;
+                    animation: pd-shimmer 1.4s linear infinite;
+                }
+                .pd-primary-btn:hover:not(:disabled) {
+                    transform: translateY(-1px);
+                    box-shadow: 0 8px 24px rgba(15,23,42,.35);
+                }
+                .pd-primary-btn:active:not(:disabled) { transform: translateY(0); }
+                @keyframes pd-shimmer {
+                    from { background-position: 200% 0; }
+                    to   { background-position: -200% 0; }
+                }
+            `}</style>
+
+            {status === "ACCEPTED" && (
+                <button
+                    onClick={onMessage}
+                    className="pd-primary-btn flex-1 px-4 py-2.5 rounded-xl text-white text-sm font-semibold flex items-center justify-center gap-2 cursor-pointer"
+                >
+                    <MessageCircle className="w-4 h-4" />
+                    Message
+                </button>
+            )}
+            {status === "PENDING_SENT" && (
+                <button
+                    disabled
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-blue-50 text-blue-700 text-sm font-semibold flex items-center justify-center gap-2 border border-blue-200 cursor-default"
+                >
+                    <Clock className="w-4 h-4" />
+                    Request Sent
+                </button>
+            )}
+            {status === "PENDING_RECEIVED" && (
+                <button
+                    onClick={onRespond}
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-blue-50 text-blue-700 text-sm font-semibold flex items-center justify-center gap-2 border border-blue-200 hover:bg-blue-100 transition-colors cursor-pointer"
+                >
+                    <UserCheck className="w-4 h-4" />
+                    Respond
+                </button>
+            )}
+            {(status === "NONE" || (!["ACCEPTED", "PENDING_SENT", "PENDING_RECEIVED"].includes(status))) && (
+                <button
+                    onClick={onConnect}
+                    disabled={loading}
+                    className="pd-primary-btn flex-1 px-4 py-2.5 rounded-xl text-white text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                >
+                    <UserPlus className="w-4 h-4" />
+                    {loading ? "Sending…" : "Connect"}
+                </button>
+            )}
+        </>
     );
 };
 
+/* ─────────────────────────────────────────────
+  LinkedIn icon button — matches AlumniDirectory
+───────────────────────────────────────────── */
+const LinkedInButton = ({ url }) => {
+    if (url) {
+        return (
+            <a
+                href={url.startsWith("http") ? url : `https://${url}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 flex items-center justify-center rounded-xl bg-indigo-500 text-white hover:bg-[#0958a8] transition-colors duration-200 flex-shrink-0"
+                title="LinkedIn Profile"
+            >
+                <Linkedin className="w-4 h-4" />
+            </a>
+        );
+    }
+    return (
+        <div
+            className="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 text-gray-300 flex-shrink-0 cursor-not-allowed"
+            title="LinkedIn not posted"
+        >
+            <Linkedin className="w-4 h-4" />
+        </div>
+    );
+};
+
+/* ─────────────────────────────────────────────
+  Main ProfileDialog
+───────────────────────────────────────────── */
 const ProfileDialog = ({ open, onClose, poster }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -132,8 +205,8 @@ const ProfileDialog = ({ open, onClose, poster }) => {
         currentUser?.id?.toString() || currentUser?._id?.toString();
     const posterId = (poster._id ?? poster.userId)?.toString();
     const isAdmin = poster.role === "admin";
-
     const isCurrentUser = !!(posterId && currentUserId && posterId === currentUserId);
+    const showActions = !isAdmin && !isCurrentUser;
 
     const connectionStatus = getConnectionStatus(
         posterId,
@@ -142,8 +215,6 @@ const ProfileDialog = ({ open, onClose, poster }) => {
         outgoingRequests,
         incomingRequests
     );
-
-    const showActions = !isAdmin && !isCurrentUser;
 
     const handleConnect = () => {
         if (posterId) dispatch(sendConnectionRequest(posterId));
@@ -164,7 +235,6 @@ const ProfileDialog = ({ open, onClose, poster }) => {
         });
     };
 
-    // ↓ CHANGED: wrapped everything in createPortal
     return createPortal(
         <div
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -172,11 +242,10 @@ const ProfileDialog = ({ open, onClose, poster }) => {
             onClick={onClose}
         >
             <div
-                className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden"
+                className="relative w-full max-w-sm bg-white rounded-2xl border-[1.5px] border-gray-100 shadow-2xl overflow-hidden flex flex-col"
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="h-1.5 w-full bg-gradient-to-r from-[#142A5D] via-[#EBAB09] to-[#142A5D]" />
-
+                {/* Close button */}
                 <button
                     onClick={onClose}
                     className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition z-10"
@@ -184,9 +253,13 @@ const ProfileDialog = ({ open, onClose, poster }) => {
                     <X className="w-4 h-4" />
                 </button>
 
-                <div className="px-6 pt-6 pb-4 flex flex-col items-center text-center">
-                    <div className="relative">
-                        <div className="w-24 h-24 rounded-full overflow-hidden bg-[#142A5D] flex items-center justify-center text-white text-2xl font-bold shadow-md ring-4 ring-white">
+                {/* Card body */}
+                <div className="p-6 flex flex-col items-center text-center flex-1">
+
+                    {/* Avatar */}
+                    <div className="relative mb-4">
+                        <div
+className="w-[72px] h-[72px] rounded-full overflow-hidden bg-gradient-to-br from-[#142A5D] to-[#1E3A7A] flex items-center justify-center text-white text-2xl font-bold border-4 border-white shadow-md"                        >
                             {poster.profilePicture ? (
                                 <img
                                     src={poster.profilePicture}
@@ -200,46 +273,41 @@ const ProfileDialog = ({ open, onClose, poster }) => {
                             )}
                         </div>
                         {connectionStatus === "ACCEPTED" && (
-                            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow">
-                                <UserCheck className="w-4 h-4 text-green-600" />
+                            <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">
+                                <CheckCircle className="w-3.5 h-3.5 text-white" />
                             </div>
                         )}
                     </div>
 
-                    <div className="mt-3 flex items-center gap-2 justify-center flex-wrap">
-                        <h2 className="text-lg font-bold text-slate-900">
-                            {poster.fullname || poster.username || "Anonymous"}
-                        </h2>
+                    {/* Name */}
+                    <h2 className="text-[15px] font-semibold text-slate-900 flex items-center gap-2 flex-wrap justify-center">
+                        {poster.fullname || poster.username || "Anonymous"}
                         {isAdmin && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-50 border border-green-200 text-xs font-medium text-green-700">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-50 border border-green-200 text-[10px] font-medium text-green-700">
                                 <Shield className="w-3 h-3" /> Admin
                             </span>
                         )}
                         {isCurrentUser && (
-                            <span className="text-[10px] bg-[#142A5D]/10 text-[#142A5D] px-2 py-0.5 rounded-full font-medium">
-                                You
-                            </span>
+                            <span className="text-[10px] text-[#142A5D]/50 font-medium">(you)</span>
                         )}
-                    </div>
+                    </h2>
 
                     {poster.username && poster.fullname && (
                         <p className="text-xs text-slate-400 mt-0.5">@{poster.username}</p>
                     )}
 
-                    <div className="w-12 h-0.5 bg-gradient-to-r from-transparent via-[#EBAB09] to-transparent rounded-full mt-3 mb-4" />
+                    {/* Info rows */}
+                    <div className="mt-4 w-full flex flex-col gap-2">
 
-                    <div className="w-full space-y-2.5 text-sm text-left">
-                        <div className="flex items-center gap-2.5 text-slate-600">
-                            <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
-                                <Mail className="w-3.5 h-3.5 text-slate-500" />
-                            </div>
+                        {/* Email */}
+                        <div className="flex items-center gap-2.5 bg-gray-50 rounded-lg px-3 py-2 text-sm text-gray-500">
+                            <Mail className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
                             <span className="truncate">{poster.email || "Email not provided"}</span>
                         </div>
 
-                        <div className="flex items-center gap-2.5 text-blue-600">
-                            <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-                                <Briefcase className="w-3.5 h-3.5 text-blue-500" />
-                            </div>
+                        {/* Job */}
+                        <div className="flex items-center gap-2.5 bg-gray-50 rounded-lg px-3 py-2 text-sm text-gray-500">
+                            <Briefcase className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
                             <span className="truncate">
                                 {poster.jobTitle
                                     ? `${poster.jobTitle}${poster.company ? ` at ${poster.company}` : ""}`
@@ -247,93 +315,58 @@ const ProfileDialog = ({ open, onClose, poster }) => {
                             </span>
                         </div>
 
-                        <div className="flex items-center gap-2.5 text-slate-600">
-                            <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
-                                <GraduationCap className="w-3.5 h-3.5 text-slate-500" />
-                            </div>
-                            <span>{poster.stream || "Stream not provided"}</span>
-                        </div>
-
-                        <div className="flex items-center gap-2.5 text-slate-600">
-                            <div className="w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
-                                <Calendar className="w-3.5 h-3.5 text-slate-500" />
-                            </div>
+                        {/* Stream */}
+                        <div className="flex items-center gap-2.5 bg-gray-50 rounded-lg px-3 py-2 text-sm text-gray-500">
+                            <GraduationCap className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
                             <span>
+                                {poster.stream || "Stream not provided"} ·{" "}
                                 {poster.batch ? `Class of ${poster.batch}` : "Batch not provided"}
                             </span>
-                        </div>
-
-                        <div className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-                                <Linkedin className="w-3.5 h-3.5 text-[#142A5D]" />
-                            </div>
-                            {poster.linkedin ? (
-                                <a
-                                    href={
-                                        poster.linkedin.startsWith("http")
-                                            ? poster.linkedin
-                                            : `https://${poster.linkedin}`
-                                    }
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-sm text-[#142A5D] font-medium hover:underline truncate"
-                                >
-                                    View LinkedIn Profile
-                                </a>
-                            ) : (
-                                <span className="text-sm text-slate-400 italic">
-                                    LinkedIn not posted
-                                </span>
-                            )}
                         </div>
                     </div>
                 </div>
 
+                {/* Divider */}
+                <div className="h-px bg-gray-100" />
+
+                {/* Actions */}
                 {showActions && (
-                    <div className="px-6 pb-6 pt-2 flex gap-3">
-                        <ConnectButton
+                    <div className="p-4 bg-gray-50 flex gap-2.5 items-center">
+                        <PrimaryActionButton
                             status={connectionStatus}
-                            onConnect={handleConnect}
                             onRespond={() => {
                                 onClose();
                                 dispatch(openRequestsDialog());
                             }}
+                            onConnect={handleConnect}
+                            onMessage={handleMessage}
                             loading={!!sendingRequests?.[posterId]}
                         />
-                        <button
-                            onClick={connectionStatus === "ACCEPTED" ? handleMessage : undefined}
-                            disabled={connectionStatus !== "ACCEPTED"}
-                            className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition
-                                ${connectionStatus === "ACCEPTED"
-                                    ? "bg-[#142A5D] text-white hover:bg-[#0f2149] cursor-pointer"
-                                    : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                }`}
-                        >
-                            <MessageCircle className="w-4 h-4" />
-                            Message
-                        </button>
+                        <LinkedInButton url={poster.linkedin} />
                     </div>
                 )}
 
+                {/* Admin notice */}
                 {isAdmin && (
-                    <div className="px-6 pb-5 pt-1">
-                        <div className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm font-medium">
+                    <div className="p-4 bg-gray-50">
+                        <div className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm font-medium">
                             <Shield className="w-4 h-4" />
                             Posted by the platform administrator
                         </div>
                     </div>
                 )}
 
+                {/* Self notice */}
                 {isCurrentUser && (
-                    <div className="px-6 pb-5 pt-1">
-                        <div className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#142A5D]/5 border border-[#142A5D]/15 text-[#142A5D] text-sm font-medium">
-                            This is your post
+                    <div className="p-4 bg-gray-50">
+                        <div className="py-2 rounded-xl bg-[#142A5D]/5 border border-[#142A5D]/10 text-[#142A5D] text-sm font-medium text-center">
+                            This is you
                         </div>
                     </div>
                 )}
             </div>
         </div>,
-        document.body  // ← THIS is what fixes it. Renders outside all parents.
+        document.body
     );
 };
 
