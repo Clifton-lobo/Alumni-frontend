@@ -300,13 +300,13 @@ className="w-[72px] h-[72px] rounded-full overflow-hidden bg-gradient-to-br from
                     <div className="mt-4 w-full flex flex-col gap-2">
 
                         {/* Email */}
-                        <div className="flex items-center gap-2.5 bg-gray-50 rounded-lg px-3 py-2 text-sm text-gray-500">
+                        <div className="flex items-center gap-2.5 bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-500">
                             <Mail className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
                             <span className="truncate">{poster.email || "Email not provided"}</span>
                         </div>
 
                         {/* Job */}
-                        <div className="flex items-center gap-2.5 bg-gray-50 rounded-lg px-3 py-2 text-sm text-gray-500">
+                        <div className="flex items-center gap-2.5 bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-500">
                             <Briefcase className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
                             <span className="truncate">
                                 {poster.jobTitle
@@ -316,7 +316,7 @@ className="w-[72px] h-[72px] rounded-full overflow-hidden bg-gradient-to-br from
                         </div>
 
                         {/* Stream */}
-                        <div className="flex items-center gap-2.5 bg-gray-50 rounded-lg px-3 py-2 text-sm text-gray-500">
+                        <div className="flex items-center gap-2.5 bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-500">
                             <GraduationCap className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
                             <span>
                                 {poster.stream || "Stream not provided"} ·{" "}
