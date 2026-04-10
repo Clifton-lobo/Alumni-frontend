@@ -98,10 +98,9 @@ const Pagination = ({ pagination, onPageChange }) => {
 
 /* ── PDF Preview Dialog ─────────────────────────────────────── */
 const ResumePreviewDialog = ({ open, onClose, resumeUrl, resumeName }) => {
-  const [zoom, setZoom]         = useState(1);
   const [pdfBlobUrl, setPdfBlobUrl] = useState(null);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState(false);
+  const [loading, setLoading]       = useState(false);
+  const [error, setError]           = useState(false);
 
   useEffect(() => {
     if (!open || !resumeUrl) return;
@@ -113,32 +112,28 @@ const ResumePreviewDialog = ({ open, onClose, resumeUrl, resumeName }) => {
     const API_BASE = import.meta.env.VITE_API_URL || "";
     const proxyUrl = `${API_BASE}/api/proxy/file?url=${encodeURIComponent(resumeUrl)}&filename=${encodeURIComponent(resumeName || "resume.pdf")}`;
 
-
     fetch(proxyUrl, { credentials: "include" })
       .then((res) => {
         if (!res.ok) throw new Error(`Failed: ${res.status}`);
         return res.blob();
       })
       .then((blob) => {
-        // Force blob type to PDF so browser renders it
         const pdfBlob = new Blob([blob], { type: "application/pdf" });
         setPdfBlobUrl(URL.createObjectURL(pdfBlob));
       })
-      .catch(() => setError(true))
+      .catch((err) => {
+        console.error("Preview fetch failed:", err);
+        setError(true);
+      })
       .finally(() => setLoading(false));
-
-    return () => {
-      if (pdfBlobUrl) URL.revokeObjectURL(pdfBlobUrl);
-    };
   }, [open, resumeUrl]);
 
+  // Cleanup blob URL on close
   useEffect(() => {
-    if (!open) {
-      setZoom(1);
-      if (pdfBlobUrl) {
-        URL.revokeObjectURL(pdfBlobUrl);
-        setPdfBlobUrl(null);
-      }
+    if (!open && pdfBlobUrl) {
+      URL.revokeObjectURL(pdfBlobUrl);
+      setPdfBlobUrl(null);
+      setError(false);
     }
   }, [open]);
 
@@ -148,35 +143,17 @@ const ResumePreviewDialog = ({ open, onClose, resumeUrl, resumeName }) => {
 
         {/* Header */}
         <div className="flex items-center border-b border-gray-100 flex-shrink-0 px-4 h-12">
-          <div className="flex items-center gap-2 flex-1 min-w-0 mr-3">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
             <FileText className="h-4 w-4 text-[#EBAB09] flex-shrink-0" />
             <span className="text-sm font-semibold text-gray-800 truncate">
               {resumeName || "Resume.pdf"}
             </span>
           </div>
-          <div className="flex items-center gap-0.5 mr-8 flex-shrink-0">
-            <button
-              onClick={() => setZoom((z) => Math.max(0.5, +(z - 0.25).toFixed(2)))}
-              className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
-              title="Zoom out"
-            >
-              <ZoomOut className="h-4 w-4" />
-            </button>
-            <span className="text-xs text-gray-500 w-10 text-center tabular-nums select-none">
-              {Math.round(zoom * 100)}%
-            </span>
-            <button
-              onClick={() => setZoom((z) => Math.min(3, +(z + 0.25).toFixed(2)))}
-              className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
-              title="Zoom in"
-            >
-              <ZoomIn className="h-4 w-4" />
-            </button>
-          </div>
         </div>
 
-        {/* Preview body */}
-        <div className="flex-1 bg-gray-100 min-w-[500px] min-h-[700px]" style={{ height: "70vh" }}>
+        {/* Body */}
+        <div className="flex-1 bg-gray-100" style={{ height: "75vh" }}>
+
           {loading && (
             <div className="flex items-center justify-center w-full h-full">
               <div className="flex flex-col items-center gap-3">
@@ -187,30 +164,35 @@ const ResumePreviewDialog = ({ open, onClose, resumeUrl, resumeName }) => {
           )}
 
           {error && !loading && (
-            <div className="flex flex-col items-center justify-center h-full gap-3">
+            <div className="flex flex-col items-center justify-center h-full gap-3 px-4 text-center">
               <FileText className="h-12 w-12 text-gray-300" />
               <p className="text-sm text-gray-500 font-medium">Preview unavailable</p>
-              <p className="text-xs text-gray-400">Try downloading the file instead.</p>
+              <p className="text-xs text-gray-400">Download the file to view it.</p>
             </div>
           )}
-{pdfBlobUrl && !loading && (
-  <div className="w-full h-full overflow-auto">
-    <div
-      style={{
-        transform: `scale(${zoom})`,
-        transformOrigin: "top left",
-        width: "100%",
-        height: "100%",
-      }}
-    >
-      <iframe
-        src={pdfBlobUrl}
-        title="Resume Preview"
-        className="w-full h-[100vh] border-0"
-      />
-    </div>
-  </div>
-)}
+
+          {pdfBlobUrl && !loading && !error && (
+            <object
+              data={pdfBlobUrl}
+              type="application/pdf"
+              className="w-full h-full"
+            >
+              {/* Fallback if object tag fails */}
+              <div className="flex flex-col items-center justify-center h-full gap-3">
+                <FileText className="h-12 w-12 text-gray-300" />
+                <p className="text-sm text-gray-500">
+                  Your browser cannot display PDFs inline.
+                </p>
+                <a
+                  href={pdfBlobUrl}
+                  download={resumeName || "resume.pdf"}
+                  className="px-4 py-2 rounded-xl bg-[#EBAB09] text-black text-xs font-semibold hover:bg-[#d49a08]"
+                >
+                  Download Instead
+                </a>
+              </div>
+            </object>
+          )}
         </div>
 
         <DialogFooter className="px-4 py-3 border-t border-gray-100 flex-shrink-0">
