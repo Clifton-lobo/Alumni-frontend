@@ -110,7 +110,9 @@ const ResumePreviewDialog = ({ open, onClose, resumeUrl, resumeName }) => {
     setError(false);
     setPdfBlobUrl(null);
 
-    const proxyUrl = `/api/proxy/file?url=${encodeURIComponent(resumeUrl)}&filename=${encodeURIComponent(resumeName || "resume.pdf")}`;
+    const API_BASE = import.meta.env.VITE_API_URL || "";
+    const proxyUrl = `${API_BASE}/api/proxy/file?url=${encodeURIComponent(resumeUrl)}&filename=${encodeURIComponent(resumeName || "resume.pdf")}`;
+
 
     fetch(proxyUrl, { credentials: "include" })
       .then((res) => {
@@ -249,7 +251,9 @@ const [downloading, setDownloading] = useState(false);
     if (!url || downloading) return;
     setDownloading(true);
     try {
-      const proxyUrl = `/api/proxy/file?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(filename || "resume.pdf")}&download=true`;
+      const API_BASE = import.meta.env.VITE_API_URL || "";
+      const proxyUrl = `${API_BASE}/api/proxy/file?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(filename || "resume.pdf")}&download=true`;
+
       console.log("Fetching:", proxyUrl);
 
       const res = await fetch(proxyUrl, { credentials: "include" });
