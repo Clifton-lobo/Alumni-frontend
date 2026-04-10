@@ -247,7 +247,7 @@ function FoundingPrincipalCard({ isMobile }) {
         display: "flex",
         flexDirection: isMobile ? "column-reverse" : "row",
         minHeight: isMobile ? "auto" : 320,
-        boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+        boxShadow: "none",
       }}
     >
       {/* Decorative orbs */}
@@ -290,167 +290,166 @@ function FoundingPrincipalCard({ isMobile }) {
       />
 
       {/* ── LEFT: Text ── */}
-      <div
-        style={{
-          flex: isMobile ? "none" : "0 0 55%",
-          padding: isMobile ? "44px 28px 36px" : "48px 56px",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          position: "relative",
-          zIndex: 2,
-        }}
-      >
-        {/* Giant decorative quote */}
-        <div
-          style={{
-            fontSize: 112,
-            lineHeight: 0.65,
-            color: "rgba(59,130,246,0.12)",
-            fontFamily: "Georgia, serif",
-            fontWeight: 900,
-            marginBottom: 20,
-            userSelect: "none",
-            letterSpacing: "-6px",
-          }}
-        >
-          "
-        </div>
+     <div
+  style={{
+    flex: isMobile ? "none" : "0 0 55%",
+    padding: isMobile ? "44px 28px 36px" : "48px 56px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    position: "relative",
+    zIndex: 2,
+  }}
+>
+  {/* Giant decorative quote */}
+  <div
+    style={{
+      fontSize: 112,
+      lineHeight: 0.65,
+      color: "rgba(59,130,246,0.12)",
+      fontFamily: "Georgia, serif",
+      fontWeight: 900,
+      marginBottom: 20,
+      userSelect: "none",
+      letterSpacing: "-6px",
+    }}
+  >
+    "
+  </div>
 
-        {/* Pill badge */}
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            background: "rgba(59,130,246,0.14)",
-            border: "1px solid rgba(59,130,246,0.28)",
-            borderRadius: 100,
-            padding: "5px 14px",
-            marginBottom: 22,
-            width: "fit-content",
-          }}
-        >
+  {/* Pill badge */}
+  <div
+    style={{
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 8,
+      background: "rgba(59,130,246,0.14)",
+      border: "1px solid rgba(59,130,246,0.28)",
+      borderRadius: 100,
+      padding: "5px 14px",
+      marginBottom: 22,
+      width: "fit-content",
+    }}
+  >
+    <div
+      style={{
+        width: 5,
+        height: 5,
+        borderRadius: "50%",
+        background: "#93c5fd",
+      }}
+    />
+    <span
+      style={{
+        fontFamily: "'Sora', sans-serif",
+        fontWeight: 600,
+        fontSize: 10,
+        letterSpacing: "0.18em",
+        textTransform: "uppercase",
+        color: "#93c5fd",
+      }}
+    >
+      Founder · Est. 2003
+    </span>
+  </div>
+
+  <h2
+    style={{
+      fontFamily: "'Sora', sans-serif",
+      fontWeight: 800,
+      fontSize: isMobile ? 26 : "clamp(24px, 2.8vw, 36px)",
+      lineHeight: 1.1,
+      color: "#fff",
+      letterSpacing: "-0.6px",
+      marginBottom: 6,
+    }}
+  >
+    Shri N.B.H. Kulkarni
+  </h2>
+
+  <p
+    style={{
+      fontFamily: "'DM Sans', sans-serif",
+      fontWeight: 400,
+      fontSize: 12,
+      color: "#60a5fa",
+      letterSpacing: "0.09em",
+      marginBottom: 20,
+    }}
+  >
+    Founder & Visionary Leader
+  </p>
+
+  <p
+    style={{
+      fontFamily: "'DM Sans', sans-serif",
+      fontWeight: 300,
+      fontSize: isMobile ? 13.5 : 14,
+      lineHeight: 1.82,
+      color: "rgba(255,255,255,0.58)",
+      maxWidth: 390,
+      marginBottom: 32,
+    }}
+  >
+    The guiding force behind the institution's founding — a visionary
+    educator whose unwavering belief in accessible, quality higher
+    education gave birth to VPM's R.Z. Shah College. His principles
+    continue to define the college's ethos today.
+  </p>
+
+  {/* Inline stats */}
+  <div style={{ display: "flex", alignItems: "center" }}>
+    {[
+      { v: "20", s: "+", l: "Years Legacy" },
+      { v: "7", s: "+", l: "Programs" },
+      { v: "MU", s: "", l: "Affiliated" },
+    ].map((stat, i) => (
+      <React.Fragment key={stat.l}>
+        <div style={{ textAlign: "center", padding: "0 22px 0 0" }}>
           <div
             style={{
-              width: 5,
-              height: 5,
-              borderRadius: "50%",
-              background: "#93c5fd",
-            }}
-          />
-          <span
-            style={{
               fontFamily: "'Sora', sans-serif",
-              fontWeight: 600,
-              fontSize: 10,
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-              color: "#93c5fd",
+              fontWeight: 800,
+              fontSize: i === 2 ? 16 : 22,
+              color: "#fff",
+              lineHeight: 1,
+              marginBottom: 4,
             }}
           >
-            Founding Principal · Est. 2003
-          </span>
+            {stat.v}
+            {stat.s && (
+              <span style={{ color: "#3b82f6", fontSize: "0.62em" }}>
+                {stat.s}
+              </span>
+            )}
+          </div>
+          <div
+            style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 9.5,
+              fontWeight: 500,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: "rgba(255,255,255,0.3)",
+            }}
+          >
+            {stat.l}
+          </div>
         </div>
-
-        <h2
-          style={{
-            fontFamily: "'Sora', sans-serif",
-            fontWeight: 800,
-            fontSize: isMobile ? 26 : "clamp(24px, 2.8vw, 36px)",
-            lineHeight: 1.1,
-            color: "#fff",
-            letterSpacing: "-0.6px",
-            marginBottom: 6,
-          }}
-        >
-          Shri N.B.H. Kulkarni
-        </h2>
-
-        <p
-          style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontWeight: 400,
-            fontSize: 12,
-            color: "#60a5fa",
-            letterSpacing: "0.09em",
-            marginBottom: 20,
-          }}
-        >
-          Visionary Architect of Excellence
-        </p>
-
-        <p
-          style={{
-            fontFamily: "'DM Sans', sans-serif",
-            fontWeight: 300,
-            fontSize: isMobile ? 13.5 : 14,
-            lineHeight: 1.82,
-            color: "rgba(255,255,255,0.58)",
-            maxWidth: 390,
-            marginBottom: 32,
-          }}
-        >
-          The guiding force behind the institution's founding — a visionary
-          educator whose unwavering belief in accessible, quality higher
-          education gave birth to VPM's R.Z. Shah College. His principles
-          continue to define the college's ethos today.
-        </p>
-
-        {/* Inline stats */}
-        <div style={{ display: "flex", alignItems: "center" }}>
-          {[
-            { v: "20", s: "+", l: "Years Legacy" },
-            { v: "7", s: "+", l: "Programs" },
-            { v: "MU", s: "", l: "Affiliated" },
-          ].map((stat, i) => (
-            <React.Fragment key={stat.l}>
-              <div style={{ textAlign: "center", padding: "0 22px 0 0" }}>
-                <div
-                  style={{
-                    fontFamily: "'Sora', sans-serif",
-                    fontWeight: 800,
-                    fontSize: i === 2 ? 16 : 22,
-                    color: "#fff",
-                    lineHeight: 1,
-                    marginBottom: 4,
-                  }}
-                >
-                  {stat.v}
-                  {stat.s && (
-                    <span style={{ color: "#3b82f6", fontSize: "0.62em" }}>
-                      {stat.s}
-                    </span>
-                  )}
-                </div>
-                <div
-                  style={{
-                    fontFamily: "'DM Sans', sans-serif",
-                    fontSize: 9.5,
-                    fontWeight: 500,
-                    letterSpacing: "0.12em",
-                    textTransform: "uppercase",
-                    color: "rgba(255,255,255,0.3)",
-                  }}
-                >
-                  {stat.l}
-                </div>
-              </div>
-              {i < 2 && (
-                <div
-                  style={{
-                    width: 1,
-                    height: 30,
-                    background: "rgba(255,255,255,0.1)",
-                    marginRight: 22,
-                  }}
-                />
-              )}
-            </React.Fragment>
-          ))}
-        </div>
-      </div>
-
+        {i < 2 && (
+          <div
+            style={{
+              width: 1,
+              height: 30,
+              background: "rgba(255,255,255,0.1)",
+              marginRight: 22,
+            }}
+          />
+        )}
+      </React.Fragment>
+    ))}
+  </div>
+</div>
       {/* ── RIGHT: Image ── */}
       <div
         style={{
@@ -465,9 +464,7 @@ function FoundingPrincipalCard({ isMobile }) {
             position: "absolute",
             inset: 0,
             zIndex: 1,
-            background: isMobile
-              ? "linear-gradient(to bottom, rgba(15,30,69,0.35) 0%, transparent 45%)"
-              : "linear-gradient(to right, rgba(15,30,69,0.45) 0%, rgba(15,30,69,0.15) 40%, transparent 75%)",
+            background: "none",
           }}
         />
         <div
