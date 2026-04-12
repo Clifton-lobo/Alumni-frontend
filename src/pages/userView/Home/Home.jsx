@@ -142,104 +142,138 @@ const Home = () => {
     <div>
       {/* HERO SECTION */}
       <section
-          id="home"
-          ref={heroRef}
-          className="relative min-h-screen overflow-hidden bg-[#142A5D]"
-        >
-          {/* Background decorations */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-32 sm:-top-40 -right-32 sm:-right-40 w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-[#EBAB09]/10 blur-3xl animate-pulse" />
+        id="home"
+        ref={heroRef}
+        className="relative min-h-screen overflow-hidden text-white"
+      >
+        {/* ✅ MAIN GRADIENT (same as feedback navbar) */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(120deg, #142A5D 0%, #1e3e8f 55%, #2f5ac7 100%)",
+          }}
+        />
+
+        {/* ✅ SOFT LIGHT LAYER (key difference) */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_30%,rgba(255,255,255,0.12),transparent_40%),radial-gradient(circle_at_75%_70%,rgba(255,255,255,0.08),transparent_40%)]" />
+
+        {/* ✅ FLOATING ORBS (premium feel) */}
+        <div className="absolute -top-32 -right-32 w-80 h-80 rounded-full bg-white/5 blur-3xl animate-pulse" />
+        <div
+          className="absolute bottom-20 -left-20 w-72 h-72 rounded-full bg-[#EBAB09]/10 blur-3xl animate-pulse"
+          style={{ animationDelay: "2s" }}
+        />
+
+        {/* ✅ CENTER RINGS (clean & subtle) */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full border border-white/10" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full border border-white/5" />
+
+        {/* ✅ INNER SHADOW DEPTH */}
+        <div className="absolute inset-0 shadow-[inset_0_100px_160px_rgba(0,0,0,0.35)]" />
+
+        {/* CONTENT */}
+        <div className="container mx-auto px-4 pt-24 pb-20 relative z-10">
+          <div className="max-w-4xl mx-auto text-center">
+            {/* TITLE */}
+            <h1
+              className={`font-serif text-3xl sm:text-4xl md:text-7xl lg:text-[75px] font-bold mb-3 leading-tight tracking-tight transition-all duration-700 ${
+                heroVisible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-6"
+              }`}
+            >
+              Connect. Inspire. <br />
+              <span className="text-yellow-400">Succeed Together.</span>
+            </h1>
+
+            {/* SUBTEXT */}
+            <p
+              className={`text-sm sm:text-base md:text-lg text-white/60 mb-10 max-w-2xl mx-auto transition-all duration-700 delay-100 ${
+                heroVisible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-6"
+              }`}
+            >
+              Join our thriving community of graduates making an impact
+              worldwide.
+            </p>
+
+            {/* BUTTON */}
             <div
-              className="absolute bottom-10 sm:bottom-20 -left-16 sm:-left-20 w-60 h-60 sm:w-72 sm:h-72 rounded-full bg-white/5 blur-2xl animate-pulse"
-              style={{ animationDelay: "2s" }}
-            />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] h-[380px] md:w-[800px] md:h-[800px] rounded-full border border-white/10" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] h-[260px] md:w-[600px] md:h-[600px] rounded-full border border-white/5" />
-          </div>
-
-          <div className="container mx-auto px-4 pt-24 md:pt-15 pb-16 md:pb-20 relative z-10">
-            <div className="max-w-4xl mx-auto text-center">
-
-              <h1
-                className={`font-serif text-3xl sm:text-4xl md:text-7xl lg:text-[75px] font-bold text-white mb-2 leading-tight transition-all duration-700 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
-                  }`}
+              className={`flex justify-center mb-14 transition-all duration-700 delay-200 ${
+                heroVisible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-6"
+              }`}
+            >
+              <Link
+                to="/user/community"
+                className="px-8 py-4 rounded-2xl font-semibold flex items-center gap-2 justify-center transition-all duration-300"
+                style={{
+                  background: "linear-gradient(135deg, #EBAB09, #f4c430)",
+                  boxShadow: "0 6px 20px rgba(235,171,9,0.35)",
+                }}
               >
-                Connect. Inspire. <br />
-                <span className="text-yellow-400">Succeed Together.</span>
-              </h1>
+                Explore Alumni Network
+                <ArrowRight className="w-5 h-5" />
+              </Link>
+            </div>
 
-              <p
-                className={`text-sm sm:text-base md:text-lg text-white/50 mb-8 md:mb-10 max-w-2xl mx-auto px-2 md:px-0 transition-all duration-700 delay-100 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
+            {/* STATS */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {stats.map((stat, index) => (
+                <div
+                  key={stat.label}
+                  className={`bg-white/10 backdrop-blur-md border border-white/10 p-5 rounded-2xl transition-all duration-500 ${
+                    heroVisible
+                      ? "opacity-100 translate-y-0"
+                      : "opacity-0 translate-y-6"
                   }`}
-              >
-                Join our thriving community of graduates making an impact worldwide.
-              </p>
-
-              <div
-                className={`flex flex-col sm:flex-row gap-3 md:gap-4 justify-center mb-12 md:mb-16 px-2 md:px-0 transition-all duration-700 delay-200 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
-                  }`}
-              >
-                <Link
-                  to="/user/community"
-                  className="w-full sm:w-auto px-6 py-3 md:px-8 md:py-4 rounded-xl bg-[#EBAB09] text-white font-semibold flex items-center gap-2 justify-center hover:opacity-90 transition"
+                  style={{ transitionDelay: `${400 + index * 100}ms` }}
                 >
-                  Explore Alumni Network
-                  <ArrowRight className="w-5 h-5" />
-                </Link>
-
-                <Link
-                  to="/user/about"
-                  className="w-full sm:w-auto px-6 py-3 md:px-8 md:py-4 rounded-xl border border-[#EBAB09] text-[#EBAB09] font-semibold hover:bg-[#EBAB09] hover:text-white transition"
-                >
-                  About Us
-                </Link>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 px-2 md:px-0">
-                {stats.map((stat, index) => (
-                  <div
-                    key={stat.label}
-                    className={`bg-white/10 backdrop-blur p-4 md:p-2 rounded-2xl transition-all duration-500 ${heroVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 md:translate-y-8"
-                      }`}
-                    style={{ transitionDelay: `${400 + index * 100}ms` }}
-                  >
-                    <stat.icon className="w-7 h-7 md:w-8 md:h-8 text-[#EBAB09] mx-auto mb-3" />
-                    <div className="text-2xl md:text-3xl font-bold text-white mb-1">{stat.value}</div>
-                    <div className="text-white/70 text-sm">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
+                  <stat.icon className="w-8 h-8 text-[#EBAB09] mx-auto mb-3" />
+                  <div className="text-3xl font-bold mb-1">{stat.value}</div>
+                  <div className="text-white/70 text-sm">{stat.label}</div>
+                </div>
+              ))}
             </div>
           </div>
+        </div>
 
-          {/* Bottom wave */}
-          <div className="absolute bottom-0  left-0 right-0 leading-none">
-            <svg
-              viewBox="0 0 1440 80"
-              xmlns="http://www.w3.org/2000/svg"
-              className="w-full block"
-              preserveAspectRatio="none"
-            >
-              <path
-                d="M0 80L60 70C120 60 240 50 360 45C480 40 600 40 720 45C840 50 960 60 1080 65C1200 70 1320 70 1380 70L1440 70V80H0Z"
-                fill="#FFFFFF"
-              />
-            </svg>
-          </div>
-        </section>
-
-
+        {/* ✅ SAME WAVE (kept yours, already good) */}
+        <div className="absolute bottom-0 left-0 right-0 leading-none">
+          <svg
+            viewBox="0 0 1440 80"
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-full block"
+            preserveAspectRatio="none"
+          >
+            <path
+              d="M0 80L60 70C120 60 240 50 360 45C480 40 600 40 720 45C840 50 960 60 1080 65C1200 70 1320 70 1380 70L1440 70V80H0Z"
+              fill="#FFFFFF"
+            />
+          </svg>
+        </div>
+      </section>
 
       {/* EVENTS SECTION */}
       <section id="events" ref={eventsRef} className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <div
-            className={`flex flex-col md:flex-row md:items-end md:justify-between mb-14 transition-all duration-700 ${eventsVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-              }`}
+            className={`flex flex-col md:flex-row md:items-end md:justify-between mb-14 transition-all duration-700 ${
+              eventsVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-8"
+            }`}
           >
             <div>
-              <span className="text-[#EBAB09] font-semibold text-sm uppercase tracking-wider">Upcoming Events</span>
-              <h2 className="font-serif text-3xl md:text-5xl font-bold text-[#142A5D] mt-2">Connect in Person</h2>
+              <span className="text-[#EBAB09] font-semibold text-sm uppercase tracking-wider">
+                Upcoming Events
+              </span>
+              <h2 className="font-serif text-3xl md:text-5xl font-bold text-[#142A5D] mt-2">
+                Connect in Person
+              </h2>
             </div>
             <Link
               to="/user/events"
@@ -260,12 +294,14 @@ const Home = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-
               {/* FEATURED EVENT */}
               {featuredEvent && featuredEvent._id && (
                 <div
-                  className={`lg:row-span-2 relative rounded-3xl overflow-hidden shadow-xl transition-all duration-700 ease-out ${eventsVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"
-                    }`}
+                  className={`lg:row-span-2 relative rounded-3xl overflow-hidden shadow-xl transition-all duration-700 ease-out ${
+                    eventsVisible
+                      ? "opacity-100 translate-x-0"
+                      : "opacity-0 -translate-x-10"
+                  }`}
                   style={{ transitionDelay: "100ms" }}
                 >
                   <img
@@ -297,7 +333,9 @@ const Home = () => {
                       {featuredEvent.isVirtual !== undefined && (
                         <span className="flex items-center gap-2">
                           <MapPin className="w-4 h-4" />
-                          {featuredEvent.isVirtual ? "Virtual Event" : "In Person"}
+                          {featuredEvent.isVirtual
+                            ? "Virtual Event"
+                            : "In Person"}
                         </span>
                       )}
                     </div>
@@ -312,57 +350,63 @@ const Home = () => {
               )}
 
               {/* SIDE EVENTS */}
-              {sideEvents.map((event, index) => (
-                event._id && (
-                  <div
-                    key={event._id}
-                    className={`bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-700 ${eventsVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"
+              {sideEvents.map(
+                (event, index) =>
+                  event._id && (
+                    <div
+                      key={event._id}
+                      className={`bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-700 ${
+                        eventsVisible
+                          ? "opacity-100 translate-x-0"
+                          : "opacity-0 translate-x-8"
                       }`}
-                    style={{ transitionDelay: `${200 + index * 150}ms` }}
-                  >
-                    <div className="flex flex-col sm:flex-row">
-                      <div className="sm:w-40 h-40 overflow-hidden shrink-0">
-                        <img
-                          src={event.image}
-                          alt={event.title}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="flex-1 p-6">
-                        <h3 className="font-serif text-lg font-bold text-[#142A5D] mb-3">
-                          {event.title}
-                        </h3>
-                        <div className="space-y-2 text-slate-600 text-sm mb-4">
-                          <span className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4 text-[#EBAB09]" />
-                            {new Date(event.date).toDateString()}
-                            {event.time && `, ${event.time}`}
-                          </span>
-                          {event.category && (
-                            <span className="flex items-center gap-2">
-                              <Tag className="w-4 h-4 text-[#EBAB09]" />
-                              {event.category}
-                            </span>
-                          )}
-                          {event.isVirtual !== undefined && (
-                            <span className="flex items-center gap-2">
-                              <MapPin className="w-4 h-4 text-[#EBAB09]" />
-                              {event.isVirtual ? "Virtual Event" : "In Person"}
-                            </span>
-                          )}
+                      style={{ transitionDelay: `${200 + index * 150}ms` }}
+                    >
+                      <div className="flex flex-col sm:flex-row">
+                        <div className="sm:w-40 h-40 overflow-hidden shrink-0">
+                          <img
+                            src={event.image}
+                            alt={event.title}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                          />
                         </div>
-                        <Link
-                          to={`/user/events?eventId=${event._id}`}
-                          className="inline-block px-4 py-2 rounded-lg border border-[#142A5D] text-[#142A5D] text-sm font-medium hover:bg-[#142A5D] hover:text-white transition"
-                        >
-                          Learn More
-                        </Link>
+                        <div className="flex-1 p-6">
+                          <h3 className="font-serif text-lg font-bold text-[#142A5D] mb-3">
+                            {event.title}
+                          </h3>
+                          <div className="space-y-2 text-slate-600 text-sm mb-4">
+                            <span className="flex items-center gap-2">
+                              <Calendar className="w-4 h-4 text-[#EBAB09]" />
+                              {new Date(event.date).toDateString()}
+                              {event.time && `, ${event.time}`}
+                            </span>
+                            {event.category && (
+                              <span className="flex items-center gap-2">
+                                <Tag className="w-4 h-4 text-[#EBAB09]" />
+                                {event.category}
+                              </span>
+                            )}
+                            {event.isVirtual !== undefined && (
+                              <span className="flex items-center gap-2">
+                                <MapPin className="w-4 h-4 text-[#EBAB09]" />
+                                {event.isVirtual
+                                  ? "Virtual Event"
+                                  : "In Person"}
+                              </span>
+                            )}
+                          </div>
+                          <Link
+                            to={`/user/events?eventId=${event._id}`}
+                            className="inline-block px-4 py-2 rounded-lg border border-[#142A5D] text-[#142A5D] text-sm font-medium hover:bg-[#142A5D] hover:text-white transition"
+                          >
+                            Learn More
+                          </Link>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )
-              ))}
+                  ),
+              )}
             </div>
           )}
         </div>
@@ -371,27 +415,37 @@ const Home = () => {
       {/* CAREER SECTION */}
       <section ref={careerRef} className="py-16 mt5 bgwhite">
         <div
-          className={`max-w-6xl mx-auto px-6 text-center mb-10 transition-all duration-700 ${careerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-            }`}
+          className={`max-w-6xl mx-auto px-6 text-center mb-10 transition-all duration-700 ${
+            careerVisible
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-8"
+          }`}
         >
           <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#142A5D]">
             Unlock Your Career Potential
           </h1>
           <p className="text-neutral-600 text-lg md:text-xl mt-2 leading-relaxed">
-            From internships to full-time roles, discover opportunities designed for our alumni community.
+            From internships to full-time roles, discover opportunities designed
+            for our alumni community.
             <br /> Take the next step toward shaping your future.
           </p>
         </div>
 
         <div className="max-w-6xl mx-auto px-6">
           <div
-            className={`border border-neutral-300 rounded-lg p-8 bg-white grid grid-cols-1 md:grid-cols-2 gap-10 items-center transition-all duration-700 ${careerVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-              }`}
+            className={`border border-neutral-300 rounded-lg p-8 bg-white grid grid-cols-1 md:grid-cols-2 gap-10 items-center transition-all duration-700 ${
+              careerVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-10"
+            }`}
             style={{ transitionDelay: "150ms" }}
           >
             <div
-              className={`w-full h-full transition-all duration-700 ${careerVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"
-                }`}
+              className={`w-full h-full transition-all duration-700 ${
+                careerVisible
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 -translate-x-8"
+              }`}
               style={{ transitionDelay: "250ms" }}
             >
               <img
@@ -403,16 +457,25 @@ const Home = () => {
             </div>
 
             <div
-              className={`transition-all duration-700 ${careerVisible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"
-                }`}
+              className={`transition-all duration-700 ${
+                careerVisible
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 translate-x-8"
+              }`}
               style={{ transitionDelay: "350ms" }}
             >
-              <h2 className="text-3xl md:text-4xl font-serif font-bold text-neutral-900">Career Opportunities</h2>
+              <h2 className="text-3xl md:text-4xl font-serif font-bold text-neutral-900">
+                Career Opportunities
+              </h2>
               <p className="text-neutral-600 mt-3 text-lg leading-relaxed">
-                Explore job openings, internships, and mentorship resources to help you grow professionally
-                and connect with alumni in top industries.
+                Explore job openings, internships, and mentorship resources to
+                help you grow professionally and connect with alumni in top
+                industries.
               </p>
-              <Link to="/user/jobs" className="inline-block mt-6 text-yellow-500 font-semibold text-lg hover:underline">
+              <Link
+                to="/user/jobs"
+                className="inline-block mt-6 text-yellow-500 font-semibold text-lg hover:underline"
+              >
                 Explore job listings →
               </Link>
             </div>
@@ -421,8 +484,10 @@ const Home = () => {
       </section>
 
       {/* SOCIAL MEDIA SECTION */}
-      <section ref={socialRef} className="py-28 bg-white relative overflow-hidden">
-
+      <section
+        ref={socialRef}
+        className="py-28 bg-white relative overflow-hidden"
+      >
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
           <span
             className="text-[20vw] font-black text-slate-100 leading-none tracking-tighter whitespace-nowrap"
@@ -433,23 +498,31 @@ const Home = () => {
         </div>
 
         <div className="max-w-6xl mx-auto px-6 relative z-10">
-
           <div
-            className={`text-center mb-16 transition-all duration-700 ${socialVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-              }`}
+            className={`text-center mb-16 transition-all duration-700 ${
+              socialVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-8"
+            }`}
           >
-            <span className="text-[#EBAB09] font-semibold text-sm uppercase tracking-widest">Stay Connected</span>
+            <span className="text-[#EBAB09] font-semibold text-sm uppercase tracking-widest">
+              Stay Connected
+            </span>
             <h2 className="font-serif text-3xl md:text-5xl font-bold text-[#142A5D] mt-2">
               Follow Our Community
             </h2>
             <p className="text-slate-500 mt-3 max-w-xl mx-auto text-base md:text-lg">
-              Join thousands of alumni across our social channels — share moments, celebrate wins, and never miss an update.
+              Join thousands of alumni across our social channels — share
+              moments, celebrate wins, and never miss an update.
             </p>
           </div>
 
           <div
-            className={`grid grid-cols-12 gap-4 transition-all duration-700 ${socialVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-              }`}
+            className={`grid grid-cols-12 gap-4 transition-all duration-700 ${
+              socialVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-10"
+            }`}
             style={{ transitionDelay: "200ms" }}
           >
             {/* INSTAGRAM */}
@@ -467,30 +540,38 @@ const Home = () => {
               />
               <div className="absolute inset-0 bg-gradient-to-br from-[#F58529]/80 via-[#DD2A7B]/70 to-[#8134AF]/80" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="relative p-8 flex flex-col justify-between" style={{ minHeight: "420px" }}>
+              <div
+                className="relative p-8 flex flex-col justify-between"
+                style={{ minHeight: "420px" }}
+              >
                 <div className="flex items-center justify-between">
                   <div className="bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 flex items-center gap-2">
                     <Instagram className="w-4 h-4 text-white" />
-                    <span className="text-white text-sm font-semibold">Instagram</span>
+                    <span className="text-white text-sm font-semibold">
+                      Instagram
+                    </span>
                   </div>
                   <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:bg-white/40 transition-colors">
                     <ArrowRight className="w-4 h-4 text-white -rotate-45" />
                   </div>
                 </div>
                 <div>
-                  <div className="text-5xl font-black text-white mb-1">28.4K</div>
+                  <div className="text-5xl font-black text-white mb-1">
+                    28.4K
+                  </div>
                   <div className="text-white/80 text-sm">followers</div>
                   <div className="mt-4 text-white/90 text-sm leading-relaxed max-w-xs">
                     Campus life, alumni spotlights & behind-the-scenes moments.
                   </div>
-                  <div className="mt-4 text-white/60 text-sm font-medium">@alumniconnect</div>
+                  <div className="mt-4 text-white/60 text-sm font-medium">
+                    @alumniconnect
+                  </div>
                 </div>
               </div>
             </a>
 
             {/* Right column */}
             <div className="col-span-12 md:col-span-7 flex flex-col gap-4">
-
               {/* LINKEDIN */}
               <a
                 href="https://linkedin.com"
@@ -499,7 +580,12 @@ const Home = () => {
                 className="group relative rounded-3xl overflow-hidden bg-[#0A66C2] p-7 flex items-center justify-between hover:-translate-y-0.5 hover:shadow-2xl transition-all duration-300"
               >
                 <div className="absolute right-0 top-0 w-48 h-full opacity-10">
-                  <div className="w-full h-full bg-white" style={{ clipPath: "polygon(30% 0%, 100% 0%, 100% 100%, 0% 100%)" }} />
+                  <div
+                    className="w-full h-full bg-white"
+                    style={{
+                      clipPath: "polygon(30% 0%, 100% 0%, 100% 100%, 0% 100%)",
+                    }}
+                  />
                 </div>
                 <div className="relative z-10">
                   <div className="flex items-center gap-3 mb-3">
@@ -511,7 +597,10 @@ const Home = () => {
                       <p className="text-white/60 text-xs">Alumni Network</p>
                     </div>
                   </div>
-                  <p className="text-white/80 text-sm max-w-sm">Career news, job postings & professional milestones from our community.</p>
+                  <p className="text-white/80 text-sm max-w-sm">
+                    Career news, job postings & professional milestones from our
+                    community.
+                  </p>
                 </div>
                 <div className="relative z-10 text-right ml-6 flex-shrink-0">
                   <div className="text-4xl font-black text-white">41.2K</div>
@@ -524,7 +613,6 @@ const Home = () => {
 
               {/* X and YouTube */}
               <div className="grid grid-cols-2 gap-4 flex-1">
-
                 {/* X / TWITTER */}
                 <a
                   href="https://twitter.com"
@@ -535,23 +623,33 @@ const Home = () => {
                   <div
                     className="absolute inset-0 opacity-5"
                     style={{
-                      backgroundImage: "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
+                      backgroundImage:
+                        "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
                       backgroundSize: "24px 24px",
                     }}
                   />
                   <div className="relative z-10 flex flex-col h-full">
                     <div className="flex items-center justify-between">
                       <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-                        <svg className="w-5 h-5 text-white fill-current" viewBox="0 0 24 24">
+                        <svg
+                          className="w-5 h-5 text-white fill-current"
+                          viewBox="0 0 24 24"
+                        >
                           <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.262 5.638L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" />
                         </svg>
                       </div>
                       <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-white/60 -rotate-45 transition-colors" />
                     </div>
                     <div className="mt-8">
-                      <div className="text-4xl font-black text-white">15.8K</div>
-                      <div className="text-white/40 text-xs mt-1">followers</div>
-                      <div className="text-white/50 text-xs mt-3">Live updates & community threads.</div>
+                      <div className="text-4xl font-black text-white">
+                        15.8K
+                      </div>
+                      <div className="text-white/40 text-xs mt-1">
+                        followers
+                      </div>
+                      <div className="text-white/50 text-xs mt-3">
+                        Live updates & community threads.
+                      </div>
                     </div>
                   </div>
                 </a>
@@ -569,19 +667,27 @@ const Home = () => {
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-black/65 group-hover:bg-black/50 transition-colors" />
-                  <div className="relative z-10 p-6 flex flex-col h-full" style={{ minHeight: "180px" }}>
+                  <div
+                    className="relative z-10 p-6 flex flex-col h-full"
+                    style={{ minHeight: "180px" }}
+                  >
                     <div className="flex items-center justify-between">
                       <Youtube className="w-7 h-5 text-[#FF0000]" />
                       <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white/70 -rotate-45 transition-colors" />
                     </div>
                     <div className="mt-auto">
                       <div className="w-10 h-10 rounded-full bg-[#FF0000] flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-lg shadow-red-500/30">
-                        <svg className="w-4 h-4 text-white fill-current ml-0.5" viewBox="0 0 24 24">
+                        <svg
+                          className="w-4 h-4 text-white fill-current ml-0.5"
+                          viewBox="0 0 24 24"
+                        >
                           <path d="M8 5v14l11-7z" />
                         </svg>
                       </div>
                       <div className="text-3xl font-black text-white">9.1K</div>
-                      <div className="text-white/50 text-xs mt-0.5">subscribers</div>
+                      <div className="text-white/50 text-xs mt-0.5">
+                        subscribers
+                      </div>
                     </div>
                   </div>
                 </a>
@@ -591,14 +697,17 @@ const Home = () => {
 
           {/* Bottom strip */}
           <div
-            className={`mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-slate-100 transition-all duration-700 ${socialVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-              }`}
+            className={`mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-slate-100 transition-all duration-700 ${
+              socialVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-4"
+            }`}
             style={{ transitionDelay: "500ms" }}
           >
             <p className="text-slate-400 text-sm">
               Tag us with{" "}
-              <span className="text-[#142A5D] font-bold">#AlumniConnect</span>
-              {" "}to get featured
+              <span className="text-[#142A5D] font-bold">#AlumniConnect</span>{" "}
+              to get featured
             </p>
             <div className="flex items-center gap-2">
               {socials.map(({ icon: Icon, color }, i) => (

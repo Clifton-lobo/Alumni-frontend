@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronDown, LogOut, UserRound, Bell, MessageSquare } from "lucide-react";
+import { Menu, X, LogOut, UserRound, Bell, MessageSquare } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { UserNavItems } from "../../config";
 import { logoutUser } from "../../store/authSlice/authSlice";
@@ -12,22 +12,18 @@ import {
   openRequestsDialog,
   closeRequestsDialog,
 } from "../../store/user-view/ConnectionSlice";
-import { disconnectSocket } from "../../../socket/socket"; // adjust path
+import { disconnectSocket } from "../../../socket/socket";
 import vpmLogo from "../../assets/VpmLogo.png";
+import naacLogo from "../../assets/naac_logo.webp";
 
-const BRAND_BLUE = "#142A5D";
 const BRAND_GOLD = "#F2A20A";
 
 /* ─── Icon button with optional badge ─── */
-const IconButton = ({ icon: Icon, count, onClick, isBlue, label }) => (
+const IconButton = ({ icon: Icon, count, onClick, label }) => (
   <button
     onClick={onClick}
     aria-label={label}
-    className={`relative cursor-pointer w-10 h-10 rounded-full flex items-center justify-center transition-all
-      ${isBlue
-        ? "bg-white/10 text-white hover:bg-white/20"
-        : "bg-blue-950/10 text-[#142A5D] hover:bg-slate-100"
-      }`}
+    className="relative cursor-pointer w-9 h-9 rounded-full flex items-center justify-center transition-all text-[#142A5D] bg-gray-100 hover:bg-gray-200"
   >
     <Icon className="w-5 h-5" />
     {count > 0 && (
@@ -39,24 +35,25 @@ const IconButton = ({ icon: Icon, count, onClick, isBlue, label }) => (
 );
 
 /* ─── User Avatar Dropdown ─── */
-const UserAvatar = ({ user, isScrolled }) => {
+const UserAvatar = ({ user }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleLogout = () => {
-    disconnectSocket();   // ADD THIS
+    disconnectSocket();
     dispatch(clearUserProfile());
     dispatch(logoutUser());
     setDropdownOpen(false);
   };
 
   return (
-    <div className="relative" onMouseEnter={() => setDropdownOpen(true)} onMouseLeave={() => setDropdownOpen(false)}>
-      <button
-        className={`w-10 h-10 cursor-pointer rounded-full flex items-center justify-center font-bold transition-all
-          ${isScrolled ? "bg-[#142A5D] text-white" : "bg-white/10 text-white hover:bg-white/20"}`}
-      >
+    <div
+      className="relative"
+      onMouseEnter={() => setDropdownOpen(true)}
+      onMouseLeave={() => setDropdownOpen(false)}
+    >
+      <button className="w-9 h-9 cursor-pointer rounded-full flex items-center justify-center font-bold bg-[#142A5D] text-white text-sm hover:opacity-90 transition-all">
         {user?.username?.[0]?.toUpperCase() || "U"}
       </button>
 
@@ -67,14 +64,19 @@ const UserAvatar = ({ user, isScrolled }) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 6 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-full mt-3 bg-white rounded-md shadow-xl min-w-[200px] overflow-hidden z-50"
+            className="absolute right-0 top-full mt-2 bg-white rounded-md shadow-xl min-w-[200px] overflow-hidden z-100"
           >
             <div className="px-4 py-3 border-b">
-              <p className="text-sm font-medium text-gray-900">{user?.username}</p>
+              <p className="text-sm font-medium text-gray-900">
+                {user?.username}
+              </p>
               <p className="text-xs text-gray-500">{user?.email}</p>
             </div>
             <button
-              onClick={() => { navigate("/user/profile"); setDropdownOpen(false); }}
+              onClick={() => {
+                navigate("/user/profile");
+                setDropdownOpen(false);
+              }}
               className="flex items-center cursor-pointer w-full px-4 py-3 text-sm text-gray-700 hover:bg-[#F2A20A] hover:text-white transition"
             >
               <UserRound className="w-4 h-4 mr-2" /> Account
@@ -94,184 +96,257 @@ const UserAvatar = ({ user, isScrolled }) => {
 
 /* ─── Main Navbar ─── */
 const Navbar = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState(null);
+   
 
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { isAuthenticated, user } = useSelector((state) => state.auth);
-  const { isRequestsDialogOpen, incomingRequests } = useSelector((state) => state.connections);
+  const { isRequestsDialogOpen, incomingRequests } = useSelector(
+    (state) => state.connections,
+  );
   const pendingCount = incomingRequests.length;
 
-  // Total unread messages count from message slice
   const conversations = useSelector((state) =>
     Array.isArray(state.messages?.conversations)
       ? state.messages.conversations
-      : []
-  ); const unreadMessages = conversations.reduce((sum, c) => sum + (c.unreadCount || 0), 0);
+      : [],
+  );
+  const unreadMessages = conversations.reduce(
+    (sum, c) => sum + (c.unreadCount || 0),
+    0,
+  );
 
-  useEffect(() => {
-    const onScroll = () => setIsScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  // Sticky nav triggers when top bar scrolls out of view
+ 
 
   useEffect(() => {
     if (isAuthenticated) dispatch(fetchIncomingRequests());
   }, [isAuthenticated, dispatch]);
 
-  const isBlue = !isScrolled;
-  const headerBg = isBlue ? "bg-[#142A5D]" : "bg-white shadow-md";
-  const baseText = isBlue ? "text-white/90" : "text-slate-800";
-
-  const handleChatClick = () => navigate("/user/messages");
-
   return (
     <>
-      <motion.header
-        initial={{ y: -80 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.35 }}
-        className="fixed top-0 left-0 right-0 z-50"
-      >
-        <div className={`transition-all duration-300 ${headerBg}`}>
-          <div className="max-w-8xl ml-6 mr-5 mx-auto h-[72px] px-4 flex items-center">
+      {/* ── TOP BAR — scrolls away ── */}
+      <div  className="bg-white border-b border-gray-100 w-full">
+        <div
+          className="max-w-screen-xl mx-auto px-4 md:px-6 flex items-center justify-between gap-3
+                  h-[64px] sm:h-[90px] md:h-[125px]"
+        >
+          {/* ── LEFT: Logo + Name ── */}
+          <Link
+            to="/user/home"
+            className="flex items-center gap-2 sm:gap-3 md:gap-4 shrink-0 min-w-0"
+          >
+            {/* Logo */}
+            <img
+              src={vpmLogo}
+              alt="VPM Logo"
+              className="object-contain shrink-0
+                   w-10 h-10 sm:w-16 sm:h-16 md:w-24 md:h-24"
+            />
 
-            {/* LOGO */}
-            <div className="flex items-center flex-1 min-w-0 justify-start">
-              <Link to="/user/home" className="flex items-center gap-2 sm:gap-3">
-
-                {/* Logo */}
-                <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center shrink-0">
-                  <img
-                    src={vpmLogo}
-                    alt="VPM R.Z. Shah College Logo"
-                    className="w-full h-full object-contain"
-                  />
-                </div>
-
-                {/* Text */}
-                <div className="flex flex-col leading-tight whitespace-nowrap">
-                  <div className="flex items-baseline gap-1 sm:gap-2">
-                    <span
-                      className={`text-[13px] sm:text-[14px] md:text-[16px] font-serif font-bold tracking-wide
-          ${isBlue ? "text-[#EBAB09]" : "text-yellow-600"}`}
-                    >
-                      VPM's
-                    </span>
-
-                    <span
-                      className={`text-[13px] sm:text-[14px] md:text-[16px] font-serif font-bold tracking-wide
-          ${isBlue ? "text-[#EBAB09]" : "text-yellow-600"}`}
-                    >
-                      R.Z. Shah College
-                    </span>
-                  </div>
-
-                  <span
-                    className={`text-[15px] sm:text-[15px] md:text-[20px] font-serif font-bold tracking-[0.12em] uppercase
-        ${isBlue ? "text-white" : "text-[#142A5D]"}`}
-                  >
-                    Alumni Association
-                  </span>
-                </div>
-
-              </Link>
+            {/* Mobile text (< sm) */}
+            <div className="flex flex-col leading-tight sm:hidden">
+              <span
+                className="text-[12px] font-bold text-[#142A5D] uppercase leading-snug"
+                style={{ fontFamily: "'Times New Roman', Times, serif" }}
+              >
+                VPM'S R. Z. SHAH COLLEGE
+              </span>
+              <span
+                className="text-[13px] text-[#F2A20A]"
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontStyle: "italic",
+                }}
+              >
+                Alumni
+              </span>
             </div>
 
-            {/* DESKTOP NAV */}
-            <nav className="hidden ml-5 md:flex flex-1 items-center justify-center gap-8">
-              {UserNavItems.map((item) =>
-                item.type === "link" ? (
-                  <Link
-                    key={item.id}
-                    to={item.path}
-                    className={`relative fontmedium font-sans transition-colors font-bold text-lg ${baseText} hover:text-[#EBAB09]`}
-                  >
-                    {item.label}
-                    {location.pathname === item.path && (
-                      <span className="absolute -bottom-2 border left-0 w-full h-[2px] bg-[#EBAB09]" />
-                    )}
-                  </Link>
-                ) : (
-                  <div
-                    key={item.id}
-                    className="relative"
-                    onMouseEnter={() => setOpenDropdown(item.id)}
-                    onMouseLeave={() => setOpenDropdown(null)}
-                  >
-                    <button className={`flex items-center gap-1 fontmedium ${baseText} font-bold text-lg  hover:text-[#EBAB09]`}>
-                      {item.label}
-                      <ChevronDown className="h-4 w-4" />
-                    </button>
-                    <AnimatePresence>
-                      {openDropdown === item.id && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 6 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: 6 }}
-                          transition={{ duration: 0.15 }}
-                          className="absolute top-full left-0 mt-3  bg-white rounded-md shadow-xl min-w-[190px] overflow-hidden z-50"
-                        >
-                          {item.items.map((child, idx) => (
-                            <Link
-                              key={idx}
-                              to={child.path}
-                              className="block px-4 py-3 text-sm  hover:bg-[#F2A20A] hover:text-white transition"
-                            >
-                              {child.label}
-                            </Link>
-                          ))}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                )
-              )}
-            </nav>
-
-            {/* RIGHT — Bell + Chat + Avatar */}
-            <div className="hidden md:flex flex-1 items-center justify-end gap-2">
-              {isAuthenticated && (
-                <>
-                  {/* 🔔 Connection requests bell */}
-                  <IconButton
-                    icon={Bell}
-                    count={pendingCount}
-                    onClick={() => dispatch(openRequestsDialog())}
-                    isBlue={isBlue}
-                    label="Connection requests"
-                  />
-
-                  {/* 💬 Messages icon */}
-                  <IconButton
-                    icon={MessageSquare}
-                    count={unreadMessages}
-                    onClick={handleChatClick}
-                    isBlue={isBlue}
-                    label="Messages"
-                  />
-
-                  {/* Avatar */}
-                  <UserAvatar user={user} isScrolled={!isBlue} />
-                </>
-              )}
+            {/* Tablet text (sm → md) */}
+            <div className="hidden sm:flex md:hidden flex-col leading-tight">
+              <span
+                className="text-[15px] font-bold text-[#142A5D] uppercase leading-snug"
+                style={{ fontFamily: "'Times New Roman', Times, serif" }}
+              >
+                VPM'S R. Z. SHAH COLLEGE <br />
+                OF ARTS, SCIENCE & COMMERCE
+              </span>
+              <span
+                className="text-[16px] text-[#F2A20A]"
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontStyle: "italic",
+                }}
+              >
+                Alumni
+              </span>
             </div>
 
-            {/* MOBILE TOGGLE */}
+            {/* Desktop text (md+) */}
+            <div className="hidden md:flex items-center gap-3 whitespace-nowrap">
+              <span
+                className="text-[22px] lg:text-[24px] font-bold text-[#142A5D] leading-tight uppercase"
+                style={{ fontFamily: "'Times New Roman', Times, serif" }}
+              >
+                VPM'S R. Z. SHAH COLLEGE <br />
+                OF ARTS, SCIENCE & COMMERCE
+              </span>
+              <span className="text-gray-300 text-2xl font-thin">|</span>
+              <span
+                className="text-[28px] lg:text-[35px] text-[#F2A20A] tracking-wide"
+                style={{
+                  fontFamily: "'Playfair Display', serif",
+                  fontStyle: "italic",
+                }}
+              >
+                Alumni
+              </span>
+            </div>
+          </Link>
+
+          {/* ── RIGHT: NAAC logo + icons + hamburger ── */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* NAAC logo — tablet and desktop only */}
+            {/* <img
+              src={naacLogo}
+              alt="NAAC A Grade"
+              className="hidden sm:block object-contain
+                   sm:h-14 sm:w-14 md:h-24 md:w-24"
+            /> */}
+
+            {/* Auth icons — all screens */}
+            {isAuthenticated && (
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                {/* Bell */}
+                <button
+                  onClick={() => dispatch(openRequestsDialog())}
+                  aria-label="Connection requests"
+                  className="relative cursor-pointer rounded-full flex items-center justify-center
+                       transition-all text-[#142A5D] bg-gray-100 hover:bg-gray-200
+                       w-8 h-8 sm:w-9 sm:h-9"
+                >
+                  <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
+                  {pendingCount > 0 && (
+                    <span
+                      className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] bg-[#F2A20A]
+                               text-white text-[9px] font-bold rounded-full flex items-center
+                               justify-center px-0.5 leading-none"
+                    >
+                      {pendingCount > 9 ? "9+" : pendingCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Messages */}
+                <button
+                  onClick={() => navigate("/user/messages")}
+                  aria-label="Messages"
+                  className="relative cursor-pointer rounded-full flex items-center justify-center
+                       transition-all text-[#142A5D] bg-gray-100 hover:bg-gray-200
+                       w-8 h-8 sm:w-9 sm:h-9"
+                >
+                  <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
+                  {unreadMessages > 0 && (
+                    <span
+                      className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] bg-[#F2A20A]
+                               text-white text-[9px] font-bold rounded-full flex items-center
+                               justify-center px-0.5 leading-none"
+                    >
+                      {unreadMessages > 9 ? "9+" : unreadMessages}
+                    </span>
+                  )}
+                </button>
+
+                {/* Avatar — desktop only */}
+                <div className="hidden md:block relative group">
+                  <button
+                    className="w-9 h-9 cursor-pointer rounded-full flex items-center justify-center
+                     font-bold bg-[#142A5D] text-white hover:opacity-90 transition-all text-sm"
+                  >
+                    {user?.username?.[0]?.toUpperCase() || "U"}
+                  </button>
+
+                  {/* pt-2 acts as invisible bridge — keeps hover alive across the gap */}
+                  <div className="absolute right-0 top-full pt-2 hidden group-hover:block z-[100]">
+                    <div className="bg-white rounded-md shadow-xl min-w-[200px] overflow-hidden">
+                      {/* User info */}
+                      <div className="px-4 py-3 border-b">
+                        <p className="text-sm font-medium text-gray-900">
+                          {user?.username}
+                        </p>
+                        <p className="text-xs text-gray-500">{user?.email}</p>
+                      </div>
+
+                      {/* Account */}
+                      <button
+                        onClick={() => navigate("/user/profile")}
+                        className="flex items-center cursor-pointer w-full px-4 py-3 text-sm
+                   text-gray-700 hover:bg-[#F2A20A] hover:text-white transition"
+                      >
+                        <UserRound className="w-4 h-4 mr-2" /> Account
+                      </button>
+
+                      {/* Logout */}
+                      <button
+                        onClick={() => {
+                          disconnectSocket();
+                          dispatch(clearUserProfile());
+                          dispatch(logoutUser());
+                        }}
+                        className="flex items-center cursor-pointer w-full px-4 py-3 text-sm
+                   text-gray-700 hover:bg-[#F2A20A] hover:text-white transition"
+                      >
+                        <LogOut className="w-4 h-4 mr-2" /> Logout
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Hamburger — mobile & tablet only */}
             <button
               onClick={() => setMobileOpen((v) => !v)}
-              className={`md:hidden ${isBlue ? "text-white" : "text-slate-900"}`}
+              className="md:hidden text-[#142A5D] w-8 h-8 flex items-center justify-center
+                   rounded-full bg-gray-100 hover:bg-gray-200 transition"
             >
-              {mobileOpen ? <X size={26} /> : <Menu size={26} />}
+              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
+      </div>
 
-        {/* MOBILE MENU */}
+      {/* ── NAV BAR — sticky after top bar scrolls out ── */}
+      <div className="w-full border-b bg-gray-100 border-gray-200 z-40 sticky top-0 shadow-sm">
+        {/* Desktop nav */}
+        <nav className="hidden md:flex max-w-screen-xl mx-auto bg-gray-100 px-6 items-center justify-center h-[52px] gap-0">
+          {UserNavItems.map((item, index) => (
+            <React.Fragment key={item.id}>
+              {index !== 0 && (
+                <span className="w-0.5 h-4 bg-gray-300 mx-1 shrink-0" />
+              )}
+              <Link
+                to={item.path}
+                className={`relative px-7 py-1.5 rounded-md text-lg font-semibold font-sans transition-colors whitespace-nowrap ${
+                  location.pathname === item.path
+                    ? "bg-gray-100 text-[#142A5D]"
+                    : "text-black hover:bg-gray-100 hover:text-[#142A5D]"
+                }`}
+              >
+                {item.label}
+                {location.pathname === item.path && (
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4/5 h-[2px] bg-[#EBAB09] rounded-full" />
+                )}
+              </Link>
+            </React.Fragment>
+          ))}
+        </nav>
+
+        {/* Mobile nav menu */}
         <AnimatePresence>
           {mobileOpen && (
             <motion.div
@@ -279,27 +354,30 @@ const Navbar = () => {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="md:hidden bg-[#142A5D]"
+              className="md:hidden overflow-hidden bg-white border-t border-gray-100"
             >
-              <div className="px-6 py-6 space-y-4">
+              <div className="px-6 py-5 space-y-1">
                 {isAuthenticated && (
-                  <div className="pb-4 border-b border-white/20">
+                  <div className="pb-4 mb-2 border-b border-gray-100">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center font-bold text-white">
+                        <div className="w-10 h-10 rounded-full bg-[#142A5D] flex items-center justify-center font-bold text-white text-sm">
                           {user?.username?.[0]?.toUpperCase() || "U"}
                         </div>
                         <div>
-                          <p className="text-white font-medium">{user?.username}</p>
-                          <p className="text-white/60 text-sm">{user?.email}</p>
+                          <p className="text-[#142A5D] font-semibold">
+                            {user?.username}
+                          </p>
+                          <p className="text-gray-400 text-sm">{user?.email}</p>
                         </div>
                       </div>
-
-                      {/* Mobile icons */}
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => { setMobileOpen(false); dispatch(openRequestsDialog()); }}
-                          className="relative w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white"
+                          onClick={() => {
+                            setMobileOpen(false);
+                            dispatch(openRequestsDialog());
+                          }}
+                          className="relative w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-[#142A5D]"
                         >
                           <Bell className="w-4 h-4" />
                           {pendingCount > 0 && (
@@ -308,11 +386,12 @@ const Navbar = () => {
                             </span>
                           )}
                         </button>
-
-                        {/* 💬 Mobile chat icon */}
                         <button
-                          onClick={() => { setMobileOpen(false); navigate("/user/messages"); }}
-                          className="relative w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white"
+                          onClick={() => {
+                            setMobileOpen(false);
+                            navigate("/user/messages");
+                          }}
+                          className="relative w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-[#142A5D]"
                         >
                           <MessageSquare className="w-4 h-4" />
                           {unreadMessages > 0 && (
@@ -326,48 +405,52 @@ const Navbar = () => {
                   </div>
                 )}
 
-                {UserNavItems.map((item) =>
-                  item.type === "link" ? (
-                    <Link key={item.id} to={item.path} onClick={() => setMobileOpen(false)}
-                      className="block text-lg text-white hover:text-[#EBAB09]">
-                      {item.label}
-                    </Link>
-                  ) : (
-                    <div key={item.id}>
-                      <p className="text-white font-semibold mb-2">{item.label}</p>
-                      {item.items.map((child, idx) => (
-                        <Link key={idx} to={child.path} onClick={() => setMobileOpen(false)}
-                          className="block ml-3 py-1 text-white/80 hover:text-[#EBAB09]">
-                          {child.label}
-                        </Link>
-                      ))}
-                    </div>
-                  )
-                )}
+                {UserNavItems.map((item) => (
+                  <Link
+                    key={item.id}
+                    to={item.path}
+                    onClick={() => setMobileOpen(false)}
+                    className={`block px-3 py-2.5 rounded-md text-base font-medium transition-colors ${
+                      location.pathname === item.path
+                        ? "bg-gray-100 text-[#142A5D]"
+                        : "text-slate-600 hover:bg-gray-100 hover:text-[#142A5D]"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
 
                 {isAuthenticated && (
-                  <>
-                    <button onClick={() => { setMobileOpen(false); navigate("/user/profile"); }}
-                      className="w-full mt-4 px-6 py-3 rounded-xl font-semibold text-white border border-white/40 hover:bg-white/10">
+                  <div className="pt-4 space-y-2 border-t border-gray-100 mt-2">
+                    <button
+                      onClick={() => {
+                        setMobileOpen(false);
+                        navigate("/user/profile");
+                      }}
+                      className="w-full px-6 py-3 rounded-xl font-semibold text-[#142A5D] border border-gray-200 bg-gray-50 hover:bg-gray-100 transition"
+                    >
                       Account
                     </button>
-                    <button onClick={() => {
-                      setMobileOpen(false);
-                      dispatch(clearUserProfile());
-                      disconnectSocket(); // ← add this
-                      dispatch(logoutUser());
-                    }}
-                      className="w-full px-6 py-3 rounded-xl font-semibold text-black"
-                      style={{ backgroundColor: BRAND_GOLD }}>
+                    <button
+                      onClick={() => {
+                        setMobileOpen(false);
+                        disconnectSocket();
+                        dispatch(clearUserProfile());
+                        dispatch(logoutUser());
+                      }}
+                      className="w-full px-6 py-3 rounded-xl font-semibold text-white"
+                      style={{ backgroundColor: BRAND_GOLD }}
+                    >
                       Logout
                     </button>
-                  </>
+                  </div>
                 )}
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.header>
+      </div>
+
 
       {/* CONNECTION REQUESTS DIALOG */}
       <FetchConnection
@@ -378,4 +461,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;  
+export default Navbar;

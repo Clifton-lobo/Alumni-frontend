@@ -127,38 +127,53 @@ export const UserNavItems = [
     type: "link",
   },
   {
-    id: "explore",
-    label: "Explore",
-    type: "dropdown",
-    items: [
-      { label: "Donate", path: "/user/donate" },
-      { label: "News", path: "/user/news" },
-      { label: "Feedback", path: "/user/feedback" },
-      { label: "About us", path: "/user/about" },
-    ],
-  },
-  {
-    id: "community",
-    label: "Alumni",
-    path: "/user/community",
+    id: "about",
+    label: "About us",
+    path: "/user/about",
     type: "link",
   },
+
   {
     id: "events",
     label: "Events",
     path: "/user/events",
     type: "link",
   },
+
+  {
+    id: "community",
+    label: "Alumni Directory",
+    path: "/user/community",
+    type: "link",
+  },
   {
     id: "jobs",
-    label: "Jobs ",
+    label: "Jobs Search ",
     type: "link",
-    path: "/user/jobs"     
+    path: "/user/jobs",
   },
-   {
+  {
     id: "gallery",
     label: "Gallery ",
     type: "link",
-    path: "/user/gallery"     
-  }
+    path: "/user/gallery",
+  },
+  {
+    id: "donate",
+    label: "Donate",
+    path: "/user/donate",
+    type: "link",
+  },
+  {
+    id: "news",
+    label: "News",
+    path: "/user/News",
+    type: "link",
+  },
+  {
+    id: "feedback",
+    label: "Feedback",
+    path: "/user/Feedback",
+    type: "link",
+  },
 ];

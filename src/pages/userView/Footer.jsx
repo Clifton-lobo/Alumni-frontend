@@ -1,159 +1,136 @@
-import {
-  Linkedin,
-  Instagram,
-  Youtube,
-} from "lucide-react";
-
+import { Linkedin, Instagram, Youtube } from "lucide-react";
 import { Link } from "react-router-dom";
-
 import vpmLogo from "../../assets/VpmLogo.png";
-import vpmClassroom from "../../assets/vpm_classroom.webp";
 
 /* =========================
-   Footer Links (Internal)
-========================= */
-const footerLinks = {
-  platform: [
-    { label: "About Us", to: "/user/about" },
-    { label: "profile", to: "/user/profile" },
-    { label: "Events", to: "/user/events" },
-    { label: "News", to: "/user/news" },
-  ],
-  // community: [
-  //   { label: "Alumni Directory", to: "/user/community" },
-  //   { label: "Job Board", to: "/user/jobs" },
-  //   { label: "Mentorship", to: "/mentorship" },
-  //   { label: "Giving", to: "/user/donate" }, 
-  // ],
-  support: [
-    { label: "Help Center", to: "/user/help" },
-    { label: "Contact Us", to: "/contact" },
-    { label: "Privacy Policy", to: "/privacy" },
-    { label: "Terms of Service", to: "/terms" },
-  ],
-};
-
-/* =========================
-   Social Links (External)
+   Social Links
 ========================= */
 const socials = [
   {
     icon: Instagram,
     href: "https://instagram.com",
-    color: "hover:bg-[#E4405F]",
   },
   {
     icon: Linkedin,
     href: "https://linkedin.com",
-    color: "hover:bg-[#0A66C2]",
   },
   {
     icon: Youtube,
     href: "https://youtube.com",
-    color: "hover:bg-[#FF0000]",
   },
 ];
 
 const Footer = () => {
   return (
-    <footer className="relative text-[#FFF8E6] overflow-hidden">
-
-      {/* Background image */}
+    <footer className="relative overflow-hidden text-white">
+      {/* BACKGROUND */}
       <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${vpmClassroom})` }}
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(120deg, #142A5D 0%, #1e3e8f 55%, #2f5ac7 100%)",
+        }}
       />
 
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(255,255,255,0.12),transparent_40%),radial-gradient(circle_at_80%_70%,rgba(255,255,255,0.08),transparent_40%)]" />
 
-      {/* Content */}
-      <div className="relative max-w-7xl mx-auto px-6 py-16 sm:py-20 min-h-[420px] sm:min-h-[550px] flex flex-col justify-end">
+      <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-white/5" />
+      <div className="absolute bottom-0 left-10 w-56 h-56 rounded-full bg-white/[0.04]" />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 sm:gap-12">
+      <div className="absolute inset-0 shadow-[inset_0_80px_120px_rgba(0,0,0,0.35)]" />
 
-          {/* Brand Section */}
+      {/* CONTENT */}
+      <div className="relative max-w-7xl mx-auto px-6 py-16 sm:py-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-10">
+          {/* BRAND */}
           <div className="lg:col-span-2">
-
             <div className="flex items-center gap-4 mb-6">
-              <img
-                src={vpmLogo}
-                alt="VPM Logo"
-                className="w-12 h-12 object-contain"
-              />
+              <img src={vpmLogo} className="w-12 h-12" />
 
               <div>
-                <p className="text-2xl font-serif font-semibold">
+                <p className="text-2xl font-semibold font-serif tracking-tight">
                   VPM's Alumni Association
                 </p>
-                <p className="text-lg font-serif text-white/70">
+                <p className="text-white text-lg font-serif">
                   R.Z. Shah College
                 </p>
               </div>
             </div>
 
-            <p className="text-white/70 max-w-sm mb-6">
-              Connecting graduates of VPM's R.Z. Shah College. Build meaningful
-              relationships, explore opportunities, and stay connected with your
-              alumni community.
-            </p>
-
-            {/* Social Icons */}
-            <div className="flex items-center gap-3">
-              {socials.map(({ icon: Icon, color, href }, i) => (
+            {/* SOCIAL */}
+            <div className="flex gap-3">
+              {socials.map(({ icon: Icon, href }, i) => (
                 <a
                   key={i}
                   href={href}
                   target="_blank"
-                  rel="noopener noreferrer"
-                  className={`w-9 h-9 rounded-full bg-white/10 ${color} group flex items-center justify-center transition`}
+                  rel="noreferrer"
+                  className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md flex items-center justify-center transition"
                 >
-                  <Icon className="w-4 h-4 text-gray-400 group-hover:text-white transition" />
+                  <Icon className="w-4 h-4 text-white" />
                 </a>
               ))}
-
-              {/* X (Twitter) */}
-              <a
-                href="https://x.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-white/10 hover:bg-black group flex items-center justify-center transition"
-              >
-                <svg
-                  className="w-4 h-4 text-gray-400 group-hover:text-white fill-current"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.262 5.638L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" />
-                </svg>
-              </a>
             </div>
           </div>
 
-          {/* Link Sections */}
-         {/* Link Sections */}
-{Object.entries(footerLinks).map(([section, links]) => (
-  <div key={section} className="min-w-[180px] snap-start">
+          {/* CONTACT */}
+          <div className="space-y-6">
+            <div>
+              <p className="text-xs uppercase tracking-wider text-white mb-1">
+                Phone
+              </p>
+              <a className="text-white hover:underline">022-25637313</a>
+            </div>
 
-    <h4 className="font-semibold mb-4 text-xl capitalize">
-      {section}
-    </h4>
+            <div>
+              <p className="text-xs uppercase tracking-wider text-white mb-1">
+                Contact Us
+              </p>
+              <a className="text-white hover:underline">vpmdcol@yahoo.co.in</a>
+            </div>
+          </div>
 
-    <ul className="grid grid-cols-2 sm:grid-cols-1 lg:grid-cols-1 gap-y-3">
-      {links.map((link) => (
-        <li key={link.label}>
-          <Link
-            to={link.to}
-            className="text-white/70 text-lg hover:text-[#EBAB09] transition"
-          >
-            {link.label}
-          </Link>
-        </li>
-      ))}
-    </ul>
+          {/* QUICK LINKS */}
+          <div className="flex flex-col gap-3">
+            <Link className="text-white/80 hover:text-[#EBAB09] underline">
+              Staff Directory
+            </Link>
+            <Link className="text-white/80 hover:text-[#EBAB09] underline">
+              FAQ
+            </Link>
+            <Link className="text-white/80 hover:text-[#EBAB09] underline">
+              CAA Shop
+            </Link>
+          </div>
 
-  </div>
-))}
+          {/* MAP SECTION */}
+          <div className="lg:col-span-2">
+            <p className="text-xs uppercase tracking-wider text-white mb-3">
+              Find Us
+            </p>
 
+            <div className="rounded-xl overflow-hidden border border-white/20 shadow-lg">
+              <iframe
+                src="https://www.google.com/maps?q=VPM%20R.Z.%20Shah%20College&output=embed"
+                width="100%"
+                height="180"
+                style={{ border: 0 }}
+                allowFullScreen=""
+                loading="lazy"
+                className="w-full"
+              ></iframe>
+            </div>
+
+            {/* OPTIONAL: OPEN IN GOOGLE MAPS */}
+            <a
+              href="https://maps.app.goo.gl/W6s5kst64tB7RYiPA"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-block mt-2 text-sm text-[#EBAB09] hover:underline"
+            >
+              View on Google Maps →
+            </a>
+          </div>
         </div>
       </div>
     </footer>
