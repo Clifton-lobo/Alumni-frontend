@@ -1085,7 +1085,7 @@ const About = () => {
             </span>
           </div> */}
 
-          <h1
+          {/* <h1
             style={{
               fontFamily: "'Playfair Display', Georgia, serif",
               fontWeight: 900,
@@ -1104,9 +1104,9 @@ const About = () => {
             Zaveribhai Shah
             <br />
             College
-          </h1>
+          </h1> */}
 
-          <p
+          {/* <p
             style={{
               fontFamily: "'DM Sans', sans-serif",
               fontWeight: 300,
@@ -1120,8 +1120,8 @@ const About = () => {
           >
             A legacy of academic brilliance, transformative research, and
             leaders who shape the world — rooted in Mulund, reaching everywhere.
-          </p>
-
+          </p> */}
+{/* 
           <div
             style={{
               display: "flex",
@@ -1157,7 +1157,7 @@ const About = () => {
                 {c.text}
               </span>
             ))}
-          </div>
+          </div> */}
         </div>
 
         {!isMobile && (

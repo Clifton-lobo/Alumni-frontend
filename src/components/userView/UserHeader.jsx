@@ -97,6 +97,7 @@ const UserAvatar = ({ user }) => {
 /* ─── Main Navbar ─── */
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -118,7 +119,11 @@ const Navbar = () => {
     0,
   );
 
-  // Sticky nav triggers when top bar scrolls out of view
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated) dispatch(fetchIncomingRequests());
@@ -126,11 +131,22 @@ const Navbar = () => {
 
   return (
     <>
-      {/* ── TOP BAR — scrolls away ── */}
-      <div className="bg-white borderb  border-gray-100 w-full">
+      {/* ── TOP BAR ──
+          Desktop : static, scrolls away naturally
+          Mobile  : sticky + shrinks on scroll
+      ── */}
+      <div
+        className={`bg-white border-b border-gray-100 w-full
+          md:static md:shadow-xl
+          sticky top-0 z-50 transition-all duration-300
+          ${scrolled ? "shadow-md" : ""}
+        `}
+      >
         <div
-          className="max-w-screen-xl mx-auto px-4 md:px-6 flex items-center justify-between gap-3
-                  h-[64px] sm:h-[95px] md:h-[145px]"
+          className={`max-w-screen-xl mx-auto px-4 md:px-6 flex items-center justify-between gap-3
+  md:h-[145px] transition-all duration-300
+  ${scrolled ? "h-[52px]" : "h-[70px] sm:h-[85px]"}
+`}
         >
           {/* ── LEFT: Logo + Name ── */}
           <Link
@@ -141,50 +157,94 @@ const Navbar = () => {
             <img
               src={vpmLogo}
               alt="VPM Logo"
-              className="object-contain shrink-0
-                   w-10 h-10 sm:w-16 sm:h-16 md:w-35 md:h-35"
+              className={`object-contain shrink-0 transition-all duration-300
+  md:w-[140px] md:h-[140px]
+  ${scrolled ? "w-10 h-10" : "w-[52px] h-[52px] sm:w-[68px] sm:h-[68px]"}
+`}
             />
 
-            {/* Mobile text (< sm) */}
-            <div className="flex flex-col leading-tight sm:hidden">
+            {/* ── Mobile (< sm): full title when not scrolled ── */}
+            <div
+              className={`flex flex-col leading-tight sm:hidden transition-all duration-300
+    ${scrolled ? "opacity-0 w-0 overflow-hidden pointer-events-none" : "opacity-100"}
+  `}
+            >
               <span
-                className="text-[12px] font-bold text-[#142A5D] uppercase leading-snug"
-                style={{ fontFamily: "'Times New Roman', Times, serif" }}
+                className="text-[11px] font-semibold text-[#142A5D] uppercase leading-snug tracking-wide"
+                style={{ fontFamily: "'Cinzel', serif" }}
               >
-                VPM'S R. Z. SHAH COLLEGE
+                VPM'S R. Z. SHAH COLLEGE <br /> OF ARTS, SCIENCE & COMMERCE
               </span>
               <span
-                className="text-[17px] text-[#F2A20A]"
-                style={{
-                  fontFamily: "'Satisfy', cursive",
-                  letterSpacing: "1px",
-                }}
+                className="text-[13px] text-[#F2A20A]"
+                style={{ fontFamily: "serif", letterSpacing: "1px" }}
               >
                 Alumni
               </span>
             </div>
 
-            {/* Tablet text (sm → md) */}
-            <div className="hidden sm:flex md:hidden flex-col leading-tight">
+            {/* ── Mobile (< sm): compact title when scrolled ── */}
+            <div
+              className={`flex flex-col leading-tight sm:hidden transition-all duration-300
+    ${scrolled ? "opacity-100" : "opacity-0 w-0 overflow-hidden pointer-events-none"}
+  `}
+            >
               <span
-                className="text-[15px] font-bold text-[#142A5D] uppercase leading-snug"
-                style={{ fontFamily: "'Times New Roman', Times, serif" }}
+                className="text-[10px] font-semibold text-[#142A5D] uppercase leading-snug whitespace-nowrap tracking-wide"
+                style={{ fontFamily: "'Cinzel', serif" }}
+              >
+                VPM'S R. Z. Shah College
+              </span>
+              <span
+                className="text-[12px] text-[#F2A20A]"
+                style={{ fontFamily: "serif", letterSpacing: "1px" }}
+              >
+                Alumni
+              </span>
+            </div>
+
+            {/* ── Tablet (sm → md): full title when not scrolled ── */}
+            <div
+              className={`hidden sm:flex md:hidden flex-col leading-tight transition-all duration-300
+    ${scrolled ? "opacity-0 w-0 overflow-hidden pointer-events-none" : "opacity-100"}
+  `}
+            >
+              <span
+                className="text-[13px] font-semibold text-[#142A5D] uppercase leading-snug tracking-wide"
+                style={{ fontFamily: "'Cinzel', serif" }}
               >
                 VPM'S R. Z. SHAH COLLEGE <br />
                 OF ARTS, SCIENCE & COMMERCE
               </span>
               <span
-                className="text-[16px] text-[#F2A20A]"
-                style={{
-                  fontFamily: "'Playfair Display', serif",
-                  fontStyle: "italic",
-                }}
+                className="text-[15px] text-[#F2A20A]"
+                style={{ fontFamily: "serif", letterSpacing: "1px" }}
               >
                 Alumni
               </span>
             </div>
 
-            {/* Desktop text (md+) */}
+            {/* ── Tablet (sm → md): compact title when scrolled ── */}
+            <div
+              className={`hidden sm:flex md:hidden flex-col leading-tight transition-all duration-300
+    ${scrolled ? "opacity-100" : "opacity-0 w-0 overflow-hidden pointer-events-none"}
+  `}
+            >
+              <span
+                className="text-[13px] font-semibold text-[#142A5D] uppercase leading-snug whitespace-nowrap tracking-wide"
+                style={{ fontFamily: "'Cinzel', serif" }}
+              >
+                VPM'S R. Z. Shah College
+              </span>
+              <span
+                className="text-[15px] text-[#F2A20A]"
+                style={{ fontFamily: "serif", letterSpacing: "1px" }}
+              >
+                Alumni
+              </span>
+            </div>
+
+            {/* ── Desktop (md+): unchanged, always full ── */}
             <div className="hidden md:flex items-center gap-4 whitespace-nowrap">
               <span
                 className="text-[22px] lg:text-[30px] font-semibold text-[#142A5D] leading-tight uppercase tracking-wide"
@@ -193,9 +253,7 @@ const Navbar = () => {
                 VPM'S R. Z. SHAH COLLEGE <br />
                 OF ARTS, SCIENCE & COMMERCE
               </span>
-
               <span className="text-gray-300 text-3xl font-light">|</span>
-
               <span
                 className="text-[30px] lg:text-[38px] text-[#F2A20A]"
                 style={{
@@ -209,35 +267,26 @@ const Navbar = () => {
             </div>
           </Link>
 
-          {/* ── RIGHT: NAAC logo + icons + hamburger ── */}
+          {/* ── RIGHT: icons + hamburger ── */}
           <div className="flex items-center gap-2 shrink-0">
-            {/* NAAC logo — tablet and desktop only */}
-            {/* <img
-              src={naacLogo}
-              alt="NAAC A Grade"
-              className="hidden sm:block object-contain
-                   sm:h-14 sm:w-14 md:h-24 md:w-24"
-            /> */}
-
-            {/* Auth icons — all screens */}
-            {/* In the desktop right section, replace the isAuthenticated block with: */}
             {isAuthenticated ? (
               <div className="flex items-center gap-1.5 sm:gap-4">
                 {/* Bell */}
                 <button
                   onClick={() => dispatch(openRequestsDialog())}
                   aria-label="Connection requests"
-                  className="relative cursor-pointer rounded-full flex items-center justify-center
-                       transition-all text-[#142A5D] bg-gray-100 hover:bg-gray-200
-                       w-8 h-8 sm:w-12 sm:h-12"
+                  className={`relative cursor-pointer rounded-full flex items-center justify-center
+                    transition-all duration-300 text-[#142A5D] bg-gray-100 hover:bg-gray-200
+                    ${scrolled ? "w-8 h-8" : "w-8 h-8 sm:w-12 sm:h-12"}
+                  `}
                 >
-                  <Bell className="w-4 h-4 sm:w-10 sm:h-7" />
+                  <Bell
+                    className={`transition-all duration-300
+                      ${scrolled ? "w-4 h-4" : "w-4 h-4 sm:w-6 sm:h-6"}
+                    `}
+                  />
                   {pendingCount > 0 && (
-                    <span
-                      className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] bg-[#F2A20A]
-                               text-white text-[9px] font-bold rounded-full flex items-center
-                               justify-center px-0.5 leading-none"
-                    >
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] bg-[#F2A20A] text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5 leading-none">
                       {pendingCount > 9 ? "9+" : pendingCount}
                     </span>
                   )}
@@ -247,17 +296,18 @@ const Navbar = () => {
                 <button
                   onClick={() => navigate("/user/messages")}
                   aria-label="Messages"
-                  className="relative cursor-pointer rounded-full flex items-center justify-center
-                       transition-all text-[#142A5D] bg-gray-100 hover:bg-gray-200
-                       w-8 h-8 sm:w-12 sm:h-12"
+                  className={`relative cursor-pointer rounded-full flex items-center justify-center
+                    transition-all duration-300 text-[#142A5D] bg-gray-100 hover:bg-gray-200
+                    ${scrolled ? "w-8 h-8" : "w-8 h-8 sm:w-12 sm:h-12"}
+                  `}
                 >
-                  <MessageSquare className="w-4 h-4 sm:w-10 sm:h-7" />
+                  <MessageSquare
+                    className={`transition-all duration-300
+                      ${scrolled ? "w-4 h-4" : "w-4 h-4 sm:w-6 sm:h-6"}
+                    `}
+                  />
                   {unreadMessages > 0 && (
-                    <span
-                      className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] bg-[#F2A20A]
-                               text-white text-[9px] font-bold rounded-full flex items-center
-                               justify-center px-0.5 leading-none"
-                    >
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] bg-[#F2A20A] text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5 leading-none">
                       {unreadMessages > 9 ? "9+" : unreadMessages}
                     </span>
                   )}
@@ -265,42 +315,30 @@ const Navbar = () => {
 
                 {/* Avatar — desktop only */}
                 <div className="hidden md:block relative group">
-                  <button
-                    className="w-10 h-10 cursor-pointer rounded-full flex items-center justify-center
-                     font-bold bg-[#142A5D] text-white hover:opacity-90 transition-all text-sm"
-                  >
+                  <button className="w-10 h-10 cursor-pointer rounded-full flex items-center justify-center font-bold bg-[#142A5D] text-white hover:opacity-90 transition-all text-sm">
                     {user?.username?.[0]?.toUpperCase() || "U"}
                   </button>
-
-                  {/* pt-2 acts as invisible bridge — keeps hover alive across the gap */}
                   <div className="absolute right-0 top-full pt-2 hidden group-hover:block z-[100]">
                     <div className="bg-white rounded-md shadow-xl min-w-[200px] overflow-hidden">
-                      {/* User info */}
                       <div className="px-4 py-3 border-b">
                         <p className="text-sm font-medium text-gray-900">
                           {user?.username}
                         </p>
                         <p className="text-xs text-gray-500">{user?.email}</p>
                       </div>
-
-                      {/* Account */}
                       <button
                         onClick={() => navigate("/user/profile")}
-                        className="flex items-center cursor-pointer w-full px-4 py-3 text-sm
-                   text-gray-700 hover:bg-[#F2A20A] hover:text-white transition"
+                        className="flex items-center cursor-pointer w-full px-4 py-3 text-sm text-gray-700 hover:bg-[#F2A20A] hover:text-white transition"
                       >
                         <UserRound className="w-4 h-4 mr-2" /> Account
                       </button>
-
-                      {/* Logout */}
                       <button
                         onClick={() => {
                           disconnectSocket();
                           dispatch(clearUserProfile());
                           dispatch(logoutUser());
                         }}
-                        className="flex items-center cursor-pointer w-full px-4 py-3 text-sm
-                   text-gray-700 hover:bg-[#F2A20A] hover:text-white transition"
+                        className="flex items-center cursor-pointer w-full px-4 py-3 text-sm text-gray-700 hover:bg-[#F2A20A] hover:text-white transition"
                       >
                         <LogOut className="w-4 h-4 mr-2" /> Logout
                       </button>
@@ -314,16 +352,15 @@ const Navbar = () => {
                 className="relative hidden md:flex items-center gap-2 px-5 py-2 rounded-xl font-semibold text-white text-sm"
                 style={{ backgroundColor: "#F2A20A" }}
               >
-                {/* Pulsing ring */}
                 <span className="absolute inset-0 rounded-xl bg-[#F2A20A] animate-ping opacity-40" />
                 <span className="relative">Sign In</span>
               </Link>
             )}
+
             {/* Hamburger — mobile & tablet only */}
             <button
               onClick={() => setMobileOpen((v) => !v)}
-              className="md:hidden text-[#142A5D] w-8 h-8 flex items-center justify-center
-                   rounded-full bg-gray-100 hover:bg-gray-200 transition"
+              className="md:hidden text-[#142A5D] w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition"
             >
               {mobileOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -331,8 +368,11 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* ── NAV BAR — sticky after top bar scrolls out ── */}
-      <div className="w-full border-b bg-white border-gray-200 z-40 sticky top-0 shadow-lg ">
+      {/* ── NAV BAR ──
+          Desktop : sticky (top-0), sits below the top bar after it scrolls away
+          Mobile  : NOT sticky (top bar above is already sticky)
+      ── */}
+      <div className="w-full border-b bg-white border-gray-200 md:sticky md:top-0 md:z-40 shadow-lg">
         {/* Desktop nav */}
         <nav className="hidden md:flex max-w-screen-xl mx-auto bg-white px-6 items-center justify-center h-[52px] gap-0">
           {UserNavItems.map((item, index) => (

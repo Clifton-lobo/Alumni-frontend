@@ -45,13 +45,13 @@ const Footer = () => {
           {/* BRAND */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-4 mb-6">
-              <img src={vpmLogo} className="w-12 h-12" />
+              <img src={vpmLogo} className="w-35 h-35" />
 
               <div>
-                <p className="text-2xl font-semibold font-serif tracking-tight">
-                  VPM's Alumni Association
+                <p className="text-3xl font-semibold font-serif tracking-tight">
+                  VPM's Alumni 
                 </p>
-                <p className="text-white text-lg font-serif">
+                <p className="text-white text-2xl font-serif">
                   R.Z. Shah College
                 </p>
               </div>
