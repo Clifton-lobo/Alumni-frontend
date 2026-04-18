@@ -142,36 +142,36 @@ const Navbar = () => {
     every device without relying on Tailwind's JIT generating arbitrary values.
     Desktop (≥768px) is always 140×140 — never scrolled-compact.
   */
-  const isDesktop = winWidth >= 768;
-  const logoW = isDesktop
-    ? 140
-    : winWidth >= 640
-      ? 82
-      : winWidth >= 375
-        ? 58
-        : 48;
-  const logoH = isDesktop
-    ? 140
-    : winWidth >= 640
-      ? 86
-      : winWidth >= 375
-        ? 62
-        : 52;
+  
+const isTablet = winWidth >= 640 && winWidth < 1024;
+const isDesktop = winWidth >= 1024;
+const logoW = isDesktop
+  ? 140
+  : isTablet
+  ? 100
+  : 75;
+
+const logoH = isDesktop
+  ? 140
+  : isTablet
+  ? 100
+  : 75;
+
   /*
     College name font size — clamp(min, preferred-vw, max)
     Scales fluidly with viewport so it never overflows even at 360px.
   */
-  const nameFontSize = isDesktop
-    ? undefined
-    : winWidth >= 640
-      ? `clamp(16px, 3vw, 20px)`
-      : `clamp(14px, 4vw, 18px)`;
+ const nameFontSize = isDesktop
+  ? undefined
+  : isTablet
+  ? `clamp(16px, 2vw, 18px)`
+  : `clamp(13px, 3vw, 15px)`;
 
-  const alumniFontSize = isDesktop
-    ? undefined
-    : winWidth >= 640
-      ? `clamp(18px, 3.5vw, 22px)`
-      : `clamp(14px, 4vw, 18px)`;
+const alumniFontSize = isDesktop
+  ? undefined
+  : isTablet
+  ? `clamp(20px, 3vw, 24px)`
+  : `clamp(16px, 4vw, 20px)`;
 
   return (
     <>
@@ -372,10 +372,9 @@ const Navbar = () => {
           Desktop : sticky (top-0), sits below the top bar after it scrolls away
           Mobile/Tablet : NOT sticky (top bar above is already sticky)
       ── */}
-      <div className="w-full border-b bg-white border-gray-200 md:sticky md:top-0 md:z-40 shadow-lg">
+      <div className="w-full border-b bg-white border-gray-200 lg:sticky lg:top-0 lg:z-40 shadow-lg">
         {/* Desktop nav — md+ */}
-        <nav className="hidden md:flex max-w-screen-xl mx-auto bg-white px-6 items-center justify-center h-[52px] gap-0">
-          {UserNavItems.map((item, index) => (
+<nav className="hidden lg:flex max-w-screen-xl mx-auto bg-white px-6 items-center justify-center h-[52px] gap-0">          {UserNavItems.map((item, index) => (
             <React.Fragment key={item.id}>
               {index !== 0 && (
                 <span className="w-0.5 h-4 bg-gray-300 mx-1 shrink-0" />
@@ -405,7 +404,7 @@ const Navbar = () => {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="md:hidden overflow-hidden bg-white border-t border-gray-100"
+              className="lg:hidden overflow-hidden bg-white border-t border-gray-100"
             >
               <div className="px-4 sm:px-6 py-4 sm:py-5 space-y-3">
                 {!isAuthenticated && (
