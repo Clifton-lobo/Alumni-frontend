@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, LogOut, UserRound, Bell, MessageSquare } from "lucide-react";
@@ -98,6 +98,9 @@ const UserAvatar = ({ user }) => {
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [winWidth, setWinWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 375,
+  );
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -121,130 +124,114 @@ const Navbar = () => {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
+    const onResize = () => setWinWidth(window.innerWidth);
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("resize", onResize, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+    };
   }, []);
 
   useEffect(() => {
     if (isAuthenticated) dispatch(fetchIncomingRequests());
   }, [isAuthenticated, dispatch]);
 
+  /*
+    Logo dimensions driven by JS so we get pixel-perfect control for
+    every device without relying on Tailwind's JIT generating arbitrary values.
+    Desktop (≥768px) is always 140×140 — never scrolled-compact.
+  */
+  const isDesktop = winWidth >= 768;
+  const logoW = isDesktop
+    ? 140
+    : winWidth >= 640
+      ? 82
+      : winWidth >= 375
+        ? 58
+        : 48;
+  const logoH = isDesktop
+    ? 140
+    : winWidth >= 640
+      ? 86
+      : winWidth >= 375
+        ? 62
+        : 52;
+  /*
+    College name font size — clamp(min, preferred-vw, max)
+    Scales fluidly with viewport so it never overflows even at 360px.
+  */
+const nameFontSize = isDesktop
+  ? undefined
+  : winWidth >= 640
+  ? `clamp(12px, 2.2vw, 16px)`
+  : `clamp(9px, 2.5vw, 13px)`;
+
+const alumniFontSize = isDesktop
+  ? undefined
+  : winWidth >= 640
+  ? `clamp(18px, 3.5vw, 22px)`
+  : `clamp(14px, 4vw, 18px)`;
+
   return (
     <>
       {/* ── TOP BAR ──
           Desktop : static, scrolls away naturally
-          Mobile  : sticky + shrinks on scroll
+          Mobile/Tablet : sticky + shrinks on scroll
       ── */}
       <div
-        className={`bg-white  border-gray-100 w-full
-          md:static 
+        className={`bg-white border-b border-gray-100 w-full
+          md:static
           sticky top-0 z-50 transition-all duration-300
           ${scrolled ? "shadow-md" : ""}
         `}
       >
         <div
-          className={`max-w-screen-xl mx-auto px-4 md:px-6 flex items-center justify-between gap-3
-  md:h-[145px] transition-all duration-300
-  ${scrolled ? "h-[52px]" : "h-[70px] sm:h-[85px]"}
-`}
+          className={`
+            max-w-screen-xl mx-auto flex items-center justify-between
+            transition-all duration-300 px-3 sm:px-4 md:px-6
+            md:h-[145px] py-3 sm:h-[100px] md:h-[145px]          `}
         >
           {/* ── LEFT: Logo + Name ── */}
           <Link
             to="/user/home"
-            className="flex items-center gap-2 sm:gap-3 md:gap-4 shrink-0 min-w-0"
+            className="flex items-center gap-2 sm:gap-3 md:gap-4 shrink min-w-0"
+            style={{ maxWidth: "calc(100% - 120px)" }}
           >
             {/* Logo */}
             <img
               src={vpmLogo}
               alt="VPM Logo"
-              className={`object-contain shrink-0 transition-all duration-300
-  md:w-[140px] md:h-[140px]
-  ${scrolled ? "w-10 h-10" : "w-[52px] h-[52px] sm:w-[68px] sm:h-[68px]"}
-`}
+              className="object-contain shrink-0 transition-all duration-300"
+              style={{ width: logoW, height: logoH }}
             />
 
-            {/* ── Mobile (< sm): full title when not scrolled ── */}
-            <div
-              className={`flex flex-col leading-tight sm:hidden transition-all duration-300
-    ${scrolled ? "opacity-0 w-0 overflow-hidden pointer-events-none" : "opacity-100"}
-  `}
-            >
+            {/* ── College name: Mobile + Tablet (< md) ── */}
+            <div className="flex flex-col leading-tight md:hidden min-w-0 overflow-hidden">
               <span
-                className="text-[11px] font-semibold text-[#142A5D] uppercase leading-snug tracking-wide"
-                style={{ fontFamily: "'Cinzel', serif" }}
+                className="font-semibold text-[#142A5D] uppercase leading-snug tracking-wide transition-all duration-300"
+                style={{
+                  fontFamily: "'Cinzel', serif",
+                  fontSize: nameFontSize,
+                }}
               >
-                VPM'S R. Z. SHAH COLLEGE <br /> OF ARTS, SCIENCE & COMMERCE
-              </span>
-              <span
-                className="text-[13px] text-[#F2A20A]"
-                style={{ fontFamily: "serif", letterSpacing: "1px" }}
-              >
-                Alumni
-              </span>
-            </div>
-
-            {/* ── Mobile (< sm): compact title when scrolled ── */}
-            <div
-              className={`flex flex-col leading-tight sm:hidden transition-all duration-300
-    ${scrolled ? "opacity-100" : "opacity-0 w-0 overflow-hidden pointer-events-none"}
-  `}
-            >
-              <span
-                className="text-[10px] font-semibold text-[#142A5D] uppercase leading-snug whitespace-nowrap tracking-wide"
-                style={{ fontFamily: "'Cinzel', serif" }}
-              >
-                VPM'S R. Z. Shah College
-              </span>
-              <span
-                className="text-[12px] text-[#F2A20A]"
-                style={{ fontFamily: "serif", letterSpacing: "1px" }}
-              >
-                Alumni
-              </span>
-            </div>
-
-            {/* ── Tablet (sm → md): full title when not scrolled ── */}
-            <div
-              className={`hidden sm:flex md:hidden flex-col leading-tight transition-all duration-300
-    ${scrolled ? "opacity-0 w-0 overflow-hidden pointer-events-none" : "opacity-100"}
-  `}
-            >
-              <span
-                className="text-[13px] font-semibold text-[#142A5D] uppercase leading-snug tracking-wide"
-                style={{ fontFamily: "'Cinzel', serif" }}
-              >
-                VPM'S R. Z. SHAH COLLEGE <br />
+                VPM'S R. Z. SHAH COLLEGE
+                <br />
                 OF ARTS, SCIENCE & COMMERCE
               </span>
               <span
-                className="text-[15px] text-[#F2A20A]"
-                style={{ fontFamily: "serif", letterSpacing: "1px" }}
+                className="text-[#F2A20A] transition-all duration-300"
+                style={{
+                  fontFamily: "serif",
+                  letterSpacing: "1px",
+                  fontSize: alumniFontSize,
+                }}
               >
                 Alumni
               </span>
             </div>
 
-            {/* ── Tablet (sm → md): compact title when scrolled ── */}
-            <div
-              className={`hidden sm:flex md:hidden flex-col leading-tight transition-all duration-300
-    ${scrolled ? "opacity-100" : "opacity-0 w-0 overflow-hidden pointer-events-none"}
-  `}
-            >
-              <span
-                className="text-[13px] font-semibold text-[#142A5D] uppercase leading-snug whitespace-nowrap tracking-wide"
-                style={{ fontFamily: "'Cinzel', serif" }}
-              >
-                VPM'S R. Z. Shah College
-              </span>
-              <span
-                className="text-[15px] text-[#F2A20A]"
-                style={{ fontFamily: "serif", letterSpacing: "1px" }}
-              >
-                Alumni
-              </span>
-            </div>
-
-            {/* ── Desktop (md+): unchanged, always full ── */}
+            {/* ── College name: Desktop (≥ md) ── */}
             <div className="hidden md:flex items-center gap-4 whitespace-nowrap">
               <span
                 className="text-[22px] lg:text-[30px] font-semibold text-[#142A5D] leading-tight uppercase tracking-wide"
@@ -268,25 +255,29 @@ const Navbar = () => {
           </Link>
 
           {/* ── RIGHT: icons + hamburger ── */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2 shrink-0">
             {isAuthenticated ? (
-              <div className="flex items-center gap-1.5 sm:gap-4">
+              <div className="flex items-center gap-1 sm:gap-1.5 md:gap-4">
                 {/* Bell */}
                 <button
                   onClick={() => dispatch(openRequestsDialog())}
                   aria-label="Connection requests"
                   className={`relative cursor-pointer rounded-full flex items-center justify-center
                     transition-all duration-300 text-[#142A5D] bg-gray-100 hover:bg-gray-200
-                    ${scrolled ? "w-8 h-8" : "w-8 h-8 sm:w-12 sm:h-12"}
+                    ${
+                      scrolled
+                        ? "w-7 h-7"
+                        : "w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12"
+                    }
                   `}
                 >
                   <Bell
                     className={`transition-all duration-300
-                      ${scrolled ? "w-4 h-4" : "w-4 h-4 sm:w-6 sm:h-6"}
+                      ${scrolled ? "w-3.5 h-3.5" : "w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6"}
                     `}
                   />
                   {pendingCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] bg-[#F2A20A] text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5 leading-none">
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[14px] h-[14px] bg-[#F2A20A] text-white text-[8px] font-bold rounded-full flex items-center justify-center px-0.5 leading-none">
                       {pendingCount > 9 ? "9+" : pendingCount}
                     </span>
                   )}
@@ -298,16 +289,20 @@ const Navbar = () => {
                   aria-label="Messages"
                   className={`relative cursor-pointer rounded-full flex items-center justify-center
                     transition-all duration-300 text-[#142A5D] bg-gray-100 hover:bg-gray-200
-                    ${scrolled ? "w-8 h-8" : "w-8 h-8 sm:w-12 sm:h-12"}
+                    ${
+                      scrolled
+                        ? "w-7 h-7"
+                        : "w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12"
+                    }
                   `}
                 >
                   <MessageSquare
                     className={`transition-all duration-300
-                      ${scrolled ? "w-4 h-4" : "w-4 h-4 sm:w-6 sm:h-6"}
+                      ${scrolled ? "w-3.5 h-3.5" : "w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6"}
                     `}
                   />
                   {unreadMessages > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] bg-[#F2A20A] text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5 leading-none">
+                    <span className="absolute -top-0.5 -right-0.5 min-w-[14px] h-[14px] bg-[#F2A20A] text-white text-[8px] font-bold rounded-full flex items-center justify-center px-0.5 leading-none">
                       {unreadMessages > 9 ? "9+" : unreadMessages}
                     </span>
                   )}
@@ -360,9 +355,15 @@ const Navbar = () => {
             {/* Hamburger — mobile & tablet only */}
             <button
               onClick={() => setMobileOpen((v) => !v)}
-              className="md:hidden text-[#142A5D] w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition"
+              className={`md:hidden text-[#142A5D] flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition ml-0.5
+               w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12
+                `}
             >
-              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+              {mobileOpen ? (
+                <X size={scrolled ? 15 : 18} />
+              ) : (
+                <Menu size={scrolled ? 15 : 18} />
+              )}
             </button>
           </div>
         </div>
@@ -370,10 +371,10 @@ const Navbar = () => {
 
       {/* ── NAV BAR ──
           Desktop : sticky (top-0), sits below the top bar after it scrolls away
-          Mobile  : NOT sticky (top bar above is already sticky)
+          Mobile/Tablet : NOT sticky (top bar above is already sticky)
       ── */}
       <div className="w-full border-b bg-white border-gray-200 md:sticky md:top-0 md:z-40 shadow-lg">
-        {/* Desktop nav */}
+        {/* Desktop nav — md+ */}
         <nav className="hidden md:flex max-w-screen-xl mx-auto bg-white px-6 items-center justify-center h-[52px] gap-0">
           {UserNavItems.map((item, index) => (
             <React.Fragment key={item.id}>
@@ -397,7 +398,7 @@ const Navbar = () => {
           ))}
         </nav>
 
-        {/* Mobile nav menu */}
+        {/* Mobile / Tablet nav dropdown (< md) */}
         <AnimatePresence>
           {mobileOpen && (
             <motion.div
@@ -407,9 +408,9 @@ const Navbar = () => {
               transition={{ duration: 0.25 }}
               className="md:hidden overflow-hidden bg-white border-t border-gray-100"
             >
-              <div className="px-6 py-5 space-y-1">
+              <div className="px-4 sm:px-6 py-4 sm:py-5 space-y-3">
                 {!isAuthenticated && (
-                  <div className="pt-4 border-t border-gray-100 mt-2">
+                  <div className="pb-3 border-b border-gray-100">
                     <Link
                       to="/auth/login"
                       onClick={() => setMobileOpen(false)}
@@ -422,29 +423,37 @@ const Navbar = () => {
                   </div>
                 )}
 
-                {UserNavItems.map((item) => (
-                  <Link
-                    key={item.id}
-                    to={item.path}
-                    onClick={() => setMobileOpen(false)}
-                    className={`block px-3 py-2.5 rounded-md text-base font-medium transition-colors ${
-                      location.pathname === item.path
-                        ? "bg-gray-100 text-[#142A5D]"
-                        : "text-slate-600 hover:bg-gray-100 hover:text-[#142A5D]"
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
+                {/*
+                  Nav items grid:
+                  - phones (< sm / 640px): 2 columns — fits SE, S8+, iPhone 12 Pro
+                  - tablets (≥ sm / 640px): 3 columns — fits iPad Mini, iPad Air, Surface Pro
+                  truncate prevents any label from stretching the cell
+                */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                  {UserNavItems.map((item) => (
+                    <Link
+                      key={item.id}
+                      to={item.path}
+                      onClick={() => setMobileOpen(false)}
+                      className={`block px-2 py-2.5 rounded-md text-center text-sm font-medium transition-colors truncate ${
+                        location.pathname === item.path
+                          ? "bg-gray-100 text-[#142A5D] font-semibold"
+                          : "text-slate-600 hover:bg-gray-100 hover:text-[#142A5D]"
+                      }`}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
 
                 {isAuthenticated && (
-                  <div className="pt-4 space-y-2 border-t border-gray-100 mt-2">
+                  <div className="pt-3 flex flex-row gap-2 border-t border-gray-100">
                     <button
                       onClick={() => {
                         setMobileOpen(false);
                         navigate("/user/profile");
                       }}
-                      className="w-full px-6 py-3 rounded-xl font-semibold text-[#142A5D] border border-gray-200 bg-gray-50 hover:bg-gray-100 transition"
+                      className="flex-1 px-4 py-2.5 rounded-xl font-semibold text-[#142A5D] border border-gray-200 bg-gray-50 hover:bg-gray-100 transition text-sm"
                     >
                       Account
                     </button>
@@ -455,7 +464,7 @@ const Navbar = () => {
                         dispatch(clearUserProfile());
                         dispatch(logoutUser());
                       }}
-                      className="w-full px-6 py-3 rounded-xl font-semibold text-white"
+                      className="flex-1 px-4 py-2.5 rounded-xl font-semibold text-white text-sm"
                       style={{ backgroundColor: BRAND_GOLD }}
                     >
                       Logout
