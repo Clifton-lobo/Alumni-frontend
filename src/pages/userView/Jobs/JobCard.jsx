@@ -250,3 +250,4 @@ const JobCard = ({ job, view = "grid", onApply }) => {
 };
 
 export default JobCard;
+

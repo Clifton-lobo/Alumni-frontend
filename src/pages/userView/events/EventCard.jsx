@@ -2,10 +2,21 @@ import React, { useState, useEffect, useRef } from "react";
 import { Calendar, MapPin, Tag, MoveUpRight } from "lucide-react";
 import UserEventDetails from "./UserEventDetails";
 import { getLocationSummary } from "../../../config/Location";
+import LoginPromptModal from "../../../components/common/LoginPromptModal";
 
 const months = [
-  "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
-  "JUL", "AUG", "SEP", "OCT", "NOV", "DEC",
+  "JAN",
+  "FEB",
+  "MAR",
+  "APR",
+  "MAY",
+  "JUN",
+  "JUL",
+  "AUG",
+  "SEP",
+  "OCT",
+  "NOV",
+  "DEC",
 ];
 
 const EventCard = ({ event, scrollToMe = false }) => {
@@ -14,6 +25,8 @@ const EventCard = ({ event, scrollToMe = false }) => {
   const day = eventDate.getDate();
 
   const [open, setOpen] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+
   const [highlight, setHighlight] = useState(false);
   const cardRef = useRef(null);
   const hasScrolledRef = useRef(false);
@@ -40,7 +53,7 @@ const EventCard = ({ event, scrollToMe = false }) => {
         block: "center",
       });
 
-        setHighlight(true);
+      setHighlight(true);
     });
   }, [scrollToMe]);
 
@@ -116,8 +129,18 @@ const EventCard = ({ event, scrollToMe = false }) => {
       </div>
 
       {event && (
-        <UserEventDetails event={event} open={open} onOpenChange={setOpen} />
+        <UserEventDetails
+          event={event}
+          open={open}
+          onOpenChange={setOpen}
+          onAuthFail={() => setShowLoginPrompt(true)}
+        />
       )}
+      <LoginPromptModal
+        open={showLoginPrompt}
+        onClose={() => setShowLoginPrompt(false)}
+        message="Sign in to register for this event"
+      />
     </div>
   );
 };

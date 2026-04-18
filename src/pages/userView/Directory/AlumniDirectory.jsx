@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { fetchAlumni } from "../../../store/user-view/AlumniDirectorySlice";
+import LoginPromptModal from "../../../components/common/LoginPromptModal";
 import {
   fetchAcceptedConnections,
   fetchIncomingRequests,
@@ -167,20 +168,34 @@ const PrimaryActionButton = ({
 /* ─────────────────────────────────────────────
   LinkedIn icon button (right)
 ───────────────────────────────────────────── */
-const LinkedInButton = ({ url }) => {
+
+const LinkedInButton = ({ url, isAuthenticated, onAuthFail }) => {
+  const handleLinkedInClick = () => {
+    if (!isAuthenticated) {
+      onAuthFail("Sign in to view LinkedIn profiles");
+      return;
+    }
+    if (url) {
+      window.open(
+        url.startsWith("http") ? url : `https://${url}`,
+        "_blank",
+        "noopener,noreferrer",
+      );
+    }
+  };
+
   if (url) {
     return (
-      <a
-        href={url.startsWith("http") ? url : `https://${url}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="w-10 h-10 flex items-center justify-center rounded-xl bg-indigo-500 text-white hover:bg-[#0958a8] transition-colors duration-200 flex-shrink-0"
+      <button
+        onClick={handleLinkedInClick}
+        className="w-10 h-10 flex items-center justify-center rounded-xl bg-indigo-500 text-white hover:bg-[#0958a8] transition-colors duration-200 flex-shrink-0 cursor-pointer"
         title="LinkedIn Profile"
       >
         <Linkedin className="w-4 h-4" />
-      </a>
+      </button>
     );
   }
+
   return (
     <div
       className="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-100 text-gray-300 flex-shrink-0 cursor-not-allowed"
@@ -204,6 +219,10 @@ const AlumniDirectory = () => {
   const searchFromUrl = searchParams.get("search") || "";
   const batchFromUrl = searchParams.get("batch") || "";
   const streamFromUrl = searchParams.get("stream") || "";
+
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [loginPromptMessage, setLoginPromptMessage] = useState("");
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   // ── Alumni state ──
   const { alumniList, loading, error, totalPages, totalUsers } = useSelector(
@@ -356,8 +375,13 @@ const AlumniDirectory = () => {
       return params;
     });
   };
-
+  // REPLACE handleMessage with:
   const handleMessage = (user) => {
+    if (!isAuthenticated) {
+      setLoginPromptMessage("Sign in to message alumni");
+      setShowLoginPrompt(true);
+      return;
+    }
     navigate("/user/messages", {
       state: {
         recipientId: user._id.toString(),
@@ -371,10 +395,15 @@ const AlumniDirectory = () => {
     });
   };
 
+  // REPLACE handleConnect with:
   const handleConnect = (recipientId) => {
+    if (!isAuthenticated) {
+      setLoginPromptMessage("Sign in to connect with alumni");
+      setShowLoginPrompt(true);
+      return;
+    }
     dispatch(sendConnectionRequest(recipientId));
   };
-
   /* -----------------------------------
      MEMOIZED VALUES
   ----------------------------------- */
@@ -388,40 +417,36 @@ const AlumniDirectory = () => {
   ----------------------------------- */
   return (
     <div className="min-h-screen bg-[#F0F2F7]">
+      {/* hero section  */}
+     <div
+  className="text-white py-40 px-6 bg-cover bg-center"
+  style={{
+    backgroundImage: `url(${alumniDir})`,
+  }}
+>
+  <div className="max-w-7xl mx-auto text-center">
+    
+    <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+      Alumni Directory
+    </h1>
 
-            {/* hero section  */}
-      <div
-        className="text-white py-35 px-6 bg-cover bg-center"
-        style={{
-          backgroundImage: `url(${alumniDir})`,
-        }}
-      >
-        <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-            Alumni Directory
-          </h1>
+    {/* Search */}
+    <div className="mt-6 max-w-lg mx-auto">
+      <div className="relative">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#142A5D]/50" />
 
-          {/* <p className="mt-3 text-white/60 text-base">
-            Connect with fellow alumni and grow your network.
-          </p> */}
-
-          {/* Search */}
-          <div className="mt-8 max-w-lg mx-auto">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#142A5D]/50" />
-
-              <input
-                type="text"
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                placeholder="Search alumni by name, batch, company..."
-                className="w-full rounded-xl border-[1.5px] border-transparent bg-white pl-12 pr-4 py-3.5 text-[#142A5D] text-sm outline-none placeholder:text-[#142A5D]/40 focus:border-[#EBAB09] transition-colors"
-              />
-            </div>
-          </div>
-        </div>
+        <input
+          type="text"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          placeholder="Search alumni by name, batch, company..."
+          className="w-full rounded-xl border-[1.5px] border-transparent bg-white pl-12 pr-4 py-3 text-[#142A5D] text-sm outline-none placeholder:text-[#142A5D]/40 focus:border-[#EBAB09] transition-colors"
+        />
       </div>
+    </div>
 
+  </div>
+</div>
       {/* ── CONTENT ── */}
       <div className="max-w-7xl mx-auto px-6 -mt-6 pb-24">
         {/* FILTERS */}
@@ -607,7 +632,14 @@ const AlumniDirectory = () => {
                         onMessage={() => handleMessage(user)}
                         loading={!!sendingRequests[userId]}
                       />
-                      <LinkedInButton url={user.linkedin} />
+                      <LinkedInButton
+                        url={user.linkedin}
+                        isAuthenticated={isAuthenticated}
+                        onAuthFail={(msg) => {
+                          setLoginPromptMessage(msg);
+                          setShowLoginPrompt(true);
+                        }}
+                      />{" "}
                     </div>
                   )}
 
@@ -636,6 +668,11 @@ const AlumniDirectory = () => {
           </div>
         )}
       </div>
+      <LoginPromptModal
+        open={showLoginPrompt}
+        onClose={() => setShowLoginPrompt(false)}
+        message={loginPromptMessage}
+      />
     </div>
   );
 };

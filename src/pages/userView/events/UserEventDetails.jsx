@@ -20,11 +20,14 @@ import {
   Sparkles,
   ArrowRight,
 } from "lucide-react";
-
+import LoginPromptModal from "../../../components/common/LoginPromptModal";
 import { Button } from "@/components/ui/button";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
-import { registerForEvent, clearRegisterError } from "../../../store/user-view/RegisterEventSlice";
+import { useEffect, useState } from "react";
+import {
+  registerForEvent,
+  clearRegisterError,
+} from "../../../store/user-view/RegisterEventSlice";
 
 /* ─── Inline styles for animations (no Tailwind JIT needed) ─── */
 const styles = `
@@ -159,13 +162,14 @@ const styles = `
   .ued-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
 `;
 
-const UserEventDetails = ({ event, open, onOpenChange }) => {
+const UserEventDetails = ({ event, open, onOpenChange,onAuthFail   }) => {
   const dispatch = useDispatch();
 
   const { registering, error, registeredEvents } = useSelector(
-    (state) => state.register
+    (state) => state.register,
   );
-  const { user } = useSelector((state) => state.auth || {});
+  const { user, isAuthenticated } = useSelector((state) => state.auth || {});
+const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   useEffect(() => {
     if (open) dispatch(clearRegisterError());
@@ -175,16 +179,27 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
 
   const isRegistered = !!registeredEvents[event._id];
   const isFull =
-    event.isLimited && event.capacity && event.registrationsCount >= event.capacity;
+    event.isLimited &&
+    event.capacity &&
+    event.registrationsCount >= event.capacity;
   const isPastEvent = new Date(event.date) < new Date();
 
-  const capacityPct = event.isLimited && event.capacity
-    ? Math.min(100, Math.round((event.registrationsCount / event.capacity) * 100))
-    : null;
+  const capacityPct =
+    event.isLimited && event.capacity
+      ? Math.min(
+          100,
+          Math.round((event.registrationsCount / event.capacity) * 100),
+        )
+      : null;
   const barClass =
     capacityPct >= 90 ? "danger" : capacityPct >= 70 ? "warn" : "";
 
-  const handleRegister = () => {
+ const handleRegister = () => {
+    if (!isAuthenticated) {
+      onOpenChange(false);          // close the event dialog first
+      onAuthFail?.();               // tell parent to show login modal
+      return;
+    }
     if (!event._id || isRegistered || registering || isFull || isPastEvent) return;
     dispatch(registerForEvent({
       eventId: event._id,
@@ -193,79 +208,125 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
     }));
   };
 
+
   /* ─── Status banner ─── */
   const statusBanner = () => {
-    if (isRegistered) return (
-      <div style={{
-        display: "flex", alignItems: "center", gap: 12,
-        background: "linear-gradient(135deg,#f0fdf4,#dcfce7)",
-        border: "1px solid #bbf7d0", borderRadius: 14,
-        padding: "14px 18px", color: "#166534",
-      }}>
-        <div style={{ position: "relative" }}>
-          <div className="ued-pulse-dot" />
+    if (isRegistered)
+      return (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            background: "linear-gradient(135deg,#f0fdf4,#dcfce7)",
+            border: "1px solid #bbf7d0",
+            borderRadius: 14,
+            padding: "14px 18px",
+            color: "#166534",
+          }}
+        >
+          <div style={{ position: "relative" }}>
+            <div className="ued-pulse-dot" />
+          </div>
+          <div>
+            <p style={{ fontWeight: 700, fontSize: 13, marginBottom: 2 }}>
+              You're in!
+            </p>
+            <p style={{ fontSize: 12, opacity: 0.8 }}>
+              Successfully registered for this event.
+            </p>
+          </div>
+          <CircleCheckBig
+            size={22}
+            style={{ marginLeft: "auto", color: "#16a34a", flexShrink: 0 }}
+          />
         </div>
-        <div>
-          <p style={{ fontWeight: 700, fontSize: 13, marginBottom: 2 }}>You're in!</p>
-          <p style={{ fontSize: 12, opacity: .8 }}>Successfully registered for this event.</p>
+      );
+
+    if (isPastEvent)
+      return (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            background: "#fffbeb",
+            border: "1px solid #fde68a",
+            borderRadius: 14,
+            padding: "14px 18px",
+            color: "#92400e",
+          }}
+        >
+          <Ban size={20} style={{ flexShrink: 0 }} />
+          <span style={{ fontSize: 13, fontWeight: 500 }}>
+            This event has already taken place. Registration is closed.
+          </span>
         </div>
-        <CircleCheckBig size={22} style={{ marginLeft: "auto", color: "#16a34a", flexShrink: 0 }} />
-      </div>
-    );
+      );
 
-    if (isPastEvent) return (
-      <div style={{
-        display: "flex", alignItems: "center", gap: 12,
-        background: "#fffbeb", border: "1px solid #fde68a",
-        borderRadius: 14, padding: "14px 18px", color: "#92400e",
-      }}>
-        <Ban size={20} style={{ flexShrink: 0 }} />
-        <span style={{ fontSize: 13, fontWeight: 500 }}>
-          This event has already taken place. Registration is closed.
-        </span>
-      </div>
-    );
+    if (isFull)
+      return (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            background: "#fff1f2",
+            border: "1px solid #fecdd3",
+            borderRadius: 14,
+            padding: "14px 18px",
+            color: "#9f1239",
+          }}
+        >
+          <AlertCircle size={20} style={{ flexShrink: 0 }} />
+          <span style={{ fontSize: 13, fontWeight: 500 }}>
+            This event is sold out. No seats available.
+          </span>
+        </div>
+      );
 
-    if (isFull) return (
-      <div style={{
-        display: "flex", alignItems: "center", gap: 12,
-        background: "#fff1f2", border: "1px solid #fecdd3",
-        borderRadius: 14, padding: "14px 18px", color: "#9f1239",
-      }}>
-        <AlertCircle size={20} style={{ flexShrink: 0 }} />
-        <span style={{ fontSize: 13, fontWeight: 500 }}>
-          This event is sold out. No seats available.
-        </span>
-      </div>
-    );
-
-    if (error) return (
-      <div style={{
-        display: "flex", alignItems: "center", gap: 12,
-        background: "#fff1f2", border: "1px solid #fecdd3",
-        borderRadius: 14, padding: "14px 18px", color: "#be123c",
-      }}>
-        <AlertCircle size={18} style={{ flexShrink: 0 }} />
-        <span style={{ fontSize: 13 }}>
-          {typeof error === "string" ? error : error?.message || "Something went wrong"}
-        </span>
-      </div>
-    );
+    if (error)
+      return (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            background: "#fff1f2",
+            border: "1px solid #fecdd3",
+            borderRadius: 14,
+            padding: "14px 18px",
+            color: "#be123c",
+          }}
+        >
+          <AlertCircle size={18} style={{ flexShrink: 0 }} />
+          <span style={{ fontSize: 13 }}>
+            {typeof error === "string"
+              ? error
+              : error?.message || "Something went wrong"}
+          </span>
+        </div>
+      );
 
     return null;
   };
 
   const registerLabel = () => {
-    if (registering)  return "Registering…";
+    if (registering) return "Registering…";
     if (isRegistered) return "Registered ✓";
-    if (isPastEvent)  return "Event Ended";
-    if (isFull)       return "Sold Out";
+    if (isPastEvent) return "Event Ended";
+    if (isFull) return "Sold Out";
     return "Reserve My Spot";
   };
 
   const btnStyle = () => {
-    if (isRegistered) return { background: "linear-gradient(135deg,#16a34a,#15803d)", cursor: "not-allowed" };
-    if (isPastEvent || isFull) return { background: "#94a3b8", cursor: "not-allowed" };
+    if (isRegistered)
+      return {
+        background: "linear-gradient(135deg,#16a34a,#15803d)",
+        cursor: "not-allowed",
+      };
+    if (isPastEvent || isFull)
+      return { background: "#94a3b8", cursor: "not-allowed" };
     return {};
   };
 
@@ -275,6 +336,9 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
           className="ued-root"
+          onInteractOutside={(e) => {
+            if (showLoginPrompt) e.preventDefault();
+          }}
           style={{
             maxWidth: 620,
             maxHeight: "92vh",
@@ -319,40 +383,73 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
                 className="ued-hero-img"
                 src={event.image?.secure_url || event.image}
                 alt={event.title}
-                style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  display: "block",
+                }}
               />
               {/* gradient overlay */}
-              <div style={{
-                position: "absolute", inset: 0,
-                background: "linear-gradient(to top, rgba(0,0,0,.55) 0%, rgba(0,0,0,.1) 55%, transparent 100%)",
-              }} />
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  background:
+                    "linear-gradient(to top, rgba(0,0,0,.55) 0%, rgba(0,0,0,.1) 55%, transparent 100%)",
+                }}
+              />
 
               {/* Badges overlaid on image */}
-              <div style={{
-                position: "absolute", bottom: 14, left: 16,
-                display: "flex", gap: 8, flexWrap: "wrap",
-              }}>
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: 14,
+                  left: 16,
+                  display: "flex",
+                  gap: 8,
+                  flexWrap: "wrap",
+                }}
+              >
                 {event.isVirtual ? (
-                  <span className="ued-badge" style={{ background: "rgba(139,92,246,.9)", color: "#fff" }}>
+                  <span
+                    className="ued-badge"
+                    style={{ background: "rgba(139,92,246,.9)", color: "#fff" }}
+                  >
                     <Video size={11} /> Virtual
                   </span>
                 ) : (
-                  <span className="ued-badge" style={{ background: "rgba(59,130,246,.9)", color: "#fff" }}>
+                  <span
+                    className="ued-badge"
+                    style={{ background: "rgba(59,130,246,.9)", color: "#fff" }}
+                  >
                     <MapPin size={11} /> In-Person
                   </span>
                 )}
                 {isFull && (
-                  <span className="ued-badge" style={{ background: "rgba(239,68,68,.9)", color: "#fff" }}>
+                  <span
+                    className="ued-badge"
+                    style={{ background: "rgba(239,68,68,.9)", color: "#fff" }}
+                  >
                     Sold Out
                   </span>
                 )}
                 {isPastEvent && (
-                  <span className="ued-badge" style={{ background: "rgba(100,116,139,.88)", color: "#fff" }}>
+                  <span
+                    className="ued-badge"
+                    style={{
+                      background: "rgba(100,116,139,.88)",
+                      color: "#fff",
+                    }}
+                  >
                     Event Ended
                   </span>
                 )}
                 {!isPastEvent && !isFull && !isRegistered && (
-                  <span className="ued-badge" style={{ background: "rgba(34,197,94,.9)", color: "#fff" }}>
+                  <span
+                    className="ued-badge"
+                    style={{ background: "rgba(34,197,94,.9)", color: "#fff" }}
+                  >
                     <Sparkles size={10} /> Open
                   </span>
                 )}
@@ -360,24 +457,46 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
             </div>
 
             {/* CONTENT AREA */}
-            <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: 16 }}>
-
+            <div
+              style={{
+                padding: "20px 24px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 16,
+              }}
+            >
               {/* TITLE */}
               <h2
                 className="ued-title ued-fade-up ued-delay-1"
-                style={{ fontSize: 26, fontWeight: 800, lineHeight: 1.2, color: "#0f172a", margin: 0 }}
+                style={{
+                  fontSize: 26,
+                  fontWeight: 800,
+                  lineHeight: 1.2,
+                  color: "#0f172a",
+                  margin: 0,
+                }}
               >
                 {event.title}
               </h2>
 
               {/* CATEGORY */}
-              <div className="ued-fade-up ued-delay-2" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div
+                className="ued-fade-up ued-delay-2"
+                style={{ display: "flex", alignItems: "center", gap: 8 }}
+              >
                 <Tag size={14} style={{ color: "#7c3aed" }} />
-                <span style={{
-                  fontSize: 12, fontWeight: 600, letterSpacing: ".06em",
-                  textTransform: "uppercase", color: "#7c3aed",
-                  background: "#f5f3ff", padding: "3px 10px", borderRadius: 6,
-                }}>
+                <span
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    letterSpacing: ".06em",
+                    textTransform: "uppercase",
+                    color: "#7c3aed",
+                    background: "#f5f3ff",
+                    padding: "3px 10px",
+                    borderRadius: 6,
+                  }}
+                >
                   {event.category || "General"}
                 </span>
               </div>
@@ -386,23 +505,59 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
 
               {/* DATE */}
               <div className="ued-meta-row ued-fade-up ued-delay-2">
-                <div className="ued-icon-wrap" style={{ background: "#eff6ff" }}>
+                <div
+                  className="ued-icon-wrap"
+                  style={{ background: "#eff6ff" }}
+                >
                   <Calendar size={18} style={{ color: "#2563eb" }} />
                 </div>
                 <div>
-                  <p style={{ fontSize: 11, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: ".07em", marginBottom: 3 }}>
+                  <p
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      color: "#94a3b8",
+                      textTransform: "uppercase",
+                      letterSpacing: ".07em",
+                      marginBottom: 3,
+                    }}
+                  >
                     Date & Time
                   </p>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: "#0f172a", margin: 0 }}>
+                  <p
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: "#0f172a",
+                      margin: 0,
+                    }}
+                  >
                     {new Date(event.date).toLocaleDateString("en-IN", {
-                      weekday: "long", day: "numeric", month: "long", year: "numeric",
+                      weekday: "long",
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
                     })}
                   </p>
-                  <p style={{ fontSize: 13, color: "#64748b", display: "flex", alignItems: "center", gap: 4, marginTop: 3 }}>
+                  <p
+                    style={{
+                      fontSize: 13,
+                      color: "#64748b",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 4,
+                      marginTop: 3,
+                    }}
+                  >
                     <Clock size={12} />
-                    {new Date(`1970-01-01T${event.time}`).toLocaleTimeString("en-IN", {
-                      hour: "numeric", minute: "2-digit", hour12: true,
-                    })}
+                    {new Date(`1970-01-01T${event.time}`).toLocaleTimeString(
+                      "en-IN",
+                      {
+                        hour: "numeric",
+                        minute: "2-digit",
+                        hour12: true,
+                      },
+                    )}
                   </p>
                 </div>
               </div>
@@ -410,14 +565,34 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
               {/* LOCATION */}
               {!event.isVirtual && event.address && (
                 <div className="ued-meta-row ued-fade-up ued-delay-3">
-                  <div className="ued-icon-wrap" style={{ background: "#eef2ff" }}>
+                  <div
+                    className="ued-icon-wrap"
+                    style={{ background: "#eef2ff" }}
+                  >
                     <MapPin size={18} style={{ color: "#4f46e5" }} />
                   </div>
                   <div>
-                    <p style={{ fontSize: 11, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: ".07em", marginBottom: 3 }}>
+                    <p
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 600,
+                        color: "#94a3b8",
+                        textTransform: "uppercase",
+                        letterSpacing: ".07em",
+                        marginBottom: 3,
+                      }}
+                    >
                       Location
                     </p>
-                    <p style={{ fontSize: 14, fontWeight: 600, color: "#0f172a", margin: 0, lineHeight: 1.4 }}>
+                    <p
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 600,
+                        color: "#0f172a",
+                        margin: 0,
+                        lineHeight: 1.4,
+                      }}
+                    >
                       {event.address}
                     </p>
                   </div>
@@ -426,21 +601,61 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
 
               {/* REGISTRATIONS */}
               <div className="ued-meta-row ued-fade-up ued-delay-4">
-                <div className="ued-icon-wrap" style={{ background: "#f0fdf4" }}>
+                <div
+                  className="ued-icon-wrap"
+                  style={{ background: "#f0fdf4" }}
+                >
                   <Users size={18} style={{ color: "#16a34a" }} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: 11, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: ".07em", marginBottom: 3 }}>
+                  <p
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      color: "#94a3b8",
+                      textTransform: "uppercase",
+                      letterSpacing: ".07em",
+                      marginBottom: 3,
+                    }}
+                  >
                     Attendees
                   </p>
                   {event.isLimited ? (
                     <>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
-                        <p style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", margin: 0 }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "baseline",
+                          marginBottom: 6,
+                        }}
+                      >
+                        <p
+                          style={{
+                            fontSize: 14,
+                            fontWeight: 700,
+                            color: "#0f172a",
+                            margin: 0,
+                          }}
+                        >
                           {event.registrationsCount}
-                          <span style={{ fontWeight: 400, color: "#64748b" }}> / {event.capacity} seats filled</span>
+                          <span style={{ fontWeight: 400, color: "#64748b" }}>
+                            {" "}
+                            / {event.capacity} seats filled
+                          </span>
                         </p>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: capacityPct >= 90 ? "#dc2626" : capacityPct >= 70 ? "#d97706" : "#16a34a" }}>
+                        <span
+                          style={{
+                            fontSize: 12,
+                            fontWeight: 700,
+                            color:
+                              capacityPct >= 90
+                                ? "#dc2626"
+                                : capacityPct >= 70
+                                  ? "#d97706"
+                                  : "#16a34a",
+                          }}
+                        >
                           {capacityPct}%
                         </span>
                       </div>
@@ -452,25 +667,58 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
                       </div>
                     </>
                   ) : (
-                    <p style={{ fontSize: 14, fontWeight: 600, color: "#0f172a", margin: 0 }}>
-                      <span style={{ color: "#16a34a" }}>{event.registrationsCount}</span> registered
-                      <span style={{ fontWeight: 400, color: "#64748b" }}> · Unlimited capacity</span>
+                    <p
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 600,
+                        color: "#0f172a",
+                        margin: 0,
+                      }}
+                    >
+                      <span style={{ color: "#16a34a" }}>
+                        {event.registrationsCount}
+                      </span>{" "}
+                      registered
+                      <span style={{ fontWeight: 400, color: "#64748b" }}>
+                        {" "}
+                        · Unlimited capacity
+                      </span>
                     </p>
                   )}
                 </div>
               </div>
 
               {/* DESCRIPTION */}
-              <div className="ued-fade-up ued-delay-5" style={{ paddingTop: 4 }}>
+              <div
+                className="ued-fade-up ued-delay-5"
+                style={{ paddingTop: 4 }}
+              >
                 <div className="ued-divider" style={{ marginBottom: 16 }} />
-                <p style={{ fontSize: 11, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: ".07em", marginBottom: 10 }}>
+                <p
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 600,
+                    color: "#94a3b8",
+                    textTransform: "uppercase",
+                    letterSpacing: ".07em",
+                    marginBottom: 10,
+                  }}
+                >
                   About this event
                 </p>
-                <p style={{ fontSize: 14, color: "#334155", lineHeight: 1.75, margin: 0, whiteSpace: "pre-line" }}>
-                  {event.description || "No description provided for this event."}
+                <p
+                  style={{
+                    fontSize: 14,
+                    color: "#334155",
+                    lineHeight: 1.75,
+                    margin: 0,
+                    whiteSpace: "pre-line",
+                  }}
+                >
+                  {event.description ||
+                    "No description provided for this event."}
                 </p>
               </div>
-
             </div>
           </div>
 
@@ -482,30 +730,33 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
           )}
 
           {/* FOOTER */}
-          <div style={{
-            borderTop: "1px solid #f1f5f9",
-            padding: "16px 24px",
-            display: "flex",
-            gap: 12,
-            alignItems: "center",
-            background: "#fafafa",
-          }}>
+          <div
+            style={{
+              borderTop: "1px solid #f1f5f9",
+              padding: "16px 24px",
+              display: "flex",
+              gap: 12,
+              alignItems: "center",
+              background: "#fafafa",
+            }}
+          >
             <DialogClose asChild>
-              <button style={{
-                flex: "0 0 auto",
-                padding: "10px 20px",
-                borderRadius: 12,
-                border: "1px solid #e2e8f0",
-                background: "white",
-                fontSize: 14,
-                fontWeight: 500,
-                color: "#475569",
-                cursor: "pointer",
-                transition: "background .15s",
-                fontFamily: "DM Sans, sans-serif",
-              }}
-                onMouseEnter={e => e.target.style.background = "#f8fafc"}
-                onMouseLeave={e => e.target.style.background = "white"}
+              <button
+                style={{
+                  flex: "0 0 auto",
+                  padding: "10px 20px",
+                  borderRadius: 12,
+                  border: "1px solid #e2e8f0",
+                  background: "white",
+                  fontSize: 14,
+                  fontWeight: 500,
+                  color: "#475569",
+                  cursor: "pointer",
+                  transition: "background .15s",
+                  fontFamily: "DM Sans, sans-serif",
+                }}
+                onMouseEnter={(e) => (e.target.style.background = "#f8fafc")}
+                onMouseLeave={(e) => (e.target.style.background = "white")}
               >
                 Close
               </button>
@@ -541,6 +792,7 @@ const UserEventDetails = ({ event, open, onOpenChange }) => {
           </div>
         </DialogContent>
       </Dialog>
+    
     </>
   );
 };

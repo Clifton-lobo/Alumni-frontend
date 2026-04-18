@@ -8,6 +8,7 @@ import EventList from "./EventList";
 import { useSearchParams } from "react-router-dom";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import axiosInstance from "../../../api/axiosInstance.js";
+import LoginPromptModal from "../../../components/common/LoginPromptModal.jsx";
 
 const DEBOUNCE_DELAY = 500;
 const MIN_SEARCH_LENGTH = 2;
@@ -15,6 +16,7 @@ const MIN_SEARCH_LENGTH = 2;
 const UserEvents = () => {
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
+const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
 
@@ -353,6 +355,11 @@ const UserEvents = () => {
           />
         </div>
       )}
+        <LoginPromptModal
+  open={showLoginPrompt}
+  onClose={() => setShowLoginPrompt(false)}
+  message="Sign in to register for this event"
+/>
     </div>
   );
 };

@@ -22,6 +22,11 @@ function CheckAuth({ children }) {
       : <Navigate to="/user/home" replace />;
   }
 
+  // ✅ Unauthenticated user trying to access /admin/* → login
+  if (!isAuthenticated && location.pathname.startsWith("/admin")) {
+    return <Navigate to="/auth/login" replace />;
+  }
+
   if (isAuthenticated && user?.role !== "admin" && location.pathname.startsWith("/admin")) {
     return <Navigate to="/UnAuth" replace />;
   }
