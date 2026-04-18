@@ -526,9 +526,7 @@ const UserGallery = () => {
             style={{ backgroundImage: `radial-gradient(${NAVY} 1.5px, transparent 1.5px)`, backgroundSize: "26px 26px" }} />
 
           {/* Warm glow blobs */}
-          <div className="absolute pointer-events-none" style={{ top: -120, right: "12%", width: 560, height: 560, borderRadius: "50%", background: `radial-gradient(circle,${GOLD}1A 0%,transparent 65%)` }} />
-          <div className="absolute pointer-events-none" style={{ bottom: -100, left: "-5%", width: 420, height: 420, borderRadius: "50%", background: `radial-gradient(circle,${NAVY}0D 0%,transparent 65%)` }} />
-
+        
 
           <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-10 flex flex-col lg:flex-row items-center gap-12 py-8 md:py-10" style={{ minHeight: 520 }}>
 

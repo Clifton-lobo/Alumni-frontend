@@ -22,6 +22,7 @@ import {
   Mail,
   Search,
 } from "lucide-react";
+import alumniDir from "../../../assets/alumniDir.jpg";
 
 const DEBOUNCE_DELAY = 500;
 const MIN_SEARCH_LENGTH = 2;
@@ -30,13 +31,12 @@ const MIN_SEARCH_LENGTH = 2;
   Helper: derive connection status for a user
 ───────────────────────────────────────────── */
 
-
 const getConnectionStatus = (
   targetUserId,
   currentUserId,
   acceptedConnections,
   outgoingRequests,
-  incomingRequests
+  incomingRequests,
 ) => {
   if (targetUserId && currentUserId && targetUserId === currentUserId)
     return "SELF";
@@ -79,7 +79,13 @@ const getAvatarColor = (name = "") =>
   Connect / Request Sent / Respond / Message
 ───────────────────────────────────────────── */
 
-const PrimaryActionButton = ({ status, onConnect, onRespond, onMessage, loading }) => {
+const PrimaryActionButton = ({
+  status,
+  onConnect,
+  onRespond,
+  onMessage,
+  loading,
+}) => {
   return (
     <>
       <style>{`
@@ -143,7 +149,8 @@ const PrimaryActionButton = ({ status, onConnect, onRespond, onMessage, loading 
           Respond
         </button>
       )}
-      {(status === "NONE" || (!["ACCEPTED","PENDING_SENT","PENDING_RECEIVED"].includes(status))) && (
+      {(status === "NONE" ||
+        !["ACCEPTED", "PENDING_SENT", "PENDING_RECEIVED"].includes(status)) && (
         <button
           onClick={onConnect}
           disabled={loading}
@@ -192,7 +199,6 @@ const AlumniDirectory = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
-
   // ── Read URL params ──
   const pageFromUrl = parseInt(searchParams.get("page")) || 1;
   const searchFromUrl = searchParams.get("search") || "";
@@ -201,15 +207,19 @@ const AlumniDirectory = () => {
 
   // ── Alumni state ──
   const { alumniList, loading, error, totalPages, totalUsers } = useSelector(
-    (state) => state.alumni
+    (state) => state.alumni,
   );
 
   // ── Auth ──
   const currentUser = useSelector((state) => state.auth.user);
 
   // ── Connection state ──
-  const { acceptedConnections, incomingRequests, outgoingRequests, sendingRequests } =
-    useSelector((state) => state.connections);
+  const {
+    acceptedConnections,
+    incomingRequests,
+    outgoingRequests,
+    sendingRequests,
+  } = useSelector((state) => state.connections);
 
   const currentUserId =
     currentUser?.id?.toString() || currentUser?._id?.toString();
@@ -232,7 +242,7 @@ const AlumniDirectory = () => {
         search: searchFromUrl,
         batch: batchFromUrl,
         stream: streamFromUrl,
-      })
+      }),
     );
   }, [pageFromUrl, searchFromUrl, batchFromUrl, streamFromUrl, dispatch]);
 
@@ -287,7 +297,7 @@ const AlumniDirectory = () => {
           search: trimmed || undefined,
           batch: batchFromUrl,
           stream: streamFromUrl,
-        })
+        }),
       );
     }, DEBOUNCE_DELAY);
 
@@ -379,18 +389,27 @@ const AlumniDirectory = () => {
   return (
     <div className="min-h-screen bg-[#F0F2F7]">
 
-      {/* ── HERO ── */}
-      <div className="bg-[#142A5D] text-white py-20 px-6">
+            {/* hero section  */}
+      <div
+        className="text-white py-35 px-6 bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${alumniDir})`,
+        }}
+      >
         <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">Alumni Directory</h1>
-          <p className="mt-3 text-white/60 text-base">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+            Alumni Directory
+          </h1>
+
+          {/* <p className="mt-3 text-white/60 text-base">
             Connect with fellow alumni and grow your network.
-          </p>
+          </p> */}
 
           {/* Search */}
           <div className="mt-8 max-w-lg mx-auto">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#142A5D]/50" />
+
               <input
                 type="text"
                 value={searchText}
@@ -405,7 +424,6 @@ const AlumniDirectory = () => {
 
       {/* ── CONTENT ── */}
       <div className="max-w-7xl mx-auto px-6 -mt-6 pb-24">
-
         {/* FILTERS */}
         <div
           ref={listContainerRef}
@@ -424,7 +442,9 @@ const AlumniDirectory = () => {
             >
               <option value="">All Years</option>
               {years.map((year) => (
-                <option key={year} value={year}>{year}</option>
+                <option key={year} value={year}>
+                  {year}
+                </option>
               ))}
             </select>
 
@@ -453,25 +473,32 @@ const AlumniDirectory = () => {
           </div>
 
           <p className="text-sm text-gray-400">
-            <span className="text-[#142A5D] font-semibold">{totalUsers}</span> Results
+            <span className="text-[#142A5D] font-semibold">{totalUsers}</span>{" "}
+            Results
           </p>
         </div>
 
         {/* LOADING */}
         {loading && (
-          <div className="text-center py-20 text-slate-500">Loading alumni...</div>
+          <div className="text-center py-20 text-slate-500">
+            Loading alumni...
+          </div>
         )}
 
         {/* ERROR */}
         {error && (
           <div className="text-center py-20 text-red-500 font-medium">
-            {typeof error === "string" ? error : error?.message || "Something went wrong"}
+            {typeof error === "string"
+              ? error
+              : error?.message || "Something went wrong"}
           </div>
         )}
 
         {/* EMPTY STATE */}
         {!loading && !error && alumniList.length === 0 && (
-          <div className="text-center py-20 text-slate-500">No alumni found.</div>
+          <div className="text-center py-20 text-slate-500">
+            No alumni found.
+          </div>
         )}
 
         {/* GRID */}
@@ -479,7 +506,11 @@ const AlumniDirectory = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {alumniList.map((user) => {
               const userId = user._id?.toString();
-              const isCurrentUser = !!(userId && currentUserId && userId === currentUserId);
+              const isCurrentUser = !!(
+                userId &&
+                currentUserId &&
+                userId === currentUserId
+              );
               const isAdmin = user.role === "admin";
               const showActions = !isAdmin && !isCurrentUser;
 
@@ -488,7 +519,7 @@ const AlumniDirectory = () => {
                 currentUserId,
                 acceptedConnections,
                 outgoingRequests,
-                incomingRequests
+                incomingRequests,
               );
 
               return (
@@ -498,14 +529,17 @@ const AlumniDirectory = () => {
                 >
                   {/* Card body */}
                   <div className="p-6 flex flex-col items-center text-center flex-1">
-
                     {/* Avatar */}
                     <div className="relative mb-4">
                       <div
                         className={`w-[72px] h-[72px] rounded-full overflow-hidden bg-gradient-to-br ${getAvatarColor(user.fullname)} flex items-center justify-center text-white text-2xl font-bold border-4 border-white shadow-md`}
                       >
                         {user.profilePicture ? (
-                          <img src={user.profilePicture} alt={user.fullname} className="w-full h-full object-cover" />
+                          <img
+                            src={user.profilePicture}
+                            alt={user.fullname}
+                            className="w-full h-full object-cover"
+                          />
                         ) : (
                           user.fullname?.charAt(0)?.toUpperCase() || "U"
                         )}
@@ -521,17 +555,20 @@ const AlumniDirectory = () => {
                     <h2 className="text-[15px] font-semibold text-slate-900 flex items-center gap-2 flex-wrap justify-center">
                       {user.fullname}
                       {isCurrentUser && (
-                        <span className="text-[10px] text-[#142A5D]/50 font-medium">(you)</span>
+                        <span className="text-[10px] text-[#142A5D]/50 font-medium">
+                          (you)
+                        </span>
                       )}
                     </h2>
 
                     {/* Info rows */}
                     <div className="mt-4 w-full flex flex-col gap-2">
-
                       {/* Email */}
                       <div className="flex items-center gap-2.5 bg-gray-50 rounded-lg px-3 py-2 text-sm text-gray-500">
                         <Mail className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
-                        <span className="truncate">{user.email || "Email not provided"}</span>
+                        <span className="truncate">
+                          {user.email || "Email not provided"}
+                        </span>
                       </div>
 
                       {/* Job */}
@@ -549,7 +586,9 @@ const AlumniDirectory = () => {
                         <GraduationCap className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
                         <span>
                           {user.stream || "Stream not provided"} ·{" "}
-                          {user.batch ? `Class of ${user.batch}` : "Batch not provided"}
+                          {user.batch
+                            ? `Class of ${user.batch}`
+                            : "Batch not provided"}
                         </span>
                       </div>
                     </div>

@@ -1,4 +1,4 @@
-import { Route, Routes, Navigate } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import Layout from './components/auth/AuthLayout'
 import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
@@ -27,15 +27,14 @@ import UserProfile from './pages/userView/UserProfile.jsx'
 import Gallery from './pages/adminView/Gallery.jsx'
 import AdminProfile from './pages/adminView/AdminProfile.jsx'
 import AlumniDirectory from './pages/userView/Directory/AlumniDirectory.jsx'
-import SocketInitializer from "../SocketInitializer.jsx";
+import SocketInitializer from "../SocketInitializer.jsx"
 import MessagingPage from './pages/userView/Directory/MessagingPage.jsx'
 import { fetchConversations } from './store/user-view/MessageSlice.js'
 import Feedback from './pages/userView/Feedback.jsx'
 import AdminFeedback from './pages/adminView/AdminFeedback.jsx'
 
 function App() {
-
-  const { user, isAuthenticated, isLoading } = useSelector((state) => state.auth);
+  const { isLoading } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -61,36 +60,15 @@ function App() {
       <ScrollToTop />
       <SocketInitializer />
       <Routes>
-        <Route
-          path="/"
-          element={
-            <CheckAuth
-              isAuthenticated={isAuthenticated}
-              user={user}
-            ></CheckAuth>
-          }
-        />
-        <Route
-          path="/auth"
-          element={
-            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-              <Layout />
-            </CheckAuth>
-          }
-        >
+        <Route path="/" element={<CheckAuth />} />
+
+        <Route path="/auth" element={<CheckAuth><Layout /></CheckAuth>}>
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
         </Route>
 
         {/* admin */}
-        <Route
-          path="/admin"
-          element={
-            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-              <AdminLayout />
-            </CheckAuth>
-          }
-        >
+        <Route path="/admin" element={<CheckAuth><AdminLayout /></CheckAuth>}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="profile" element={<AdminProfile />} />
           <Route path="directory" element={<Alumni />} />
@@ -102,14 +80,7 @@ function App() {
         </Route>
 
         {/* user */}
-        <Route
-          path="/user"
-          element={
-            <CheckAuth isAuthenticated={isAuthenticated} user={user}>
-              <UserLayout />
-            </CheckAuth>
-          }
-        >
+        <Route path="/user" element={<CheckAuth><UserLayout /></CheckAuth>}>
           <Route path="events" element={<UserEvents />} />
           <Route path="profile" element={<UserProfile />} />
           <Route path="jobs" element={<UserJobs />} />
@@ -120,7 +91,7 @@ function App() {
           <Route path="donate" element={<UserDonate />} />
           <Route path="gallery" element={<UserGallery />} />
           <Route path="messages" element={<MessagingPage />} />
-          <Route path="feedback" element={<Feedback/>} />
+          <Route path="feedback" element={<Feedback />} />
         </Route>
 
         {/* misc */}
@@ -131,4 +102,4 @@ function App() {
   );
 }
 
-export default App
+export default App;

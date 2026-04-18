@@ -97,7 +97,6 @@ const UserAvatar = ({ user }) => {
 /* ─── Main Navbar ─── */
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-   
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -120,7 +119,6 @@ const Navbar = () => {
   );
 
   // Sticky nav triggers when top bar scrolls out of view
- 
 
   useEffect(() => {
     if (isAuthenticated) dispatch(fetchIncomingRequests());
@@ -129,7 +127,7 @@ const Navbar = () => {
   return (
     <>
       {/* ── TOP BAR — scrolls away ── */}
-      <div  className="bg-white border-b border-gray-100 w-full">
+      <div className="bg-white borderb  border-gray-100 w-full">
         <div
           className="max-w-screen-xl mx-auto px-4 md:px-6 flex items-center justify-between gap-3
                   h-[64px] sm:h-[90px] md:h-[125px]"
@@ -156,10 +154,10 @@ const Navbar = () => {
                 VPM'S R. Z. SHAH COLLEGE
               </span>
               <span
-                className="text-[13px] text-[#F2A20A]"
+                className="text-[17px] text-[#F2A20A]"
                 style={{
-                  fontFamily: "'Playfair Display', serif",
-                  fontStyle: "italic",
+                  fontFamily: "'Satisfy', cursive",
+                  letterSpacing: "1px",
                 }}
               >
                 Alumni
@@ -187,20 +185,23 @@ const Navbar = () => {
             </div>
 
             {/* Desktop text (md+) */}
-            <div className="hidden md:flex items-center gap-3 whitespace-nowrap">
+            <div className="hidden md:flex items-center gap-4 whitespace-nowrap">
               <span
-                className="text-[22px] lg:text-[24px] font-bold text-[#142A5D] leading-tight uppercase"
-                style={{ fontFamily: "'Times New Roman', Times, serif" }}
+                className="text-[22px] lg:text-[30px] font-semibold text-[#142A5D] leading-tight uppercase tracking-wide"
+                style={{ fontFamily: "'Cinzel', serif" }}
               >
                 VPM'S R. Z. SHAH COLLEGE <br />
                 OF ARTS, SCIENCE & COMMERCE
               </span>
-              <span className="text-gray-300 text-2xl font-thin">|</span>
+
+              <span className="text-gray-300 text-3xl font-light">|</span>
+
               <span
-                className="text-[28px] lg:text-[35px] text-[#F2A20A] tracking-wide"
+                className="text-[30px] lg:text-[38px] text-[#F2A20A]"
                 style={{
-                  fontFamily: "'Playfair Display', serif",
-                  fontStyle: "italic",
+                  fontFamily: "serif",
+                  letterSpacing: "1px",
+                  transform: "translateY(-2px)",
                 }}
               >
                 Alumni
@@ -219,17 +220,18 @@ const Navbar = () => {
             /> */}
 
             {/* Auth icons — all screens */}
-            {isAuthenticated && (
-              <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* In the desktop right section, replace the isAuthenticated block with: */}
+            {isAuthenticated ? (
+              <div className="flex items-center gap-1.5 sm:gap-4">
                 {/* Bell */}
                 <button
                   onClick={() => dispatch(openRequestsDialog())}
                   aria-label="Connection requests"
                   className="relative cursor-pointer rounded-full flex items-center justify-center
                        transition-all text-[#142A5D] bg-gray-100 hover:bg-gray-200
-                       w-8 h-8 sm:w-9 sm:h-9"
+                       w-8 h-8 sm:w-12 sm:h-12"
                 >
-                  <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <Bell className="w-4 h-4 sm:w-10 sm:h-7" />
                   {pendingCount > 0 && (
                     <span
                       className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] bg-[#F2A20A]
@@ -247,9 +249,9 @@ const Navbar = () => {
                   aria-label="Messages"
                   className="relative cursor-pointer rounded-full flex items-center justify-center
                        transition-all text-[#142A5D] bg-gray-100 hover:bg-gray-200
-                       w-8 h-8 sm:w-9 sm:h-9"
+                       w-8 h-8 sm:w-12 sm:h-12"
                 >
-                  <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <MessageSquare className="w-4 h-4 sm:w-10 sm:h-7" />
                   {unreadMessages > 0 && (
                     <span
                       className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] bg-[#F2A20A]
@@ -264,7 +266,7 @@ const Navbar = () => {
                 {/* Avatar — desktop only */}
                 <div className="hidden md:block relative group">
                   <button
-                    className="w-9 h-9 cursor-pointer rounded-full flex items-center justify-center
+                    className="w-10 h-10 cursor-pointer rounded-full flex items-center justify-center
                      font-bold bg-[#142A5D] text-white hover:opacity-90 transition-all text-sm"
                   >
                     {user?.username?.[0]?.toUpperCase() || "U"}
@@ -306,8 +308,17 @@ const Navbar = () => {
                   </div>
                 </div>
               </div>
+            ) : (
+              <Link
+                to="/auth/login"
+                className="relative hidden md:flex items-center gap-2 px-5 py-2 rounded-xl font-semibold text-white text-sm"
+                style={{ backgroundColor: "#F2A20A" }}
+              >
+                {/* Pulsing ring */}
+                <span className="absolute inset-0 rounded-xl bg-[#F2A20A] animate-ping opacity-40" />
+                <span className="relative">Sign In</span>
+              </Link>
             )}
-
             {/* Hamburger — mobile & tablet only */}
             <button
               onClick={() => setMobileOpen((v) => !v)}
@@ -321,9 +332,9 @@ const Navbar = () => {
       </div>
 
       {/* ── NAV BAR — sticky after top bar scrolls out ── */}
-      <div className="w-full border-b bg-gray-100 border-gray-200 z-40 sticky top-0 shadow-sm">
+      <div className="w-full border-b bg-white border-gray-200 z-40 sticky top-0 shadow-lg ">
         {/* Desktop nav */}
-        <nav className="hidden md:flex max-w-screen-xl mx-auto bg-gray-100 px-6 items-center justify-center h-[52px] gap-0">
+        <nav className="hidden md:flex max-w-screen-xl mx-auto bg-white px-6 items-center justify-center h-[52px] gap-0">
           {UserNavItems.map((item, index) => (
             <React.Fragment key={item.id}>
               {index !== 0 && (
@@ -333,7 +344,7 @@ const Navbar = () => {
                 to={item.path}
                 className={`relative px-7 py-1.5 rounded-md text-lg font-semibold font-sans transition-colors whitespace-nowrap ${
                   location.pathname === item.path
-                    ? "bg-gray-100 text-[#142A5D]"
+                    ? "text-[#142A5D]"
                     : "text-black hover:bg-gray-100 hover:text-[#142A5D]"
                 }`}
               >
@@ -357,51 +368,17 @@ const Navbar = () => {
               className="md:hidden overflow-hidden bg-white border-t border-gray-100"
             >
               <div className="px-6 py-5 space-y-1">
-                {isAuthenticated && (
-                  <div className="pb-4 mb-2 border-b border-gray-100">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-[#142A5D] flex items-center justify-center font-bold text-white text-sm">
-                          {user?.username?.[0]?.toUpperCase() || "U"}
-                        </div>
-                        <div>
-                          <p className="text-[#142A5D] font-semibold">
-                            {user?.username}
-                          </p>
-                          <p className="text-gray-400 text-sm">{user?.email}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => {
-                            setMobileOpen(false);
-                            dispatch(openRequestsDialog());
-                          }}
-                          className="relative w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-[#142A5D]"
-                        >
-                          <Bell className="w-4 h-4" />
-                          {pendingCount > 0 && (
-                            <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] bg-[#F2A20A] text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5">
-                              {pendingCount > 9 ? "9+" : pendingCount}
-                            </span>
-                          )}
-                        </button>
-                        <button
-                          onClick={() => {
-                            setMobileOpen(false);
-                            navigate("/user/messages");
-                          }}
-                          className="relative w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-[#142A5D]"
-                        >
-                          <MessageSquare className="w-4 h-4" />
-                          {unreadMessages > 0 && (
-                            <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-[16px] bg-[#F2A20A] text-white text-[9px] font-bold rounded-full flex items-center justify-center px-0.5">
-                              {unreadMessages > 9 ? "9+" : unreadMessages}
-                            </span>
-                          )}
-                        </button>
-                      </div>
-                    </div>
+                {!isAuthenticated && (
+                  <div className="pt-4 border-t border-gray-100 mt-2">
+                    <Link
+                      to="/auth/login"
+                      onClick={() => setMobileOpen(false)}
+                      className="relative w-full flex items-center justify-center px-6 py-3 rounded-xl font-semibold text-white overflow-hidden"
+                      style={{ backgroundColor: "#F2A20A" }}
+                    >
+                      <span className="absolute inset-0 bg-[#F2A20A] animate-ping opacity-30 rounded-xl" />
+                      <span className="relative">Sign In to Your Account</span>
+                    </Link>
                   </div>
                 )}
 
@@ -450,7 +427,6 @@ const Navbar = () => {
           )}
         </AnimatePresence>
       </div>
-
 
       {/* CONNECTION REQUESTS DIALOG */}
       <FetchConnection
