@@ -23,7 +23,7 @@ const IconButton = ({ icon: Icon, count, onClick, label }) => (
   <button
     onClick={onClick}
     aria-label={label}
-    className="relative cursor-pointer w-9 h-9 rounded-full flex items-center justify-center transition-all text-[#142A5D] bg-gray-100 hover:bg-gray-200"
+    className="relative cursor-pointer w-9 h-9 rounded-full flex items-center justify-center transition-all text-[#0B1F4A] bg-gray-100 hover:bg-gray-200"
   >
     <Icon className="w-5 h-5" />
     {count > 0 && (
@@ -161,17 +161,17 @@ const Navbar = () => {
     College name font size — clamp(min, preferred-vw, max)
     Scales fluidly with viewport so it never overflows even at 360px.
   */
-const nameFontSize = isDesktop
-  ? undefined
-  : winWidth >= 640
-  ? `clamp(12px, 2.2vw, 16px)`
-  : `clamp(9px, 2.5vw, 13px)`;
+  const nameFontSize = isDesktop
+    ? undefined
+    : winWidth >= 640
+      ? `clamp(16px, 3vw, 20px)`
+      : `clamp(14px, 4vw, 18px)`;
 
-const alumniFontSize = isDesktop
-  ? undefined
-  : winWidth >= 640
-  ? `clamp(18px, 3.5vw, 22px)`
-  : `clamp(14px, 4vw, 18px)`;
+  const alumniFontSize = isDesktop
+    ? undefined
+    : winWidth >= 640
+      ? `clamp(18px, 3.5vw, 22px)`
+      : `clamp(14px, 4vw, 18px)`;
 
   return (
     <>
@@ -196,7 +196,6 @@ const alumniFontSize = isDesktop
           <Link
             to="/user/home"
             className="flex items-center gap-2 sm:gap-3 md:gap-4 shrink min-w-0"
-            style={{ maxWidth: "calc(100% - 120px)" }}
           >
             {/* Logo */}
             <img
@@ -207,9 +206,9 @@ const alumniFontSize = isDesktop
             />
 
             {/* ── College name: Mobile + Tablet (< md) ── */}
-            <div className="flex flex-col leading-tight md:hidden min-w-0 overflow-hidden">
+            <div className="  flex flex-col leading-tight md:hidden  overflow-hidden">
               <span
-                className="font-semibold text-[#142A5D] uppercase leading-snug tracking-wide transition-all duration-300"
+                className="font-semibold text-[#0B1F4A]  uppercase leading-snug tracking-wide transition-all duration-300"
                 style={{
                   fontFamily: "'Cinzel', serif",
                   fontSize: nameFontSize,
@@ -234,7 +233,7 @@ const alumniFontSize = isDesktop
             {/* ── College name: Desktop (≥ md) ── */}
             <div className="hidden md:flex items-center gap-4 whitespace-nowrap">
               <span
-                className="text-[22px] lg:text-[30px] font-semibold text-[#142A5D] leading-tight uppercase tracking-wide"
+                className="text-[22px] lg:text-[30px] font-semibold text-[#0B1F4A] leading-tight uppercase tracking-wide"
                 style={{ fontFamily: "'Cinzel', serif" }}
               >
                 VPM'S R. Z. SHAH COLLEGE <br />
@@ -263,7 +262,7 @@ const alumniFontSize = isDesktop
                   onClick={() => dispatch(openRequestsDialog())}
                   aria-label="Connection requests"
                   className={`relative cursor-pointer rounded-full flex items-center justify-center
-                    transition-all duration-300 text-[#142A5D] bg-gray-100 hover:bg-gray-200
+                    transition-all duration-300 text-[#0B1F4A] bg-gray-100 hover:bg-gray-200
                     ${
                       scrolled
                         ? "w-7 h-7"
@@ -288,7 +287,7 @@ const alumniFontSize = isDesktop
                   onClick={() => navigate("/user/messages")}
                   aria-label="Messages"
                   className={`relative cursor-pointer rounded-full flex items-center justify-center
-                    transition-all duration-300 text-[#142A5D] bg-gray-100 hover:bg-gray-200
+                    transition-all duration-300 text-[#0B1F4A] bg-gray-100 hover:bg-gray-200
                     ${
                       scrolled
                         ? "w-7 h-7"
@@ -355,7 +354,7 @@ const alumniFontSize = isDesktop
             {/* Hamburger — mobile & tablet only */}
             <button
               onClick={() => setMobileOpen((v) => !v)}
-              className={`md:hidden text-[#142A5D] flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition ml-0.5
+              className={`md:hidden text-[#0B1F4A] flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition ml-0.5
                w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12
                 `}
             >
@@ -385,8 +384,8 @@ const alumniFontSize = isDesktop
                 to={item.path}
                 className={`relative px-7 py-1.5 rounded-md text-lg font-semibold font-sans transition-colors whitespace-nowrap ${
                   location.pathname === item.path
-                    ? "text-[#142A5D]"
-                    : "text-black hover:bg-gray-100 hover:text-[#142A5D]"
+                    ? "text-[#0B1F4A]"
+                    : "text-black hover:bg-gray-100 hover:text-[#0B1F4A]"
                 }`}
               >
                 {item.label}
@@ -429,16 +428,16 @@ const alumniFontSize = isDesktop
                   - tablets (≥ sm / 640px): 3 columns — fits iPad Mini, iPad Air, Surface Pro
                   truncate prevents any label from stretching the cell
                 */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                <div className="flex flex-col gap-2">
                   {UserNavItems.map((item) => (
                     <Link
                       key={item.id}
                       to={item.path}
                       onClick={() => setMobileOpen(false)}
-                      className={`block px-2 py-2.5 rounded-md text-center text-sm font-medium transition-colors truncate ${
+                      className={`block w-full px-3 py-3 rounded-md text-left text-sm font-medium transition-colors ${
                         location.pathname === item.path
-                          ? "bg-gray-100 text-[#142A5D] font-semibold"
-                          : "text-slate-600 hover:bg-gray-100 hover:text-[#142A5D]"
+                          ? "bg-gray-100 text-[#0B1F4A] font-semibold"
+                          : "text-slate-600 hover:bg-gray-100 hover:text-[#0B1F4A]"
                       }`}
                     >
                       {item.label}
@@ -453,7 +452,7 @@ const alumniFontSize = isDesktop
                         setMobileOpen(false);
                         navigate("/user/profile");
                       }}
-                      className="flex-1 px-4 py-2.5 rounded-xl font-semibold text-[#142A5D] border border-gray-200 bg-gray-50 hover:bg-gray-100 transition text-sm"
+                      className="flex-1 px-4 py-2.5 rounded-xl font-semibold text-[#0B1F4A] border border-gray-200 bg-gray-50 hover:bg-gray-100 transition text-sm"
                     >
                       Account
                     </button>
