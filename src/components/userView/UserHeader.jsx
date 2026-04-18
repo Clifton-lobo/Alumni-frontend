@@ -130,7 +130,7 @@ const Navbar = () => {
       <div className="bg-white borderb  border-gray-100 w-full">
         <div
           className="max-w-screen-xl mx-auto px-4 md:px-6 flex items-center justify-between gap-3
-                  h-[64px] sm:h-[90px] md:h-[125px]"
+                  h-[64px] sm:h-[95px] md:h-[145px]"
         >
           {/* ── LEFT: Logo + Name ── */}
           <Link
@@ -142,7 +142,7 @@ const Navbar = () => {
               src={vpmLogo}
               alt="VPM Logo"
               className="object-contain shrink-0
-                   w-10 h-10 sm:w-16 sm:h-16 md:w-24 md:h-24"
+                   w-10 h-10 sm:w-16 sm:h-16 md:w-35 md:h-35"
             />
 
             {/* Mobile text (< sm) */}
