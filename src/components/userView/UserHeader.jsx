@@ -15,6 +15,13 @@ import {
 import { disconnectSocket } from "../../../socket/socket";
 import vpmLogo from "../../assets/VpmLogo.png";
 import naacLogo from "../../assets/naac_logo.webp";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const BRAND_GOLD = "#F2A20A";
 
@@ -142,36 +149,28 @@ const Navbar = () => {
     every device without relying on Tailwind's JIT generating arbitrary values.
     Desktop (≥768px) is always 140×140 — never scrolled-compact.
   */
-  
-const isTablet = winWidth >= 640 && winWidth < 1024;
-const isDesktop = winWidth >= 1024;
-const logoW = isDesktop
-  ? 140
-  : isTablet
-  ? 100
-  : 75;
 
-const logoH = isDesktop
-  ? 140
-  : isTablet
-  ? 100
-  : 75;
+  const isTablet = winWidth >= 640 && winWidth < 1024;
+  const isDesktop = winWidth >= 1024;
+  const logoW = isDesktop ? 140 : isTablet ? 100 : 75;
+
+  const logoH = isDesktop ? 140 : isTablet ? 100 : 75;
 
   /*
     College name font size — clamp(min, preferred-vw, max)
     Scales fluidly with viewport so it never overflows even at 360px.
   */
- const nameFontSize = isDesktop
-  ? undefined
-  : isTablet
-  ? `clamp(16px, 2vw, 18px)`
-  : `clamp(13px, 3vw, 15px)`;
+  const nameFontSize = isDesktop
+    ? undefined
+    : isTablet
+      ? `clamp(16px, 2vw, 18px)`
+      : `clamp(13px, 3vw, 15px)`;
 
-const alumniFontSize = isDesktop
-  ? undefined
-  : isTablet
-  ? `clamp(20px, 3vw, 24px)`
-  : `clamp(16px, 4vw, 20px)`;
+  const alumniFontSize = isDesktop
+    ? undefined
+    : isTablet
+      ? `clamp(20px, 3vw, 24px)`
+      : `clamp(16px, 4vw, 20px)`;
 
   return (
     <>
@@ -352,18 +351,100 @@ const alumniFontSize = isDesktop
             )}
 
             {/* Hamburger — mobile & tablet only */}
+           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+          <SheetTrigger asChild>
             <button
-              onClick={() => setMobileOpen((v) => !v)}
               className={`md:hidden text-[#0B1F4A] flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition ml-0.5
-               w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12
-                `}
+        w-8 h-8 sm:w-10 sm:h-10
+      `}
+              aria-label="Open menu"
             >
-              {mobileOpen ? (
-                <X size={scrolled ? 15 : 18} />
-              ) : (
-                <Menu size={scrolled ? 15 : 18} />
-              )}
+              <Menu size={18} />
             </button>
+          </SheetTrigger>
+
+          <SheetContent side="right" className="w-[280px] sm:w-[340px] p-0">
+            <SheetHeader className="px-5 py-4 border-b border-gray-100">
+              <SheetTitle
+                className="text-left text-sm font-semibold text-[#0B1F4A] uppercase tracking-wide"
+                style={{ fontFamily: "'Cinzel', serif" }}
+              >
+                VPM Alumni
+              </SheetTitle>
+            </SheetHeader>
+
+            <div className="flex flex-col h-full overflow-y-auto pb-10">
+              {/* Sign In — unauthenticated */}
+              {!isAuthenticated && (
+                <div className="px-4 py-4 border-b border-gray-100">
+                  <Link
+                    to="/auth/login"
+                    onClick={() => setMobileOpen(false)}
+                    className="relative w-full flex items-center justify-center px-6 py-3 rounded-xl font-semibold text-white overflow-hidden"
+                    style={{ backgroundColor: "#F2A20A" }}
+                  >
+                    <span className="absolute inset-0 bg-[#F2A20A] animate-ping opacity-30 rounded-xl" />
+                    <span className="relative">Sign In to Your Account</span>
+                  </Link>
+                </div>
+              )}
+
+              {/* Nav items */}
+              <nav className="flex flex-col gap-1 px-3 py-3">
+                {UserNavItems.map((item) => (
+                  <Link
+                    key={item.id}
+                    to={item.path}
+                    onClick={() => setMobileOpen(false)}
+                    className={`flex items-center w-full px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                      location.pathname === item.path
+                        ? "bg-gray-100 text-[#0B1F4A] font-semibold border-l-4 border-[#F2A20A]"
+                        : "text-slate-600 hover:bg-gray-50 hover:text-[#0B1F4A]"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
+
+              {/* Account + Logout — authenticated */}
+              {isAuthenticated && (
+                <div className="mt-auto px-4 pb-6 pt-3 border-t border-gray-100 flex flex-col gap-2">
+                  {/* User info */}
+                  <div className="px-2 py-2 mb-1">
+                    <p className="text-sm font-medium text-gray-900">
+                      {user?.username}
+                    </p>
+                    <p className="text-xs text-gray-500">{user?.email}</p>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      setMobileOpen(false);
+                      navigate("/user/profile");
+                    }}
+                    className="flex items-center w-full px-4 py-2.5 rounded-xl font-semibold text-[#0B1F4A] border border-gray-200 bg-gray-50 hover:bg-gray-100 transition text-sm"
+                  >
+                    <UserRound className="w-4 h-4 mr-2" /> Account
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setMobileOpen(false);
+                      disconnectSocket();
+                      dispatch(clearUserProfile());
+                      dispatch(logoutUser());
+                    }}
+                    className="flex items-center w-full px-4 py-2.5 rounded-xl font-semibold text-white text-sm"
+                    style={{ backgroundColor: BRAND_GOLD }}
+                  >
+                    <LogOut className="w-4 h-4 mr-2" /> Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          </SheetContent>
+        </Sheet>
           </div>
         </div>
       </div>
@@ -374,7 +455,9 @@ const alumniFontSize = isDesktop
       ── */}
       <div className="w-full border-b bg-white border-gray-200 lg:sticky lg:top-0 lg:z-40 shadow-lg">
         {/* Desktop nav — md+ */}
-<nav className="hidden lg:flex max-w-screen-xl mx-auto bg-white px-6 items-center justify-center h-[52px] gap-0">          {UserNavItems.map((item, index) => (
+        <nav className="hidden lg:flex max-w-screen-xl mx-auto bg-white px-6 items-center justify-center h-[52px] gap-0">
+          {" "}
+          {UserNavItems.map((item, index) => (
             <React.Fragment key={item.id}>
               {index !== 0 && (
                 <span className="w-0.5 h-4 bg-gray-300 mx-1 shrink-0" />
@@ -397,82 +480,9 @@ const alumniFontSize = isDesktop
         </nav>
 
         {/* Mobile / Tablet nav dropdown (< md) */}
-        <AnimatePresence>
-          {mobileOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              className="lg:hidden overflow-hidden bg-white border-t border-gray-100"
-            >
-              <div className="px-4 sm:px-6 py-4 sm:py-5 space-y-3">
-                {!isAuthenticated && (
-                  <div className="pb-3 border-b border-gray-100">
-                    <Link
-                      to="/auth/login"
-                      onClick={() => setMobileOpen(false)}
-                      className="relative w-full flex items-center justify-center px-6 py-3 rounded-xl font-semibold text-white overflow-hidden"
-                      style={{ backgroundColor: "#F2A20A" }}
-                    >
-                      <span className="absolute inset-0 bg-[#F2A20A] animate-ping opacity-30 rounded-xl" />
-                      <span className="relative">Sign In to Your Account</span>
-                    </Link>
-                  </div>
-                )}
 
-                {/*
-                  Nav items grid:
-                  - phones (< sm / 640px): 2 columns — fits SE, S8+, iPhone 12 Pro
-                  - tablets (≥ sm / 640px): 3 columns — fits iPad Mini, iPad Air, Surface Pro
-                  truncate prevents any label from stretching the cell
-                */}
-                <div className="flex flex-col gap-2">
-                  {UserNavItems.map((item) => (
-                    <Link
-                      key={item.id}
-                      to={item.path}
-                      onClick={() => setMobileOpen(false)}
-                      className={`block w-full px-3 py-3 rounded-md text-left text-sm font-medium transition-colors ${
-                        location.pathname === item.path
-                          ? "bg-gray-100 text-[#0B1F4A] font-semibold"
-                          : "text-slate-600 hover:bg-gray-100 hover:text-[#0B1F4A]"
-                      }`}
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
-
-                {isAuthenticated && (
-                  <div className="pt-3 flex flex-row gap-2 border-t border-gray-100">
-                    <button
-                      onClick={() => {
-                        setMobileOpen(false);
-                        navigate("/user/profile");
-                      }}
-                      className="flex-1 px-4 py-2.5 rounded-xl font-semibold text-[#0B1F4A] border border-gray-200 bg-gray-50 hover:bg-gray-100 transition text-sm"
-                    >
-                      Account
-                    </button>
-                    <button
-                      onClick={() => {
-                        setMobileOpen(false);
-                        disconnectSocket();
-                        dispatch(clearUserProfile());
-                        dispatch(logoutUser());
-                      }}
-                      className="flex-1 px-4 py-2.5 rounded-xl font-semibold text-white text-sm"
-                      style={{ backgroundColor: BRAND_GOLD }}
-                    >
-                      Logout
-                    </button>
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Hamburger trigger — mobile & tablet only */}
+        
       </div>
 
       {/* CONNECTION REQUESTS DIALOG */}
