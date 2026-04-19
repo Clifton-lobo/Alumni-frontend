@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import { Navigate, useLocation } from "react-router-dom";
 
-const protectedUserRoutes = ["/user/community", "/user/messages", "/user/profile", "/user/feeedback", "/user/donate", "/user/gallery", "/user/jobs"];
+const protectedUserRoutes = ["/user/community", "/user/messages", "/user/profile", "/user/feedback", "/user/donate", "/user/gallery", "/user/jobs"];
 
 function CheckAuth({ children }) {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
