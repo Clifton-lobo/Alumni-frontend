@@ -6,8 +6,17 @@ import {
   clearArticle,
 } from "../../store/user-view/UserNewsSlice";
 import {
-  Search, X, Calendar, Eye, Tag, ChevronLeft, ChevronRight,
-  Newspaper, ArrowUpRight, Clock, AlertCircle,
+  Search,
+  X,
+  Calendar,
+  Eye,
+  Tag,
+  ChevronLeft,
+  ChevronRight,
+  Newspaper,
+  ArrowUpRight,
+  Clock,
+  AlertCircle,
   ArrowRight,
 } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -26,20 +35,50 @@ const CATS = [
 const NAVY = "#142A5D";
 const GOLD = "#EBAB09";
 
-
 const CAT_COLORS = {
-  announcement: { bg: "bg-blue-500", text: "text-white", softBg: "bg-blue-500/10", softText: "text-blue-500" },
-  achievement: { bg: "bg-emerald-500", text: "text-white", softBg: "bg-emerald-500/10", softText: "text-emerald-500" },
-  event: { bg: "bg-violet-500", text: "text-white", softBg: "bg-violet-500/10", softText: "text-violet-500" },
-  general: { bg: "bg-gray-500", text: "text-white", softBg: "bg-gray-500/10", softText: "text-gray-500" },
-  "alumni-spotlight": { bg: "bg-amber-500", text: "text-white", softBg: "bg-amber-500/10", softText: "text-amber-500" },
+  announcement: {
+    bg: "bg-blue-500",
+    text: "text-white",
+    softBg: "bg-blue-500/10",
+    softText: "text-blue-500",
+  },
+  achievement: {
+    bg: "bg-emerald-500",
+    text: "text-white",
+    softBg: "bg-emerald-500/10",
+    softText: "text-emerald-500",
+  },
+  event: {
+    bg: "bg-violet-500",
+    text: "text-white",
+    softBg: "bg-violet-500/10",
+    softText: "text-violet-500",
+  },
+  general: {
+    bg: "bg-gray-500",
+    text: "text-white",
+    softBg: "bg-gray-500/10",
+    softText: "text-gray-500",
+  },
+  "alumni-spotlight": {
+    bg: "bg-amber-500",
+    text: "text-white",
+    softBg: "bg-amber-500/10",
+    softText: "text-amber-500",
+  },
 };
 
 const catLabel = (v) => CATS.find((c) => c.value === v)?.label || v;
 const catColors = (v) => CAT_COLORS[v] || CAT_COLORS.general;
 
 const fmtDate = (d) =>
-  d ? new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "";
+  d
+    ? new Date(d).toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : "";
 
 const timeAgo = (d) => {
   if (!d) return "";
@@ -56,8 +95,10 @@ const timeAgo = (d) => {
 const CatPill = ({ cat, dark = false }) => {
   const c = catColors(cat);
   return (
-    <span className={`inline-block px-2.5 py-[3px] rounded-sm uppercase tracking-widest font-semibold text-[10px] font-sans
-      ${dark ? `${c.softBg} ${c.softText}` : `${c.bg} ${c.text}`}`}>
+    <span
+      className={`inline-block px-2.5 py-[3px] rounded-sm uppercase tracking-widest font-semibold text-[10px] font-sans
+      ${dark ? `${c.softBg} ${c.softText}` : `${c.bg} ${c.text}`}`}
+    >
       {catLabel(cat)}
     </span>
   );
@@ -76,76 +117,69 @@ const Skel = ({ className = "" }) => (
 const HeroCard = ({ article, onClick }) => (
   <div
     onClick={() => onClick(article._id)}
-    className="relative w-full cursor-pointer overflow-hidden shadow-md rounded-2xl border border-gray-200 bg-white
-      transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-xl flex flex-col md:flex-row min-h-[380px]"
+    className="relative w-full cursor-pointer overflow-hidden rounded-2xl min-h-[480px] sm:min-h-[600px]"
   >
-    {/* LEFT — Cover image */}
-    <div className="w-full md:w-[45%] shrink-0 overflow-hidden bg-slate-100 min-h-[300px] md:min-h-110">
-      {article.coverImage?.url ? (
-        <img
-          src={article.coverImage.url}
-          alt={article.title}
-          className="w-full h-full object-cover transition-transform duration-700 ease-out hover:scale-105"
-        />
-      ) : (
-        <div className="w-full h-full bg-gradient-to-br from-slate-200 to-slate-300" />
-      )}
-    </div>
+    {/* Background image */}
+    {article.coverImage?.url ? (
+      <img
+        src={article.coverImage.url}
+        alt={article.title}
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out hover:scale-105"
+      />
+    ) : (
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-blue-900" />
+    )}
 
-    {/* RIGHT — Content */}
-    <div className="flex flex-col justify-center gap-4 px-8 py-10 bg-white flex-1">
-   
-      {/* Category + date */}
-      <div className="flex items-center gap-2 text-sm font-medium flex-wrap">
+    {/* Dark gradient overlay */}
+    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-900/40 to-transparent" />
+
+    {/* Content overlaid on image */}
+    <div className="absolute bottom-0 left-0 right-0 px-8 py-10 flex flex-col gap-4">
+      {/* Featured + Category + Date */}
+      <div className="flex items-center gap-3 flex-wrap">
         <span
-          className="inline-block text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest"
-          style={{ background: `${NAVY}15`, color: NAVY }}
+          className="px-3 py-1 text-xs font-bold uppercase tracking-widest rounded"
+          style={{ background: GOLD, color: NAVY }}
         >
+          Featured
+        </span>
+        <span className="text-white/70 text-xs font-semibold uppercase tracking-widest">
           {catLabel(article.category)}
         </span>
-        <span className="text-gray-300">•</span>
-        <span className="flex items-center gap-1.5 text-gray-400 font-normal text-xs">
-          <Calendar className="h-3.5 w-3.5" />
+        <span className="text-white/40 text-xs">·</span>
+        <span className="text-white/60 text-xs">
           {new Date(article.publishedAt).toLocaleDateString("en-US", {
-            month: "long", day: "numeric", year: "numeric",
+            month: "short",
+            day: "numeric",
+            year: "numeric",
           })}
         </span>
       </div>
 
       {/* Title */}
-      <h2
-        className="text-2xl sm:text-4xl font-extrabold leading-tight tracking-tight"
-        style={{ color: NAVY }}
-      >
+      <h2 className="text-3xl sm:text-5xl font-extrabold leading-tight tracking-tight text-white max-w-3xl">
         {article.title}
       </h2>
 
       {/* Excerpt */}
-      <p className="text-gray-500 text-sm sm:text-base leading-relaxed line-clamp-3">
+      <p className="text-white/70 text-sm sm:text-base leading-relaxed line-clamp-2 max-w-2xl">
         {article.excerpt}
       </p>
 
       {/* CTA */}
-      <div>
-        <button
-          onClick={(e) => { e.stopPropagation(); onClick(article._id); }}
-          className="inline-flex items-center gap-2 text-sm font-semibold mt-10 px-5 py-2.5 rounded-xl
-            transition-all duration-200 active:scale-95 hover:opacity-90"
-          style={{ background: NAVY, color: "#fff" }}
-        >
-          Read More <ArrowRight className="h-4 w-4" />
-        </button>
-      </div>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick(article._id);
+        }}
+        className="inline-flex items-center gap-2 text-sm font-semibold w-fit"
+        style={{ color: GOLD }}
+      >
+        Read article <ArrowRight className="h-4 w-4" />
+      </button>
     </div>
-
-    {/* Gold left accent bar */}
-    <div
-      className="absolute left-0 top-0 w-1 h-full hidden md:block"
-      style={{ background: GOLD }}
-    />
   </div>
 );
-
 /* ══════════════════════════════════════════
    PHOTO CARD
 ══════════════════════════════════════════ */
@@ -174,7 +208,10 @@ const PhotoCard = ({ article, onClick }) => (
     <div className="p-5 sm:p-6 flex flex-col">
       {/* Category + Date row */}
       <div className="flex items-center gap-2.5 mb-3">
-        <span className="flex items-center gap-1 font-sans text-xs font-semibold" style={{ color: GOLD }}>
+        <span
+          className="flex items-center gap-1 font-sans text-xs font-semibold"
+          style={{ color: GOLD }}
+        >
           <Tag className="h-3 w-3" />
           {catLabel(article.category)}
         </span>
@@ -196,18 +233,17 @@ const PhotoCard = ({ article, onClick }) => (
       </h3>
 
       {/* Excerpt */}
-      <p className="font-sans text-sm text-gray-500 leading-relaxed line-clamp-2 mb-5 h-[2.8rem] overflow-hidden"
-      >
+      <p className="font-sans text-sm text-gray-500 leading-relaxed line-clamp-2 mb-5 h-[2.8rem] overflow-hidden">
         {article.excerpt}
       </p>
 
       {/* Read More */}
-      <div className="flex items-center gap-1.5 font-sans text-sm font-semibold mt-auto" style={{ color: GOLD }}>
-
+      <div
+        className="flex items-center gap-1.5 font-sans text-sm font-semibold mt-auto"
+        style={{ color: GOLD }}
+      >
         <span>Read More</span>
-        <ArrowRight
-          className="h-4 w-4 transition-transform duration-200 ease-out group-hover:translate-x-1"
-        />
+        <ArrowRight className="h-4 w-4 transition-transform duration-200 ease-out group-hover:translate-x-1" />
       </div>
     </div>
   </div>
@@ -220,7 +256,12 @@ const ArticleModal = ({ open, onClose }) => {
   const { article, loading } = useSelector((s) => s.news);
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) onClose();
+      }}
+    >
       <DialogContent
         style={{
           maxWidth: 1000,
@@ -231,31 +272,35 @@ const ArticleModal = ({ open, onClose }) => {
           border: "none",
           display: "flex",
           flexDirection: "column",
-          overflow: "hidden",        // ✅ outer clips, NO scroll here
+          overflow: "hidden", // ✅ outer clips, NO scroll here
           background: "#ffffff",
         }}
       >
         {/* ✅ Inner div scrolls — same pattern as UserEventDetails */}
-<div className="ued-scroll" style={{ flex: 1, overflowY: "auto" }}>
+        <div className="ued-scroll" style={{ flex: 1, overflowY: "auto" }}>
           {loading.article ? (
             <div className="flex flex-col items-center justify-center py-32 gap-4 font-sans">
               <div className="w-10 h-10 rounded-full border-2 border-gray-200 border-t-amber-400 animate-spin" />
               <p className="text-sm text-gray-400">Loading article…</p>
             </div>
-
           ) : !article ? (
             <div className="flex flex-col items-center justify-center py-32 gap-3 px-8 text-center font-sans">
               <AlertCircle className="h-8 w-8 text-red-300" />
-              <p className="text-sm text-gray-400">Article could not be loaded.</p>
+              <p className="text-sm text-gray-400">
+                Article could not be loaded.
+              </p>
             </div>
-
           ) : (
             <>
               {/* Hero image */}
               <div className="relative flex-shrink-0">
                 {article.coverImage?.url ? (
                   <div className="aspect-[21/9] overflow-hidden">
-                    <img src={article.coverImage.url} alt={article.title} className="w-full h-full object-cover" />
+                    <img
+                      src={article.coverImage.url}
+                      alt={article.title}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 ) : (
                   <div className="aspect-[21/9] flex items-center justify-center bg-gradient-to-br from-slate-900 to-blue-900">
@@ -286,7 +331,9 @@ const ArticleModal = ({ open, onClose }) => {
                 {/* Pull-quote */}
                 {article.excerpt && (
                   <div className="relative pl-5 mb-7 border-l-[3px] border-amber-400 rounded-full">
-                    <p className="text-base text-gray-500 leading-relaxed italic">{article.excerpt}</p>
+                    <p className="text-base text-gray-500 leading-relaxed italic">
+                      {article.excerpt}
+                    </p>
                   </div>
                 )}
 
@@ -308,9 +355,11 @@ const ArticleModal = ({ open, onClose }) => {
                   <div className="flex flex-wrap items-center gap-2 mt-8 pt-6 border-t border-gray-100">
                     <Tag className="h-3.5 w-3.5 text-gray-300" />
                     {article.tags.map((t) => (
-                      <span key={t}
+                      <span
+                        key={t}
                         className="px-3 py-1 rounded-lg text-xs font-medium bg-gray-100 text-gray-500
-                          hover:bg-slate-900 hover:text-white transition-colors cursor-default">
+                          hover:bg-slate-900 hover:text-white transition-colors cursor-default"
+                      >
                         #{t}
                       </span>
                     ))}
@@ -319,8 +368,8 @@ const ArticleModal = ({ open, onClose }) => {
               </div>
             </>
           )}
-
-        </div>{/* end scrollable inner */}
+        </div>
+        {/* end scrollable inner */}
       </DialogContent>
     </Dialog>
   );
@@ -350,20 +399,38 @@ const News = () => {
   const didMountRef = useRef(false);
   const prevPageRef = useRef(pageFromUrl);
   const listRef = useRef(null);
+  const [heroArticle, setHeroArticle] = useState(null);
+
+  useEffect(() => {
+    dispatch(fetchPublicNews({ page: 1, limit: 10 })).then((res) => {
+      console.log("Hero fetch payload:", res.payload);
+      const items = res.payload?.news || res.payload?.data || res.payload || [];
+      const found = items.find((a) => a.newsType === "main") || items[0];
+      if (found) setHeroArticle(found);
+    });
+  }, []);
 
   /* ── Main fetch — page + filters + debounced search ── */
-  const load = useCallback((page = pageFromUrl) => {
-    const params = { page, limit: 10 };
-    if (searchText) params.search = searchText;
-    if (category) params.category = category;
-    dispatch(fetchPublicNews(params));
-  }, [dispatch, searchText, category, pageFromUrl]);
+  const load = useCallback(
+    (page = pageFromUrl) => {
+      const params = { page, limit: 10 };
+      if (searchText) params.search = searchText;
+      if (category) params.category = category;
+      dispatch(fetchPublicNews(params));
+    },
+    [dispatch, searchText, category, pageFromUrl],
+  );
 
-  useEffect(() => { load(pageFromUrl); }, [category, searchText, pageFromUrl]);
+  useEffect(() => {
+    load(pageFromUrl);
+  }, [category, searchText, pageFromUrl]);
 
   /* ── Reset page to 1 when category changes ── */
   useEffect(() => {
-    if (!didMountRef.current) { didMountRef.current = true; return; }
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
     setSearchParams((prev) => {
       const p = new URLSearchParams(prev);
       p.set("page", "1");
@@ -377,9 +444,7 @@ const News = () => {
     let startTime = null;
 
     const easeInOutCubic = (t) =>
-      t < 0.5
-        ? 4 * t * t * t
-        : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
     const animation = (currentTime) => {
       if (!startTime) startTime = currentTime;
@@ -399,7 +464,10 @@ const News = () => {
 
   /* ── Debounced search ── */
   useEffect(() => {
-    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
 
     const trimmed = searchInput.trim();
     if (trimmed !== "" && trimmed.length < MIN_SEARCH_LENGTH) return;
@@ -412,11 +480,14 @@ const News = () => {
         return p;
       });
       // Direct dispatch in case already on page 1
-      dispatch(fetchPublicNews({
-        page: 1, limit: 10,
-        search: trimmed || undefined,
-        category: category || undefined,
-      }));
+      dispatch(
+        fetchPublicNews({
+          page: 1,
+          limit: 10,
+          search: trimmed || undefined,
+          category: category || undefined,
+        }),
+      );
     }, DEBOUNCE_DELAY);
 
     return () => clearTimeout(timer);
@@ -435,9 +506,7 @@ const News = () => {
 
         const headerOffset = 120;
         const offsetPosition =
-          element.getBoundingClientRect().top +
-          window.scrollY -
-          headerOffset;
+          element.getBoundingClientRect().top + window.scrollY - headerOffset;
 
         smoothScrollTo(offsetPosition, 900); // ← controlled duration
       });
@@ -458,7 +527,10 @@ const News = () => {
     setSearchText("");
   };
 
-  const clearAll = () => { clearSearch(); setCategory(""); };
+  const clearAll = () => {
+    clearSearch();
+    setCategory("");
+  };
 
   const openArticle = (id) => {
     dispatch(fetchNewsById(id));
@@ -471,107 +543,39 @@ const News = () => {
   };
 
   const isFiltering = searchText || category;
-  const hero = !isFiltering && pageFromUrl === 1
-    ? (list.find(a => a.newsType === "main") || list[0])
-    : null; const rest = hero ? list.filter(a => a._id !== hero._id) : list;
+  const rest = heroArticle
+    ? list.filter((a) => a._id !== heroArticle._id)
+    : list;
 
   return (
     <div className="min-h-screen font-sans bg-stone-100">
-
       {/* ══ HEADER ══
-      <div style={{ background: NAVY }}>
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-5">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] mb-2" style={{ color: GOLD }}>
-                Alumni Network
-              </p>
-              <h1 className="galserif font-bold text-white text-3xl sm:text-4xl leading-tight">
-                Alumni News
-              </h1>
-              <p className="text-sm text-white/40 mt-1.5">
-                Stories, milestones, and community highlights from our alumni community
-              </p>
-            </div>
-
-            <div className="w-full sm:max-w-md">
-              <div className="flex items-center gap-2 bg-white/10 border border-white/15 rounded-xl px-4 py-2.5">
-                <Search className="h-4 w-4 text-white/30 flex-shrink-0" />
-                <input
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  placeholder="Search stories…"
-                  className="flex-1 bg-transparent text-sm text-white placeholder-white/30 outline-none"
-                />
-                {searchInput && (
-                  <button type="button" onClick={clearSearch}>
-                    <X className="h-3.5 w-3.5 text-white/40 hover:text-white transition" />
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-6 flex items-center gap-2 overflow-x-auto scrollbar-hide">
-            {CATS.map((c) => (
-              <button
-                key={c.value}
-                onClick={() => setCategory(c.value)}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition
-                  ${category === c.value ? "" : "bg-white/10 text-white/70 hover:bg-white/15"}`}
-                style={category === c.value ? { background: GOLD, color: NAVY } : undefined}
-              >
-                {c.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div> */}
-
-      {/* ══ ACTIVE FILTER PILLS ══ */}
-      {/* {isFiltering && (
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-5">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="font-sans text-xs text-gray-400">Showing:</span>
-            {searchText && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-900 text-white">
-                "{searchText}"
-                <button onClick={clearSearch}><X className="w-3 h-3 opacity-60 hover:opacity-100" /></button>
-              </span>
-            )}
-            {category && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-900 text-white">
-                {catLabel(category)}
-                <button onClick={() => setCategory("")}><X className="w-3 h-3 opacity-60 hover:opacity-100" /></button>
-              </span>
-            )}
-            <button onClick={clearAll} className="font-sans text-xs text-gray-400 underline underline-offset-2 hover:text-gray-700">
-              Clear all
-            </button>
-          </div>
-        </div>
-      )} */}
+    
 
       {/* ══ MAIN CONTENT ══ */}
       <div
         ref={listRef}
         className="max-w-[1350px] mx-auto px-4 sm:px-6 py-7 sm:py-10 relative min-h-[800px]"
       >
-
         {/* Empty state */}
         {!loading.list && list.length === 0 && (
           <div className="flex flex-col items-center justify-center py-28 text-center">
             <div className="w-20 h-20 rounded-3xl flex items-center justify-center mb-6 bg-slate-900/5">
               <Newspaper className="h-8 w-8 text-gray-300" />
             </div>
-            <h3 className="font-serif text-xl font-bold text-gray-800 mb-2">No stories found</h3>
+            <h3 className="font-serif text-xl font-bold text-gray-800 mb-2">
+              No stories found
+            </h3>
             <p className="font-sans text-sm text-gray-400 max-w-xs leading-relaxed mb-6">
               {searchText
                 ? `We couldn't find anything for "${searchText}". Try a different term.`
                 : "There are no published stories yet. Check back soon."}
             </p>
             {isFiltering && (
-              <button onClick={clearAll} className="px-6 py-2.5 rounded-xl font-sans text-sm font-semibold bg-amber-400 text-slate-900 hover:opacity-90 transition-opacity">
+              <button
+                onClick={clearAll}
+                className="px-6 py-2.5 rounded-xl font-sans text-sm font-semibold bg-amber-400 text-slate-900 hover:opacity-90 transition-opacity"
+              >
                 Clear filters
               </button>
             )}
@@ -579,43 +583,114 @@ const News = () => {
         )}
 
         <div className="relative">
-
           {/* Spinner overlay — sits on top, doesn't affect layout */}
           {loading.list && (
             <div className="absolute inset-0 z-10 flex items-start justify-center pt-20 pointer-events-none">
               <div className="flex flex-col items-center gap-3">
                 <div className="w-8 h-8 rounded-full border-2 border-gray-200 border-t-amber-400 animate-spin" />
-                <p className="text-xs text-gray-400 font-sans">Loading stories…</p>
+                <p className="text-xs text-gray-400 font-sans">
+                  Loading stories…
+                </p>
               </div>
             </div>
           )}
 
           {/* Content — subtle fade but no jump */}
-          <div className={`transition-opacity duration-300 ${loading.list ? "opacity-80" : "opacity-100"}`}>
+          <div
+            className={`transition-opacity duration-300 ${loading.list ? "opacity-80" : "opacity-100"}`}
+          >
             {list.length === 0 && !loading.list ? (
               <div className="flex flex-col items-center justify-center py-28 text-center">
                 <div className="w-20 h-20 rounded-3xl flex items-center justify-center mb-6 bg-slate-900/5">
                   <Newspaper className="h-8 w-8 text-gray-300" />
                 </div>
-                <h3 className="font-serif text-xl font-bold text-gray-800 mb-2">No stories found</h3>
+                <h3 className="font-serif text-xl font-bold text-gray-800 mb-2">
+                  No stories found
+                </h3>
                 <p className="font-sans text-sm text-gray-400 max-w-xs leading-relaxed mb-6">
                   {searchText
                     ? `We couldn't find anything for "${searchText}". Try a different term.`
                     : "There are no published stories yet. Check back soon."}
                 </p>
                 {isFiltering && (
-                  <button onClick={clearAll} className="px-6 py-2.5 rounded-xl font-sans text-sm font-semibold bg-amber-400 text-slate-900 hover:opacity-90 transition-opacity">
+                  <button
+                    onClick={clearAll}
+                    className="px-6 py-2.5 rounded-xl font-sans text-sm font-semibold bg-amber-400 text-slate-900 hover:opacity-90 transition-opacity"
+                  >
                     Clear filters
                   </button>
                 )}
               </div>
             ) : (
               <div className="space-y-6 sm:space-y-8">
-                {hero && <HeroCard article={hero} onClick={openArticle} />}
+                {/* ══ HERO HEADLINE — always visible ══ */}
+                <div className="pb-2">
+                  <p
+                    className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] mb-3"
+                    style={{ color: GOLD }}
+                  >
+                    <span
+                      className="inline-block w-6 h-px"
+                      style={{ background: GOLD }}
+                    />
+                    Newsroom
+                  </p>
+                  <h1 className="text-4xl sm:text-6xl font-extrabold font-serif leadingtight text-gray-900  max-w-3xl">
+                    Stories, research, and conversations from across Heritage.
+                  </h1>
+                </div>
+
+                {heroArticle && (
+                  <HeroCard article={heroArticle} onClick={openArticle} />
+                )}
+                {/* Filter + Search — below hero card */}
+                <div className="flex items-center justify-between gap-4 flex-wrap">
+                  <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+                    {CATS.map((c) => (
+                      <button
+                        key={c.value}
+                        onClick={() => setCategory(c.value)}
+                        className={`px-4 py-2 rounded-full text-sm font-medium transition border
+            ${
+              category === c.value
+                ? "text-white border-transparent"
+                : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+            }`}
+                        style={
+                          category === c.value
+                            ? { background: NAVY, borderColor: NAVY }
+                            : undefined
+                        }
+                      >
+                        {c.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-4 py-2 min-w-[550px]">
+                    {" "}
+                    <Search className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                    <input
+                      value={searchInput}
+                      onChange={(e) => setSearchInput(e.target.value)}
+                      placeholder="Search articles..."
+                      className="flex-1 bg-transparent text-sm text-gray-700 placeholder-gray-400 outline-none"
+                    />
+                    {searchInput && (
+                      <button type="button" onClick={clearSearch}>
+                        <X className="h-3.5 w-3.5 text-gray-400 hover:text-gray-700 transition" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
                 {rest.length > 0 && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
                     {rest.map((a) => (
-                      <PhotoCard key={a._id} article={a} onClick={openArticle} />
+                      <PhotoCard
+                        key={a._id}
+                        article={a}
+                        onClick={openArticle}
+                      />
                     ))}
                   </div>
                 )}

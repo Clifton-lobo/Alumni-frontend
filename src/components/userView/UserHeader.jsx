@@ -207,7 +207,7 @@ const Navbar = () => {
             {/* ── College name: Mobile + Tablet (< md) ── */}
             <div className="  flex flex-col leading-tight md:hidden  overflow-hidden">
               <span
-                className="font-bold text-[#0B1F4A]  uppercase leading-snug tracking-wide transition-all duration-300"
+                className="font-extrabold text-[#0B1F4A]  uppercase leading-snug tracking-wide transition-all duration-300"
                 style={{
                   fontFamily: "'Cinzel', serif",
                   fontSize: nameFontSize,
@@ -232,7 +232,7 @@ const Navbar = () => {
             {/* ── College name: Desktop (≥ md) ── */}
             <div className="hidden md:flex items-center gap-4 whitespace-nowrap">
               <span
-                className="text-[22px] lg:text-[30px] font-bold text-[#0B1F4A] leading-tight uppercase tracking-wide"
+                className="text-[22px] lg:text-[30px] font-extrabold text-[#0B1F4A] leading-tight uppercase tracking-wide"
                 style={{ fontFamily: "'Cinzel', serif" }}
               >
                 VPM'S R. Z. SHAH COLLEGE <br />
