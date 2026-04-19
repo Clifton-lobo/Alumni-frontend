@@ -1040,16 +1040,10 @@ const About = () => {
           src={AiCollegeImage}
           alt="VPM's R.Z. Shah College Campus"
           className="absolute bottom-0 left-0 w-full h-full z-[2]"
-          style={{ objectPosition: "center", backgroundColor: "#0D0A06" }}
+          style={{ objectPosition: "center", backgroundColor: "transparent" }}
         />
-        <div className="absolute inset-0 z-[3] bg-gradient-to-b from-[#05030133] via-[#0503011A] to-[#050301F0]" />
-        {!isMobile && (
-          <div className="absolute inset-0 z-[3] bg-gradient-to-r from-transparent via-transparent to-[#050301CC]" />
-        )}
-        <div className="absolute inset-0 z-[3] bg-[radial-gradient(ellipse_120%_90%_at_50%_50%,transparent_50%,rgba(5,3,1,0.45)_100%)]" />
-        <div className="absolute bottom-0 left-0 right-0 h-[2px] z-10 bg-gradient-to-r from-transparent via-[#C8963E] to-transparent" />
 
-        <div
+        {/* <div
           ref={heroRef}
           style={{
             position: "absolute",
@@ -1074,18 +1068,7 @@ const About = () => {
               "opacity 1s ease, transform 1s cubic-bezier(0.22,1,0.36,1)",
           }}
         >
-          {/* <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
-            background: 'rgba(47,90,199,0.22)', border: '1px solid rgba(47,90,199,0.45)',
-            borderRadius: 100, padding: '5px 14px 5px 8px', marginBottom: 16,
-          }}>
-            <span style={{ background: '#3b82f6', borderRadius: '50%', width: 6, height: 6, display: 'inline-block', animation: 'pulse 2s ease-in-out infinite' }} />
-            <span style={{ fontFamily: "'Sora', sans-serif", fontWeight: 600, fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#93c5fd' }}>
-              Est. 2003 · Mulund, Mumbai
-            </span>
-          </div> */}
-
-          {/* <h1
+          <h1
             style={{
               fontFamily: "'Playfair Display', Georgia, serif",
               fontWeight: 900,
@@ -1104,9 +1087,9 @@ const About = () => {
             Zaveribhai Shah
             <br />
             College
-          </h1> */}
+          </h1>
 
-          {/* <p
+          <p
             style={{
               fontFamily: "'DM Sans', sans-serif",
               fontWeight: 300,
@@ -1120,8 +1103,8 @@ const About = () => {
           >
             A legacy of academic brilliance, transformative research, and
             leaders who shape the world — rooted in Mulund, reaching everywhere.
-          </p> */}
-{/* 
+          </p>
+
           <div
             style={{
               display: "flex",
@@ -1157,17 +1140,8 @@ const About = () => {
                 {c.text}
               </span>
             ))}
-          </div> */}
-        </div>
-
-        {!isMobile && (
-          <div className="absolute bottom-[24px] left-[48px] z-10 flex flex-col items-center gap-[6px]">
-            <div className="w-[1px] h-[32px] bg-gradient-to-b from-[rgba(200,150,62,0.7)] to-transparent" />
-            <span className="text-[9px] tracking-[0.25em] uppercase text-[rgba(200,150,62,0.6)]">
-              Scroll
-            </span>
           </div>
-        )}
+        </div> */}
       </section>
 
       {/* ══════════════════════
