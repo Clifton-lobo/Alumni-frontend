@@ -644,30 +644,9 @@ const News = () => {
                   <HeroCard article={heroArticle} onClick={openArticle} />
                 )}
                 {/* Filter + Search — below hero card */}
-                <div className="flex items-center justify-between gap-4 flex-wrap">
-                  <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-                    {CATS.map((c) => (
-                      <button
-                        key={c.value}
-                        onClick={() => setCategory(c.value)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition border
-            ${
-              category === c.value
-                ? "text-white border-transparent"
-                : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
-            }`}
-                        style={
-                          category === c.value
-                            ? { background: NAVY, borderColor: NAVY }
-                            : undefined
-                        }
-                      >
-                        {c.label}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-4 py-2 min-w-[550px]">
-                    {" "}
+                <div className="flex flex-col gap-3 w-full">
+                  {/* Search bar — full width on all sizes */}
+                  <div className="flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-4 py-2 w-full">
                     <Search className="h-4 w-4 text-gray-400 flex-shrink-0" />
                     <input
                       value={searchInput}
@@ -680,6 +659,29 @@ const News = () => {
                         <X className="h-3.5 w-3.5 text-gray-400 hover:text-gray-700 transition" />
                       </button>
                     )}
+                  </div>
+
+                  {/* Category pills — scrollable on mobile */}
+                  <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
+                    {CATS.map((c) => (
+                      <button
+                        key={c.value}
+                        onClick={() => setCategory(c.value)}
+                        className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition border
+          ${
+            category === c.value
+              ? "text-white border-transparent"
+              : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+          }`}
+                        style={
+                          category === c.value
+                            ? { background: NAVY, borderColor: NAVY }
+                            : undefined
+                        }
+                      >
+                        {c.label}
+                      </button>
+                    ))}
                   </div>
                 </div>
 

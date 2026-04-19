@@ -14,7 +14,7 @@ export default defineConfig({
       includeAssets: ["favicon.ico", "apple-touch-icon.png"],
 
       manifest: {
-        name: "Your App Name",
+        name: "AlumniApp",
         short_name: "Alumni",
         description: "Alumni Portal Application",
         theme_color: "#0f172a",
