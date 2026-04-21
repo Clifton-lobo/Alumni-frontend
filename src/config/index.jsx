@@ -133,6 +133,13 @@ export const UserNavItems = [
     type: "link",
   },
 
+    {
+    id: "aboutFounder",
+    label: "aboutFounder",
+    path: "/user/aboutfounder",
+    type: "link",
+  },
+
   {
     id: "events",
     label: "Events",

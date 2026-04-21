@@ -32,6 +32,7 @@ import MessagingPage from './pages/userView/Directory/MessagingPage.jsx'
 import { fetchConversations } from './store/user-view/MessageSlice.js'
 import Feedback from './pages/userView/Feedback.jsx'
 import AdminFeedback from './pages/adminView/AdminFeedback.jsx'
+import AboutFounder from './pages/userView/Jobs/AboutFounder.jsx'
 
 function App() {
   const { isLoading } = useSelector((state) => state.auth);
@@ -92,6 +93,7 @@ function App() {
           <Route path="gallery" element={<UserGallery />} />
           <Route path="messages" element={<MessagingPage />} />
           <Route path="feedback" element={<Feedback />} />
+          <Route path="aboutfounder" element={<AboutFounder />} />
         </Route>
 
         {/* misc */}

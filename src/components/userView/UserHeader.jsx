@@ -163,14 +163,14 @@ const Navbar = () => {
   const nameFontSize = isDesktop
     ? undefined
     : isTablet
-      ? `clamp(16px, 2vw, 18px)`
-      : `clamp(13px, 3vw, 15px)`;
+      ? `clamp(20px, 2vw, 18px)`
+      : `clamp(18px, 3vw, 15px)`;
 
   const alumniFontSize = isDesktop
     ? undefined
     : isTablet
       ? `clamp(20px, 3vw, 24px)`
-      : `clamp(16px, 4vw, 20px)`;
+      : `clamp(19px, 4vw, 20px)`;
 
   return (
     <>
@@ -182,7 +182,6 @@ const Navbar = () => {
         className={`bg-white border-b border-gray-100 w-full
           md:static
           sticky top-0 z-50 transition-all duration-300
-          ${scrolled ? "shadow-md" : ""}
         `}
       >
         <div
@@ -214,8 +213,6 @@ const Navbar = () => {
                 }}
               >
                 VPM'S R. Z. SHAH COLLEGE
-                <br />
-                OF ARTS, SCIENCE & COMMERCE
               </span>
               <span
                 className="text-[#F2A20A] transition-all duration-300"

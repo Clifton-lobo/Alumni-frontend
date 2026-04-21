@@ -19,7 +19,8 @@ const container = {
   hidden: {},
   show: {
     transition: {
-      staggerChildren: 0.12,
+      delayChildren: 0.4,   
+      staggerChildren: 0.20,
     },
   },
 };
@@ -30,7 +31,7 @@ const item = {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.5,
+      duration: 0.8,
       ease: "easeOut",
     },
   },
@@ -60,7 +61,7 @@ const Footer = () => {
         variants={container}
         initial="hidden"
         whileInView="show"
-        viewport={{ once: true, margin: "-100px" }}
+        viewport={{ once: true, margin: "-150px" }}
         className="relative max-w-7xl mx-auto px-6 py-16 sm:py-20"
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-10">
@@ -71,12 +72,11 @@ const Footer = () => {
               <img src={vpmLogo} className="w-28 h-28 object-contain" />
 
               <div>
-                <p className="text-2xl lg:text-3xl font-semibold font-serif tracking-tight">
-                  VPM's Alumni
+                <p className="text-3xl lg:text-3xl font-semibold font-serif tracking-tight">
+                  VPM's R.Z. SHAH COLLEGE 
                 </p>
-                <p className="text-white text-xl font-serif">
-                  R.Z. Shah College
-                </p>
+                <p className="text-xl lg:text-xl font-semibold font-serif tracking-tight">Alumni Association</p>
+
               </div>
             </div>
 
