@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LogOut, UserRound, Bell, MessageSquare } from "lucide-react";
+import {
+  Menu,
+  X,
+  LogOut,
+  UserRound,
+  Bell,
+  MessageSquare,
+  ChevronDown,
+} from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { UserNavItems } from "../../config";
 import { logoutUser } from "../../store/authSlice/authSlice";
@@ -44,6 +52,7 @@ const IconButton = ({ icon: Icon, count, onClick, label }) => (
 /* ─── User Avatar Dropdown ─── */
 const UserAvatar = ({ user }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -105,6 +114,7 @@ const UserAvatar = ({ user }) => {
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [openDropdowns, setOpenDropdowns] = useState({});
   const [winWidth, setWinWidth] = useState(
     typeof window !== "undefined" ? window.innerWidth : 375,
   );
@@ -171,6 +181,9 @@ const Navbar = () => {
     : isTablet
       ? `clamp(20px, 3vw, 24px)`
       : `clamp(19px, 4vw, 20px)`;
+
+  const toggleDropdown = (id) =>
+    setOpenDropdowns((prev) => ({ ...prev, [id]: !prev[id] }));
 
   return (
     <>
@@ -387,25 +400,79 @@ const Navbar = () => {
                       </Link>
                     </div>
                   )}
-
                   {/* Nav items */}
+                  // ─── Drop-in replacement nav block ───
                   <nav className="flex flex-col gap-1 px-3 py-3">
-                    {UserNavItems.map((item) => (
-                      <Link
-                        key={item.id}
-                        to={item.path}
-                        onClick={() => setMobileOpen(false)}
-                        className={`flex items-center w-full px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                          location.pathname === item.path
-                            ? "bg-gray-100 text-[#0B1F4A] font-semibold border-l-4 border-[#F2A20A]"
-                            : "text-slate-600 hover:bg-gray-50 hover:text-[#0B1F4A]"
-                        }`}
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
-                  </nav>
+                    {UserNavItems.map((item) =>
+                      item.type === "dropdown" ? (
+                        // ── Accordion-style dropdown ──
+                        <div key={item.id}>
+                          <button
+                            onClick={() => toggleDropdown(item.id)}
+                            className="flex items-center justify-between w-full px-4 py-3 rounded-lg text-sm font-medium text-slate-600 hover:bg-gray-50 hover:text-[#0B1F4A] transition-colors"
+                          >
+                            <span>{item.label}</span>
+                            <ChevronDown
+                              className={`w-4 h-4 transition-transform duration-200 ${
+                                openDropdowns[item.id] ? "rotate-180" : ""
+                              }`}
+                            />
+                          </button>
 
+                          <AnimatePresence initial={false}>
+                            {openDropdowns[item.id] && (
+                              <motion.div
+                                key="dropdown"
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{
+                                  duration: 0.2,
+                                  ease: "easeInOut",
+                                }}
+                                className="overflow-hidden"
+                              >
+                                <div className="ml-4 pl-3 border-l-2 border-[#F2A20A] flex flex-col gap-0.5 pb-1">
+                                  {item.children.map((child) => (
+                                    <Link
+                                      key={child.id}
+                                      to={child.path}
+                                      onClick={() => {
+                                        setMobileOpen(false);
+                                        setOpenDropdowns({});
+                                      }}
+                                      className={`flex items-center w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                                        location.pathname === child.path
+                                          ? "bg-gray-100 text-[#0B1F4A] font-semibold"
+                                          : "text-slate-600 hover:bg-gray-50 hover:text-[#0B1F4A]"
+                                      }`}
+                                    >
+                                      {child.label}
+                                    </Link>
+                                  ))}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      ) : (
+                        // ── Normal link ──
+                        <Link
+                          key={item.id}
+                          to={item.path}
+                          onClick={() => setMobileOpen(false)}
+                          className={`flex items-center w-full px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                            location.pathname === item.path
+                              ? "bg-gray-100 text-[#0B1F4A] font-semibold border-l-4 border-[#F2A20A]"
+                              : "text-slate-600 hover:bg-gray-50 hover:text-[#0B1F4A]"
+                          }`}
+                        >
+                          {item.label}
+                        </Link>
+                      ),
+                    )}
+                  </nav>
+                  
                   {/* Account + Logout — authenticated */}
                   {isAuthenticated && (
                     <div className="mt-auto px-4 pb-6 pt-3 border-t border-gray-100 flex flex-col gap-2">
