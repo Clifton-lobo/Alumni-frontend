@@ -348,100 +348,102 @@ const Navbar = () => {
             )}
 
             {/* Hamburger — mobile & tablet only */}
-           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-          <SheetTrigger asChild>
-            <button
-              className={`md:hidden text-[#0B1F4A] flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition ml-0.5
+            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+              <SheetTrigger asChild>
+                <button
+                  className={`md:hidden text-[#0B1F4A] flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition ml-0.5
         w-8 h-8 sm:w-10 sm:h-10
       `}
-              aria-label="Open menu"
-            >
-              <Menu size={18} />
-            </button>
-          </SheetTrigger>
+                  aria-label="Open menu"
+                >
+                  <Menu size={18} />
+                </button>
+              </SheetTrigger>
 
-          <SheetContent side="right" className="w-[280px] sm:w-[340px] p-0">
-            <SheetHeader className="px-5 py-4 border-b border-gray-100">
-              <SheetTitle
-                className="text-left text-sm font-semibold text-[#0B1F4A] uppercase tracking-wide"
-                style={{ fontFamily: "'Cinzel', serif" }}
-              >
-                VPM Alumni
-              </SheetTitle>
-            </SheetHeader>
-
-            <div className="flex flex-col h-full overflow-y-auto pb-10">
-              {/* Sign In — unauthenticated */}
-              {!isAuthenticated && (
-                <div className="px-4 py-4 border-b border-gray-100">
-                  <Link
-                    to="/auth/login"
-                    onClick={() => setMobileOpen(false)}
-                    className="relative w-full flex items-center justify-center px-6 py-3 rounded-xl font-semibold text-white overflow-hidden"
-                    style={{ backgroundColor: "#F2A20A" }}
+              <SheetContent side="right" className="w-[280px] sm:w-[340px] p-0">
+                <SheetHeader className="px-5 py-4 border-b border-gray-100">
+                  <SheetTitle
+                    className="text-left text-sm font-semibold text-[#0B1F4A] uppercase tracking-wide"
+                    style={{ fontFamily: "'Cinzel', serif" }}
                   >
-                    <span className="absolute inset-0 bg-[#F2A20A] animate-ping opacity-30 rounded-xl" />
-                    <span className="relative">Sign In to Your Account</span>
-                  </Link>
+                    VPM Alumni
+                  </SheetTitle>
+                </SheetHeader>
+
+                <div className="flex flex-col h-full overflow-y-auto pb-10">
+                  {/* Sign In — unauthenticated */}
+                  {!isAuthenticated && (
+                    <div className="px-4 py-4 border-b border-gray-100">
+                      <Link
+                        to="/auth/login"
+                        onClick={() => setMobileOpen(false)}
+                        className="relative w-full flex items-center justify-center px-6 py-3 rounded-xl font-semibold text-white overflow-hidden"
+                        style={{ backgroundColor: "#F2A20A" }}
+                      >
+                        <span className="absolute inset-0 bg-[#F2A20A] animate-ping opacity-30 rounded-xl" />
+                        <span className="relative">
+                          Sign In to Your Account
+                        </span>
+                      </Link>
+                    </div>
+                  )}
+
+                  {/* Nav items */}
+                  <nav className="flex flex-col gap-1 px-3 py-3">
+                    {UserNavItems.map((item) => (
+                      <Link
+                        key={item.id}
+                        to={item.path}
+                        onClick={() => setMobileOpen(false)}
+                        className={`flex items-center w-full px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                          location.pathname === item.path
+                            ? "bg-gray-100 text-[#0B1F4A] font-semibold border-l-4 border-[#F2A20A]"
+                            : "text-slate-600 hover:bg-gray-50 hover:text-[#0B1F4A]"
+                        }`}
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </nav>
+
+                  {/* Account + Logout — authenticated */}
+                  {isAuthenticated && (
+                    <div className="mt-auto px-4 pb-6 pt-3 border-t border-gray-100 flex flex-col gap-2">
+                      {/* User info */}
+                      <div className="px-2 py-2 mb-1">
+                        <p className="text-sm font-medium text-gray-900">
+                          {user?.username}
+                        </p>
+                        <p className="text-xs text-gray-500">{user?.email}</p>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          setMobileOpen(false);
+                          navigate("/user/profile");
+                        }}
+                        className="flex items-center w-full px-4 py-2.5 rounded-xl font-semibold text-[#0B1F4A] border border-gray-200 bg-gray-50 hover:bg-gray-100 transition text-sm"
+                      >
+                        <UserRound className="w-4 h-4 mr-2" /> Account
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setMobileOpen(false);
+                          disconnectSocket();
+                          dispatch(clearUserProfile());
+                          dispatch(logoutUser());
+                        }}
+                        className="flex items-center w-full px-4 py-2.5 rounded-xl font-semibold text-white text-sm"
+                        style={{ backgroundColor: BRAND_GOLD }}
+                      >
+                        <LogOut className="w-4 h-4 mr-2" /> Logout
+                      </button>
+                    </div>
+                  )}
                 </div>
-              )}
-
-              {/* Nav items */}
-              <nav className="flex flex-col gap-1 px-3 py-3">
-                {UserNavItems.map((item) => (
-                  <Link
-                    key={item.id}
-                    to={item.path}
-                    onClick={() => setMobileOpen(false)}
-                    className={`flex items-center w-full px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                      location.pathname === item.path
-                        ? "bg-gray-100 text-[#0B1F4A] font-semibold border-l-4 border-[#F2A20A]"
-                        : "text-slate-600 hover:bg-gray-50 hover:text-[#0B1F4A]"
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </nav>
-
-              {/* Account + Logout — authenticated */}
-              {isAuthenticated && (
-                <div className="mt-auto px-4 pb-6 pt-3 border-t border-gray-100 flex flex-col gap-2">
-                  {/* User info */}
-                  <div className="px-2 py-2 mb-1">
-                    <p className="text-sm font-medium text-gray-900">
-                      {user?.username}
-                    </p>
-                    <p className="text-xs text-gray-500">{user?.email}</p>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      setMobileOpen(false);
-                      navigate("/user/profile");
-                    }}
-                    className="flex items-center w-full px-4 py-2.5 rounded-xl font-semibold text-[#0B1F4A] border border-gray-200 bg-gray-50 hover:bg-gray-100 transition text-sm"
-                  >
-                    <UserRound className="w-4 h-4 mr-2" /> Account
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setMobileOpen(false);
-                      disconnectSocket();
-                      dispatch(clearUserProfile());
-                      dispatch(logoutUser());
-                    }}
-                    className="flex items-center w-full px-4 py-2.5 rounded-xl font-semibold text-white text-sm"
-                    style={{ backgroundColor: BRAND_GOLD }}
-                  >
-                    <LogOut className="w-4 h-4 mr-2" /> Logout
-                  </button>
-                </div>
-              )}
-            </div>
-          </SheetContent>
-        </Sheet>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </div>
@@ -459,19 +461,51 @@ const Navbar = () => {
               {index !== 0 && (
                 <span className="w-0.5 h-4 bg-gray-300 mx-1 shrink-0" />
               )}
-              <Link
-                to={item.path}
-                className={`relative px-7 py-1.5 rounded-md text-lg font-semibold font-sans transition-colors whitespace-nowrap ${
-                  location.pathname === item.path
-                    ? "text-[#0B1F4A]"
-                    : "text-black hover:bg-gray-100 hover:text-[#0B1F4A]"
-                }`}
-              >
-                {item.label}
-                {location.pathname === item.path && (
-                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4/5 h-[2px] bg-[#EBAB09] rounded-full" />
-                )}
-              </Link>
+
+              {/* ✅ DROPDOWN */}
+              {item.type === "dropdown" ? (
+  <div className="relative group">
+    <div className="px-7 py-1.5 text-lg font-semibold cursor-pointer text-black hover:text-[#0B1F4A]">
+      {item.label}
+    </div>
+
+    {/* ✅ FIX 1: pt-2 creates an invisible bridge that covers the gap between
+           trigger and menu, so group-hover never breaks mid-travel.
+        ✅ FIX 2: opacity + pointer-events instead of hidden/block —
+           no flicker, and the transition is smooth. */}
+    <div className="absolute left-1/2 -translate-x-1/2 top-full pt-2
+                    opacity-0 pointer-events-none
+                    group-hover:opacity-100 group-hover:pointer-events-auto
+                    transition-opacity duration-150 min-w-[240px] z-50">
+      <div className="bg-white shadow-2xl rounded-xl overflow-hidden border border-gray-100">
+        {item.children.map((child) => (
+          <Link
+            key={child.id}
+            to={child.path}
+            className="block px-6 py-3 text-base font-medium text-gray-700 hover:bg-[#F2A20A] hover:text-white transition"
+          >
+            {child.label}
+          </Link>
+        ))}
+      </div>
+    </div>
+  </div>
+)  : (
+                /* ✅ NORMAL LINK */
+                <Link
+                  to={item.path}
+                  className={`relative px-7 py-1.5 rounded-md text-lg font-semibold transition-colors ${
+                    location.pathname === item.path
+                      ? "text-[#0B1F4A]"
+                      : "text-black hover:bg-gray-100 hover:text-[#0B1F4A]"
+                  }`}
+                >
+                  {item.label}
+                  {location.pathname === item.path && (
+                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4/5 h-[2px] bg-[#EBAB09] rounded-full" />
+                  )}
+                </Link>
+              )}
             </React.Fragment>
           ))}
         </nav>
@@ -479,7 +513,6 @@ const Navbar = () => {
         {/* Mobile / Tablet nav dropdown (< md) */}
 
         {/* Hamburger trigger — mobile & tablet only */}
-        
       </div>
 
       {/* CONNECTION REQUESTS DIALOG */}

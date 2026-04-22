@@ -1,4 +1,4 @@
-import eventPageAlumniEvent from "../../../assets/eventPageAlumniEvent.png";
+import eventPageAlumniEvent from "../../../assets/Kalarangevent2025.jpg";
 import EventFilter from "./EventFilter";
 import PaginationControls from "../../../components/common/Pagination.jsx";
 import { useSelector, useDispatch } from "react-redux";
@@ -250,14 +250,13 @@ const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="relative md:h-[450px] w-full overflow-hidden shadow-lg md:block">
-        <img
-          src={eventPageAlumniEvent}
-          alt="Events Banner"
-          className="h-full w-full object-cover object-top"
-        />
-        <div className="absolute inset-0 bg-black/40" />
-      </div>
+      <div className="relative md:h-[550px] w-full overflow-hidden shadow-lg md:block bg-black">
+  <img
+    src={eventPageAlumniEvent}
+    alt="Events Banner"
+    className="h-full w-full object-cover mx-auto"
+  />
+</div>
 
       <div className="mx-auto max-w-4xl px-4 mt-6 md:mt-15 md:px-6">
         <div className="flex items-center gap-3">

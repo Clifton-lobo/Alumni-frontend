@@ -1,6 +1,7 @@
 import React from "react";
 import NBHKulkarniImage from "../../../assets/Ai_NBH_KULKARNI.png";
 
+ 
 const AboutFounder = () => {
   return (
     <div className="w-full">

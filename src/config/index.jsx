@@ -1,12 +1,12 @@
-import { 
-  LayoutDashboard, 
-  CalendarDays, 
-  BriefcaseBusiness, 
-  Newspaper, 
+import {
+  LayoutDashboard,
+  CalendarDays,
+  BriefcaseBusiness,
+  Newspaper,
   ImageIcon,
   UserSquare,
-  Frown
-} from 'lucide-react';
+  Frown,
+} from "lucide-react";
 
 export const AdminSidebarMenuItems = [
   {
@@ -45,12 +45,12 @@ export const AdminSidebarMenuItems = [
     path: "/admin/directory",
     icon: UserSquare,
   },
-   {
+  {
     id: "feedback",
     label: "Feedback",
     path: "/admin/feedback",
-    icon: Frown ,
-  }
+    icon: Frown,
+  },
 ];
 
 export const addEventFormElements = [
@@ -107,16 +107,16 @@ export const addEventFormElements = [
     placeholder: "Enter event description",
   },
   {
-  label: "Status",
-  name: "status",
-  componentType: "select",
-  options: [
-    { id: "upcoming", label: "Upcoming" },
-    { id: "ongoing", label: "Ongoing" },
-    { id: "completed", label: "Completed" },
-    { id: "cancelled", label: "Cancelled" },
-  ],
-},
+    label: "Status",
+    name: "status",
+    componentType: "select",
+    options: [
+      { id: "upcoming", label: "Upcoming" },
+      { id: "ongoing", label: "Ongoing" },
+      { id: "completed", label: "Completed" },
+      { id: "cancelled", label: "Cancelled" },
+    ],
+  },
 ];
 
 export const UserNavItems = [
@@ -128,16 +128,20 @@ export const UserNavItems = [
   },
   {
     id: "about",
-    label: "About us",
-    path: "/user/about",
-    type: "link",
-  },
-
-    {
-    id: "aboutFounder",
-    label: "aboutFounder",
-    path: "/user/aboutfounder",
-    type: "link",
+    label: "About",
+    type: "dropdown",
+    children: [
+      {
+        id: "aboutUs",
+        label: "About Us",
+        path: "/user/about",
+      },
+      {
+        id: "aboutFounder",
+        label: "About the Founder",
+        path: "/user/aboutfounder",
+      },
+    ],
   },
 
   {
