@@ -822,7 +822,7 @@ const Home = () => {
           </div>
 
           {/* Bottom strip */}
-          {/* <div
+          <div
             className={`mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-slate-100 transition-all duration-700 ${
               socialVisible
                 ? "opacity-100 translate-y-0"
@@ -853,7 +853,7 @@ const Home = () => {
                 </svg>
               </div>
             </div>
-          </div> */}
+          </div>
         </div>
       </section>
     </div>
