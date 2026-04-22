@@ -11,7 +11,7 @@ import {
   Linkedin,
   Youtube,
 } from "lucide-react";
-import HeroVideo from "../../../assets/HeroVideo.mp4";
+import HeroVideo from "../../../../public/icons/HeroVideo.mp4"
 import { FloatingDockHelper } from "./FloatingDock";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -199,6 +199,8 @@ const Home = () => {
           loop
           muted
           playsInline
+          preload="auto" // ← tells browser to download immediately
+          poster="/hero-poster.jpg" // ← shows image while video loads (add a screenshot frame)
           className="absolute inset-0 w-full h-full object-cover"
         >
           <source src={HeroVideo} type="video/mp4" />
@@ -802,8 +804,6 @@ const Home = () => {
                       <Youtube className="w-7 h-5 text-[#FF0000]" />
                       <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white/70 -rotate-45 transition-colors" />
                     </div>
-
-                    
 
                     <div className="mt-auto pt-3">
                       <div className="w-10 h-10 rounded-full bg-[#FF0000] flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-red-500/30">
