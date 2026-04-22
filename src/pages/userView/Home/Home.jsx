@@ -188,89 +188,88 @@ const Home = () => {
   return (
     <div>
       {/* HERO SECTION */}
-   <section
-  id="home"
-  ref={heroRef}
-  className="relative min-h-[60vh] sm:min-h-[75vh] md:min-h-[calc(100vh-80px)] lg:min-h-[calc(135vh-197px)] overflow-hidden text-white"
->
-  {/* 🎥 BACKGROUND VIDEO */}
-  <video
-    autoPlay
-    loop
-    muted
-    playsInline
-    className="absolute inset-0 w-full h-full object-cover"
-  >
-    <source src={HeroVideo} type="video/mp4" />
-  </video>
-
-  {/* CONTENT */}
-  <div className="container mx-auto px-4 pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-16 relative z-10">
-    <div className="max-w-4xl mx-auto text-center">
-
-      {/* TITLE */}
-      <h1
-        className={`font-serif text-3xl sm:text-4xl md:text-5xl lg:text-[75px] font-bold mb-3 mt-8 sm:mt-10 md:mt-12 lg:mt-15 leading-tight tracking-tight transition-all duration-700 ${
-          heroVisible
-            ? "opacity-100 translate-y-0"
-            : "opacity-0 translate-y-6"
-        }`}
+      <section
+        id="home"
+        ref={heroRef}
+        className="relative min-h-[60vh] sm:min-h-[75vh] md:min-h-[calc(100vh-80px)] lg:min-h-[calc(135vh-197px)] overflow-hidden text-white"
       >
-        Connect. Inspire. <br />
-        <span className="text-yellow-400">Succeed Together.</span>
-      </h1>
-
-      {/* SUBTEXT */}
-      <p
-        className={`text-sm sm:text-base md:text-lg text-white/80 mb-8 sm:mb-10 max-w-2xl mx-auto transition-all duration-700 delay-100 ${
-          heroVisible
-            ? "opacity-100 translate-y-0"
-            : "opacity-0 translate-y-6"
-        }`}
-      >
-        Join our thriving community of graduates making an impact worldwide.
-      </p>
-
-      {/* BUTTON */}
-      <div
-        className={`flex justify-center mb-10 sm:mb-14 transition-all duration-700 delay-200 ${
-          heroVisible
-            ? "opacity-100 translate-y-0"
-            : "opacity-0 translate-y-6"
-        }`}
-      >
-        <Link
-          to="/user/community"
-          className="px-6 py-3 sm:px-8 sm:py-4 rounded-2xl font-semibold flex items-center gap-2 justify-center transition-all duration-300 text-sm sm:text-base"
-          style={{
-            background: "linear-gradient(135deg, #EBAB09, #f4c430)",
-            boxShadow: "0 6px 20px rgba(235,171,9,0.35)",
-          }}
+        {/* 🎥 BACKGROUND VIDEO */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
         >
-          Explore Alumni Network
-          <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
-        </Link>
-      </div>
+          <source src={HeroVideo} type="video/mp4" />
+        </video>
 
-    </div>
-  </div>
+        {/* CONTENT */}
+        <div className="container mx-auto px-4 pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-16 relative z-10">
+          <div className="max-w-4xl mx-auto text-center">
+            {/* TITLE */}
+            <h1
+              className={`font-serif text-3xl sm:text-4xl md:text-5xl lg:text-[75px] font-bold mb-3 mt-8 sm:mt-10 md:mt-12 lg:mt-15 leading-tight tracking-tight transition-all duration-700 ${
+                heroVisible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-6"
+              }`}
+            >
+              Connect. Inspire. <br />
+              <span className="text-yellow-400">Succeed Together.</span>
+            </h1>
 
-  {/* WAVE */}
-  <div className="absolute bottom-0 left-0 right-0 leading-none overflow-hidden">
-    <svg
-      viewBox="0 0 1440 80"
-      xmlns="http://www.w3.org/2000/svg"
-      className="w-full block"
-      preserveAspectRatio="none"
-      style={{ display: "block", marginBottom: "-1px" }}
-    >
-      <path
-        d="M0 80L60 70C120 60 240 50 360 45C480 40 600 40 720 45C840 50 960 60 1080 65C1200 70 1320 70 1380 70L1440 70V80H0Z"
-        fill="#FFFFFF"
-      />
-    </svg>
-  </div>
-</section>
+            {/* SUBTEXT */}
+            <p
+              className={`text-sm sm:text-base md:text-lg text-white/80 mb-8 sm:mb-10 max-w-2xl mx-auto transition-all duration-700 delay-100 ${
+                heroVisible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-6"
+              }`}
+            >
+              Join our thriving community of graduates making an impact
+              worldwide.
+            </p>
+
+            {/* BUTTON */}
+            <div
+              className={`flex justify-center mb-10 sm:mb-14 transition-all duration-700 delay-200 ${
+                heroVisible
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-6"
+              }`}
+            >
+              <Link
+                to="/user/community"
+                className="px-6 py-3 sm:px-8 sm:py-4 rounded-2xl font-semibold flex items-center gap-2 justify-center transition-all duration-300 text-sm sm:text-base"
+                style={{
+                  background: "linear-gradient(135deg, #EBAB09, #f4c430)",
+                  boxShadow: "0 6px 20px rgba(235,171,9,0.35)",
+                }}
+              >
+                Explore Alumni Network
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* WAVE */}
+        <div className="absolute bottom-0 left-0 right-0 leading-none overflow-hidden">
+          <svg
+            viewBox="0 0 1440 80"
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-full block"
+            preserveAspectRatio="none"
+            style={{ display: "block", marginBottom: "-1px" }}
+          >
+            <path
+              d="M0 80L60 70C120 60 240 50 360 45C480 40 600 40 720 45C840 50 960 60 1080 65C1200 70 1320 70 1380 70L1440 70V80H0Z"
+              fill="#FFFFFF"
+            />
+          </svg>
+        </div>
+      </section>
       {/* EVENTS SECTION */}
       <section id="events" ref={eventsRef} className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6">
@@ -596,55 +595,6 @@ const Home = () => {
                   <p className="text-white/90 text-sm leading-relaxed max-w-xs mb-5">
                     Campus life, alumni spotlights & behind-the-scenes moments.
                   </p>
-
-                  {/* Marquee row 1 — left to right */}
-                  <div className="overflow-hidden mb-2 rounded-xl">
-                    <div className="marquee-track marquee-track-anim">
-                      {[...Array(2)].map((_, di) => (
-                        <div key={di} className="flex gap-2 pr-2">
-                          {[
-                            "📸 Campus Diaries",
-                            "🎓 Convocation 2024",
-                            "🌟 Alumni Spotlight",
-                            "🎉 Fest Highlights",
-                            "📚 Study Vibes",
-                          ].map((item) => (
-                            <span
-                              key={item}
-                              className="bg-white/15 border border-white/25 backdrop-blur-sm text-white text-xs font-semibold px-4 py-2 rounded-full whitespace-nowrap"
-                            >
-                              {item}
-                            </span>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Marquee row 2 — right to left */}
-                  <div className="overflow-hidden rounded-xl mb-5">
-                    <div className="marquee-track marquee-track-rev">
-                      {[...Array(2)].map((_, di) => (
-                        <div key={di} className="flex gap-2 pr-2">
-                          {[
-                            "🏆 Award Winners",
-                            "🤝 Reunions",
-                            "💡 Innovation Days",
-                            "🎨 Art & Culture",
-                            "🏅 Sports Meet",
-                          ].map((item) => (
-                            <span
-                              key={item}
-                              className="bg-white/10 border border-white/20 backdrop-blur-sm text-white/80 text-xs font-semibold px-4 py-2 rounded-full whitespace-nowrap"
-                            >
-                              {item}
-                            </span>
-                          ))}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
                   <div className="text-white/60 text-sm font-medium">
                     @alumniconnect
                   </div>
@@ -819,96 +769,16 @@ const Home = () => {
                       <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-white/60 -rotate-45 transition-colors" />
                     </div>
 
-                    {/* Vertical marquee — fast upward scroll */}
-                    <div
-                      className="overflow-hidden flex-1 rounded-xl"
-                      style={{ maxHeight: "160px" }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "8px",
-                          animation: "marquee-vertical 6s linear infinite",
-                        }}
-                      >
-                        {[...Array(3)].map((_, di) => (
-                          <div key={di} className="flex flex-col gap-2">
-                            {[
-                              {
-                                tag: "#AlumniTalks",
-                                emoji: "🔥",
-                                desc: "Stories from our grads",
-                              },
-                              {
-                                tag: "#CampusNews",
-                                emoji: "📢",
-                                desc: "Latest from college",
-                              },
-                              {
-                                tag: "#AskAlumni",
-                                emoji: "💬",
-                                desc: "Q&A with seniors",
-                              },
-                              {
-                                tag: "#Trending",
-                                emoji: "🚀",
-                                desc: "What's hot right now",
-                              },
-                              {
-                                tag: "#Community",
-                                emoji: "🤝",
-                                desc: "Connect & grow",
-                              },
-                              {
-                                tag: "#Hiring",
-                                emoji: "💼",
-                                desc: "Jobs & referrals",
-                              },
-                              {
-                                tag: "#Events",
-                                emoji: "🎉",
-                                desc: "Upcoming meetups",
-                              },
-                              {
-                                tag: "#Alumni2024",
-                                emoji: "🎓",
-                                desc: "Class of 2024 updates",
-                              },
-                            ].map(({ tag, emoji, desc }) => (
-                              <div
-                                key={tag + di}
-                                className="flex items-center gap-2.5 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors px-3 py-2 rounded-xl"
-                              >
-                                <span className="text-sm leading-none">
-                                  {emoji}
-                                </span>
-                                <div className="min-w-0">
-                                  <p className="text-white/80 text-[11px] font-bold leading-none">
-                                    {tag}
-                                  </p>
-                                  <p className="text-white/35 text-[10px] mt-0.5 truncate">
-                                    {desc}
-                                  </p>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    {/* ✅ Single static line replacing the marquee */}
+                    <p className="text-white/50 text-sm leading-relaxed flex-1 flex items-center">
+                      Real-time updates, alumni threads & trending campus
+                      conversations.
+                    </p>
 
                     <p className="text-white/30 text-xs">
                       Live updates & community threads.
                     </p>
                   </div>
-
-                  <style>{`
-    @keyframes marquee-vertical {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-33.333%); }
-    }
-  `}</style>
                 </a>
 
                 {/* YOUTUBE */}
@@ -933,52 +803,7 @@ const Home = () => {
                       <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white/70 -rotate-45 transition-colors" />
                     </div>
 
-                    {/* Horizontal marquee */}
-                    <div className="overflow-hidden mt-4 rounded-xl flex-1 flex flex-col justify-center gap-2">
-                      <div className="overflow-hidden rounded-lg">
-                        <div className="marquee-track marquee-track-anim">
-                          {[...Array(2)].map((_, di) => (
-                            <div key={di} className="flex gap-2 pr-2">
-                              {[
-                                "🎬 Lectures",
-                                "🏆 Events",
-                                "🎤 Talks",
-                                "📽️ Vlogs",
-                                "🎓 Ceremonies",
-                              ].map((item) => (
-                                <span
-                                  key={item}
-                                  className="bg-white/10 border border-white/10 text-white/70 text-[11px] font-semibold px-3 py-1.5 rounded-full whitespace-nowrap"
-                                >
-                                  {item}
-                                </span>
-                              ))}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="overflow-hidden rounded-lg">
-                        <div className="marquee-track marquee-track-rev">
-                          {[...Array(2)].map((_, di) => (
-                            <div key={di} className="flex gap-2 pr-2">
-                              {[
-                                "🌟 Alumni Stories",
-                                "🎵 Cultural Fest",
-                                "🏅 Sports Day",
-                                "💡 Innovation",
-                              ].map((item) => (
-                                <span
-                                  key={item}
-                                  className="bg-red-500/20 border border-red-400/20 text-white/70 text-[11px] font-semibold px-3 py-1.5 rounded-full whitespace-nowrap"
-                                >
-                                  {item}
-                                </span>
-                              ))}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
+                    
 
                     <div className="mt-auto pt-3">
                       <div className="w-10 h-10 rounded-full bg-[#FF0000] flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-red-500/30">
@@ -995,6 +820,7 @@ const Home = () => {
               </div>
             </div>
           </div>
+
           {/* Bottom strip */}
           <div
             className={`mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-slate-100 transition-all duration-700 ${
