@@ -188,10 +188,10 @@ const Home = () => {
   return (
     <div>
       {/* HERO SECTION */}
-     <section
+   <section
   id="home"
   ref={heroRef}
-  className="relative min-h-[calc(135vh-197px)] overflow-hidden text-white"
+  className="relative min-h-[60vh] sm:min-h-[75vh] md:min-h-[calc(100vh-80px)] lg:min-h-[calc(135vh-197px)] overflow-hidden text-white"
 >
   {/* 🎥 BACKGROUND VIDEO */}
   <video
@@ -205,11 +205,12 @@ const Home = () => {
   </video>
 
   {/* CONTENT */}
-  <div className="container mx-auto px-4 pt-24 pb-20 relative z-10">
+  <div className="container mx-auto px-4 pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-16 relative z-10">
     <div className="max-w-4xl mx-auto text-center">
+
       {/* TITLE */}
       <h1
-        className={`font-serif text-3xl sm:text-4xl mt-15 md:text-7xl lg:text-[75px] font-bold mb-3 leading-tight tracking-tight transition-all duration-700 ${
+        className={`font-serif text-3xl sm:text-4xl md:text-5xl lg:text-[75px] font-bold mb-3 mt-8 sm:mt-10 md:mt-12 lg:mt-15 leading-tight tracking-tight transition-all duration-700 ${
           heroVisible
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-6"
@@ -221,7 +222,7 @@ const Home = () => {
 
       {/* SUBTEXT */}
       <p
-        className={`text-sm sm:text-base md:text-lg text-white/80 mb-10 max-w-2xl mx-auto transition-all duration-700 delay-100 ${
+        className={`text-sm sm:text-base md:text-lg text-white/80 mb-8 sm:mb-10 max-w-2xl mx-auto transition-all duration-700 delay-100 ${
           heroVisible
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-6"
@@ -232,7 +233,7 @@ const Home = () => {
 
       {/* BUTTON */}
       <div
-        className={`flex justify-center mb-14 transition-all duration-700 delay-200 ${
+        className={`flex justify-center mb-10 sm:mb-14 transition-all duration-700 delay-200 ${
           heroVisible
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-6"
@@ -240,35 +241,17 @@ const Home = () => {
       >
         <Link
           to="/user/community"
-          className="px-8 py-4 rounded-2xl font-semibold flex items-center gap-2 justify-center transition-all duration-300"
+          className="px-6 py-3 sm:px-8 sm:py-4 rounded-2xl font-semibold flex items-center gap-2 justify-center transition-all duration-300 text-sm sm:text-base"
           style={{
             background: "linear-gradient(135deg, #EBAB09, #f4c430)",
             boxShadow: "0 6px 20px rgba(235,171,9,0.35)",
           }}
         >
           Explore Alumni Network
-          <ArrowRight className="w-5 h-5" />
+          <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
         </Link>
       </div>
 
-      {/* STATS */}
-      {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {stats.map((stat, index) => (
-          <div
-            key={stat.label}
-            className={`bg-white/10 backdrop-blur-md border border-white/10 p-5 rounded-2xl transition-all duration-500 ${
-              heroVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-6"
-            }`}
-            style={{ transitionDelay: `${400 + index * 100}ms` }}
-          >
-            <stat.icon className="w-8 h-8 text-[#EBAB09] mx-auto mb-3" />
-            <div className="text-3xl font-bold mb-1">{stat.value}</div>
-            <div className="text-white/70 text-sm">{stat.label}</div>
-          </div>
-        ))}
-      </div> */}
     </div>
   </div>
 
@@ -288,7 +271,6 @@ const Home = () => {
     </svg>
   </div>
 </section>
-
       {/* EVENTS SECTION */}
       <section id="events" ref={eventsRef} className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-6">
@@ -549,13 +531,15 @@ const Home = () => {
             </p>
           </div>
 
-<div
-  className={`grid grid-cols-12 gap-4 transition-all duration-700 ${
-    socialVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-  }`}
-  style={{ transitionDelay: "200ms" }}
->
-  <style>{`
+          <div
+            className={`grid grid-cols-12 gap-4 transition-all duration-700 ${
+              socialVisible
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-10"
+            }`}
+            style={{ transitionDelay: "200ms" }}
+          >
+            <style>{`
     @keyframes marquee {
       0% { transform: translateX(0); }
       100% { transform: translateX(-50%); }
@@ -576,311 +560,441 @@ const Home = () => {
     }
   `}</style>
 
-  {/* INSTAGRAM */}
-  <a
-    href="https://instagram.com"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="col-span-12 md:col-span-5 group relative rounded-3xl overflow-hidden cursor-pointer"
-    style={{ minHeight: "420px" }}
-  >
-    <img
-      src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&auto=format&fit=crop"
-      alt="Instagram"
-      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-    />
-    <div className="absolute inset-0 bg-gradient-to-br from-[#F58529]/80 via-[#DD2A7B]/70 to-[#8134AF]/80" />
-    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+            {/* INSTAGRAM */}
+            <a
+              href="https://instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="col-span-12 md:col-span-5 group relative rounded-3xl overflow-hidden cursor-pointer"
+              style={{ minHeight: "420px" }}
+            >
+              <img
+                src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&auto=format&fit=crop"
+                alt="Instagram"
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#F58529]/80 via-[#DD2A7B]/70 to-[#8134AF]/80" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
 
-    <div className="relative p-8 flex flex-col justify-between" style={{ minHeight: "420px" }}>
-      <div className="flex items-center justify-between">
-        <div className="bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 flex items-center gap-2">
-          <Instagram className="w-4 h-4 text-white" />
-          <span className="text-white text-sm font-semibold">Instagram</span>
-        </div>
-        <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:bg-white/40 transition-colors">
-          <ArrowRight className="w-4 h-4 text-white -rotate-45" />
-        </div>
-      </div>
-
-      <div>
-        <p className="text-white/90 text-sm leading-relaxed max-w-xs mb-5">
-          Campus life, alumni spotlights & behind-the-scenes moments.
-        </p>
-
-        {/* Marquee row 1 — left to right */}
-        <div className="overflow-hidden mb-2 rounded-xl">
-          <div className="marquee-track marquee-track-anim">
-            {[...Array(2)].map((_, di) => (
-              <div key={di} className="flex gap-2 pr-2">
-                {["📸 Campus Diaries", "🎓 Convocation 2024", "🌟 Alumni Spotlight", "🎉 Fest Highlights", "📚 Study Vibes"].map((item) => (
-                  <span key={item} className="bg-white/15 border border-white/25 backdrop-blur-sm text-white text-xs font-semibold px-4 py-2 rounded-full whitespace-nowrap">
-                    {item}
-                  </span>
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Marquee row 2 — right to left */}
-        <div className="overflow-hidden rounded-xl mb-5">
-          <div className="marquee-track marquee-track-rev">
-            {[...Array(2)].map((_, di) => (
-              <div key={di} className="flex gap-2 pr-2">
-                {["🏆 Award Winners", "🤝 Reunions", "💡 Innovation Days", "🎨 Art & Culture", "🏅 Sports Meet"].map((item) => (
-                  <span key={item} className="bg-white/10 border border-white/20 backdrop-blur-sm text-white/80 text-xs font-semibold px-4 py-2 rounded-full whitespace-nowrap">
-                    {item}
-                  </span>
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-
-       
-
-        <div className="text-white/60 text-sm font-medium">@alumniconnect</div>
-      </div>
-    </div>
-  </a>
-
-  {/* Right column */}
-  <div className="col-span-12 md:col-span-7 flex flex-col gap-4">
-    {/* LINKEDIN */}
-    <a
-      href="https://linkedin.com"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group relative rounded-3xl overflow-hidden p-8 hover:-translate-y-1 hover:shadow-[0_25px_60px_-10px_rgba(10,102,194,0.6)] transition-all duration-500"
-      style={{
-        minHeight: "170px",
-        background: "linear-gradient(135deg, #0A66C2 0%, #0952A5 40%, #063E85 100%)",
-      }}
-    >
-      {[...Array(4)].map((_, i) => (
-        <span
-          key={i}
-          className="absolute rounded-full border border-white/20"
-          style={{
-            width: `${140 + i * 90}px`,
-            height: `${140 + i * 90}px`,
-            top: `-${60 + i * 45}px`,
-            left: `-${60 + i * 45}px`,
-            animation: `ping 2.4s cubic-bezier(0, 0, 0.2, 1) infinite`,
-            animationDelay: `${i * 0.45}s`,
-            opacity: 0.5 - i * 0.1,
-          }}
-        />
-      ))}
-      <div
-        className="absolute -top-10 -left-10 w-52 h-52 rounded-full blur-3xl"
-        style={{
-          background: "radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 70%)",
-          animation: "pulse 2.5s ease-in-out infinite",
-        }}
-      />
-      <div
-        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
-        style={{
-          background: "linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%)",
-          animation: "shimmer 2s linear infinite",
-        }}
-      />
-      <div className="absolute right-0 top-0 bottom-0 w-64 opacity-[0.07]">
-        <div className="w-full h-full bg-white" style={{ clipPath: "polygon(35% 0%, 100% 0%, 100% 100%, 0% 100%)" }} />
-      </div>
-      <div
-        className="absolute inset-0 opacity-[0.06]"
-        style={{
-          backgroundImage: "radial-gradient(circle, #fff 1px, transparent 1px)",
-          backgroundSize: "22px 22px",
-        }}
-      />
-
-      <div className="relative z-10 flex flex-col gap-4">
-        {/* Top row */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="relative flex items-center justify-center w-14 h-14">
-              <span className="absolute inset-0 rounded-xl bg-white/30 animate-ping" style={{ animationDuration: "1.8s" }} />
-              <span className="absolute inset-[-4px] rounded-xl bg-white/15 animate-ping" style={{ animationDuration: "1.8s", animationDelay: "0.3s" }} />
-              <div className="relative w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.4)]">
-                <Linkedin className="w-6 h-6 text-[#0A66C2]" />
-              </div>
-            </div>
-            <div>
-              <p className="text-white font-extrabold text-xl tracking-tight leading-none">LinkedIn</p>
-              <p className="text-white/50 text-xs tracking-[0.15em] uppercase mt-1">Alumni Network</p>
-            </div>
-          </div>
-          <div className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-300">
-            <ArrowRight className="w-4 h-4 text-white group-hover:text-[#0A66C2] -rotate-45 transition-colors duration-300" />
-          </div>
-        </div>
-
-        {/* Marquee — single row of professional topics */}
-        <div className="overflow-hidden rounded-xl">
-          <div className="marquee-track marquee-track-anim">
-            {[...Array(2)].map((_, di) => (
-              <div key={di} className="flex gap-2 pr-2">
-                {["💼 Job Openings", "📈 Career Growth", "🤝 Referrals", "🏢 Industry News", "🎯 Skill Building", "🌐 Networking"].map((item) => (
-                  <span key={item} className="bg-white/10 border border-white/20 backdrop-blur-sm text-white/90 text-xs font-semibold px-4 py-2 rounded-full whitespace-nowrap">
-                    {item}
-                  </span>
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Live pill */}
-        <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 w-fit">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-80" style={{ animationDuration: "1.2s" }} />
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400 shadow-[0_0_6px_2px_rgba(52,211,153,0.6)]" />
-          </span>
-          <span className="text-white/90 text-xs font-semibold">Active community</span>
-        </div>
-      </div>
-    </a>
-
-    {/* X and YouTube */}
-    <div className="grid grid-cols-2 gap-4 flex-1">
-      {/* X / TWITTER */}
-<a
-  href="https://twitter.com"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="group relative rounded-3xl overflow-hidden bg-[#0F1419] p-6 flex flex-col hover:-translate-y-0.5 hover:shadow-2xl transition-all duration-300"
->
-  <div
-    className="absolute inset-0 opacity-5"
-    style={{
-      backgroundImage: "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
-      backgroundSize: "24px 24px",
-    }}
-  />
-  <div className="relative z-10 flex flex-col h-full gap-3">
-    <div className="flex items-center justify-between">
-      <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
-        <svg className="w-5 h-5 text-white fill-current" viewBox="0 0 24 24">
-          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.262 5.638L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" />
-        </svg>
-      </div>
-      <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-white/60 -rotate-45 transition-colors" />
-    </div>
-
-    {/* Vertical marquee — fast upward scroll */}
-    <div className="overflow-hidden flex-1 rounded-xl" style={{ maxHeight: "160px" }}>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "8px",
-          animation: "marquee-vertical 6s linear infinite",
-        }}
-      >
-        {[...Array(3)].map((_, di) => (
-          <div key={di} className="flex flex-col gap-2">
-            {[
-              { tag: "#AlumniTalks", emoji: "🔥", desc: "Stories from our grads" },
-              { tag: "#CampusNews", emoji: "📢", desc: "Latest from college" },
-              { tag: "#AskAlumni", emoji: "💬", desc: "Q&A with seniors" },
-              { tag: "#Trending", emoji: "🚀", desc: "What's hot right now" },
-              { tag: "#Community", emoji: "🤝", desc: "Connect & grow" },
-              { tag: "#Hiring", emoji: "💼", desc: "Jobs & referrals" },
-              { tag: "#Events", emoji: "🎉", desc: "Upcoming meetups" },
-              { tag: "#Alumni2024", emoji: "🎓", desc: "Class of 2024 updates" },
-            ].map(({ tag, emoji, desc }) => (
               <div
-                key={tag + di}
-                className="flex items-center gap-2.5 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors px-3 py-2 rounded-xl"
+                className="relative p-8 flex flex-col justify-between"
+                style={{ minHeight: "420px" }}
               >
-                <span className="text-sm leading-none">{emoji}</span>
-                <div className="min-w-0">
-                  <p className="text-white/80 text-[11px] font-bold leading-none">{tag}</p>
-                  <p className="text-white/35 text-[10px] mt-0.5 truncate">{desc}</p>
+                <div className="flex items-center justify-between">
+                  <div className="bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 flex items-center gap-2">
+                    <Instagram className="w-4 h-4 text-white" />
+                    <span className="text-white text-sm font-semibold">
+                      Instagram
+                    </span>
+                  </div>
+                  <div className="w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:bg-white/40 transition-colors">
+                    <ArrowRight className="w-4 h-4 text-white -rotate-45" />
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-white/90 text-sm leading-relaxed max-w-xs mb-5">
+                    Campus life, alumni spotlights & behind-the-scenes moments.
+                  </p>
+
+                  {/* Marquee row 1 — left to right */}
+                  <div className="overflow-hidden mb-2 rounded-xl">
+                    <div className="marquee-track marquee-track-anim">
+                      {[...Array(2)].map((_, di) => (
+                        <div key={di} className="flex gap-2 pr-2">
+                          {[
+                            "📸 Campus Diaries",
+                            "🎓 Convocation 2024",
+                            "🌟 Alumni Spotlight",
+                            "🎉 Fest Highlights",
+                            "📚 Study Vibes",
+                          ].map((item) => (
+                            <span
+                              key={item}
+                              className="bg-white/15 border border-white/25 backdrop-blur-sm text-white text-xs font-semibold px-4 py-2 rounded-full whitespace-nowrap"
+                            >
+                              {item}
+                            </span>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Marquee row 2 — right to left */}
+                  <div className="overflow-hidden rounded-xl mb-5">
+                    <div className="marquee-track marquee-track-rev">
+                      {[...Array(2)].map((_, di) => (
+                        <div key={di} className="flex gap-2 pr-2">
+                          {[
+                            "🏆 Award Winners",
+                            "🤝 Reunions",
+                            "💡 Innovation Days",
+                            "🎨 Art & Culture",
+                            "🏅 Sports Meet",
+                          ].map((item) => (
+                            <span
+                              key={item}
+                              className="bg-white/10 border border-white/20 backdrop-blur-sm text-white/80 text-xs font-semibold px-4 py-2 rounded-full whitespace-nowrap"
+                            >
+                              {item}
+                            </span>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="text-white/60 text-sm font-medium">
+                    @alumniconnect
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
-        ))}
-      </div>
-    </div>
+            </a>
 
-    <p className="text-white/30 text-xs">Live updates & community threads.</p>
-  </div>
+            {/* Right column */}
+            <div className="col-span-12 md:col-span-7 flex flex-col gap-4">
+              {/* LINKEDIN */}
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative rounded-3xl overflow-hidden p-8 hover:-translate-y-1 hover:shadow-[0_25px_60px_-10px_rgba(10,102,194,0.6)] transition-all duration-500"
+                style={{
+                  minHeight: "170px",
+                  background:
+                    "linear-gradient(135deg, #0A66C2 0%, #0952A5 40%, #063E85 100%)",
+                }}
+              >
+                {[...Array(4)].map((_, i) => (
+                  <span
+                    key={i}
+                    className="absolute rounded-full border border-white/20"
+                    style={{
+                      width: `${140 + i * 90}px`,
+                      height: `${140 + i * 90}px`,
+                      top: `-${60 + i * 45}px`,
+                      left: `-${60 + i * 45}px`,
+                      animation: `ping 2.4s cubic-bezier(0, 0, 0.2, 1) infinite`,
+                      animationDelay: `${i * 0.45}s`,
+                      opacity: 0.5 - i * 0.1,
+                    }}
+                  />
+                ))}
+                <div
+                  className="absolute -top-10 -left-10 w-52 h-52 rounded-full blur-3xl"
+                  style={{
+                    background:
+                      "radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 70%)",
+                    animation: "pulse 2.5s ease-in-out infinite",
+                  }}
+                />
+                <div
+                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+                  style={{
+                    background:
+                      "linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%)",
+                    animation: "shimmer 2s linear infinite",
+                  }}
+                />
+                <div className="absolute right-0 top-0 bottom-0 w-64 opacity-[0.07]">
+                  <div
+                    className="w-full h-full bg-white"
+                    style={{
+                      clipPath: "polygon(35% 0%, 100% 0%, 100% 100%, 0% 100%)",
+                    }}
+                  />
+                </div>
+                <div
+                  className="absolute inset-0 opacity-[0.06]"
+                  style={{
+                    backgroundImage:
+                      "radial-gradient(circle, #fff 1px, transparent 1px)",
+                    backgroundSize: "22px 22px",
+                  }}
+                />
 
-  <style>{`
+                <div className="relative z-10 flex flex-col gap-4">
+                  {/* Top row */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex items-center justify-center w-14 h-14">
+                        <span
+                          className="absolute inset-0 rounded-xl bg-white/30 animate-ping"
+                          style={{ animationDuration: "1.8s" }}
+                        />
+                        <span
+                          className="absolute inset-[-4px] rounded-xl bg-white/15 animate-ping"
+                          style={{
+                            animationDuration: "1.8s",
+                            animationDelay: "0.3s",
+                          }}
+                        />
+                        <div className="relative w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.4)]">
+                          <Linkedin className="w-6 h-6 text-[#0A66C2]" />
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-white font-extrabold text-xl tracking-tight leading-none">
+                          LinkedIn
+                        </p>
+                        <p className="text-white/50 text-xs tracking-[0.15em] uppercase mt-1">
+                          Alumni Network
+                        </p>
+                      </div>
+                    </div>
+                    <div className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center group-hover:bg-white group-hover:border-white transition-all duration-300">
+                      <ArrowRight className="w-4 h-4 text-white group-hover:text-[#0A66C2] -rotate-45 transition-colors duration-300" />
+                    </div>
+                  </div>
+
+                  {/* Marquee — single row of professional topics */}
+                  <div className="overflow-hidden rounded-xl">
+                    <div className="marquee-track marquee-track-anim">
+                      {[...Array(2)].map((_, di) => (
+                        <div key={di} className="flex gap-2 pr-2">
+                          {[
+                            "💼 Job Openings",
+                            "📈 Career Growth",
+                            "🤝 Referrals",
+                            "🏢 Industry News",
+                            "🎯 Skill Building",
+                            "🌐 Networking",
+                          ].map((item) => (
+                            <span
+                              key={item}
+                              className="bg-white/10 border border-white/20 backdrop-blur-sm text-white/90 text-xs font-semibold px-4 py-2 rounded-full whitespace-nowrap"
+                            >
+                              {item}
+                            </span>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Live pill */}
+                  <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 w-fit">
+                    <span className="relative flex h-2.5 w-2.5">
+                      <span
+                        className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-80"
+                        style={{ animationDuration: "1.2s" }}
+                      />
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400 shadow-[0_0_6px_2px_rgba(52,211,153,0.6)]" />
+                    </span>
+                    <span className="text-white/90 text-xs font-semibold">
+                      Active community
+                    </span>
+                  </div>
+                </div>
+              </a>
+
+              {/* X and YouTube */}
+              <div className="grid grid-cols-2 gap-4 flex-1">
+                {/* X / TWITTER */}
+                <a
+                  href="https://twitter.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative rounded-3xl overflow-hidden bg-[#0F1419] p-6 flex flex-col hover:-translate-y-0.5 hover:shadow-2xl transition-all duration-300"
+                >
+                  <div
+                    className="absolute inset-0 opacity-5"
+                    style={{
+                      backgroundImage:
+                        "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
+                      backgroundSize: "24px 24px",
+                    }}
+                  />
+                  <div className="relative z-10 flex flex-col h-full gap-3">
+                    <div className="flex items-center justify-between">
+                      <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                        <svg
+                          className="w-5 h-5 text-white fill-current"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.262 5.638L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" />
+                        </svg>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-white/20 group-hover:text-white/60 -rotate-45 transition-colors" />
+                    </div>
+
+                    {/* Vertical marquee — fast upward scroll */}
+                    <div
+                      className="overflow-hidden flex-1 rounded-xl"
+                      style={{ maxHeight: "160px" }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "8px",
+                          animation: "marquee-vertical 6s linear infinite",
+                        }}
+                      >
+                        {[...Array(3)].map((_, di) => (
+                          <div key={di} className="flex flex-col gap-2">
+                            {[
+                              {
+                                tag: "#AlumniTalks",
+                                emoji: "🔥",
+                                desc: "Stories from our grads",
+                              },
+                              {
+                                tag: "#CampusNews",
+                                emoji: "📢",
+                                desc: "Latest from college",
+                              },
+                              {
+                                tag: "#AskAlumni",
+                                emoji: "💬",
+                                desc: "Q&A with seniors",
+                              },
+                              {
+                                tag: "#Trending",
+                                emoji: "🚀",
+                                desc: "What's hot right now",
+                              },
+                              {
+                                tag: "#Community",
+                                emoji: "🤝",
+                                desc: "Connect & grow",
+                              },
+                              {
+                                tag: "#Hiring",
+                                emoji: "💼",
+                                desc: "Jobs & referrals",
+                              },
+                              {
+                                tag: "#Events",
+                                emoji: "🎉",
+                                desc: "Upcoming meetups",
+                              },
+                              {
+                                tag: "#Alumni2024",
+                                emoji: "🎓",
+                                desc: "Class of 2024 updates",
+                              },
+                            ].map(({ tag, emoji, desc }) => (
+                              <div
+                                key={tag + di}
+                                className="flex items-center gap-2.5 bg-white/5 border border-white/10 hover:bg-white/10 transition-colors px-3 py-2 rounded-xl"
+                              >
+                                <span className="text-sm leading-none">
+                                  {emoji}
+                                </span>
+                                <div className="min-w-0">
+                                  <p className="text-white/80 text-[11px] font-bold leading-none">
+                                    {tag}
+                                  </p>
+                                  <p className="text-white/35 text-[10px] mt-0.5 truncate">
+                                    {desc}
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <p className="text-white/30 text-xs">
+                      Live updates & community threads.
+                    </p>
+                  </div>
+
+                  <style>{`
     @keyframes marquee-vertical {
       0% { transform: translateY(0); }
       100% { transform: translateY(-33.333%); }
     }
   `}</style>
-</a>
+                </a>
 
-      {/* YOUTUBE */}
-      <a
-        href="https://youtube.com"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="group relative rounded-3xl overflow-hidden cursor-pointer"
-      >
-        <img
-          src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=600&auto=format&fit=crop"
-          alt="YouTube"
-          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-        />
-        <div className="absolute inset-0 bg-black/70 group-hover:bg-black/55 transition-colors" />
-        <div className="relative z-10 p-6 flex flex-col h-full" style={{ minHeight: "180px" }}>
-          <div className="flex items-center justify-between">
-            <Youtube className="w-7 h-5 text-[#FF0000]" />
-            <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white/70 -rotate-45 transition-colors" />
-          </div>
+                {/* YOUTUBE */}
+                <a
+                  href="https://youtube.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative rounded-3xl overflow-hidden cursor-pointer"
+                >
+                  <img
+                    src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=600&auto=format&fit=crop"
+                    alt="YouTube"
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-black/70 group-hover:bg-black/55 transition-colors" />
+                  <div
+                    className="relative z-10 p-6 flex flex-col h-full"
+                    style={{ minHeight: "180px" }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <Youtube className="w-7 h-5 text-[#FF0000]" />
+                      <ArrowRight className="w-4 h-4 text-white/30 group-hover:text-white/70 -rotate-45 transition-colors" />
+                    </div>
 
-          {/* Horizontal marquee */}
-          <div className="overflow-hidden mt-4 rounded-xl flex-1 flex flex-col justify-center gap-2">
-            <div className="overflow-hidden rounded-lg">
-              <div className="marquee-track marquee-track-anim">
-                {[...Array(2)].map((_, di) => (
-                  <div key={di} className="flex gap-2 pr-2">
-                    {["🎬 Lectures", "🏆 Events", "🎤 Talks", "📽️ Vlogs", "🎓 Ceremonies"].map((item) => (
-                      <span key={item} className="bg-white/10 border border-white/10 text-white/70 text-[11px] font-semibold px-3 py-1.5 rounded-full whitespace-nowrap">
-                        {item}
-                      </span>
-                    ))}
+                    {/* Horizontal marquee */}
+                    <div className="overflow-hidden mt-4 rounded-xl flex-1 flex flex-col justify-center gap-2">
+                      <div className="overflow-hidden rounded-lg">
+                        <div className="marquee-track marquee-track-anim">
+                          {[...Array(2)].map((_, di) => (
+                            <div key={di} className="flex gap-2 pr-2">
+                              {[
+                                "🎬 Lectures",
+                                "🏆 Events",
+                                "🎤 Talks",
+                                "📽️ Vlogs",
+                                "🎓 Ceremonies",
+                              ].map((item) => (
+                                <span
+                                  key={item}
+                                  className="bg-white/10 border border-white/10 text-white/70 text-[11px] font-semibold px-3 py-1.5 rounded-full whitespace-nowrap"
+                                >
+                                  {item}
+                                </span>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="overflow-hidden rounded-lg">
+                        <div className="marquee-track marquee-track-rev">
+                          {[...Array(2)].map((_, di) => (
+                            <div key={di} className="flex gap-2 pr-2">
+                              {[
+                                "🌟 Alumni Stories",
+                                "🎵 Cultural Fest",
+                                "🏅 Sports Day",
+                                "💡 Innovation",
+                              ].map((item) => (
+                                <span
+                                  key={item}
+                                  className="bg-red-500/20 border border-red-400/20 text-white/70 text-[11px] font-semibold px-3 py-1.5 rounded-full whitespace-nowrap"
+                                >
+                                  {item}
+                                </span>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-auto pt-3">
+                      <div className="w-10 h-10 rounded-full bg-[#FF0000] flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-red-500/30">
+                        <svg
+                          className="w-4 h-4 text-white fill-current ml-0.5"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </div>
+                    </div>
                   </div>
-                ))}
+                </a>
               </div>
             </div>
-            <div className="overflow-hidden rounded-lg">
-              <div className="marquee-track marquee-track-rev">
-                {[...Array(2)].map((_, di) => (
-                  <div key={di} className="flex gap-2 pr-2">
-                    {["🌟 Alumni Stories", "🎵 Cultural Fest", "🏅 Sports Day", "💡 Innovation"].map((item) => (
-                      <span key={item} className="bg-red-500/20 border border-red-400/20 text-white/70 text-[11px] font-semibold px-3 py-1.5 rounded-full whitespace-nowrap">
-                        {item}
-                      </span>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
-
-          <div className="mt-auto pt-3">
-            <div className="w-10 h-10 rounded-full bg-[#FF0000] flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-red-500/30">
-              <svg className="w-4 h-4 text-white fill-current ml-0.5" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-            </div>
-          </div>
-        </div>
-      </a>
-    </div>
-  </div>
-</div>
           {/* Bottom strip */}
           <div
             className={`mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-slate-100 transition-all duration-700 ${

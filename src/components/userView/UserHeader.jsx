@@ -464,33 +464,35 @@ const Navbar = () => {
 
               {/* ✅ DROPDOWN */}
               {item.type === "dropdown" ? (
-  <div className="relative group">
-    <div className="px-7 py-1.5 text-lg font-semibold cursor-pointer text-black hover:text-[#0B1F4A]">
-      {item.label}
-    </div>
+                <div className="relative group">
+                  <div className="px-7 py-1.5 text-lg font-semibold cursor-pointer text-black hover:text-[#0B1F4A]">
+                    {item.label}
+                  </div>
 
-    {/* ✅ FIX 1: pt-2 creates an invisible bridge that covers the gap between
+                  {/* ✅ FIX 1: pt-2 creates an invisible bridge that covers the gap between
            trigger and menu, so group-hover never breaks mid-travel.
         ✅ FIX 2: opacity + pointer-events instead of hidden/block —
            no flicker, and the transition is smooth. */}
-    <div className="absolute left-1/2 -translate-x-1/2 top-full pt-2
+                  <div
+                    className="absolute left-1/2 -translate-x-1/2 top-full pt-2
                     opacity-0 pointer-events-none
                     group-hover:opacity-100 group-hover:pointer-events-auto
-                    transition-opacity duration-150 min-w-[240px] z-50">
-      <div className="bg-white shadow-2xl rounded-xl overflow-hidden border border-gray-100">
-        {item.children.map((child) => (
-          <Link
-            key={child.id}
-            to={child.path}
-            className="block px-6 py-3 text-base font-medium text-gray-700 hover:bg-[#F2A20A] hover:text-white transition"
-          >
-            {child.label}
-          </Link>
-        ))}
-      </div>
-    </div>
-  </div>
-)  : (
+                    transition-opacity duration-150 min-w-[240px] z-50"
+                  >
+                    <div className="bg-white shadow-2xl rounded-xl overflow-hidden border border-gray-100">
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.id}
+                          to={child.path}
+                          className="block px-6 py-3 text-base font-medium text-gray-700 hover:bg-[#F2A20A] hover:text-white transition"
+                        >
+                          {child.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
                 /* ✅ NORMAL LINK */
                 <Link
                   to={item.path}
