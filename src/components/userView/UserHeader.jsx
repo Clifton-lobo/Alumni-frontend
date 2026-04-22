@@ -242,8 +242,8 @@ const Navbar = () => {
             {/* ── College name: Desktop (≥ md) ── */}
             <div className="hidden md:flex items-center gap-4 whitespace-nowrap">
               <span
-                className="text-[22px] lg:text-[30px] font-extrabold text-[#0B1F4A] leading-tight uppercase tracking-wide"
-                style={{ fontFamily: "'Cinzel', serif" }}
+                className="text-[22px] lg:text-[30px] font-extrabold text-[#0B1F4A] leading-tight uppercase tracking-ide"
+                style={{ fontFamily: "serif" }}
               >
                 VPM'S R. Z. SHAH COLLEGE <br />
                 OF ARTS, SCIENCE & COMMERCE
@@ -252,7 +252,7 @@ const Navbar = () => {
               <span
                 className="text-[30px] lg:text-[38px] text-[#F2A20A]"
                 style={{
-                  fontFamily: "serif",
+                  fontFamily: "'Pacifico', cursive",
                   letterSpacing: "1px",
                   transform: "translateY(-2px)",
                 }}
@@ -401,7 +401,6 @@ const Navbar = () => {
                     </div>
                   )}
                   {/* Nav items */}
-                  // ─── Drop-in replacement nav block ───
                   <nav className="flex flex-col gap-1 px-3 py-3">
                     {UserNavItems.map((item) =>
                       item.type === "dropdown" ? (
@@ -472,7 +471,6 @@ const Navbar = () => {
                       ),
                     )}
                   </nav>
-                  
                   {/* Account + Logout — authenticated */}
                   {isAuthenticated && (
                     <div className="mt-auto px-4 pb-6 pt-3 border-t border-gray-100 flex flex-col gap-2">

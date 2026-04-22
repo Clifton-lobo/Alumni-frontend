@@ -250,7 +250,7 @@ const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="relative md:h-[550px] w-full overflow-hidden shadow-lg md:block bg-black">
+      <div className="relative md:h-[600px] w-full overflow-hidden shadow-lg md:block bg-black">
   <img
     src={eventPageAlumniEvent}
     alt="Events Banner"
