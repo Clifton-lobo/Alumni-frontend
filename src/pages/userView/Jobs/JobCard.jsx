@@ -14,7 +14,7 @@ const JobCard = ({ job, view = "grid", onApply }) => {
   const [posterDialogOpen, setPosterDialogOpen] = useState(false);
 
   const getDisplayName = () => {
-    if (job.postedBy?.role === "admin") return "Administrator";
+    if (job.postedBy?.role === "admin") return "Admin";
     return job.postedBy?.fullname || job.postedBy?.username || "Anonymous";
   };
 
