@@ -53,7 +53,7 @@ const alumniSlice = createSlice({
     currentPage: 1,
     totalPages: 1,
     totalUsers: 0,
-    limit: 21,
+    limit: 15,
     search: "",
     loggedInOnly: false,
     batch: "",

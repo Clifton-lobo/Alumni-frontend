@@ -639,7 +639,7 @@ const News = () => {
                 </div>
 
                 {heroArticle && (
-                  <HeroCard article={heroArticle} onClick={openArticle} />
+                  <HeroCard article={heroArticle} onClick={openArticle}/>
                 )}
                 <div ref={listRef} />
 

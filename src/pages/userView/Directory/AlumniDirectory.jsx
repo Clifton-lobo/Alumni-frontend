@@ -22,6 +22,7 @@ import {
   UserCheck,
   Mail,
   Search,
+  X,
 } from "lucide-react";
 import alumniDir from "../../../assets/alumniDir.jpg";
 
@@ -323,6 +324,16 @@ const AlumniDirectory = () => {
     return () => clearTimeout(timer);
   }, [searchText, batchFromUrl, streamFromUrl, dispatch]);
 
+  const handleClearFilters = () => {
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      params.delete("batch");
+      params.delete("stream");
+      params.set("page", "1");
+      return params;
+    });
+  };
+
   /* -----------------------------------
      SCROLL TO LIST AFTER PAGE CHANGE
   ----------------------------------- */
@@ -418,35 +429,33 @@ const AlumniDirectory = () => {
   return (
     <div className="min-h-screen bg-[#F0F2F7]">
       {/* hero section  */}
-     <div
-  className="text-white py-40 px-6 bg-cover bg-center"
-  style={{
-    backgroundImage: `url(${alumniDir})`,
-  }}
->
-  <div className="max-w-7xl mx-auto text-center">
-    
-    <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-      Alumni Directory
-    </h1>
+      <div
+        className="text-white py-40 px-6 bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${alumniDir})`,
+        }}
+      >
+        <div className="max-w-7xl mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+            Alumni Directory
+          </h1>
 
-    {/* Search */}
-    <div className="mt-6 max-w-lg mx-auto">
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#142A5D]/50" />
+          {/* Search */}
+          <div className="mt-6 max-w-lg mx-auto">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#142A5D]/50" />
 
-        <input
-          type="text"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          placeholder="Search alumni by name, batch, company..."
-          className="w-full rounded-xl border-[1.5px] border-transparent bg-white pl-12 pr-4 py-3 text-[#142A5D] text-sm outline-none placeholder:text-[#142A5D]/40 focus:border-[#EBAB09] transition-colors"
-        />
+              <input
+                type="text"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                placeholder="Search alumni by name, batch, company..."
+                className="w-full rounded-xl border-[1.5px] border-transparent bg-white pl-12 pr-4 py-3 text-[#142A5D] text-sm outline-none placeholder:text-[#142A5D]/40 focus:border-[#EBAB09] transition-colors"
+              />
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-
-  </div>
-</div>
       {/* ── CONTENT ── */}
       <div className="max-w-7xl mx-auto px-6 -mt-6 pb-24">
         {/* FILTERS */}
@@ -495,6 +504,16 @@ const AlumniDirectory = () => {
               <option value="BIOTECH">BIOTECH</option>
               <option value="MBA">MBA</option>
             </select>
+
+            {(batchFromUrl || streamFromUrl) && (
+              <button
+                onClick={handleClearFilters}
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border-[1.5px] border-red-200 bg-red-50 text-red-500 text-sm font-medium hover:bg-red-100 transition-colors cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+                Clear Filters
+              </button>
+            )}
           </div>
 
           <p className="text-sm text-gray-400">
