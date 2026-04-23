@@ -554,7 +554,6 @@ const News = () => {
 
       {/* ══ MAIN CONTENT ══ */}
       <div
-        ref={listRef}
         className="max-w-[1350px] mx-auto px-4 sm:px-6 py-7 sm:py-10 relative min-h-[800px]"
       >
         {/* Empty state */}
@@ -597,7 +596,6 @@ const News = () => {
 
           {/* Content — subtle fade but no jump */}
           <div
-            className={`transition-opacity duration-300 ${loading.list ? "opacity-80" : "opacity-100"}`}
           >
             {list.length === 0 && !loading.list ? (
               <div className="flex flex-col items-center justify-center py-28 text-center">
@@ -643,6 +641,9 @@ const News = () => {
                 {heroArticle && (
                   <HeroCard article={heroArticle} onClick={openArticle} />
                 )}
+                <div ref={listRef} />
+
+
                 {/* Filter + Search — below hero card */}
                 <div className="flex flex-col gap-3 w-full">
                   {/* Search bar — full width on all sizes */}
