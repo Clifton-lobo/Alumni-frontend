@@ -254,78 +254,80 @@ const ProfileDialog = ({ open, onClose, poster }) => {
                 </button>
 
                 {/* Card body */}
-                <div className="p-6 flex flex-col items-center text-center flex-1">
-
-                    {/* Avatar */}
-                    <div className="relative mb-4">
-                        <div
-className="w-[72px] h-[72px] rounded-full overflow-hidden bg-gradient-to-br from-[#142A5D] to-[#1E3A7A] flex items-center justify-center text-white text-2xl font-bold border-4 border-white shadow-md"                        >
-                            {poster.profilePicture ? (
-                                <img
-                                    src={poster.profilePicture}
-                                    alt={poster.fullname}
-                                    className="w-full h-full object-cover"
-                                />
-                            ) : (
-                                (poster.fullname || poster.username || "?")
-                                    .charAt(0)
-                                    .toUpperCase()
-                            )}
-                        </div>
-                        {connectionStatus === "ACCEPTED" && (
-                            <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">
-                                <CheckCircle className="w-3.5 h-3.5 text-white" />
+<div className="p-6 flex flex-col items-center text-center flex-1">
+                    {isAdmin ? (
+                        <div className="flex flex-col items-center gap-4 py-4">
+                            <div className="w-16 h-16 rounded-full bg-green-50 border-2 border-green-200 flex items-center justify-center">
+                                <Shield className="w-8 h-8 text-green-600" />
                             </div>
-                        )}
-                    </div>
+                            <div>
+                                <h2 className="text-[15px] font-semibold text-slate-900">Platform Administrator</h2>
+                                <p className="text-xs text-slate-400 mt-1">This post was made by an admin</p>
+                            </div>
+                        </div>
+                    ) : (
+                        <>
+                            {/* Avatar */}
+                            <div className="relative mb-4">
+                                <div className="w-[72px] h-[72px] rounded-full overflow-hidden bg-gradient-to-br from-[#142A5D] to-[#1E3A7A] flex items-center justify-center text-white text-2xl font-bold border-4 border-white shadow-md">
+                                    {poster.profilePicture ? (
+                                        <img
+                                            src={poster.profilePicture}
+                                            alt={poster.fullname}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        (poster.fullname || poster.username || "?")
+                                            .charAt(0)
+                                            .toUpperCase()
+                                    )}
+                                </div>
+                                {connectionStatus === "ACCEPTED" && (
+                                    <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">
+                                        <CheckCircle className="w-3.5 h-3.5 text-white" />
+                                    </div>
+                                )}
+                            </div>
 
-                    {/* Name */}
-                    <h2 className="text-[15px] font-semibold text-slate-900 flex items-center gap-2 flex-wrap justify-center">
-                        {poster.fullname || poster.username || "Anonymous"}
-                        {isAdmin && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-50 border border-green-200 text-[10px] font-medium text-green-700">
-                                <Shield className="w-3 h-3" /> Admin
-                            </span>
-                        )}
-                        {isCurrentUser && (
-                            <span className="text-[10px] text-[#142A5D]/50 font-medium">(you)</span>
-                        )}
-                    </h2>
+                            {/* Name */}
+                            <h2 className="text-[15px] font-semibold text-slate-900 flex items-center gap-2 flex-wrap justify-center">
+                                {poster.fullname || poster.username || "Anonymous"}
+                                {isCurrentUser && (
+                                    <span className="text-[10px] text-[#142A5D]/50 font-medium">(you)</span>
+                                )}
+                            </h2>
 
-                    {poster.username && poster.fullname && (
-                        <p className="text-xs text-slate-400 mt-0.5">@{poster.username}</p>
+                            {poster.username && poster.fullname && (
+                                <p className="text-xs text-slate-400 mt-0.5">@{poster.username}</p>
+                            )}
+
+                            {/* Info rows */}
+                            <div className="mt-4 w-full flex flex-col gap-2">
+                                <div className="flex items-center gap-2.5 bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-500">
+                                    <Mail className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
+                                    <span className="truncate">{poster.email || "Email not provided"}</span>
+                                </div>
+                                <div className="flex items-center gap-2.5 bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-500">
+                                    <Briefcase className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
+                                    <span className="truncate">
+                                        {poster.jobTitle
+                                            ? `${poster.jobTitle}${poster.company ? ` at ${poster.company}` : ""}`
+                                            : "Professional details not posted"}
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2.5 bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-500">
+                                    <GraduationCap className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
+                                    <span>
+                                        {poster.stream || "Stream not provided"} ·{" "}
+                                        {poster.batch ? `Class of ${poster.batch}` : "Batch not provided"}
+                                    </span>
+                                </div>
+                            </div>
+                        </>
                     )}
-
-                    {/* Info rows */}
-                    <div className="mt-4 w-full flex flex-col gap-2">
-
-                        {/* Email */}
-                        <div className="flex items-center gap-2.5 bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-500">
-                            <Mail className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
-                            <span className="truncate">{poster.email || "Email not provided"}</span>
-                        </div>
-
-                        {/* Job */}
-                        <div className="flex items-center gap-2.5 bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-500">
-                            <Briefcase className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
-                            <span className="truncate">
-                                {poster.jobTitle
-                                    ? `${poster.jobTitle}${poster.company ? ` at ${poster.company}` : ""}`
-                                    : "Professional details not posted"}
-                            </span>
-                        </div>
-
-                        {/* Stream */}
-                        <div className="flex items-center gap-2.5 bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-500">
-                            <GraduationCap className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
-                            <span>
-                                {poster.stream || "Stream not provided"} ·{" "}
-                                {poster.batch ? `Class of ${poster.batch}` : "Batch not provided"}
-                            </span>
-                        </div>
-                    </div>
                 </div>
 
+                
                 {/* Divider */}
                 <div className="h-px bg-gray-100" />
 
