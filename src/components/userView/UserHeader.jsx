@@ -242,22 +242,20 @@ const Navbar = () => {
             {/* ── College name: Desktop (≥ md) ── */}
             <div className="hidden md:flex items-center gap-4 whitespace-nowrap">
               <span
-                className="text-[22px] lg:text-[30px] font-extrabold text-[#0B1F4A] leading-tight uppercase tracking-ide"
-                style={{ fontFamily: "serif" }}
+                className="text-[22px] lg:text-[45px] font-black text-[#0B1F4A] leading-tight uppercase tracking-ide"
+                style={{ fontFamily: "Philosopher" }}
               >
-                VPM'S R. Z. SHAH COLLEGE <br />
+                VPM's R. Z. SHAH COLLEGE <br />
                 OF ARTS, SCIENCE & COMMERCE
               </span>
-              <span className="text-gray-300 text-3xl font-light">|</span>
+              <span className="text-gray-300 text-7xl font-light">|</span>
               <span
-                className="text-[30px] lg:text-[38px] text-[#F2A20A]"
+                className="text-[30px] lg:text-[45px] text-[#F2A20A]"
                 style={{
-                  fontFamily: "'Pacifico', cursive",
-                  letterSpacing: "1px",
-                  transform: "translateY(-2px)",
+                  fontFamily: "Kaushan Script",
                 }}
               >
-                Alumni
+                alumni
               </span>
             </div>
           </Link>
@@ -352,11 +350,11 @@ const Navbar = () => {
             ) : (
               <Link
                 to="/auth/login"
-                className="relative hidden md:flex items-center gap-2 px-5 py-2 rounded-xl font-semibold text-white text-sm"
+                className="relative hidden md:flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-white text-sm"
                 style={{ backgroundColor: "#F2A20A" }}
               >
                 <span className="absolute inset-0 rounded-xl bg-[#F2A20A] animate-ping opacity-40" />
-                <span className="relative">Sign In</span>
+                <span className="relative">Sign In / Register</span>
               </Link>
             )}
 
@@ -375,12 +373,12 @@ const Navbar = () => {
 
               <SheetContent side="right" className="w-[280px] sm:w-[340px] p-0">
                 <SheetHeader className="px-5 py-4 border-b border-gray-100">
-                  <SheetTitle
+                  {/* <SheetTitle
                     className="text-left text-sm font-semibold text-[#0B1F4A] uppercase tracking-wide"
                     style={{ fontFamily: "'Cinzel', serif" }}
                   >
                     VPM Alumni
-                  </SheetTitle>
+                  </SheetTitle> */}
                 </SheetHeader>
 
                 <div className="flex flex-col h-full overflow-y-auto pb-10">
@@ -395,7 +393,7 @@ const Navbar = () => {
                       >
                         <span className="absolute inset-0 bg-[#F2A20A] animate-ping opacity-30 rounded-xl" />
                         <span className="relative">
-                          Sign In to Your Account
+                          Sign in/ Register
                         </span>
                       </Link>
                     </div>

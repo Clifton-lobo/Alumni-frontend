@@ -29,7 +29,7 @@ const AboutFounder = () => {
             </p>
 
             <a
-              href="#"
+              href="https://www.csp.indica.in/nbh-kulkarni-the-man-who-nurtured-indo-israeli-ties-from-its-infancy/"
               className="inline-block bg-[#1e3a8a] text-white px-6 py-3 rounded-md font-semibold hover:bg-[#1e40af] transition"
             >
               View News
