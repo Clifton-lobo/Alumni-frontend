@@ -19,8 +19,8 @@ const container = {
   hidden: {},
   show: {
     transition: {
-      delayChildren: 0.4,   
-      staggerChildren: 0.20,
+      delayChildren: 0.4,
+      staggerChildren: 0.2,
     },
   },
 };
@@ -65,7 +65,6 @@ const Footer = () => {
         className="relative max-w-7xl mx-auto px-6 py-16 sm:py-20"
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-10">
-          
           {/* BRAND */}
           <motion.div variants={item} className="lg:col-span-2">
             <div className="flex items-center gap-4 mb-6">
@@ -73,10 +72,11 @@ const Footer = () => {
 
               <div>
                 <p className="text-3xl lg:text-3xl font-semibold font-serif tracking-tight">
-                  VPM's R.Z. SHAH COLLEGE 
+                  VPM's R.Z. SHAH COLLEGE
                 </p>
-                <p className="text-xl lg:text-xl font-semibold font-serif tracking-tight">Alumni Association</p>
-
+                <p className="text-xl lg:text-xl font-semibold font-serif tracking-tight">
+                  Alumni Association
+                </p>
               </div>
             </div>
 
@@ -98,40 +98,43 @@ const Footer = () => {
             </div>
           </motion.div>
 
-          {/* CONTACT */}
-          <motion.div variants={item} className="space-y-6">
-            <div>
-              <p className="text-xs uppercase tracking-wider text-white mb-1">
-                Phone
-              </p>
-              <a className="text-white hover:underline">
-                022-25637313
-              </a>
+          {/* CONTACT + QUICK LINKS WRAPPER */}
+          <motion.div
+            variants={item}
+            className="lg:col-span-2 grid grid-cols-2 gap-8"
+          >
+            {/* CONTACT */}
+            <div className="space-y-6">
+              <div>
+                <p className="text-xs uppercase tracking-wider text-white mb-1">
+                  Phone
+                </p>
+                <a className="text-white hover:underline">022-25637313</a>
+              </div>
+
+              <div>
+                <p className="text-xs uppercase tracking-wider text-white mb-1">
+                  Contact Us
+                </p>
+                <a className="text-white hover:underline">
+                  vpmdcol@yahoo.co.in
+                </a>
+              </div>
             </div>
 
-            <div>
-              <p className="text-xs uppercase tracking-wider text-white mb-1">
-                Contact Us
-              </p>
-              <a className="text-white hover:underline">
-                vpmdcol@yahoo.co.in
-              </a>
+            {/* QUICK LINKS */}
+            <div className="flex flex-col gap-3">
+              <Link className="text-white/80 hover:text-[#EBAB09] underline">
+                Staff Directory
+              </Link>
+              <Link className="text-white/80 hover:text-[#EBAB09] underline">
+                FAQ
+              </Link>
+              <Link className="text-white/80 hover:text-[#EBAB09] underline">
+                CAA Shop
+              </Link>
             </div>
           </motion.div>
-
-          {/* QUICK LINKS */}
-          <motion.div variants={item} className="flex flex-col gap-3">
-            <Link className="text-white/80 hover:text-[#EBAB09] underline">
-              Staff Directory
-            </Link>
-            <Link className="text-white/80 hover:text-[#EBAB09] underline">
-              FAQ
-            </Link>
-            <Link className="text-white/80 hover:text-[#EBAB09] underline">
-              CAA Shop
-            </Link>
-          </motion.div>
-
           {/* MAP */}
           <motion.div variants={item} className="lg:col-span-2">
             <p className="text-xs uppercase tracking-wider text-white mb-3">
@@ -158,7 +161,6 @@ const Footer = () => {
               View on Google Maps →
             </a>
           </motion.div>
-
         </div>
       </motion.div>
     </footer>

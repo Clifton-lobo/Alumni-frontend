@@ -563,7 +563,7 @@ const Home = () => {
 
             {/* INSTAGRAM */}
             <a
-              href="https://instagram.com"
+              href="https://www.instagram.com/vpm.rz.shah.official?igsh=b2hka2ptZmo3cms4"
               target="_blank"
               rel="noopener noreferrer"
               className="col-span-12 md:col-span-5 group relative rounded-3xl overflow-hidden cursor-pointer"
@@ -608,7 +608,7 @@ const Home = () => {
             <div className="col-span-12 md:col-span-7 flex flex-col gap-4">
               {/* LINKEDIN */}
               <a
-                href="https://linkedin.com"
+                href="https://www.linkedin.com/company/vpm-s-r-z-shah-college-of-arts-science-and-commerce/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group relative rounded-3xl overflow-hidden p-8 hover:-translate-y-1 hover:shadow-[0_25px_60px_-10px_rgba(10,102,194,0.6)] transition-all duration-500"
@@ -785,7 +785,7 @@ const Home = () => {
 
                 {/* YOUTUBE */}
                 <a
-                  href="https://youtube.com"
+                  href="https://youtube.com/@vpmstudio7604?si=Ze2UN13Wp6YHTDf2"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group relative rounded-3xl overflow-hidden cursor-pointer"
