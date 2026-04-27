@@ -131,7 +131,7 @@ const Footer = () => {
                 FAQ
               </Link>
               <Link className="text-white/80 hover:text-[#EBAB09] underline">
-                CAA Shop
+                VAA Shop
               </Link>
             </div>
           </motion.div>

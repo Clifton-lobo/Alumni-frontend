@@ -170,12 +170,11 @@ const Navbar = () => {
     College name font size — clamp(min, preferred-vw, max)
     Scales fluidly with viewport so it never overflows even at 360px.
   */
-  const nameFontSize = isDesktop
-    ? undefined
-    : isTablet
-      ? `clamp(20px, 2vw, 18px)`
-      : `clamp(18px, 3vw, 15px)`;
-
+ const nameFontSize = isDesktop
+  ? undefined
+  : isTablet
+    ? `clamp(18px, 2vw, 20px)`
+    : `clamp(20px, 8vw, 20px)`;
   const alumniFontSize = isDesktop
     ? undefined
     : isTablet
@@ -219,7 +218,7 @@ const Navbar = () => {
             {/* ── College name: Mobile + Tablet (< md) ── */}
             <div className="  flex flex-col leading-tight md:hidden  overflow-hidden">
               <span
-                className="font-extrabold text-[#0B1F4A]  uppercase leading-snug tracking-wide transition-all duration-300"
+                className="font-black text-[#050F26]  uppercase leading-snug tracking-wide transition-all duration-300"
                 style={{
                   fontFamily: "Philosopher",
                   fontSize: nameFontSize,
