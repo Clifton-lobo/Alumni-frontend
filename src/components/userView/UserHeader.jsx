@@ -221,7 +221,7 @@ const Navbar = () => {
               <span
                 className="font-extrabold text-[#0B1F4A]  uppercase leading-snug tracking-wide transition-all duration-300"
                 style={{
-                  fontFamily: "'Cinzel', serif",
+                  fontFamily: "Philosopher",
                   fontSize: nameFontSize,
                 }}
               >
@@ -230,12 +230,12 @@ const Navbar = () => {
               <span
                 className="text-[#F2A20A] transition-all duration-300"
                 style={{
-                  fontFamily: "serif",
+                  fontFamily: "Kaushan Script",
                   letterSpacing: "1px",
                   fontSize: alumniFontSize,
                 }}
               >
-                Alumni
+                alumni
               </span>
             </div>
 
