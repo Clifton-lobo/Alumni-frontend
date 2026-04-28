@@ -10,7 +10,7 @@ const AboutFounder = () => {
 
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.playbackRate = 0.5; // 0.5 = half speed
+      videoRef.current.playbackRate = 0.3; // 0.5 = half speed
     }
   }, []);
   return (
@@ -47,7 +47,7 @@ const AboutFounder = () => {
                 src={NBHKulkarniImage}
                 alt="NBH Kulkarni"
                 className="
-                  h-[200px] sm:h-[260px] md:h-[380px] lg:h-[420px]
+                  h-[200px]  sm:h-[260px] md:h-[380px] lg:h-[420px]
                   w-auto
                   object-contain
                   drop-shadow-[0_20px_60px_rgba(0,0,0,0.9)]
@@ -56,7 +56,7 @@ const AboutFounder = () => {
             </div>
 
             {/* ── LEFT: Text ── */}
-            <div className="text-white space-y-4 md:space-y-6 order-2 md:order-1">
+            <div className="text-white mt-15 space-y-4 md:space-y-6 order-2 md:order-1">
               <p className="uppercase tracking-widest text-xs sm:text-sm text-gray-300">
                 Founder & Visionary
               </p>
