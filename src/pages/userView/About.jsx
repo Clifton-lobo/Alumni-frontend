@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import AiCollegeImage from "../../assets/college_16_9_fixed.png";
 import NBHKulkarniImage from "../../assets/Ai_NBH_KULKARNI.png";
+import { Link } from "react-router-dom";
 
 /* ─── Google Fonts ─── */
 const FontLoader = () => {
@@ -289,7 +290,7 @@ function FoundingPrincipalCard({ isMobile }) {
         }}
       />
 
-      {/* ── LEFT: Text ── */}
+  {/* ── LEFT: Text ── */}
       <div
         style={{
           flex: isMobile ? "none" : "0 0 55%",
@@ -301,21 +302,6 @@ function FoundingPrincipalCard({ isMobile }) {
           zIndex: 2,
         }}
       >
-        {/* Giant decorative quote */}
-        <div
-          style={{
-            fontSize: 112,
-            lineHeight: 0.65,
-            color: "rgba(59,130,246,0.12)",
-            fontFamily: "Georgia, serif",
-            fontWeight: 900,
-            marginBottom: 20,
-            userSelect: "none",
-            letterSpacing: "-6px",
-          }}
-        >
-          "
-        </div>
 
         {/* Pill badge */}
         <div
@@ -364,7 +350,7 @@ function FoundingPrincipalCard({ isMobile }) {
             marginBottom: 6,
           }}
         >
-          Shri N.B.H. Kulkarni
+          Late.Shri N. B. H. Kulkarni
         </h2>
 
         <p
@@ -449,6 +435,68 @@ function FoundingPrincipalCard({ isMobile }) {
             </React.Fragment>
           ))}
         </div>
+
+        {/* CTA Button */}
+        <div style={{ marginTop: 36 }}>
+          <Link
+            to="/user/aboutfounder"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 10,
+              padding: "13px 28px",
+              background: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)",
+              boxShadow: "0 0 0 0 rgba(59,130,246,0.5)",
+              borderRadius: 10,
+              fontFamily: "'DM Sans', sans-serif",
+              fontWeight: 600,
+              fontSize: 14,
+              color: "#ffffff",
+              letterSpacing: "0.02em",
+              textDecoration: "none",
+              transition: "all 0.25s ease",
+              width: "fit-content",
+              border: "none",
+              position: "relative",
+              overflow: "hidden",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background =
+                "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)";
+              e.currentTarget.style.boxShadow =
+                "0 0 24px 4px rgba(59,130,246,0.45), 0 4px 16px rgba(37,99,235,0.5)";
+              e.currentTarget.style.transform = "translateY(-2px)";
+              e.currentTarget.style.gap = "14px";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background =
+                "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)";
+              e.currentTarget.style.boxShadow =
+                "0 0 0 0 rgba(59,130,246,0.5)";
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.gap = "10px";
+            }}
+          >
+            <span>Read more about him</span>
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 15 15"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              style={{ flexShrink: 0 }}
+            >
+              <path
+                d="M2.5 7.5H12.5M12.5 7.5L8.5 3.5M12.5 7.5L8.5 11.5"
+                stroke="white"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </Link>
+        </div>
+
       </div>
       {/* ── RIGHT: Image ── */}
       <div
@@ -1282,6 +1330,8 @@ const About = () => {
             Every element of our institution is crafted to transform students
             into the world's next generation of leaders and innovators.
           </p>
+
+          
         </div>
       </section>
 
