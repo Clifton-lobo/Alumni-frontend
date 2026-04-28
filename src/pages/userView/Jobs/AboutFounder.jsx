@@ -3,7 +3,7 @@ import NBHKulkarniImage from "../../../assets/nbh_kulkarniNewImage.jpg";
 import son1 from "../../../assets/shreRamKULKARNI.jpg";
 import son2 from "../../../assets/shrikrishna.jpg";
 import indoIsraelVD from "../../../assets/vid_flag.mp4";
-import  { useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 
 const AboutFounder = () => {
   const videoRef = useRef(null);
@@ -16,22 +16,21 @@ const AboutFounder = () => {
   return (
     <div className="w-full bg-white">
       {/* ================= HERO / FOUNDER ================= */}
-      <section className="relative h-[70vh] sm:h-[80vh] md:min-h-[90vh] overflow-hidden">
+      <section className="relative min-h-[100vh] md:min-h-[90vh] overflow-hidden">
         {/* ── BACKGROUND VIDEO ── */}
-    {/* ── BACKGROUND VIDEO ── */}
-<video
-  ref={videoRef}
-  className="
-    absolute top-0 left-0
-    w-full h-full
-    object-contain md:object-cover
-  "
-  src={indoIsraelVD}
-  autoPlay
-  loop
-  muted
-  playsInline
-/>
+        <video
+          ref={videoRef}
+         className="
+  absolute top-0 left-0
+  w-full h-full
+  object-cover
+"
+          src={indoIsraelVD}
+          autoPlay
+          loop
+          muted
+          playsInline
+        />
         {/* ── OVERLAYS ── */}
         {/* Mobile overlay */}
         <div className="absolute inset-0 bg-black/60 md:hidden" />
@@ -40,7 +39,7 @@ const AboutFounder = () => {
         <div className="absolute inset-0 hidden md:block bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
 
         {/* ── CONTENT ── */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 py-16 md:py-0">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 py-20 md:py-0">
           <div className="flex flex-col md:grid md:grid-cols-2 md:items-center gap-8 md:gap-10">
             {/* ── RIGHT: Portrait image ── */}
             <div className="flex justify-center md:justify-end order-1 md:order-2">
