@@ -42,7 +42,7 @@ const AboutFounder = () => {
         <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 py-20 md:py-0">
           <div className="flex flex-col md:grid md:grid-cols-2 md:items-center gap-8 md:gap-10">
             {/* ── RIGHT: Portrait image ── */}
-            <div className="flex justify-center md:justify-end order-1 md:order-2">
+            <div className="flex justify-center md:justify-end order-1 md:order-2 mt-15">
               <img
                 src={NBHKulkarniImage}
                 alt="NBH Kulkarni"
@@ -64,7 +64,7 @@ const AboutFounder = () => {
             <h1 className="text-3xl sm:text-4xl md:text-5xl leading-tight tracking-wide"
             style={{ fontFamily: "'Cormorant Garamond', 'Tenor Sans', 'Cinzel'" }} >
               Late. Shri N. B. H. Kulkarni </h1>
-              
+
               {/* ── NEWS PREVIEW CARD ── */}
               <div className="bg-white text-gray-900 p-4 sm:p-5 rounded-xl max-w-md shadow-xl border border-gray-200 hover:shadow-2xl transition">
                 <p className="text-xs sm:text-sm text-gray-500 mb-1">
