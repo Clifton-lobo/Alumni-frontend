@@ -62,7 +62,7 @@ const AboutFounder = () => {
               </p>
 
             <h1 className="text-3xl sm:text-4xl md:text-5xl leading-tight tracking-wide"
-            style={{ fontFamily: "'Cormorant Garamond', 'Tenor Sans', 'Cinzel'" }} >
+            style={{ fontFamily: "'Cinzel'" }} >
               Late. Shri N. B. H. Kulkarni </h1>
 
               {/* ── NEWS PREVIEW CARD ── */}
