@@ -57,25 +57,14 @@ const AboutFounder = () => {
 
             {/* ── LEFT: Text ── */}
             <div className="text-white mt-15 space-y-4 md:space-y-6 order-2 md:order-1">
-              <p className="uppercase tracking-widest text-xs sm:text-sm text-gray-300">
+              <p className="uppercase tracking-widest text-xs sm:text-sm text-white-300">
                 Founder & Visionary
               </p>
 
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
-                Late.Shri N. B. H. Kulkarni
-              </h1>
-
-              <p className="text-base sm:text-lg md:text-xl text-gray-200 font-medium">
-                The Man Who Nurtured Indo–Israeli Ties
-              </p>
-
-              <p className="text-sm sm:text-base text-gray-300 leading-relaxed max-w-lg">
-                A pioneering force in building early diplomatic and industrial
-                bridges between India and Israel, shaping collaborations that
-                continue to influence innovation, agriculture, and technology
-                partnerships today.
-              </p>
-
+            <h1 className="text-3xl sm:text-4xl md:text-5xl leading-tight tracking-wide"
+            style={{ fontFamily: "'Cormorant Garamond', 'Tenor Sans', 'Cinzel'" }} >
+              Late. Shri N. B. H. Kulkarni </h1>
+              
               {/* ── NEWS PREVIEW CARD ── */}
               <div className="bg-white text-gray-900 p-4 sm:p-5 rounded-xl max-w-md shadow-xl border border-gray-200 hover:shadow-2xl transition">
                 <p className="text-xs sm:text-sm text-gray-500 mb-1">
