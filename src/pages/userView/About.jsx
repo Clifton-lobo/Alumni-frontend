@@ -350,20 +350,20 @@ function FoundingPrincipalCard({ isMobile }) {
             marginBottom: 6,
           }}
         >
-          Late.Shri N. B. H. Kulkarni
+          Late Shri N. B. H. Kulkarni
         </h2>
 
         <p
           style={{
             fontFamily: "'DM Sans', sans-serif",
             fontWeight: 400,
-            fontSize: 12,
+            fontSize: 16,
             color: "#60a5fa",
             letterSpacing: "0.09em",
             marginBottom: 20,
           }}
         >
-          Founder & Visionary Leader
+          Founder & Chairman Emeritus
         </p>
 
         <p
@@ -477,7 +477,7 @@ function FoundingPrincipalCard({ isMobile }) {
               e.currentTarget.style.gap = "10px";
             }}
           >
-            <span>Read more about him</span>
+            <span>Read more</span>
             <svg
               width="15"
               height="15"
