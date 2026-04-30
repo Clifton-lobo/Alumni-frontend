@@ -210,29 +210,43 @@ const Home = () => {
         <div className="container mx-auto px-4 pt-12 sm:pt-16 md:pt-20 lg:pt-24 pb-16 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             {/* TITLE */}
-            <h1
-              className={`font-serif text-3xl sm:text-4xl md:text-5xl lg:text-[75px] font-bold mb-3 mt-8 sm:mt-10 md:mt-12 lg:mt-15 leading-tight tracking-tight transition-all duration-700 ${
-                heroVisible
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-6"
-              }`}
-            >
-              Connect. Inspire. <br />
-              <span className="text-yellow-400">Succeed Together.</span>
-            </h1>
+ 
+
+<h1
+  className={`text-3xl sm:text-4xl md:text-5xl lg:text-[75px] font-semibold italic mb-3 mt-8 sm:mt-10 md:mt-12 lg:mt-15 leading-tight tracking-tight transition-all duration-700 ${
+    heroVisible
+      ? "opacity-100 translate-y-0"
+      : "opacity-0 translate-y-6"
+  }`}
+  style={{
+    fontFamily: "Cormorant Garamond",
+    color: "#ffffff",
+    textShadow: `
+      0 0 6px rgba(180,220,255,0.7),
+      0 0 14px rgba(120,200,255,0.5),
+      0 0 24px rgba(80,180,255,0.35)
+    `
+  }}
+>
+  Connect. Inspire. <br />
+  <span className="text-yellow-400">Succeed Together.</span>
+</h1>
+
+
+
+
 
             {/* SUBTEXT */}
             <p
-              className={`text-sm sm:text-base md:text-lg text-white/80 mb-8 sm:mb-10 max-w-2xl mx-auto transition-all duration-700 delay-100 ${
-                heroVisible
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-6"
-              }`}
-            >
-              Join our thriving community of graduates making an impact
-              worldwide.
-            </p>
-
+  className={`text-sm sm:text-base md:text-lg text-white mb-8 sm:mb-10 max-w-2xl mx-auto transition-all duration-700 delay-100 ${
+    heroVisible
+      ? "opacity-100 translate-y-0"
+      : "opacity-0 translate-y-6"
+  }`}
+>
+  Join our thriving community of graduates making an impact
+  worldwide.
+</p>
             {/* BUTTON */}
             <div
               className={`flex justify-center mb-10 sm:mb-14 transition-all duration-700 delay-200 ${

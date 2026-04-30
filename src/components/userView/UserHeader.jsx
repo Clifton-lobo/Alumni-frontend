@@ -191,7 +191,7 @@ const Navbar = () => {
           Mobile/Tablet : sticky + shrinks on scroll
       ── */}
       <div
-        className={`bg-white border-b border-gray-100 w-full
+        className={` bg-[#001F54] border-b border-gray-100 w-full
           md:static
           sticky top-0 z-50 transition-all duration-300
         `}
@@ -240,22 +240,45 @@ const Navbar = () => {
 
             {/* ── College name: Desktop (≥ md) ── */}
             <div className="hidden md:flex items-center gap-4 whitespace-nowrap">
-              <span
-                className="text-[22px] lg:text-[45px] font-black text-[#0B1F4A] leading-tight uppercase tracking-ide"
-                style={{ fontFamily: "Philosopher" }}
-              >
-                VPM's R. Z. SHAH COLLEGE <br />
-                OF ARTS, SCIENCE & COMMERCE
-              </span>
-              <span className="text-gray-300 text-7xl font-light">|</span>
-              <span
-                className="text-[30px] lg:text-[45px] text-[#F2A20A]"
-                style={{
-                  fontFamily: "Kaushan Script",
-                }}
-              >
-                alumni
-              </span>
+             
+
+<span
+  className="px-4 py-2 rounded-md text-[22px] lg:text-[45px] font-medium text-white leading-tight uppercase tracking-wider"
+  style={{
+    fontFamily: "Philosopher",
+    backgroundColor: "#001F54",
+    textShadow: `
+      0 0 5px #00ffff,
+      0 0 10px #00ffff,
+      0 0 20px #00e6ff,
+      0 0 35px #00ccff,
+      0 0 50px #00bfff
+    `
+  }}
+>
+  VPM's R. Z. SHAH COLLEGE <br />
+  OF ARTS, SCIENCE & COMMERCE
+</span>
+
+<span className="text-white text-6xl font-light">|</span>
+
+<span
+  className="text-[30px] lg:text-[45px]"
+  style={{
+    fontFamily: "Kaushan Script",
+    color: "#F2A20A",
+    textShadow: `
+      0 0 6px rgba(255, 165, 0, 0.6),
+      0 0 12px rgba(255, 140, 0, 0.4),
+      0 0 18px rgba(0, 43, 127, 0.35)
+    `
+  }}
+>
+  alumni
+</span>
+
+
+
             </div>
           </Link>
 
